@@ -1,0 +1,14 @@
+{
+  "shot": "moustache",
+  "category": "moustache",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9229,
+  "mean_reward_ep0": 0.0855,
+  "mean_reward_ep1": 0.4169,
+  "mean_reward_ep2": 0.5868,
+  "mean_reward_ep3": 0.6308,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.6871,
+  "mean_stroke_precision_ep3": 0.95,
+  "reward_delta": 0.5453
+}

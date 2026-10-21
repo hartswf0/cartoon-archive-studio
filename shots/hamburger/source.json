@@ -1,0 +1,47 @@
+{
+  "category": "hamburger",
+  "shot_id": "hamburger",
+  "body_plan": "Regime VI: Culinary & Hearth",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of hamburger; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of hamburger; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of hamburger over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of hamburger with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of hamburger (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_dd77db1c",
+    "source_id": "01_dd77db1c",
+    "source_slug": "hamburger",
+    "source_title": "Moving Image Archive // Hamburger",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/hamburger/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/hamburger/videos/01_dd77db1c-6f66-53d7-ae84-eeebaf23644f.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5727412279050240",
+    "n_strokes": 8,
+    "country": "MY",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (MY, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

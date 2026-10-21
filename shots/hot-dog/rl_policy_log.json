@@ -1,0 +1,14 @@
+{
+  "shot": "hot-dog",
+  "category": "hot_dog",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9369,
+  "mean_reward_ep0": 0.1039,
+  "mean_reward_ep1": 0.5877,
+  "mean_reward_ep2": 0.7713,
+  "mean_reward_ep3": 0.7972,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.7273,
+  "mean_stroke_precision_ep3": 0.9766,
+  "reward_delta": 0.6932
+}

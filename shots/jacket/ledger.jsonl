@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "jacket", "clip": "06_b82b3c76", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "jacket", "mean_sam_iou": 0.9637}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "jacket", "key_id": "5534662669631488", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "jacket", "ep0": 0.4185, "ep3": 0.7613, "sil_iou": 0.8423, "in_mask": 0.9614}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "jacket", "gates": "16/16"}

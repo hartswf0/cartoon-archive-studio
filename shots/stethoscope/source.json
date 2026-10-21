@@ -1,0 +1,47 @@
+{
+  "category": "stethoscope",
+  "shot_id": "stethoscope",
+  "body_plan": "Regime V: Medical & Acoustic",
+  "interval": [
+    5.71,
+    9.31
+  ],
+  "key_times": [
+    5.71,
+    6.83,
+    8.07,
+    9.31
+  ],
+  "key_notes": [
+    "Key 1 (t=5.71s): Initial archival pose of stethoscope; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.83s): Mid-sequence articulation of stethoscope; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.07s): Peak dynamic extension of stethoscope over 7-plane multiplane environment.",
+    "Key 4 (t=9.31s): Follow-through and settle of stethoscope with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of stethoscope (5.71s..9.31s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_95e57f80",
+    "source_id": "06_95e57f80",
+    "source_slug": "stethoscope",
+    "source_title": "Moving Image Archive // Stethoscope",
+    "source_year": 1956,
+    "start_seconds": 5.71,
+    "end_seconds": 9.31,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/stethoscope/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/stethoscope/videos/06_95e57f80-b7c6-5398-bba1-de8a99c2bc7b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6514763402051584",
+    "n_strokes": 7,
+    "country": "GB",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (GB, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

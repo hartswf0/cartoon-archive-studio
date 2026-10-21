@@ -1,0 +1,14 @@
+{
+  "shot": "hamburger",
+  "category": "hamburger",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9667,
+  "mean_reward_ep0": 0.0453,
+  "mean_reward_ep1": 0.8625,
+  "mean_reward_ep2": 0.9268,
+  "mean_reward_ep3": 0.9488,
+  "mean_sil_iou_ep3": 0.8999,
+  "mean_edge_recall_ep3": 0.8381,
+  "mean_stroke_precision_ep3": 0.988,
+  "reward_delta": 0.9034
+}

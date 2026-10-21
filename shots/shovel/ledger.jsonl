@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "shovel", "clip": "01_420e7c91", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "shovel", "mean_sam_iou": 0.9303}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "shovel", "key_id": "4675825175625728", "country": "DE"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "shovel", "ep0": 0.0589, "ep3": 0.6593, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "shovel", "gates": "16/16"}

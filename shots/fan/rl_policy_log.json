@@ -1,0 +1,14 @@
+{
+  "shot": "fan",
+  "category": "fan",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9296,
+  "mean_reward_ep0": 0.2524,
+  "mean_reward_ep1": 0.5416,
+  "mean_reward_ep2": 0.5825,
+  "mean_reward_ep3": 0.6175,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9502,
+  "reward_delta": 0.365
+}

@@ -1,0 +1,47 @@
+{
+  "category": "mouth",
+  "shot_id": "mouth",
+  "body_plan": "Regime VIII: Expressive Portrait",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of mouth; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of mouth; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of mouth over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of mouth with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of mouth (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_2d758d59",
+    "source_id": "03_2d758d59",
+    "source_slug": "mouth",
+    "source_title": "Moving Image Archive // Mouth",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/mouth/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/mouth/videos/03_2d758d59-6516-583d-9a8e-b8dfaacd160d.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5607613968416768",
+    "n_strokes": 9,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

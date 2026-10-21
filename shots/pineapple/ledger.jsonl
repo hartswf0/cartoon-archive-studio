@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "pineapple", "clip": "05_53ca6073", "interval": [1.07, 4.67]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "pineapple", "mean_sam_iou": 0.9912}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "pineapple", "key_id": "6673261771358208", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "pineapple", "ep0": 0.4246, "ep3": 0.7498, "sil_iou": 0.8265, "in_mask": 0.971}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "pineapple", "gates": "16/16"}

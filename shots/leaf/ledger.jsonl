@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "leaf", "clip": "03_83ab12f7", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "leaf", "mean_sam_iou": 0.957}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "leaf", "key_id": "6576945015816192", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "leaf", "ep0": 0.2347, "ep3": 0.6987, "sil_iou": 0.8, "in_mask": 0.9556}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "leaf", "gates": "16/16"}

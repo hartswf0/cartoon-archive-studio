@@ -1,0 +1,14 @@
+{
+  "shot": "bed",
+  "category": "bed",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9138,
+  "mean_reward_ep0": 0.4683,
+  "mean_reward_ep1": 0.6265,
+  "mean_reward_ep2": 0.698,
+  "mean_reward_ep3": 0.72,
+  "mean_sil_iou_ep3": 0.8046,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9565,
+  "reward_delta": 0.2518
+}

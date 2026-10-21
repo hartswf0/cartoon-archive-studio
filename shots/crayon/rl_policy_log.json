@@ -1,0 +1,14 @@
+{
+  "shot": "crayon",
+  "category": "crayon",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9242,
+  "mean_reward_ep0": 0.2542,
+  "mean_reward_ep1": 0.6655,
+  "mean_reward_ep2": 0.7655,
+  "mean_reward_ep3": 0.7875,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.8056,
+  "mean_stroke_precision_ep3": 0.9779,
+  "reward_delta": 0.5333
+}

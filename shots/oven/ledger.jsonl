@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "oven", "clip": "04_9ce2843b", "interval": [6.14, 9.74]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "oven", "mean_sam_iou": 0.9581}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "oven", "key_id": "5585876950188032", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "oven", "ep0": 0.3487, "ep3": 0.7784, "sil_iou": 0.8692, "in_mask": 0.9727}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "oven", "gates": "16/16"}

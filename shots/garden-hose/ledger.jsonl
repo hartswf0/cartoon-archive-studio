@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "garden-hose", "clip": "05_241f2a7a", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "garden-hose", "mean_sam_iou": 0.9215}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "garden-hose", "key_id": "6088687798452224", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "garden-hose", "ep0": 0.0, "ep3": 0.8161, "sil_iou": 0.8, "in_mask": 0.9924}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "garden-hose", "gates": "16/16"}

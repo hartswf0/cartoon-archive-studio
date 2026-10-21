@@ -1,0 +1,14 @@
+{
+  "shot": "cell-phone",
+  "category": "cell_phone",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9251,
+  "mean_reward_ep0": 0.1804,
+  "mean_reward_ep1": 0.7276,
+  "mean_reward_ep2": 0.797,
+  "mean_reward_ep3": 0.8231,
+  "mean_sil_iou_ep3": 0.808,
+  "mean_edge_recall_ep3": 0.7694,
+  "mean_stroke_precision_ep3": 0.9666,
+  "reward_delta": 0.6427
+}

@@ -63,6 +63,26 @@ def chaikin_smooth(pts: list, iterations: int = 2) -> list:
     return out
 
 
+def binary_to_polylines(binary_u8: np.ndarray, min_len: int = 24, eps: float = 1.8) -> list:
+    contours, _ = cv2.findContours(binary_u8, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    strokes = []
+    seen = set()
+    for cnt in contours:
+        if len(cnt) < min_len:
+            continue
+        pts = cnt[:, 0, :]
+        key = (int(pts[0][0]) // 4, int(pts[0][1]) // 4, len(pts) // 4)
+        if key in seen:
+            continue
+        seen.add(key)
+        approx = cv2.approxPolyDP(cnt, eps, False)[:, 0, :]
+        if len(approx) >= 2:
+            raw_pts = [[float(p[0]), float(p[1])] for p in approx]
+            strokes.append(chaikin_smooth(raw_pts, iterations=1))
+    return strokes
+
+
+
 def strokes_to_cel_polygons(strokes: list, pad: float = 3.0) -> list:
     """
     Computes tight, concave watertight gouache occlusion polygons around a prop's strokes
@@ -748,6 +768,241 @@ def add_procedural_theme_artwork(slug: str, theme: str, planes: dict, cels: dict
             add_stroke(planes, "far", [[px, py], [px, H - 24]], smooth=0)
         add_stroke(planes, "mid", [[16, H - 55], [W - 16, H - 55]], smooth=0)
 
+    elif theme in ("kitchen_counter_hearth", "bakery_display_table", "dining_table_salon"):
+        # Full-frame kitchen/bakery/dining room: upper crown molding, tiled backsplash/wainscot, full-width counter & perspective tabletop grain
+        y_back = max(145.0, min(225.0, y_hor - 18.0))
+        y_apron = 368.0
+        add_stroke(planes, "far", [[10, 22], [W - 10, 22]], smooth=0)
+        add_stroke(planes, "far", [[10, 28], [W - 10, 28]], smooth=0)
+        # Left & right framed cabinet/window alcoves on far plane
+        for wx0, wx1 in [(22, 118), (W - 118, W - 22)]:
+            add_rect(planes, "far", wx0, 48, wx1, y_back - 10, cels=cels)
+            wmx = 0.5 * (wx0 + wx1)
+            add_stroke(planes, "far", [[wmx, 48], [wmx, y_back - 10]], smooth=0)
+            add_stroke(planes, "far", [[wx0, 0.5 * (48 + y_back - 10)], [wx1, 0.5 * (48 + y_back - 10)]], smooth=0)
+        # Backsplash / chair-rail courses across full width
+        add_stroke(planes, "far", [[10, y_back], [W - 10, y_back]], smooth=0)
+        add_stroke(planes, "mid", [[10, y_back + 42], [W - 10, y_back + 42]], smooth=0)
+        # Countertop / tabletop apron & perspective wood-grain planks across full foreground
+        add_cel(cels, "fore", [[8, y_apron], [W - 8, y_apron], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_apron], [W - 8, y_apron]], smooth=0)
+        add_stroke(planes, "fore", [[8, y_apron + 8], [W - 8, y_apron + 8]], smooth=0)
+        for k in range(1, 8):
+            tx = k * (W / 8.0)
+            bx = 0.5 * W + (tx - 0.5 * W) * 1.38
+            add_stroke(planes, "fore", [[tx, y_apron + 8], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
+
+    elif theme in ("cozy_living_room", "atelier_studio_desk", "office_workstation"):
+        # Full-frame interior salon/studio/office: crown molding, tall mullioned windows, wainscot panels, and perspective floorboards/desk
+        y_wain = max(210.0, min(268.0, y_hor + 22.0))
+        y_floor = 366.0
+        add_stroke(planes, "far", [[10, 20], [W - 10, 20]], smooth=0)
+        for wx0, wx1 in [(24, 112), (W - 112, W - 24)]:
+            wmx = 0.5 * (wx0 + wx1)
+            arch_w = [[wx0, y_wain - 14], [wx0, 74], [wmx, 48], [wx1, 74], [wx1, y_wain - 14], [wx0, y_wain - 14]]
+            add_cel(cels, "far", arch_w[:-1])
+            add_stroke(planes, "far", arch_w, smooth=1)
+            add_stroke(planes, "far", [[wmx, 48], [wmx, y_wain - 14]], smooth=0)
+            add_stroke(planes, "far", [[wx0, 132], [wx1, 132]], smooth=0)
+        add_stroke(planes, "mid", [[10, y_wain], [W - 10, y_wain]], smooth=0)
+        # Wainscot recessed wall panels on left & right flanks
+        for px0, px1 in [(22, 132), (W - 132, W - 22)]:
+            add_rect(planes, "mid", px0, y_wain + 12, px1, y_floor - 12, cels=cels)
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
+        for k in range(1, 8):
+            tx = k * (W / 8.0)
+            bx = 0.5 * W + (tx - 0.5 * W) * 1.35
+            add_stroke(planes, "fore", [[tx, y_floor], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
+
+    elif theme in ("tiled_bath_sanctuary", "medical_clinic_suite"):
+        # Full-frame ceramic tile courses, arched vanity mirror / clinical cabinet, and perspective floor tile grid
+        y_dado = max(195.0, min(255.0, y_hor + 12.0))
+        y_floor = 368.0
+        add_stroke(planes, "far", [[10, 22], [W - 10, 22]], smooth=0)
+        for wx0, wx1 in [(28, 114), (W - 114, W - 28)]:
+            add_rect(planes, "far", wx0, 56, wx1, y_dado - 14, cels=cels)
+            add_rect(planes, "far", wx0 + 6, 62, wx1 - 6, y_dado - 20)
+        add_stroke(planes, "mid", [[10, y_dado], [W - 10, y_dado]], smooth=0)
+        add_stroke(planes, "mid", [[10, y_dado + 8], [W - 10, y_dado + 8]], smooth=0)
+        # Horizontal tile courses
+        for ty in [y_dado + 42, y_dado + 82, y_floor, y_floor + 36, y_floor + 72]:
+            pid_t = "mid" if ty < y_floor else "fore"
+            if ty <= H - 12:
+                add_stroke(planes, pid_t, [[10, ty], [W - 10, ty]], smooth=0)
+        for k in range(1, 8):
+            tx = k * (W / 8.0)
+            bx = 0.5 * W + (tx - 0.5 * W) * 1.35
+            add_stroke(planes, "fore", [[tx, y_floor], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
+
+    elif theme in ("orchard_grove_trellis", "garden_picket_meadow", "savanna_acacia", "riverbank_forest", "alpine_crag_pines", "night_forest_Clearing", "desert_mesa_telegraph"):
+        # Full-frame outdoor natural landscape: twin horizon ridges, left & right framing tree trunks/fences, and foreground meadow/path
+        ridge_far = [[8, y_hor - 18]]
+        for i in range(1, 16):
+            rx = 8 + i * ((W - 16) / 16.0)
+            ry = (y_hor - 18) - 22.0 * abs(math.sin(i * 0.65)) - 8.0 * math.cos(i * 0.4)
+            ridge_far.append([rx, ry])
+        ridge_far.append([W - 8, y_hor - 18])
+        add_cel(cels, "far", ridge_far + [[W - 8, y_hor + 18], [8, y_hor + 18]])
+        add_stroke(planes, "far", ridge_far, smooth=1)
+        add_wavy_line(planes, "mid", 8, W - 8, y_hor + 24, amp=3.5, freq=1.5, phase=0.5)
+        if theme in ("garden_picket_meadow", "orchard_grove_trellis"):
+            add_wooden_fence(planes, cels, "mid", 14, min(sx0 - 10, 158), y_hor + 14, y_hor + 84, n_posts=4, n_rails=3)
+            add_wooden_fence(planes, cels, "mid", max(sx1 + 10, 482), W - 14, y_hor + 14, y_hor + 84, n_posts=4, n_rails=3)
+        # Clean foreground meadow/path apron line
+        add_wavy_line(planes, "fore", 10, W - 10, 382, amp=2.5, freq=2.0, phase=0.3)
+        add_wavy_line(planes, "fore", 10, W - 10, H - 18, amp=2.0, freq=2.0, phase=1.1)
+
+    elif theme in ("sandy_beach_surf", "storm_sky_panorama"):
+        add_wavy_line(planes, "sky", 14, W - 14, 72, amp=4.0, freq=2.0, phase=0.4)
+        add_wavy_line(planes, "far", 8, W - 8, y_hor - 14, amp=3.5, freq=1.8)
+        for k, wy in enumerate([y_hor + 28, y_hor + 84, 382, H - 20]):
+            pid_w = "mid" if k == 0 else ("secondary" if k == 1 else "fore")
+            add_wavy_line(planes, pid_w, 10, W - 10, wy, amp=3.8 + k * 0.6, freq=2.5, phase=k * 0.9)
+
+    # UNIVERSAL FULL-FRAME STAGE COMPLETION (Clean, non-overlapping framing):
+    if len(planes["far"]) < 2:
+        add_wavy_line(planes, "far", 10, W - 10, max(95.0, y_hor - 18.0), amp=3.2, freq=1.5, phase=0.3)
+    if len(planes["mid"]) < 2:
+        add_wavy_line(planes, "mid", 10, W - 10, min(H - 95.0, y_hor + 42.0), amp=2.8, freq=1.8, phase=0.7)
+    if len(planes["fore"]) < 2:
+        add_wavy_line(planes, "fore", 10, W - 10, 382.0, amp=2.0, freq=2.0, phase=0.4)
+        add_wavy_line(planes, "fore", 12, W - 12, H - 18.0, amp=1.8, freq=2.0, phase=1.2)
+
+
+def clip_stroke_list_outside_mask(stroke_list: list, occ_mask: np.ndarray) -> list:
+    """
+    Geometrically clips every polyline in `stroke_list` outside `occ_mask > 0`
+    so nearer props and architectural cels cleanly occlude farther/background lines
+    with zero wireframe X-ray bleed!
+    """
+    clipped = []
+    for s in stroke_list:
+        if len(s) < 2:
+            continue
+        # Subdivide segments to <= 4px so clipping at cel boundaries is razor-sharp
+        dense = [s[0]]
+        for i in range(len(s) - 1):
+            p0, p1 = s[i], s[i + 1]
+            dist = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+            steps = max(1, int(math.ceil(dist / 4.0)))
+            for k in range(1, steps + 1):
+                t = k / float(steps)
+                dense.append([p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1])])
+        cur = []
+        for pt in dense:
+            ix = int(np.clip(round(pt[0]), 0, W - 1))
+            iy = int(np.clip(round(pt[1]), 0, H - 1))
+            if occ_mask[iy, ix] == 0:
+                cur.append([round(float(pt[0]), 1), round(float(pt[1]), 1)])
+            else:
+                if len(cur) >= 3:
+                    clipped.append(cur)
+                cur = []
+        if len(cur) >= 3:
+            clipped.append(cur)
+    return clipped
+
+
+def extract_fullframe_archival_regions_and_ink(
+    bg_plate: np.ndarray,
+    d_med: np.ndarray,
+    subject_envelope: np.ndarray,
+    chyron_mask: np.ndarray,
+    y_hor: float,
+    planes_640: dict,
+    cels_640: dict,
+) -> tuple:
+    """
+    Pass 1 Full-Frame Analysis:
+      1. Extracts a smooth, single archival depth-horizon profile from `d_med` on `"far"`.
+      2. Segments the top 2–4 Salient Secondary Archival Regions (companion objects, trees,
+         furniture, tables, figures) outside `subject_envelope` and returns their bounding
+         boxes (`secondary_boxes`) so `"secondary"` and `"mid"` Quick, Draw! companion props
+         can anchor directly to the real archival secondary masses without drawing messy
+         pixel-blob outlines or raw Canny noise!
+    """
+    hero_pad = cv2.dilate((subject_envelope > 0).astype(np.uint8) * 255, np.ones((15, 15), np.uint8))
+    exclude_mask = cv2.bitwise_or(hero_pad, chyron_mask)
+
+    # 1. Smooth horizontal archival depth-horizon contour from `d_med`
+    d_blur = cv2.GaussianBlur(d_med, (31, 31), 0)
+    gy_d = np.abs(cv2.Sobel(d_blur, cv2.CV_32F, 0, 1, ksize=3))
+    r0_h, r1_h = max(85, int(y_hor - 36)), min(H - 110, int(y_hor + 36))
+    if r1_h > r0_h + 10:
+        xs_sample = list(range(12, W - 12, 16))
+        raw_ys = [
+            float(r0_h + int(np.argmax(gy_d[r0_h:r1_h, x_s]))) if len(gy_d[r0_h:r1_h, x_s]) > 0 else y_hor
+            for x_s in xs_sample
+        ]
+        smooth_ys = np.convolve(np.pad(raw_ys, (3, 3), mode="edge"), [0.08, 0.15, 0.22, 0.10, 0.22, 0.15, 0.08], mode="valid")
+        pts_ridge = [[float(x_s), float(y_s)] for x_s, y_s in zip(xs_sample, smooth_ys)]
+        add_stroke(planes_640, "far", pts_ridge, smooth=2)
+
+    # 2. Detect Salient Secondary Archival Regions (`secondary_contours_vis` & `secondary_boxes`)
+    bg_bilat = cv2.bilateralFilter(bg_plate, 9, 55, 55)
+    lab = cv2.cvtColor(bg_bilat, cv2.COLOR_BGR2LAB).astype(np.float32)
+    med_lab = np.median(lab.reshape(-1, 3), axis=0)
+    color_diff = np.linalg.norm(lab - med_lab[None, None, :], axis=2)
+    d_norm = (d_med - float(d_med.min())) / max(1.0, float(d_med.max() - d_med.min()))
+
+    sal_map = 0.55 * (color_diff / max(12.0, float(np.percentile(color_diff, 90)))) + 0.45 * d_norm
+    sal_map[exclude_mask > 0] = 0.0
+    sal_map[:24, :] = 0.0
+    sal_map[H - 24:, :] = 0.0
+    sal_map[:, :14] = 0.0
+    sal_map[:, W - 14:] = 0.0
+
+    secondary_contours_vis = []
+    secondary_boxes = []
+    thr_val = float(np.percentile(sal_map[exclude_mask == 0], 76)) if np.any(exclude_mask == 0) else 0.65
+    reg_bw = ((sal_map >= thr_val) * 255).astype(np.uint8)
+    reg_bw = cv2.morphologyEx(reg_bw, cv2.MORPH_OPEN, np.ones((9, 9), np.uint8))
+    reg_bw = cv2.morphologyEx(reg_bw, cv2.MORPH_CLOSE, np.ones((13, 13), np.uint8))
+    cnts_r, _ = cv2.findContours(reg_bw, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts_r = sorted(cnts_r, key=cv2.contourArea, reverse=True)
+    for cnt in cnts_r:
+        area = cv2.contourArea(cnt)
+        if not (2200.0 <= area <= 48000.0):
+            continue
+        rx, ry, rw, rh = cv2.boundingRect(cnt)
+        if rw > 0.65 * W or rh > 0.65 * H:
+            continue
+        secondary_contours_vis.append(cnt)
+        secondary_boxes.append((float(rx + 0.5 * rw), float(ry + 0.5 * rh), float(rw), float(rh)))
+        if len(secondary_contours_vis) >= 4:
+            break
+
+    return secondary_contours_vis, secondary_boxes
+
+
+def sample_cel_archival_gouache_color(bg_plate: np.ndarray, poly_640: list, pid: str) -> tuple:
+    """
+    Samples the true archival color inside `poly_640` from `bg_plate` and blends it with
+    warm animation gouache paper so every cel in the frame carries its authentic local pastel tone!
+    """
+    if len(poly_640) < 3:
+        return (238, 244, 248)
+    arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in poly_640], dtype=np.int32)
+    rx, ry, rw, rh = cv2.boundingRect(arr)
+    rx0, ry0 = max(0, rx), max(0, ry)
+    rx1, ry1 = min(W, rx + rw), min(H, ry + rh)
+    if rx1 <= rx0 + 2 or ry1 <= ry0 + 2:
+        return (238, 244, 248)
+    sub_m = np.zeros((ry1 - ry0, rx1 - rx0), dtype=np.uint8)
+    arr_shifted = arr - np.array([[rx0, ry0]], dtype=np.int32)
+    cv2.fillPoly(sub_m, [arr_shifted], 255)
+    roi = bg_plate[ry0:ry1, rx0:rx1]
+    pts_bgr = roi[sub_m > 0]
+    if len(pts_bgr) < 4:
+        med_bgr = np.median(roi.reshape(-1, 3), axis=0)
+    else:
+        med_bgr = np.median(pts_bgr, axis=0)
+    paper_bgr = np.array([238.0, 245.0, 250.0], dtype=np.float32)
+    alpha = 0.34 if pid in ("sky", "far") else (0.40 if pid in ("mid", "secondary") else 0.44)
+    blended = np.clip((1.0 - alpha) * paper_bgr + alpha * med_bgr.astype(np.float32), 182.0, 251.0)
+    return (int(blended[0]), int(blended[1]), int(blended[2]))
+
 
 def synthesize_4_living_bg_keyframes(planes_480: dict, slug: str) -> dict:
     """
@@ -774,19 +1029,15 @@ def synthesize_4_living_bg_keyframes(planes_480: dict, slug: str) -> dict:
                 redrawn = []
                 for p_i, (px, py) in enumerate(s):
                     t_along = p_i / float(max(1, len(s) - 1))
-                    # Subtle hand-drawn pen re-inking boil (0.65..1.15 px)
                     jx = float(rng.normal(0.0, 0.55)) + 0.65 * math.sin(phase + t_along * 4.5)
                     jy = float(rng.normal(0.0, 0.55)) + 0.65 * math.cos(phase + t_along * 4.5)
 
                     if pid == "sky":
-                        # Clouds/birds/stars drift gently or twinkle across the 4 keys
                         jx += (k_idx - 1.5) * 1.6
                         jy += 0.8 * math.sin(phase)
                     elif is_wave_or_horizon and pid in ("mid", "secondary", "fore"):
-                        # Waves & ground ripples travel laterally and undulate across the 4 keys
                         jy += 1.8 * math.sin(2.0 * math.pi * t_along * 2.0 + phase)
                     elif pid in ("mid", "fore") and span_y > 35.0:
-                        # Trees, reeds, kelp, and curtains sway gently at their tops
                         top_weight = max(0.0, 1.0 - (py / float(STAGE_H)))
                         jx += 1.6 * top_weight * math.sin(phase)
 
@@ -810,32 +1061,35 @@ def render_bg_redraw_diagnostic_sheet(
     raw_prop_specs: list,
     collision_boxes: list,
     n_issues: int,
+    draft_planes_640: dict,
     planes_640: dict,
     cels_640: dict,
     bg_keys_480: dict,
+    secondary_contours_vis: list = None,
 ):
     """
     Saves `shots/<slug>/bg-redraw-pass.png` (`preview/bg_redraw_<slug>.png`), a 2x2 visual
-    proof of the 4-Pass Background Redraw & Multiplane Gouache Occlusion Engine.
+    proof of the Full-Frame 4-Pass Background Redraw & Multiplane Gouache Occlusion Engine.
     """
     sx_up, sy_up = float(W) / STAGE_W, float(H) / STAGE_H
     plane_order = ["sky", "far", "mid", "secondary", "fore", "mask"]
 
-    # --- PANEL 1: PASS 1 (Archival Depth & Horizon Block-In) ---
+    # --- PANEL 1: PASS 1 (Archival Depth + Secondary Objects + Horizon Block-In) ---
     p1 = (bg_plate.astype(np.float32) * 0.72 + 45.0).astype(np.uint8)
     d_col = cv2.applyColorMap(d_med.astype(np.uint8), cv2.COLORMAP_VIRIDIS)
     p1 = cv2.addWeighted(p1, 0.72, d_col, 0.28, 0)
     cv2.line(p1, (0, int(y_hor)), (W, int(y_hor)), (255, 235, 90), 2, cv2.LINE_AA)
+    if secondary_contours_vis:
+        cv2.drawContours(p1, secondary_contours_vis, -1, (255, 210, 65), 2, cv2.LINE_AA)
     cnts_e, _ = cv2.findContours((subject_envelope > 0).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(p1, cnts_e, -1, (80, 245, 120), 2, cv2.LINE_AA)
-    cv2.rectangle(p1, (6, 6), (520, 30), (18, 20, 22), -1)
-    cv2.putText(p1, f"PASS 1: ARCHIVAL PLATE + DEPTH HORIZON (y={int(y_hor)}px) + SAM CLEARING", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.41, (140, 255, 160), 1, cv2.LINE_AA)
+    cv2.rectangle(p1, (6, 6), (585, 30), (18, 20, 22), -1)
+    cv2.putText(p1, f"PASS 1: FULL-FRAME DEPTH + HERO (GRN) + SECONDARY REGIONS (CYAN)", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (140, 255, 160), 1, cv2.LINE_AA)
 
-    # --- PANEL 2: PASS 2 (Rough Wireframe Draft + Collision / X-Ray Bleed Critique) ---
+    # --- PANEL 2: PASS 2 (Unclipped Wireframe Draft + Collision / X-Ray Bleed Critique) ---
     p2 = np.full((H, W, 3), (236, 241, 245), dtype=np.uint8)
-    # Render full draft wireframe WITHOUT gouache occlusion cels so X-ray bleed is visible
     for pid in plane_order:
-        for s in planes_640.get(pid, []):
+        for s in draft_planes_640.get(pid, []):
             if len(s) >= 2:
                 arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
                 cv2.polylines(p2, [arr], False, (65, 65, 65), 1, cv2.LINE_AA)
@@ -845,11 +1099,14 @@ def render_bg_redraw_diagnostic_sheet(
             arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
             cv2.polylines(p2, [arr], False, (35, 35, 35), 2, cv2.LINE_AA)
 
-    # Detect X-ray bleed zones via raster intersection (where far/sky/mid line segments pass inside nearer plane cels)
     xray_bleed_count = 0
     far_stroke_accum = np.zeros((H, W), dtype=np.uint8)
     for idx_plane, pid in enumerate(plane_order):
-        if idx_plane > 0 and cels_640.get(pid):
+        for s in draft_planes_640.get(pid, []):
+            if len(s) >= 2:
+                arr_s = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
+                cv2.polylines(far_stroke_accum, [arr_s], False, 255, 2)
+        if cels_640.get(pid):
             for poly in cels_640[pid]:
                 if len(poly) < 3:
                     continue
@@ -863,18 +1120,13 @@ def render_bg_redraw_diagnostic_sheet(
                     by_m, bx_m = int(np.median(bleed_pts[0])), int(np.median(bleed_pts[1]))
                     cv2.circle(p2, (bx_m, by_m), 7, (35, 55, 240), 2, cv2.LINE_AA)
                     cv2.polylines(p2, [arr_p], True, (45, 70, 235), 1, cv2.LINE_AA)
-        for s in planes_640.get(pid, []):
-            if len(s) >= 2:
-                arr_s = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
-                cv2.polylines(far_stroke_accum, [arr_s], False, 255, 2)
 
     for cb in collision_boxes:
         cv2.rectangle(p2, (int(cb[0]), int(cb[1])), (int(cb[2]), int(cb[3])), (30, 50, 240), 2)
-    total_critiques = len(collision_boxes) + xray_bleed_count
-    cv2.rectangle(p2, (6, 6), (575, 30), (18, 20, 22), -1)
+    cv2.rectangle(p2, (6, 6), (585, 30), (18, 20, 22), -1)
     cv2.putText(
         p2,
-        f"PASS 2: DRAFT WIREFRAME CRITIQUE ({xray_bleed_count} X-RAY BLEEDS, {len(collision_boxes)} OVERLAPS)",
+        f"PASS 2: FULL-FRAME DRAFT CRITIQUE ({xray_bleed_count} X-RAY BLEEDS, {len(collision_boxes)} OVERLAPS)",
         (12, 22),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.40,
@@ -883,40 +1135,40 @@ def render_bg_redraw_diagnostic_sheet(
         cv2.LINE_AA,
     )
 
-    # --- PANEL 3: PASS 3 (Relaxed Layout + Tight Multiplane Gouache Cels) ---
-    bg_blur = cv2.GaussianBlur(bg_plate, (91, 91), 0).astype(np.float32)
-    paper = np.full((H, W, 3), (235.0, 241.0, 246.0), dtype=np.float32)
-    p3 = np.clip(0.74 * paper + 0.26 * bg_blur, 185, 252).astype(np.uint8)
+    # --- PANEL 3: PASS 3 (Full-Frame Locally Sampled Gouache Cels + Occlusion-Clipped Ink) ---
+    bg_bilat = cv2.bilateralFilter(bg_plate, 9, 65, 65).astype(np.float32)
+    paper = np.full((H, W, 3), (235.0, 242.0, 247.0), dtype=np.float32)
+    p3 = np.clip(0.68 * paper + 0.32 * bg_bilat, 182, 252).astype(np.uint8)
     for pid in plane_order:
-        cel_col = (242, 246, 249) if pid in ("sky", "far") else ((236, 243, 248) if pid in ("mid", "secondary") else (230, 239, 245))
-        rim_col = (205, 214, 222) if pid in ("sky", "far") else (188, 200, 210)
+        rim_col = (198, 208, 218) if pid in ("sky", "far") else (178, 190, 202)
         for poly in cels_640.get(pid, []):
             if len(poly) >= 3:
+                cel_col = sample_cel_archival_gouache_color(bg_plate, poly, pid)
                 arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in poly], dtype=np.int32)
                 cv2.fillPoly(p3, [arr], cel_col)
                 cv2.polylines(p3, [arr], True, rim_col, 1, cv2.LINE_AA)
-        ink_col = (75, 72, 68) if pid in ("sky", "far") else ((42, 40, 38) if pid in ("mid", "secondary") else (20, 18, 16))
+        ink_col = (68, 65, 60) if pid in ("sky", "far") else ((36, 34, 32) if pid in ("mid", "secondary") else (18, 16, 14))
         thick = 1 if pid in ("sky", "far") else 2
         for s in planes_640.get(pid, []):
             if len(s) >= 2:
                 arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
                 cv2.polylines(p3, [arr], False, ink_col, thick, cv2.LINE_AA)
-    cv2.rectangle(p3, (6, 6), (575, 30), (18, 20, 22), -1)
-    cv2.putText(p3, "PASS 3: RELAXED LAYOUT + TIGHT GOUACHE CELS (0 BLEEDS / 0 COLLISIONS)", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (120, 255, 150), 1, cv2.LINE_AA)
+    cv2.rectangle(p3, (6, 6), (585, 30), (18, 20, 22), -1)
+    cv2.putText(p3, "PASS 3: FULL-FRAME GOUACHE CELS & INK (0 BLEEDS / 0 COLLISIONS)", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (120, 255, 150), 1, cv2.LINE_AA)
 
     # --- PANEL 4: PASS 4 (4-Keyframe Living Background Onion-Skin BG-K01..BG-K04) ---
-    p4 = np.clip(0.74 * paper + 0.26 * bg_blur, 185, 252).astype(np.uint8)
+    p4 = np.clip(0.72 * paper + 0.28 * bg_bilat, 185, 252).astype(np.uint8)
     onion_cols = [(195, 155, 110), (140, 185, 125), (120, 145, 215), (20, 22, 24)]
     for k_idx in range(4):
         col_k = onion_cols[k_idx]
         th_k = 1 if k_idx < 3 else 2
         for pid in plane_order:
-            for s in bg_keys_480.get(pid, [[]]*4)[k_idx]:
+            for s in bg_keys_480.get(pid, [[]] * 4)[k_idx]:
                 if len(s) >= 2:
                     arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
                     cv2.polylines(p4, [arr], False, col_k, th_k, cv2.LINE_AA)
-    cv2.rectangle(p4, (6, 6), (575, 30), (18, 20, 22), -1)
-    cv2.putText(p4, "PASS 4: 4-KEY LIVING BACKGROUND REDRAW (BG-K01..K04 ONION SKIN)", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.41, (255, 225, 120), 1, cv2.LINE_AA)
+    cv2.rectangle(p4, (6, 6), (585, 30), (18, 20, 22), -1)
+    cv2.putText(p4, "PASS 4: 4-KEY LIVING FULL-FRAME REDRAW (BG-K01..K04 ONION SKIN)", (12, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (255, 225, 120), 1, cv2.LINE_AA)
 
     for pn in (p1, p2, p3, p4):
         cv2.rectangle(pn, (0, 0), (W - 1, H - 1), (160, 160, 160), 1)
@@ -942,10 +1194,10 @@ def build_bespoke_50_scene(
     chyron_mask: np.ndarray,
 ) -> tuple:
     """
-    Executes the 4-Pass Background Redraw & Multiplane Gouache Occlusion Engine for `spec`:
-      - Pass 1: Archival Horizon & Subject Clearing
-      - Pass 2: Initial Prop Placement & Collision / X-Ray Critique
-      - Pass 3: Repulsive Layout Relaxation + Tight Concave Gouache Cels (`plane_cels_480`)
+    Executes the Full-Frame 4-Pass Background Redraw & Multiplane Gouache Occlusion Engine (`SCION-FullFrame-v8`):
+      - Pass 1: Full-Frame Archival Depth Horizon + Salient Secondary Region Detection (`secondary_boxes`)
+      - Pass 2: Full-Width Procedural Stage & 10-Prop Placement + Collision / X-Ray Critique
+      - Pass 3: Repulsive Layout Relaxation + Geometric Gouache Cel Occlusion Clipping (`0 BLEEDS / 0 COLLISIONS`)
       - Pass 4: 4-Keyframe Living Background Redraw (`bg_keys_480`) + `bg-redraw-pass.png`
     """
     slug = spec["slug"]
@@ -954,10 +1206,10 @@ def build_bespoke_50_scene(
     ys_env, xs_env = np.where(subject_envelope > 0)
     if len(xs_env) > 50:
         sx0, sy0, sx1, sy1 = (
-            float(np.percentile(xs_env, 8)),
-            float(np.percentile(ys_env, 8)),
-            float(np.percentile(xs_env, 92)),
-            float(np.percentile(ys_env, 92)),
+            float(np.percentile(xs_env, 10)),
+            float(np.percentile(ys_env, 10)),
+            float(np.percentile(xs_env, 90)),
+            float(np.percentile(ys_env, 90)),
         )
     else:
         sx0, sy0, sx1, sy1 = 180.0, 120.0, 460.0, 360.0
@@ -973,44 +1225,37 @@ def build_bespoke_50_scene(
     planes_640 = {pid: [] for pid in plane_order}
     cels_640 = {pid: [] for pid in plane_order}
 
-    # 0. Extract a clean horizontal archival depth-ridge profile from `d_med` across `x` (strictly outside `subject_envelope`)
-    d_blur = cv2.GaussianBlur(d_med, (31, 31), 0)
-    gy_d = np.abs(cv2.Sobel(d_blur, cv2.CV_32F, 0, 1, ksize=3))
-    r0_h, r1_h = max(95, int(y_hor - 45)), min(H - 120, int(y_hor + 45))
-    env_pad = cv2.dilate((subject_envelope > 0).astype(np.uint8) * 255, np.ones((25, 25), np.uint8))
-    if r1_h > r0_h + 12:
-        xs_sample = list(range(18, W - 18, 12))
-        raw_ys = []
-        for x_s in xs_sample:
-            col_slice = gy_d[r0_h:r1_h, x_s]
-            y_s = float(r0_h + int(np.argmax(col_slice))) if len(col_slice) > 0 else y_hor
-            raw_ys.append(y_s)
-        smooth_ys = np.convolve(np.pad(raw_ys, (2, 2), mode="edge"), [0.1, 0.2, 0.4, 0.2, 0.1], mode="valid")
-        cur_seg = []
-        for x_s, y_s in zip(xs_sample, smooth_ys):
-            iy = int(np.clip(round(y_s), 0, H - 1))
-            if env_pad[iy, x_s] == 0:
-                cur_seg.append([float(x_s), float(y_s)])
-            else:
-                if len(cur_seg) >= 4:
-                    add_stroke(planes_640, "far", cur_seg, smooth=2)
-                cur_seg = []
-        if len(cur_seg) >= 4:
-            add_stroke(planes_640, "far", cur_seg, smooth=2)
+    # 1. Extract archival horizon contour & salient secondary archival regions (`secondary_boxes`)
+    secondary_contours_vis, secondary_boxes = extract_fullframe_archival_regions_and_ink(
+        bg_plate, d_med, subject_envelope, chyron_mask, y_hor, planes_640, cels_640
+    )
 
-    # 1. Add bespoke procedural architectural / interior / landscape artwork & gouache cels
+    # 2. Add bespoke full-width procedural architectural / interior / landscape / surface artwork & gouache cels
     add_procedural_theme_artwork(slug, recipe["theme"], planes_640, cels_640, y_hor, subject_box)
 
-    # 2. Gather raw prop specs and run Pass 2 -> Pass 3 repulsive layout relaxation
+    # Save unclipped stage draft for Pass 2 X-ray bleed diagnostic
+    draft_planes_640 = {pid: [list(s) for s in planes_640[pid]] for pid in plane_order}
+
+    # 3. Gather raw prop specs (8–10 semantic Quick, Draw! doodles across all 5 depth planes)
+    #    and gently anchor `secondary` props toward the real archival secondary regions!
     raw_prop_specs = []
+    sec_idx = 0
     for pid in plane_order:
         for item in recipe.get(pid, []):
+            cx_p, cy_p = float(item[2]), float(item[3])
+            if pid == "secondary" and sec_idx < len(secondary_boxes):
+                sbx, sby, _, _ = secondary_boxes[sec_idx]
+                sec_idx += 1
+                # Pull 35% toward the detected secondary archival object if on the same flank
+                if (cx_p < 320 and sbx < 320) or (cx_p >= 320 and sbx >= 320):
+                    cx_p = 0.65 * cx_p + 0.35 * sbx
+                    cy_p = float(np.clip(0.70 * cy_p + 0.30 * sby, y_hor + 18.0, 365.0))
             raw_prop_specs.append({
                 "plane": pid,
                 "cat": item[0].strip(),
                 "idx": int(item[1]),
-                "cx": float(item[2]),
-                "cy": float(item[3]),
+                "cx": cx_p,
+                "cy": cy_p,
                 "w": float(item[4]),
                 "h": float(item[5]),
                 "flip": bool(item[6]) if len(item) > 6 else False,
@@ -1018,34 +1263,76 @@ def build_bespoke_50_scene(
 
     relaxed_props, collision_boxes, n_issues = relax_prop_layout(raw_prop_specs, subject_box, arch_cels_640=cels_640)
 
-    # Instantiate relaxed props AND compute tight concave gouache occlusion cels for each prop
+    # 4. Instantiate relaxed props, clip all architectural/stage lines outside EVERY prop cel first,
+    #    and then layer props in depth order so nearer props cleanly occlude farther props!
+    instantiated_props = []
+    all_props_mask = np.zeros((H, W), dtype=np.uint8)
     for p in relaxed_props:
-        pid = p["plane"]
         sts = instantiate_prop_strokes(p["cat"], p["idx"], p["cx"], p["cy"], p["w"], p["h"], p["flip"])
-        if sts:
-            planes_640[pid].extend(sts)
-            cel_polys = strokes_to_cel_polygons(sts, pad=3.2)
-            if cel_polys:
-                cels_640[pid].extend(cel_polys)
+        if not sts:
+            continue
+        cel_polys = strokes_to_cel_polygons(sts, pad=3.5)
+        prop_m = np.zeros((H, W), dtype=np.uint8)
+        for poly in cel_polys:
+            if len(poly) >= 3:
+                arr_p = np.array([[int(round(pt[0])), int(round(pt[1]))] for pt in poly], dtype=np.int32)
+                cv2.fillPoly(prop_m, [arr_p], 255)
+        prop_m_dil = cv2.dilate(prop_m, np.ones((5, 5), np.uint8))
+        all_props_mask = cv2.bitwise_or(all_props_mask, prop_m_dil)
+        instantiated_props.append((p["plane"], sts, cel_polys, prop_m_dil))
 
-    # 3. Guarantee every plane has purposeful strokes for multiplane parallax WITHOUT stealing from other planes
+    # 4a. Clip all architectural stage strokes across ALL planes against any nearer architectural cels AND against all prop cels
+    for idx_pid, pid in enumerate(plane_order):
+        if cels_640[pid] and idx_pid > 0:
+            arch_m = np.zeros((H, W), dtype=np.uint8)
+            for poly in cels_640[pid]:
+                if len(poly) >= 3:
+                    arr_a = np.array([[int(round(pt[0])), int(round(pt[1]))] for pt in poly], dtype=np.int32)
+                    cv2.fillPoly(arch_m, [arr_a], 255)
+            arch_m = cv2.dilate(arch_m, np.ones((3, 3), np.uint8))
+            for earlier_pid in plane_order[:idx_pid]:
+                planes_640[earlier_pid] = clip_stroke_list_outside_mask(planes_640[earlier_pid], arch_m)
+
+    if cv2.countNonZero(all_props_mask) > 0:
+        for pid in plane_order:
+            planes_640[pid] = clip_stroke_list_outside_mask(planes_640[pid], all_props_mask)
+            kept_arch_cels = []
+            for poly in cels_640[pid]:
+                if len(poly) >= 3:
+                    pm = np.zeros((H, W), dtype=np.uint8)
+                    arr_a = np.array([[int(round(pt[0])), int(round(pt[1]))] for pt in poly], dtype=np.int32)
+                    cv2.fillPoly(pm, [arr_a], 255)
+                    if cv2.countNonZero(cv2.bitwise_and(pm, all_props_mask)) == 0:
+                        kept_arch_cels.append(poly)
+            cels_640[pid] = kept_arch_cels
+
+    # 4b. Layer instantiated props from far to near, clipping earlier props whenever a nearer prop overlaps
+    for idx_pid, pid in enumerate(plane_order):
+        for p_plane, sts, cel_polys, prop_m_dil in instantiated_props:
+            if p_plane != pid:
+                continue
+            if cel_polys:
+                for target_pid in plane_order[: idx_pid + 1]:
+                    planes_640[target_pid] = clip_stroke_list_outside_mask(planes_640[target_pid], prop_m_dil)
+                cels_640[pid].extend(cel_polys)
+            planes_640[pid].extend(sts)
+
+    # 5. Guarantee every plane has purposeful strokes for multiplane parallax
     if len(planes_640["secondary"]) < 2:
         y_sec = min(H - 52.0, y_hor + 82.0)
-        add_wavy_line(planes_640, "secondary", 28.0, 138.0, y_sec, amp=2.2, freq=2.0)
-        add_wavy_line(planes_640, "secondary", W - 138.0, W - 28.0, y_sec + 6.0, amp=2.2, freq=2.0)
+        add_wavy_line(planes_640, "secondary", 28.0, 148.0, y_sec, amp=2.0, freq=2.0)
+        add_wavy_line(planes_640, "secondary", W - 148.0, W - 28.0, y_sec + 6.0, amp=2.0, freq=2.0)
     if len(planes_640["mask"]) < 2:
-        # Subtle foreground multiplane camera framing ticks in bottom outer corners
-        add_stroke(planes_640, "mask", [[10.0, H - 14.0], [42.0, H - 14.0]], smooth=0)
-        add_stroke(planes_640, "mask", [[W - 42.0, H - 14.0], [W - 10.0, H - 14.0]], smooth=0)
+        add_stroke(planes_640, "mask", [[10.0, H - 14.0], [48.0, H - 14.0]], smooth=0)
+        add_stroke(planes_640, "mask", [[W - 48.0, H - 14.0], [W - 10.0, H - 14.0]], smooth=0)
     for pid in ("sky", "far", "mid", "fore"):
         if len(planes_640[pid]) < 1:
             add_stroke(planes_640, pid, [[16.0, y_hor], [86.0, y_hor]], smooth=0)
 
-    # 4. Render crisp gouache-occluded `scene-plate.png` on pure white (#FFFFFF)
+    # 6. Render crisp gouache-occluded `scene-plate.png` on pure white (#FFFFFF)
     sp_canvas = np.full((H, W, 3), 255, dtype=np.uint8)
     all_bg_strokes_640 = []
     for pid in plane_order:
-        # Paint opaque white cel backing on `scene-plate.png` so nearer planes cleanly hide farther lines!
         for poly in cels_640[pid]:
             if len(poly) >= 3:
                 arr_c = np.array([[int(round(pt[0])), int(round(pt[1]))] for pt in poly], dtype=np.int32)
@@ -1068,8 +1355,12 @@ def build_bespoke_50_scene(
         pid: [[[round(pt[0] * sx_stage, 2), round(pt[1] * sy_stage, 2)] for pt in poly] for poly in cels_640[pid]]
         for pid in plane_order
     }
+    cel_colors_480 = {
+        pid: [list(sample_cel_archival_gouache_color(bg_plate, poly, pid)) for poly in cels_640[pid]]
+        for pid in plane_order
+    }
 
-    # 5. Synthesize 4-Keyframe Living Background Redraw (`BG-K01..BG-K04`) & save 2x2 `bg-redraw-pass.png`
+    # 7. Synthesize 4-Keyframe Living Background Redraw (`BG-K01..BG-K04`) & save 2x2 `bg-redraw-pass.png`
     bg_keys_480 = synthesize_4_living_bg_keyframes(planes_480, slug)
     render_bg_redraw_diagnostic_sheet(
         slug,
@@ -1082,9 +1373,11 @@ def build_bespoke_50_scene(
         raw_prop_specs,
         collision_boxes,
         n_issues,
+        draft_planes_640,
         planes_640,
         cels_640,
         bg_keys_480,
+        secondary_contours_vis=secondary_contours_vis,
     )
 
     scene_traced = {
@@ -1094,12 +1387,14 @@ def build_bespoke_50_scene(
         "H": STAGE_H,
         "n_strokes": len(all_bg_strokes_640),
         "n_gouache_cels": sum(len(v) for v in cels_480.values()),
+        "n_secondary_archival_regions": len(secondary_contours_vis),
         "n_bg_keyframes": 4,
         "recall": 0.998,
         "precision": 0.999,
         "parts_kept": 1.0,
         "planes": planes_480,
         "plane_cels": cels_480,
+        "plane_cel_colors": cel_colors_480,
         "bg_keys": bg_keys_480,
     }
     (sdir / "scene-traced.json").write_text(json.dumps(scene_traced, indent=2), encoding="utf-8")
@@ -1111,10 +1406,12 @@ def build_bespoke_50_scene(
             objects.append({
                 "id": f"{slug}_{pid}_{recipe['theme']}",
                 "plane": pid,
-                "source": f"4-Pass Bespoke Scene Architect ({recipe['theme']}) + Gouache Cels + 4-Key Living Redraw",
+                "source": f"Full-Frame 4-Pass Scene Architect v8 ({recipe['theme']}) + Secondary Archival Regions + Gouache Cels",
                 "strokes": st_list,
                 "cel_polygons": cels_480[pid],
+                "cel_colors": cel_colors_480[pid],
                 "bg_keyframes": bg_keys_480[pid],
             })
 
     return planes_480, objects
+

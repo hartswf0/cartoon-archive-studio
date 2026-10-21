@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "moustache", "clip": "04_4a30611c", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "moustache", "mean_sam_iou": 0.9229}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "moustache", "key_id": "4923597204226048", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "moustache", "ep0": 0.0855, "ep3": 0.6308, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "moustache", "gates": "16/16"}

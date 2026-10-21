@@ -1,0 +1,47 @@
+{
+  "category": "cookie",
+  "shot_id": "cookie",
+  "body_plan": "Regime VI: Culinary & Hearth",
+  "interval": [
+    0.77,
+    4.37
+  ],
+  "key_times": [
+    0.77,
+    1.9,
+    3.13,
+    4.37
+  ],
+  "key_notes": [
+    "Key 1 (t=0.77s): Initial archival pose of cookie; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.9s): Mid-sequence articulation of cookie; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.13s): Peak dynamic extension of cookie over 7-plane multiplane environment.",
+    "Key 4 (t=4.37s): Follow-through and settle of cookie with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of cookie (0.77s..4.37s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_f2425c87",
+    "source_id": "05_f2425c87",
+    "source_slug": "cookie",
+    "source_title": "Moving Image Archive // Cookie",
+    "source_year": 1956,
+    "start_seconds": 0.77,
+    "end_seconds": 4.37,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/cookie/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/cookie/videos/05_f2425c87-2847-5533-9d89-9ac7054ebfea.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6289129895624704",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

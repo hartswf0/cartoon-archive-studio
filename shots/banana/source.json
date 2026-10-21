@@ -1,0 +1,47 @@
+{
+  "category": "banana",
+  "shot_id": "banana",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    6.58,
+    10.18
+  ],
+  "key_times": [
+    6.58,
+    7.71,
+    8.94,
+    10.18
+  ],
+  "key_notes": [
+    "Key 1 (t=6.58s): Initial archival pose of banana; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.71s): Mid-sequence articulation of banana; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.94s): Peak dynamic extension of banana over 7-plane multiplane environment.",
+    "Key 4 (t=10.18s): Follow-through and settle of banana with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of banana (6.58s..10.18s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_21b8ca84",
+    "source_id": "05_21b8ca84",
+    "source_slug": "banana",
+    "source_title": "Moving Image Archive // Banana",
+    "source_year": 1956,
+    "start_seconds": 6.58,
+    "end_seconds": 10.18,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/banana/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/banana/videos/05_21b8ca84-3e7d-5a50-a85c-716a44739f23.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6369194478141440",
+    "n_strokes": 5,
+    "country": "IL",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (IL, 5 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "rain", "clip": "06_b09826f2", "interval": [0.7, 4.3]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "rain", "mean_sam_iou": 0.9411}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "rain", "key_id": "5698021553602560", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "rain", "ep0": 0.0, "ep3": 0.7947, "sil_iou": 0.8256, "in_mask": 0.985}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "rain", "gates": "16/16"}

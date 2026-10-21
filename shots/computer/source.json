@@ -1,0 +1,47 @@
+{
+  "category": "computer",
+  "shot_id": "computer",
+  "body_plan": "Regime V: Computing & Broadcast",
+  "interval": [
+    3.41,
+    7.01
+  ],
+  "key_times": [
+    3.41,
+    4.54,
+    5.77,
+    7.01
+  ],
+  "key_notes": [
+    "Key 1 (t=3.41s): Initial archival pose of computer; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.54s): Mid-sequence articulation of computer; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.77s): Peak dynamic extension of computer over 7-plane multiplane environment.",
+    "Key 4 (t=7.01s): Follow-through and settle of computer with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of computer (3.41s..7.01s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_90a35035",
+    "source_id": "01_90a35035",
+    "source_slug": "computer",
+    "source_title": "Moving Image Archive // Computer",
+    "source_year": 1956,
+    "start_seconds": 3.41,
+    "end_seconds": 7.01,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/computer/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/computer/videos/01_90a35035-7ea0-53f0-bbd3-9100f23561f5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5868245464645632",
+    "n_strokes": 8,
+    "country": "BY",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (BY, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

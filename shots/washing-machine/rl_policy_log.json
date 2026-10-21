@@ -1,0 +1,14 @@
+{
+  "shot": "washing-machine",
+  "category": "washing_machine",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9029,
+  "mean_reward_ep0": 0.2472,
+  "mean_reward_ep1": 0.5505,
+  "mean_reward_ep2": 0.659,
+  "mean_reward_ep3": 0.6811,
+  "mean_sil_iou_ep3": 0.8131,
+  "mean_edge_recall_ep3": 0.6818,
+  "mean_stroke_precision_ep3": 0.9513,
+  "reward_delta": 0.4339
+}

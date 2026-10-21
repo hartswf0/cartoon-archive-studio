@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "hockey-puck", "clip": "01_e5540b82", "interval": [2.51, 6.11]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "hockey-puck", "mean_sam_iou": 0.9799}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "hockey-puck", "key_id": "5532512539377664", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "hockey-puck", "ep0": 0.0, "ep3": 0.4818, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "hockey-puck", "gates": "16/16"}

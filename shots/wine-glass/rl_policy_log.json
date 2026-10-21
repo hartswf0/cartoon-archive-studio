@@ -1,0 +1,14 @@
+{
+  "shot": "wine-glass",
+  "category": "wine_glass",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9406,
+  "mean_reward_ep0": 0.1111,
+  "mean_reward_ep1": 0.6667,
+  "mean_reward_ep2": 0.7268,
+  "mean_reward_ep3": 0.7587,
+  "mean_sil_iou_ep3": 0.8241,
+  "mean_edge_recall_ep3": 0.7732,
+  "mean_stroke_precision_ep3": 0.9622,
+  "reward_delta": 0.6476
+}

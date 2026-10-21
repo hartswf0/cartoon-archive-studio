@@ -1,0 +1,14 @@
+{
+  "shot": "grapes",
+  "category": "grapes",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9692,
+  "mean_reward_ep0": 0.2116,
+  "mean_reward_ep1": 0.6674,
+  "mean_reward_ep2": 0.7239,
+  "mean_reward_ep3": 0.7459,
+  "mean_sil_iou_ep3": 0.8127,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.963,
+  "reward_delta": 0.5342
+}

@@ -1,0 +1,14 @@
+{
+  "shot": "ladder",
+  "category": "ladder",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9773,
+  "mean_reward_ep0": 0.0,
+  "mean_reward_ep1": 0.7133,
+  "mean_reward_ep2": 0.8259,
+  "mean_reward_ep3": 0.8479,
+  "mean_sil_iou_ep3": 0.8273,
+  "mean_edge_recall_ep3": 0.7017,
+  "mean_stroke_precision_ep3": 0.9718,
+  "reward_delta": 0.8479
+}

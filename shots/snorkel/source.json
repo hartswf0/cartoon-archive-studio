@@ -1,0 +1,47 @@
+{
+  "category": "snorkel",
+  "shot_id": "snorkel",
+  "body_plan": "Regime III: Nautical & Diving",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of snorkel; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of snorkel; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of snorkel over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of snorkel with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of snorkel (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_7d7d3b60",
+    "source_id": "02_7d7d3b60",
+    "source_slug": "snorkel",
+    "source_title": "Moving Image Archive // Snorkel",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/snorkel/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/snorkel/videos/02_7d7d3b60-bbf6-5cfc-b795-fdd2a5d8d59c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6382649268502528",
+    "n_strokes": 6,
+    "country": "US",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (US, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

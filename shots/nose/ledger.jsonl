@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "nose", "clip": "01_567e5e5a", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "nose", "mean_sam_iou": 0.9786}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "nose", "key_id": "6728167827963904", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "nose", "ep0": 0.2802, "ep3": 0.6898, "sil_iou": 0.8, "in_mask": 0.9689}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "nose", "gates": "16/16"}

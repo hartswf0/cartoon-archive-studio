@@ -1,0 +1,14 @@
+{
+  "shot": "strawberry",
+  "category": "strawberry",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9576,
+  "mean_reward_ep0": 0.4629,
+  "mean_reward_ep1": 0.7661,
+  "mean_reward_ep2": 0.8053,
+  "mean_reward_ep3": 0.8273,
+  "mean_sil_iou_ep3": 0.8008,
+  "mean_edge_recall_ep3": 0.7119,
+  "mean_stroke_precision_ep3": 0.9561,
+  "reward_delta": 0.3644
+}

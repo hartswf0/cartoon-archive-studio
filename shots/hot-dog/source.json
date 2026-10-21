@@ -1,0 +1,47 @@
+{
+  "category": "hot_dog",
+  "shot_id": "hot-dog",
+  "body_plan": "Regime VI: Culinary & Hearth",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of hot-dog; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of hot-dog; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of hot-dog over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of hot-dog with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of hot-dog (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_fa83d4fa",
+    "source_id": "02_fa83d4fa",
+    "source_slug": "hot-dog",
+    "source_title": "Moving Image Archive // Hot Dog",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/hot-dog/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/hot_dog/videos/02_fa83d4fa-5d1b-589b-9356-18cec27f8350.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6187044915118080",
+    "n_strokes": 5,
+    "country": "GB",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (GB, 5 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

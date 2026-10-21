@@ -1,0 +1,14 @@
+{
+  "shot": "flip-flops",
+  "category": "flip_flops",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9409,
+  "mean_reward_ep0": 0.3438,
+  "mean_reward_ep1": 0.6613,
+  "mean_reward_ep2": 0.7189,
+  "mean_reward_ep3": 0.7409,
+  "mean_sil_iou_ep3": 0.8159,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9674,
+  "reward_delta": 0.3971
+}

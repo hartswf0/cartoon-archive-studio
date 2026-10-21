@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "snorkel", "clip": "02_7d7d3b60", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "snorkel", "mean_sam_iou": 0.9341}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "snorkel", "key_id": "6382649268502528", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "snorkel", "ep0": 0.1961, "ep3": 0.6677, "sil_iou": 0.8012, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "snorkel", "gates": "16/16"}

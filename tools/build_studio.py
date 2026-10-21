@@ -187,6 +187,108 @@ SHOT_ORDER = [
     "moon",
     "snowman",
     "sword",
+    # Batch-4 of 50 Full-Frame SCION Multiplane Cartoons (Shots #171–#220, SCION-FullFrame-v8)
+    "giraffe",
+    "bush",
+    "leaf",
+    "grass",
+    "garden",
+    "fence",
+    "garden-hose",
+    "vase",
+    "apple",
+    "banana",
+    "pineapple",
+    "watermelon",
+    "strawberry",
+    "grapes",
+    "pear",
+    "blueberry",
+    "birthday-cake",
+    "cake",
+    "pizza",
+    "hamburger",
+    "hot-dog",
+    "ice-cream",
+    "donut",
+    "cookie",
+    "bread",
+    "coffee-cup",
+    "teapot",
+    "wine-bottle",
+    "wine-glass",
+    "frying-pan",
+    "toaster",
+    "microwave",
+    "oven",
+    "stove",
+    "chair",
+    "couch",
+    "bed",
+    "table",
+    "dresser",
+    "floor-lamp",
+    "door",
+    "stairs",
+    "book",
+    "laptop",
+    "computer",
+    "keyboard",
+    "cell-phone",
+    "calculator",
+    "calendar",
+    "picture-frame",
+    # Batch-5 of 50 Full-Frame SCION Multiplane Cartoons (Shots #221–#270, SCION-FullFrame-v8)
+    "the-mona-lisa",
+    "paintbrush",
+    "paint-can",
+    "pencil",
+    "crayon",
+    "marker",
+    "envelope",
+    "map",
+    "hat",
+    "crown",
+    "bowtie",
+    "eyeglasses",
+    "wristwatch",
+    "necklace",
+    "jacket",
+    "shoe",
+    "suitcase",
+    "backpack",
+    "sleeping-bag",
+    "baseball",
+    "hockey-stick",
+    "hockey-puck",
+    "dumbbell",
+    "snorkel",
+    "flip-flops",
+    "ladder",
+    "broom",
+    "shovel",
+    "rake",
+    "bucket",
+    "screwdriver",
+    "key",
+    "light-bulb",
+    "bathtub",
+    "hot-tub",
+    "sink",
+    "washing-machine",
+    "fan",
+    "stethoscope",
+    "syringe",
+    "toothbrush",
+    "lipstick",
+    "ear",
+    "mouth",
+    "nose",
+    "moustache",
+    "beard",
+    "cloud",
+    "rain",
+    "snowflake",
 ]
 
 
@@ -197,7 +299,7 @@ def load_json(path: Path, default=None):
 
 
 def build_showcase_video():
-    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 120 cartoons."""
+    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 270 cartoons."""
     out_path = STUDIO_DIR / "Cartoon_Archive_Living_Doodles_Showcase.mp4"
     writer = cv2.VideoWriter(str(out_path), cv2.VideoWriter_fourcc(*"mp4v"), 12.0, (1280, 720))
 
@@ -210,10 +312,12 @@ def build_showcase_video():
         ("PART VI: SCION BATCH-1 — PREDATORS & UNGULATES", ["lion", "tiger", "zebra", "kangaroo"]),
         ("PART VII: SCION BATCH-1 — MARINE & AVIAN", ["swan", "penguin", "dolphin", "whale"]),
         ("PART VIII: SCION BATCH-1 — VEHICLES, AEROSPACE & MUSIC", ["car", "airplane", "piano", "violin"]),
-        ("PART IX: SCION BATCH-1 — LANDMARKS & NATURAL FORCES", ["bridge", "castle", "tornado", "flower"]),
-        ("PART X: SCION BATCH-2 — REPTILES, FAUNA & REEF LIFE", ["cat", "rhinoceros", "crocodile", "octopus"]),
-        ("PART XI: SCION BATCH-2 — FLEET, SYMPHONY & JAZZ", ["police-car", "school-bus", "saxophone", "harp"]),
-        ("PART XII: SCION BATCH-2 — WORLD MONUMENTS & ELEMENTS", ["the-eiffel-tower", "skyscraper", "hurricane", "rainbow"]),
+        ("PART IX: SCION BATCH-2 — REPTILES, FAUNA & REEF LIFE", ["cat", "rhinoceros", "crocodile", "octopus"]),
+        ("PART X: SCION BATCH-2 — WORLD MONUMENTS & ELEMENTS", ["the-eiffel-tower", "skyscraper", "hurricane", "rainbow"]),
+        ("PART XI: SCION BATCH-3 — LIVING BG REDRAW & TOOLS", ["animal-migration", "tree", "fireplace", "snowman"]),
+        ("PART XII: SCION BATCH-4 — FULL-FRAME BOTANICAL, BAKERY & HEARTH", ["giraffe", "garden", "birthday-cake", "teapot"]),
+        ("PART XIII: SCION BATCH-4 — FULL-FRAME INTERIORS & STUDIO DESK", ["chair", "floor-lamp", "laptop", "picture-frame"]),
+        ("PART XIV: SCION BATCH-5 — FULL-FRAME ATELIER, APPAREL & WEATHER", ["the-mona-lisa", "crown", "bathtub", "snowflake"]),
     ]
 
     for title, slugs in groups:
@@ -227,10 +331,10 @@ def build_showcase_video():
             cv2.rectangle(canvas, (0, 0), (1280, 48), (18, 20, 22), -1)
             cv2.putText(
                 canvas,
-                f"SECONDHAND MOTION (120 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
+                f"SECONDHAND MOTION (270 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
                 (20, 31),
                 cv2.FONT_HERSHEY_DUPLEX,
-                0.58,
+                0.56,
                 (227, 239, 246),
                 1,
                 cv2.LINE_AA,
@@ -358,7 +462,7 @@ def bundle_data():
                         "recall": k.get("recall", 0.999),
                         "precision": k.get("precision", 0.999),
                         "parts_kept": k.get("parts_kept", k.get("part_coverage", 1.0)),
-                        "strokes": k.get("strokes", []),
+                        "strokes": [[[int(round(pt[0])), int(round(pt[1]))] for pt in s] for s in k.get("strokes", [])],
                     }
                     for idx, k in enumerate(t_keys)
                 ],
@@ -370,7 +474,6 @@ def bundle_data():
                 },
             },
             "matches": {
-                "matched_ink": matches.get("matched_ink", []),
                 "shifts": matches.get("shifts", []),
                 "matches": matches.get("matches", []),
             },
@@ -402,15 +505,18 @@ def bundle_data():
 
     def round_coords(x):
         if isinstance(x, float):
-            return round(x, 1)
+            iv = int(round(x))
+            return iv if abs(x - iv) < 0.08 else round(x, 1)
         if isinstance(x, list):
+            if len(x) == 2 and isinstance(x[0], (int, float)) and isinstance(x[1], (int, float)) and max(abs(x[0]), abs(x[1])) > 3.5:
+                return [int(round(x[0])), int(round(x[1]))]
             return [round_coords(v) for v in x]
         if isinstance(x, dict):
             return {k: round_coords(v) for k, v in x.items()}
         return x
 
     full_payload = {
-        "project": "Secondhand Motion — The Joined Studio (120 Full SCION Multiplane Cartoons)",
+        "project": "Secondhand Motion — The Joined Studio (270 Full-Frame SCION Multiplane Cartoons)",
         "generated_at": "2026-10-21",
         "shot_order": SHOT_ORDER,
         "shots": round_coords(shots_bundle),

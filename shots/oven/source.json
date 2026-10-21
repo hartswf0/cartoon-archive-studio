@@ -1,0 +1,47 @@
+{
+  "category": "oven",
+  "shot_id": "oven",
+  "body_plan": "Regime V: Domestic Mechanism",
+  "interval": [
+    6.14,
+    9.74
+  ],
+  "key_times": [
+    6.14,
+    7.26,
+    8.5,
+    9.74
+  ],
+  "key_notes": [
+    "Key 1 (t=6.14s): Initial archival pose of oven; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.26s): Mid-sequence articulation of oven; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.5s): Peak dynamic extension of oven over 7-plane multiplane environment.",
+    "Key 4 (t=9.74s): Follow-through and settle of oven with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of oven (6.14s..9.74s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_9ce2843b",
+    "source_id": "04_9ce2843b",
+    "source_slug": "oven",
+    "source_title": "Moving Image Archive // Oven",
+    "source_year": 1956,
+    "start_seconds": 6.14,
+    "end_seconds": 9.74,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/oven/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/oven/videos/04_9ce2843b-cdac-5322-b279-6cb97663b71b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5585876950188032",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

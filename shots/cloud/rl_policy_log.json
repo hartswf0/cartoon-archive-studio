@@ -1,0 +1,14 @@
+{
+  "shot": "cloud",
+  "category": "cloud",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9268,
+  "mean_reward_ep0": 0.1892,
+  "mean_reward_ep1": 0.611,
+  "mean_reward_ep2": 0.6805,
+  "mean_reward_ep3": 0.703,
+  "mean_sil_iou_ep3": 0.807,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9582,
+  "reward_delta": 0.5137
+}

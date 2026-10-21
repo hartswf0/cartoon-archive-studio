@@ -1,0 +1,14 @@
+{
+  "shot": "grass",
+  "category": "grass",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9801,
+  "mean_reward_ep0": 0.4748,
+  "mean_reward_ep1": 0.719,
+  "mean_reward_ep2": 0.7578,
+  "mean_reward_ep3": 0.7798,
+  "mean_sil_iou_ep3": 0.8613,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9706,
+  "reward_delta": 0.305
+}

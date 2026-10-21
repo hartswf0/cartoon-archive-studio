@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "hot-dog", "clip": "02_fa83d4fa", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "hot-dog", "mean_sam_iou": 0.9369}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "hot-dog", "key_id": "6187044915118080", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "hot-dog", "ep0": 0.1039, "ep3": 0.7972, "sil_iou": 0.8, "in_mask": 0.9766}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "hot-dog", "gates": "16/16"}

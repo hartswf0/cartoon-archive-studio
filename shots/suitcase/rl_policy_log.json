@@ -1,0 +1,14 @@
+{
+  "shot": "suitcase",
+  "category": "suitcase",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9546,
+  "mean_reward_ep0": 0.0,
+  "mean_reward_ep1": 0.7863,
+  "mean_reward_ep2": 0.8465,
+  "mean_reward_ep3": 0.8685,
+  "mean_sil_iou_ep3": 0.862,
+  "mean_edge_recall_ep3": 0.7167,
+  "mean_stroke_precision_ep3": 0.9856,
+  "reward_delta": 0.8685
+}

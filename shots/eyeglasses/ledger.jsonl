@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "eyeglasses", "clip": "01_9704b282", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "eyeglasses", "mean_sam_iou": 0.9595}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "eyeglasses", "key_id": "5203482741047296", "country": "PH"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "eyeglasses", "ep0": 0.2219, "ep3": 0.7309, "sil_iou": 0.807, "in_mask": 0.9597}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "eyeglasses", "gates": "16/16"}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "vase", "clip": "05_3ee32ea3", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "vase", "mean_sam_iou": 0.923}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "vase", "key_id": "6743101227925504", "country": "KR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "vase", "ep0": 0.3415, "ep3": 0.6867, "sil_iou": 0.8, "in_mask": 0.9545}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "vase", "gates": "16/16"}

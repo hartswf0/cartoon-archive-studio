@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "hat", "clip": "01_4c900a5b", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "hat", "mean_sam_iou": 0.9097}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "hat", "key_id": "6688944374677504", "country": "GE"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "hat", "ep0": 0.1642, "ep3": 0.7567, "sil_iou": 0.8, "in_mask": 0.9655}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "hat", "gates": "16/16"}

@@ -1,0 +1,14 @@
+{
+  "shot": "leaf",
+  "category": "leaf",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.957,
+  "mean_reward_ep0": 0.2347,
+  "mean_reward_ep1": 0.6013,
+  "mean_reward_ep2": 0.6721,
+  "mean_reward_ep3": 0.6987,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9556,
+  "reward_delta": 0.4639
+}

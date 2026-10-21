@@ -1,0 +1,47 @@
+{
+  "category": "suitcase",
+  "shot_id": "suitcase",
+  "body_plan": "Regime VII: Travel & Expedition",
+  "interval": [
+    2.06,
+    5.66
+  ],
+  "key_times": [
+    2.06,
+    3.19,
+    4.42,
+    5.66
+  ],
+  "key_notes": [
+    "Key 1 (t=2.06s): Initial archival pose of suitcase; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.19s): Mid-sequence articulation of suitcase; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.42s): Peak dynamic extension of suitcase over 7-plane multiplane environment.",
+    "Key 4 (t=5.66s): Follow-through and settle of suitcase with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of suitcase (2.06s..5.66s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_f967dc97",
+    "source_id": "04_f967dc97",
+    "source_slug": "suitcase",
+    "source_title": "Moving Image Archive // Suitcase",
+    "source_year": 1956,
+    "start_seconds": 2.06,
+    "end_seconds": 5.66,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/suitcase/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/suitcase/videos/04_f967dc97-4157-5181-a874-6f5277d2d723.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6605581362135040",
+    "n_strokes": 8,
+    "country": "FI",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (FI, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

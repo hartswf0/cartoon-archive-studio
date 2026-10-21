@@ -1,0 +1,14 @@
+{
+  "shot": "sleeping-bag",
+  "category": "sleeping_bag",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9532,
+  "mean_reward_ep0": 0.374,
+  "mean_reward_ep1": 0.5743,
+  "mean_reward_ep2": 0.7046,
+  "mean_reward_ep3": 0.7294,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9581,
+  "reward_delta": 0.3554
+}

@@ -1,0 +1,14 @@
+{
+  "shot": "bowtie",
+  "category": "bowtie",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9686,
+  "mean_reward_ep0": 0.0919,
+  "mean_reward_ep1": 0.663,
+  "mean_reward_ep2": 0.7638,
+  "mean_reward_ep3": 0.7994,
+  "mean_sil_iou_ep3": 0.8279,
+  "mean_edge_recall_ep3": 0.6802,
+  "mean_stroke_precision_ep3": 0.9807,
+  "reward_delta": 0.7075
+}

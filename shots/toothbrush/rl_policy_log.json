@@ -1,0 +1,14 @@
+{
+  "shot": "toothbrush",
+  "category": "toothbrush",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9149,
+  "mean_reward_ep0": 0.1834,
+  "mean_reward_ep1": 0.5585,
+  "mean_reward_ep2": 0.6494,
+  "mean_reward_ep3": 0.6743,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9574,
+  "reward_delta": 0.4909
+}

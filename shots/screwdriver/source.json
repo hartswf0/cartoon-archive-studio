@@ -1,0 +1,47 @@
+{
+  "category": "screwdriver",
+  "shot_id": "screwdriver",
+  "body_plan": "Regime IV: Rotary Hardware Tool",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of screwdriver; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of screwdriver; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of screwdriver over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of screwdriver with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of screwdriver (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_f987b5a4",
+    "source_id": "01_f987b5a4",
+    "source_slug": "screwdriver",
+    "source_title": "Moving Image Archive // Screwdriver",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/screwdriver/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/screwdriver/videos/01_f987b5a4-577a-5a6c-8887-9f7e1173b882.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6654503451361280",
+    "n_strokes": 5,
+    "country": "RU",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (RU, 5 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "category": "donut",
+  "shot_id": "donut",
+  "body_plan": "Regime VI: Culinary & Hearth",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of donut; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of donut; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of donut over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of donut with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of donut (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "07_51f9be73",
+    "source_id": "07_51f9be73",
+    "source_slug": "donut",
+    "source_title": "Moving Image Archive // Donut",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/donut/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/donut/videos/07_51f9be73-56ab-5666-a58f-d4ae68c22bb5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5170214561906688",
+    "n_strokes": 8,
+    "country": "CZ",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (CZ, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "blueberry", "clip": "06_e9c32876", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "blueberry", "mean_sam_iou": 0.9572}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "blueberry", "key_id": "4997518825881600", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "blueberry", "ep0": 0.0587, "ep3": 0.7538, "sil_iou": 0.8371, "in_mask": 0.9737}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "blueberry", "gates": "16/16"}

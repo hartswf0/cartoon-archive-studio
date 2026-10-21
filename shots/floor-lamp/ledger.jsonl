@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "floor-lamp", "clip": "05_e7dabb53", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "floor-lamp", "mean_sam_iou": 0.926}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "floor-lamp", "key_id": "5946592781664256", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "floor-lamp", "ep0": 0.293, "ep3": 0.672, "sil_iou": 0.8, "in_mask": 0.9582}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "floor-lamp", "gates": "16/16"}

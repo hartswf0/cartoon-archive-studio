@@ -1,0 +1,14 @@
+{
+  "shot": "hockey-stick",
+  "category": "hockey_stick",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9709,
+  "mean_reward_ep0": 0.2596,
+  "mean_reward_ep1": 0.4752,
+  "mean_reward_ep2": 0.5395,
+  "mean_reward_ep3": 0.5685,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9715,
+  "reward_delta": 0.3089
+}

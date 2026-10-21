@@ -1,0 +1,47 @@
+{
+  "category": "broom",
+  "shot_id": "broom",
+  "body_plan": "Regime IV: Pendulum & Domestic Tool",
+  "interval": [
+    5.06,
+    8.66
+  ],
+  "key_times": [
+    5.06,
+    6.18,
+    7.42,
+    8.66
+  ],
+  "key_notes": [
+    "Key 1 (t=5.06s): Initial archival pose of broom; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.18s): Mid-sequence articulation of broom; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.42s): Peak dynamic extension of broom over 7-plane multiplane environment.",
+    "Key 4 (t=8.66s): Follow-through and settle of broom with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of broom (5.06s..8.66s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_bffa2862",
+    "source_id": "03_bffa2862",
+    "source_slug": "broom",
+    "source_title": "Moving Image Archive // Broom",
+    "source_year": 1956,
+    "start_seconds": 5.06,
+    "end_seconds": 8.66,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/broom/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/broom/videos/03_bffa2862-076a-5246-adcf-d4563ef0ea02.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6224026009600000",
+    "n_strokes": 9,
+    "country": "US",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (US, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

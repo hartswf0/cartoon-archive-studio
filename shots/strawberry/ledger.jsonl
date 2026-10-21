@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "strawberry", "clip": "01_b0cc061f", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "strawberry", "mean_sam_iou": 0.9576}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "strawberry", "key_id": "4612792403361792", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "strawberry", "ep0": 0.4629, "ep3": 0.8273, "sil_iou": 0.8008, "in_mask": 0.9561}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "strawberry", "gates": "16/16"}

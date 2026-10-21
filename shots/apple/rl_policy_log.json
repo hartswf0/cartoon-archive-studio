@@ -1,0 +1,14 @@
+{
+  "shot": "apple",
+  "category": "apple",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.8744,
+  "mean_reward_ep0": 0.0515,
+  "mean_reward_ep1": 0.726,
+  "mean_reward_ep2": 0.8232,
+  "mean_reward_ep3": 0.8452,
+  "mean_sil_iou_ep3": 0.8004,
+  "mean_edge_recall_ep3": 0.7877,
+  "mean_stroke_precision_ep3": 0.9722,
+  "reward_delta": 0.7937
+}

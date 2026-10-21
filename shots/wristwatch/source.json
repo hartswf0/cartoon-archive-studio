@@ -1,0 +1,47 @@
+{
+  "category": "wristwatch",
+  "shot_id": "wristwatch",
+  "body_plan": "Regime V: Precision Timepiece",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of wristwatch; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of wristwatch; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of wristwatch over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of wristwatch with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of wristwatch (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_9aeaabfe",
+    "source_id": "01_9aeaabfe",
+    "source_slug": "wristwatch",
+    "source_title": "Moving Image Archive // Wristwatch",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/wristwatch/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/wristwatch/videos/01_9aeaabfe-d35e-5673-b92b-b78bf8f8b568.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5881160431304704",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

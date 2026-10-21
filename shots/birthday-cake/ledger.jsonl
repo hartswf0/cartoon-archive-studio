@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "birthday-cake", "clip": "03_b7940d53", "interval": [2.27, 5.87]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "birthday-cake", "mean_sam_iou": 0.9567}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "birthday-cake", "key_id": "6114121554591744", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "birthday-cake", "ep0": 0.3926, "ep3": 0.7727, "sil_iou": 0.8266, "in_mask": 0.9512}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "birthday-cake", "gates": "16/16"}

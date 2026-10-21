@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "crown", "clip": "03_0bca75b5", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "crown", "mean_sam_iou": 0.9755}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "crown", "key_id": "5679212058902528", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "crown", "ep0": 0.252, "ep3": 0.7817, "sil_iou": 0.8057, "in_mask": 0.9721}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "crown", "gates": "16/16"}

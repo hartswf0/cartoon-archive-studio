@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "wristwatch", "clip": "01_9aeaabfe", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "wristwatch", "mean_sam_iou": 0.9629}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "wristwatch", "key_id": "5881160431304704", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "wristwatch", "ep0": 0.1032, "ep3": 0.8315, "sil_iou": 0.8178, "in_mask": 0.9613}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "wristwatch", "gates": "16/16"}

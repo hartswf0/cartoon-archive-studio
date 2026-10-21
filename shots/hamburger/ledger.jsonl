@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "hamburger", "clip": "01_dd77db1c", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "hamburger", "mean_sam_iou": 0.9667}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "hamburger", "key_id": "5727412279050240", "country": "MY"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "hamburger", "ep0": 0.0453, "ep3": 0.9488, "sil_iou": 0.8999, "in_mask": 0.988}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "hamburger", "gates": "16/16"}

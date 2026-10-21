@@ -1,0 +1,47 @@
+{
+  "category": "microwave",
+  "shot_id": "microwave",
+  "body_plan": "Regime V: Domestic Mechanism",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of microwave; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of microwave; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of microwave over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of microwave with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of microwave (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_08f6f144",
+    "source_id": "06_08f6f144",
+    "source_slug": "microwave",
+    "source_title": "Moving Image Archive // Microwave",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/microwave/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/microwave/videos/06_08f6f144-472f-5fdf-8450-834c5796033c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5509505607532544",
+    "n_strokes": 9,
+    "country": "US",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (US, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

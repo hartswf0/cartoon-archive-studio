@@ -1,0 +1,47 @@
+{
+  "category": "ice_cream",
+  "shot_id": "ice-cream",
+  "body_plan": "Regime VI: Culinary & Hearth",
+  "interval": [
+    3.03,
+    6.63
+  ],
+  "key_times": [
+    3.03,
+    4.15,
+    5.39,
+    6.63
+  ],
+  "key_notes": [
+    "Key 1 (t=3.03s): Initial archival pose of ice-cream; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.15s): Mid-sequence articulation of ice-cream; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.39s): Peak dynamic extension of ice-cream over 7-plane multiplane environment.",
+    "Key 4 (t=6.63s): Follow-through and settle of ice-cream with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of ice-cream (3.03s..6.63s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_dd8e044a",
+    "source_id": "05_dd8e044a",
+    "source_slug": "ice-cream",
+    "source_title": "Moving Image Archive // Ice Cream",
+    "source_year": 1956,
+    "start_seconds": 3.03,
+    "end_seconds": 6.63,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/ice-cream/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/ice_cream/videos/05_dd8e044a-0ce1-545d-9d6d-4c601ef7afdb.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5919754889986048",
+    "n_strokes": 5,
+    "country": "DK",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (DK, 5 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "category": "grapes",
+  "shot_id": "grapes",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of grapes; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of grapes; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of grapes over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of grapes with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of grapes (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_03b78b5e",
+    "source_id": "04_03b78b5e",
+    "source_slug": "grapes",
+    "source_title": "Moving Image Archive // Grapes",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/grapes/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/grapes/videos/04_03b78b5e-4a4c-5bbc-9dc2-677461b3f4cd.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6382178717925376",
+    "n_strokes": 6,
+    "country": "SE",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (SE, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

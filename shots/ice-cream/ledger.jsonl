@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "ice-cream", "clip": "05_dd8e044a", "interval": [3.03, 6.63]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "ice-cream", "mean_sam_iou": 0.9574}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "ice-cream", "key_id": "5919754889986048", "country": "DK"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "ice-cream", "ep0": 0.13, "ep3": 0.7448, "sil_iou": 0.8, "in_mask": 0.9621}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "ice-cream", "gates": "16/16"}

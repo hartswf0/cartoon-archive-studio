@@ -1,0 +1,14 @@
+{
+  "shot": "garden",
+  "category": "garden",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9185,
+  "mean_reward_ep0": 0.0898,
+  "mean_reward_ep1": 0.6071,
+  "mean_reward_ep2": 0.6424,
+  "mean_reward_ep3": 0.6644,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9614,
+  "reward_delta": 0.5746
+}

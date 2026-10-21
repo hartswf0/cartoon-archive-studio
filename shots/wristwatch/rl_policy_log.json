@@ -1,0 +1,14 @@
+{
+  "shot": "wristwatch",
+  "category": "wristwatch",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9629,
+  "mean_reward_ep0": 0.1032,
+  "mean_reward_ep1": 0.6956,
+  "mean_reward_ep2": 0.8029,
+  "mean_reward_ep3": 0.8315,
+  "mean_sil_iou_ep3": 0.8178,
+  "mean_edge_recall_ep3": 0.8061,
+  "mean_stroke_precision_ep3": 0.9613,
+  "reward_delta": 0.7283
+}

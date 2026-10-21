@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "pencil", "clip": "06_58a2e2f4", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "pencil", "mean_sam_iou": 0.9342}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "pencil", "key_id": "6257816329256960", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "pencil", "ep0": 0.0, "ep3": 0.4984, "sil_iou": 0.8, "in_mask": 0.9975}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "pencil", "gates": "16/16"}

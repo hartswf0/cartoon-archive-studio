@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "backpack", "clip": "03_2fa6c6b8", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "backpack", "mean_sam_iou": 0.972}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "backpack", "key_id": "5360064212762624", "country": "ID"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "backpack", "ep0": 0.0921, "ep3": 0.8544, "sil_iou": 0.8401, "in_mask": 0.9802}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "backpack", "gates": "16/16"}

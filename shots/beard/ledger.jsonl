@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "beard", "clip": "04_4a30611c", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "beard", "mean_sam_iou": 0.9497}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "beard", "key_id": "5426232210489344", "country": "VN"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "beard", "ep0": 0.4614, "ep3": 0.6976, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "beard", "gates": "16/16"}

@@ -217,14 +217,40 @@ def select_best_continuous_interval(category: str, sdir: Path):
         meta = json.loads(meta_file.read_text())
         return frames_bgr, meta
 
-    v_dir = MIA_DIR / "by_term" / category / "videos"
+    SIBLING_VINTAGE_MAP = {
+        "bush": ("garden", 2),
+        "donut": ("cake", 1),
+        "dresser": ("bed", 1),
+        "moustache": ("beard", 3),
+    }
+    source_cat, start_idx = SIBLING_VINTAGE_MAP.get(category, (category, 0))
+    v_dir = MIA_DIR / "by_term" / source_cat / "videos"
     mp4s = sorted(v_dir.glob("*.mp4"))
+    meta_by_id = {}
+    meta_json_path = MIA_DIR / "by_term" / source_cat / "metadata.json"
+    if meta_json_path.exists():
+        try:
+            for c_item in json.loads(meta_json_path.read_text()).get("clips", []):
+                meta_by_id[c_item.get("id", "")] = c_item
+        except Exception:
+            pass
+
     best_score = -1e9
     best_frames = None
     best_meta = None
 
-    cand_mp4s = mp4s[2:8] if category in ("car", "airplane") and len(mp4s) >= 6 else mp4s[:5]
+    if category in ("car", "airplane") and len(mp4s) >= 6:
+        cand_mp4s = mp4s[2:8]
+    else:
+        cand_mp4s = mp4s[start_idx : start_idx + 6] if len(mp4s) > start_idx + 2 else mp4s[:6]
     for mp4 in cand_mp4s:
+        clip_uuid = mp4.stem.split("_", 1)[-1]
+        c_meta = meta_by_id.get(clip_uuid, {})
+        c_title = str(c_meta.get("sourceTitle", "") or "")
+        c_year = int(c_meta.get("sourceYear") or 1955)
+        is_hearing = any(w in c_title.upper() for w in ("H.R.", "SENATE", "FISCAL YEAR", "SUBCOMMITTEE", "COMMITTEE", "BUDGET", "HEARING", "OVERSIGHT"))
+        vintage_bonus = 22.0 if (c_year < 2003 and not is_hearing) else (-25.0 if is_hearing else 0.0)
+
         cap = cv2.VideoCapture(str(mp4))
         fps = max(12.0, min(60.0, float(cap.get(cv2.CAP_PROP_FPS) or 24.0)))
         n_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
@@ -267,7 +293,12 @@ def select_best_continuous_interval(category: str, sdir: Path):
             gy = cv2.Sobel(g_mid, cv2.CV_32F, 0, 1, ksize=3)
             edge_score = float(np.hypot(gx, gy).mean())
             cut_pen = 40.0 if max_cut > 42.0 else 0.0
-            score = edge_score + 0.8 * min(18.0, mean_motion) - cut_pen
+            foliage_bonus = 0.0
+            if category in ("bush", "leaf", "grass", "garden"):
+                mid_bgr = cand_frames[len(cand_frames) // 2][60:420, 80:560].astype(np.float32)
+                green_excess = float((mid_bgr[:, :, 1] - 0.5 * (mid_bgr[:, :, 0] + mid_bgr[:, :, 2])).mean())
+                foliage_bonus = 1.8 * green_excess
+            score = edge_score + 0.8 * min(18.0, mean_motion) + foliage_bonus + vintage_bonus - cut_pen
             if score > best_score:
                 best_score = score
                 best_frames = cand_frames
@@ -1481,20 +1512,21 @@ def render_scion_multiplane_shot(
         bg_col = cv2.imread(str(bg_color_path))
     else:
         bg_col = np.median(np.stack(frames_bgr[::4], axis=0), axis=0).astype(np.uint8)
-    bg_blur = cv2.GaussianBlur(bg_col, (91, 91), 0).astype(np.float32)
-    paper_base = np.full((H, W, 3), (235.0, 241.0, 246.0), dtype=np.float32)
-    # Blend 28% of the shot's true blurred archival environment palette into 72% warm animation paper (clamped luminous [182, 252])
-    wash_plate = np.clip(0.72 * paper_base + 0.28 * bg_blur, 182, 252).astype(np.uint8)
-    sheet_wash = np.clip(0.84 * paper_base + 0.16 * bg_blur, 202, 253).astype(np.uint8)
+    # Bilateral gouache underpainting preserves crisp archival color zones while warming with animation paper
+    bg_bilat = cv2.bilateralFilter(bg_col, 9, 65, 65).astype(np.float32)
+    paper_base = np.full((H, W, 3), (235.0, 242.0, 247.0), dtype=np.float32)
+    wash_plate = np.clip(0.66 * paper_base + 0.34 * bg_bilat, 180, 252).astype(np.uint8)
+    sheet_wash = np.clip(0.80 * paper_base + 0.20 * bg_bilat, 198, 253).astype(np.uint8)
 
     # Derive depth-plane ink colors harmonized with the shot's own archival tone
     med_bgr = np.median(bg_col.reshape(-1, 3), axis=0).astype(np.float32)
-    far_ink = tuple(int(np.clip(0.42 * med_bgr[c] + 72.0, 68, 145)) for c in range(3))
-    mid_ink = tuple(int(np.clip(0.28 * med_bgr[c] + 38.0, 36, 98)) for c in range(3))
-    fore_ink = (20, 18, 16)
+    far_ink = tuple(int(np.clip(0.38 * med_bgr[c] + 64.0, 62, 138)) for c in range(3))
+    mid_ink = tuple(int(np.clip(0.24 * med_bgr[c] + 32.0, 30, 88)) for c in range(3))
+    fore_ink = (18, 16, 14)
 
-    # Map per-plane gouache occlusion cels and 4-keyframe living background redraws (BG-K01..BG-K04)
+    # Map per-plane gouache occlusion cels, locally sampled cel colors, and 4-keyframe living background redraws
     plane_cels_480 = {obj["plane"]: obj.get("cel_polygons", []) for obj in objects}
+    plane_cel_colors_480 = {obj["plane"]: obj.get("cel_colors", []) for obj in objects}
     plane_bg_keys_480 = {obj["plane"]: obj.get("bg_keyframes", []) for obj in objects}
 
     # Build multiplane-stack.png (2x2 sheet showing the separated depth planes at f=10)
@@ -1503,11 +1535,13 @@ def render_scion_multiplane_shot(
         for pid in pids:
             col = far_ink if pid in ("sky", "far") else (mid_ink if pid in ("mid", "secondary") else fore_ink)
             thick = 1 if pid in ("sky", "far") else 2
-            for poly in plane_cels_480.get(pid, []):
+            c_cols = plane_cel_colors_480.get(pid, [])
+            for p_idx, poly in enumerate(plane_cels_480.get(pid, [])):
                 if len(poly) >= 3:
+                    c_fill = tuple(c_cols[p_idx]) if p_idx < len(c_cols) else (240, 245, 249)
                     arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                    cv2.fillPoly(panel, [arr], (242, 246, 250))
-                    cv2.polylines(panel, [arr], True, (214, 222, 230), 1, cv2.LINE_AA)
+                    cv2.fillPoly(panel, [arr], c_fill)
+                    cv2.polylines(panel, [arr], True, (206, 215, 224), 1, cv2.LINE_AA)
             for s in planes_480.get(pid, []):
                 arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
                 cv2.polylines(panel, [arr], False, col, thick, cv2.LINE_AA)
@@ -1565,24 +1599,29 @@ def render_scion_multiplane_shot(
                     cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(26, int(mw_c * 0.38)), 8), 0, 0, 360, (186, 198, 208), -1, cv2.LINE_AA)
                     cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(16, int(mw_c * 0.24)), 4), 0, 0, 360, (166, 178, 188), -1, cv2.LINE_AA)
 
-                # Pass C & E: Watertight Two-Tone Warm Gouache SAM Cel + Highlight Rim
+                # Pass C & E: Watertight Two-Tone Archival-Harmonized Gouache SAM Cel + Highlight Rim
                 cel_m_u8 = np.zeros((H, W), dtype=np.uint8)
                 for poly in cel_masks_480[f]:
                     if len(poly) >= 3:
                         arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                        cv2.fillPoly(stage, [arr], (242, 249, 253))
                         cv2.fillPoly(cel_m_u8, [arr], 255)
-                # Directional lower/posterior two-tone cel shadow clipped strictly inside the SAM cel silhouette
+                if cv2.countNonZero(cel_m_u8) > 30:
+                    char_bgr = np.median(frames_bgr[f][cel_m_u8 > 0], axis=0).astype(np.float32)
+                else:
+                    char_bgr = med_bgr
+                lit_cel = tuple(int(np.clip(0.76 * 246 + 0.24 * char_bgr[c], 208, 253)) for c in range(3))
+                shd_cel = tuple(int(np.clip(0.72 * 226 + 0.28 * char_bgr[c], 188, 240)) for c in range(3))
+                stage[cel_m_u8 > 0] = lit_cel
                 if cv2.countNonZero(cel_m_u8) > 40:
                     y_split = int(by0_c + 0.64 * mh_c)
                     shadow_zone = np.zeros((H, W), dtype=np.uint8)
                     shadow_zone[min(H - 1, max(0, y_split)):H, :] = 255
                     sh_mask = (cel_m_u8 > 0) & (shadow_zone > 0)
-                    stage[sh_mask] = (224, 234, 242)
+                    stage[sh_mask] = shd_cel
                 for poly in cel_masks_480[f]:
                     if len(poly) >= 3:
                         arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                        cv2.polylines(stage, [arr], True, (198, 212, 224), 3, cv2.LINE_AA)
+                        cv2.polylines(stage, [arr], True, (194, 208, 220), 3, cv2.LINE_AA)
 
                 # Pass A & B: Faint non-photo blue anatomical line-of-action & volume masses on breakdown frames
                 if f in (5, 15, 26):
@@ -1600,23 +1639,26 @@ def render_scion_multiplane_shot(
             else:
                 if pz >= 6.0:
                     col, thick = far_ink, 1
-                    cel_fill = tuple(int(np.clip(0.84 * 244 + 0.16 * med_bgr[c], 215, 250)) for c in range(3))
-                    cel_rim = (214, 222, 230)
+                    default_fill = tuple(int(np.clip(0.80 * 244 + 0.20 * med_bgr[c], 208, 250)) for c in range(3))
+                    cel_rim = (206, 215, 224)
                 elif pz >= 2.4:
                     col, thick = mid_ink, 2
-                    cel_fill = tuple(int(np.clip(0.80 * 239 + 0.20 * med_bgr[c], 205, 247)) for c in range(3))
-                    cel_rim = (202, 212, 222)
+                    default_fill = tuple(int(np.clip(0.76 * 239 + 0.24 * med_bgr[c], 198, 247)) for c in range(3))
+                    cel_rim = (192, 204, 216)
                 else:
                     col, thick = fore_ink, 2
-                    cel_fill = tuple(int(np.clip(0.76 * 232 + 0.24 * med_bgr[c], 195, 243)) for c in range(3))
-                    cel_rim = (190, 202, 214)
+                    default_fill = tuple(int(np.clip(0.72 * 232 + 0.28 * med_bgr[c], 188, 243)) for c in range(3))
+                    cel_rim = (180, 194, 208)
 
-                # Paint watertight multiplane gouache cel backing so nearer background planes occlude farther planes (zero X-ray bleed)
-                for poly in plane_cels_480.get(pid, []):
+                # Paint watertight locally color-sampled gouache cel backing so nearer background planes occlude farther planes
+                c_cols = plane_cel_colors_480.get(pid, [])
+                for p_idx, poly in enumerate(plane_cels_480.get(pid, [])):
                     if len(poly) >= 3:
+                        cel_fill = tuple(c_cols[p_idx]) if p_idx < len(c_cols) else default_fill
                         arr = np.array([[int(round(p[0] * sx_up + dx)), int(round(p[1] * sy_up + dy))] for p in poly], dtype=np.int32)
                         cv2.fillPoly(stage, [arr], cel_fill)
                         cv2.polylines(stage, [arr], True, cel_rim, 1, cv2.LINE_AA)
+
 
                 # Cycle through the 4 living background keyframes (BG-K01..BG-K04) on twos
                 bg_keys = plane_bg_keys_480.get(pid, [])

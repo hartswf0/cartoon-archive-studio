@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "suitcase", "clip": "04_f967dc97", "interval": [2.06, 5.66]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "suitcase", "mean_sam_iou": 0.9546}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "suitcase", "key_id": "6605581362135040", "country": "FI"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "suitcase", "ep0": 0.0, "ep3": 0.8685, "sil_iou": 0.862, "in_mask": 0.9856}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "suitcase", "gates": "16/16"}

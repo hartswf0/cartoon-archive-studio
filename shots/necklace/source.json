@@ -1,0 +1,47 @@
+{
+  "category": "necklace",
+  "shot_id": "necklace",
+  "body_plan": "Regime VII: Apparel & Regalia",
+  "interval": [
+    3.93,
+    7.53
+  ],
+  "key_times": [
+    3.93,
+    5.05,
+    6.29,
+    7.53
+  ],
+  "key_notes": [
+    "Key 1 (t=3.93s): Initial archival pose of necklace; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.05s): Mid-sequence articulation of necklace; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.29s): Peak dynamic extension of necklace over 7-plane multiplane environment.",
+    "Key 4 (t=7.53s): Follow-through and settle of necklace with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of necklace (3.93s..7.53s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_71d7aa0b",
+    "source_id": "04_71d7aa0b",
+    "source_slug": "necklace",
+    "source_title": "Moving Image Archive // Necklace",
+    "source_year": 1956,
+    "start_seconds": 3.93,
+    "end_seconds": 7.53,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/necklace/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/necklace/videos/04_71d7aa0b-9024-56fb-8b4f-5f047dc6d68d.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5959149928054784",
+    "n_strokes": 6,
+    "country": "KR",
+    "qd_index": 0,
+    "why": "Selected Quick, Draw! human doodle #0 (KR, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "category": "syringe",
+  "shot_id": "syringe",
+  "body_plan": "Regime V: Medical & Precision",
+  "interval": [
+    2.51,
+    6.11
+  ],
+  "key_times": [
+    2.51,
+    3.63,
+    4.87,
+    6.11
+  ],
+  "key_notes": [
+    "Key 1 (t=2.51s): Initial archival pose of syringe; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.63s): Mid-sequence articulation of syringe; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.87s): Peak dynamic extension of syringe over 7-plane multiplane environment.",
+    "Key 4 (t=6.11s): Follow-through and settle of syringe with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of syringe (2.51s..6.11s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_9615e7da",
+    "source_id": "01_9615e7da",
+    "source_slug": "syringe",
+    "source_title": "Moving Image Archive // Syringe",
+    "source_year": 1956,
+    "start_seconds": 2.51,
+    "end_seconds": 6.11,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/syringe/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/syringe/videos/01_9615e7da-ff25-5dbb-91be-298861e5461c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6400317488889856",
+    "n_strokes": 9,
+    "country": "CA",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (CA, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

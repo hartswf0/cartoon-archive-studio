@@ -1,0 +1,47 @@
+{
+  "category": "lipstick",
+  "shot_id": "lipstick",
+  "body_plan": "Regime VII: Personal Care & Atelier",
+  "interval": [
+    2.45,
+    6.05
+  ],
+  "key_times": [
+    2.45,
+    3.58,
+    4.81,
+    6.05
+  ],
+  "key_notes": [
+    "Key 1 (t=2.45s): Initial archival pose of lipstick; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.58s): Mid-sequence articulation of lipstick; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.81s): Peak dynamic extension of lipstick over 7-plane multiplane environment.",
+    "Key 4 (t=6.05s): Follow-through and settle of lipstick with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of lipstick (2.45s..6.05s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_cd95f474",
+    "source_id": "05_cd95f474",
+    "source_slug": "lipstick",
+    "source_title": "Moving Image Archive // Lipstick",
+    "source_year": 1956,
+    "start_seconds": 2.45,
+    "end_seconds": 6.05,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/lipstick/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/lipstick/videos/05_cd95f474-866d-55f8-9a6c-1e1cc09064ed.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5417772785860608",
+    "n_strokes": 6,
+    "country": "NL",
+    "qd_index": 1,
+    "why": "Selected Quick, Draw! human doodle #1 (NL, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

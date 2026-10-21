@@ -1,0 +1,47 @@
+{
+  "category": "rain",
+  "shot_id": "rain",
+  "body_plan": "Regime VIII: Celestial & Weather",
+  "interval": [
+    0.7,
+    4.3
+  ],
+  "key_times": [
+    0.7,
+    1.82,
+    3.06,
+    4.3
+  ],
+  "key_notes": [
+    "Key 1 (t=0.7s): Initial archival pose of rain; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.82s): Mid-sequence articulation of rain; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.06s): Peak dynamic extension of rain over 7-plane multiplane environment.",
+    "Key 4 (t=4.3s): Follow-through and settle of rain with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of rain (0.7s..4.3s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_b09826f2",
+    "source_id": "06_b09826f2",
+    "source_slug": "rain",
+    "source_title": "Moving Image Archive // Rain",
+    "source_year": 1956,
+    "start_seconds": 0.7,
+    "end_seconds": 4.3,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/rain/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/rain/videos/06_b09826f2-1c16-527f-9342-d00c186fabad.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5698021553602560",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

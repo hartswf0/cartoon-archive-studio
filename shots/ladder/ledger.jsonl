@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "ladder", "clip": "01_b3d678ab", "interval": [2.04, 5.64]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "ladder", "mean_sam_iou": 0.9773}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "ladder", "key_id": "4678031916400640", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "ladder", "ep0": 0.0, "ep3": 0.8479, "sil_iou": 0.8273, "in_mask": 0.9718}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "ladder", "gates": "16/16"}

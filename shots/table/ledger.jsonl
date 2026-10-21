@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "table", "clip": "05_1178eae5", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "table", "mean_sam_iou": 0.8776}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "table", "key_id": "4785281209204736", "country": "PH"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "table", "ep0": 0.359, "ep3": 0.5868, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "table", "gates": "16/16"}

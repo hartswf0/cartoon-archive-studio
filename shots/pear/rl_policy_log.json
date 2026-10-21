@@ -1,0 +1,14 @@
+{
+  "shot": "pear",
+  "category": "pear",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.923,
+  "mean_reward_ep0": 0.2481,
+  "mean_reward_ep1": 0.8131,
+  "mean_reward_ep2": 0.8553,
+  "mean_reward_ep3": 0.8773,
+  "mean_sil_iou_ep3": 0.8491,
+  "mean_edge_recall_ep3": 0.792,
+  "mean_stroke_precision_ep3": 0.982,
+  "reward_delta": 0.6292
+}

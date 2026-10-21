@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "stairs", "clip": "06_4f514eaa", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "stairs", "mean_sam_iou": 0.8943}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "stairs", "key_id": "5567072127942656", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "stairs", "ep0": 0.0769, "ep3": 0.499, "sil_iou": 0.8, "in_mask": 0.9586}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "stairs", "gates": "16/16"}

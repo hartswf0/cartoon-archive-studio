@@ -1,0 +1,14 @@
+{
+  "shot": "bush",
+  "category": "bush",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9644,
+  "mean_reward_ep0": 0.2576,
+  "mean_reward_ep1": 0.6377,
+  "mean_reward_ep2": 0.6975,
+  "mean_reward_ep3": 0.7195,
+  "mean_sil_iou_ep3": 0.8307,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9659,
+  "reward_delta": 0.4619
+}

@@ -1,0 +1,47 @@
+{
+  "category": "sink",
+  "shot_id": "sink",
+  "body_plan": "Regime VI: Domestic Sanctuary",
+  "interval": [
+    3.36,
+    6.96
+  ],
+  "key_times": [
+    3.36,
+    4.48,
+    5.72,
+    6.96
+  ],
+  "key_notes": [
+    "Key 1 (t=3.36s): Initial archival pose of sink; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.48s): Mid-sequence articulation of sink; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.72s): Peak dynamic extension of sink over 7-plane multiplane environment.",
+    "Key 4 (t=6.96s): Follow-through and settle of sink with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of sink (3.36s..6.96s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_535e64d5",
+    "source_id": "05_535e64d5",
+    "source_slug": "sink",
+    "source_title": "Moving Image Archive // Sink",
+    "source_year": 1956,
+    "start_seconds": 3.36,
+    "end_seconds": 6.96,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/sink/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/sink/videos/05_535e64d5-47f5-5832-90b2-17c731e8e71a.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6550178095955968",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "category": "apple",
+  "shot_id": "apple",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    0.34,
+    3.94
+  ],
+  "key_times": [
+    0.34,
+    1.47,
+    2.7,
+    3.94
+  ],
+  "key_notes": [
+    "Key 1 (t=0.34s): Initial archival pose of apple; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.47s): Mid-sequence articulation of apple; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.7s): Peak dynamic extension of apple over 7-plane multiplane environment.",
+    "Key 4 (t=3.94s): Follow-through and settle of apple with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of apple (0.34s..3.94s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_3d68ad0b",
+    "source_id": "06_3d68ad0b",
+    "source_slug": "apple",
+    "source_title": "Moving Image Archive // Apple",
+    "source_year": 1956,
+    "start_seconds": 0.34,
+    "end_seconds": 3.94,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/apple/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/apple/videos/06_3d68ad0b-e134-53c6-8ad3-fb73c25c4c03.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5256464115433472",
+    "n_strokes": 9,
+    "country": "ME",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (ME, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

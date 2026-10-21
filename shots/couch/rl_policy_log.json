@@ -1,0 +1,14 @@
+{
+  "shot": "couch",
+  "category": "couch",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.938,
+  "mean_reward_ep0": 0.1211,
+  "mean_reward_ep1": 0.5692,
+  "mean_reward_ep2": 0.641,
+  "mean_reward_ep3": 0.6866,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.7012,
+  "mean_stroke_precision_ep3": 0.9591,
+  "reward_delta": 0.5656
+}

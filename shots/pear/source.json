@@ -1,0 +1,47 @@
+{
+  "category": "pear",
+  "shot_id": "pear",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    1.69,
+    5.29
+  ],
+  "key_times": [
+    1.69,
+    2.81,
+    4.05,
+    5.29
+  ],
+  "key_notes": [
+    "Key 1 (t=1.69s): Initial archival pose of pear; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.81s): Mid-sequence articulation of pear; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.05s): Peak dynamic extension of pear over 7-plane multiplane environment.",
+    "Key 4 (t=5.29s): Follow-through and settle of pear with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of pear (1.69s..5.29s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_add9687a",
+    "source_id": "04_add9687a",
+    "source_slug": "pear",
+    "source_title": "Moving Image Archive // Pear",
+    "source_year": 1956,
+    "start_seconds": 1.69,
+    "end_seconds": 5.29,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/pear/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/pear/videos/04_add9687a-696c-5a86-9bf3-44554510ea5c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6606759324024832",
+    "n_strokes": 7,
+    "country": "CA",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (CA, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

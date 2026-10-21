@@ -1,0 +1,14 @@
+{
+  "shot": "shovel",
+  "category": "shovel",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9303,
+  "mean_reward_ep0": 0.0589,
+  "mean_reward_ep1": 0.4835,
+  "mean_reward_ep2": 0.6249,
+  "mean_reward_ep3": 0.6593,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.95,
+  "reward_delta": 0.6004
+}

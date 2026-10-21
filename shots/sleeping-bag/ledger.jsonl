@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "sleeping-bag", "clip": "01_1d980180", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "sleeping-bag", "mean_sam_iou": 0.9532}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "sleeping-bag", "key_id": "6377562550829056", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "sleeping-bag", "ep0": 0.374, "ep3": 0.7294, "sil_iou": 0.8, "in_mask": 0.9581}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "sleeping-bag", "gates": "16/16"}
