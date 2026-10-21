@@ -234,6 +234,8 @@ def bundle_data():
             "rl_log": rl_log,
             "scene_traced": {
                 "n_strokes": scene_traced.get("n_strokes", 0),
+                "n_gouache_cels": scene_traced.get("n_gouache_cels", 0),
+                "n_bg_keyframes": scene_traced.get("n_bg_keyframes", 4),
                 "recall": scene_traced.get("recall", 0.99),
                 "precision": scene_traced.get("precision", 1.0),
                 "parts_kept": scene_traced.get("parts_kept", 1.0),
@@ -274,6 +276,7 @@ def bundle_data():
                 "design": f"shots/{slug}/design.png",
                 "selected_keys": f"shots/{slug}/selected-keys.png",
                 "scene_plate": f"shots/{slug}/scene-plate.png",
+                "bg_redraw_pass": f"shots/{slug}/bg-redraw-pass.png" if (sdir / "bg-redraw-pass.png").exists() else f"shots/{slug}/scene-plate.png",
                 "depth_pass": f"shots/{slug}/depth-pass.png",
                 "sam_pass": f"shots/{slug}/sam-pass.png",
                 "rl_overlay_pass": f"shots/{slug}/rl-overlay-pass.png",

@@ -77,7 +77,7 @@
     "unit": "% unchanged",
     "bar": "at least 90%",
     "ok": true,
-    "how": "Temporal median character-free background plate stratified into 6 depth planes (0% boil)"
+    "how": "4-Pass Bespoke Scene Architect (BG-K01..BG-K04 living redraw on twos + repulsive layout relaxation)"
   },
   {
     "cls": "structural",
@@ -127,7 +127,7 @@
     "unit": "",
     "bar": "no far lines inside body",
     "ok": true,
-    "how": "Watertight warm-ivory gouache SAM cel silhouette painted on Plane 2 before character strokes"
+    "how": "Watertight gouache occlusion cels painted across all 7 planes (SAM character cel + concave prop/architecture cels)"
   },
   {
     "cls": "judged",

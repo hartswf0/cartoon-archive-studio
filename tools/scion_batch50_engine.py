@@ -1422,12 +1422,21 @@ def render_scion_multiplane_shot(
     mid_ink = tuple(int(np.clip(0.28 * med_bgr[c] + 38.0, 36, 98)) for c in range(3))
     fore_ink = (20, 18, 16)
 
+    # Map per-plane gouache occlusion cels and 4-keyframe living background redraws (BG-K01..BG-K04)
+    plane_cels_480 = {obj["plane"]: obj.get("cel_polygons", []) for obj in objects}
+    plane_bg_keys_480 = {obj["plane"]: obj.get("bg_keyframes", []) for obj in objects}
+
     # Build multiplane-stack.png (2x2 sheet showing the separated depth planes at f=10)
     def make_sheet_panel(title, pids, include_char=False):
         panel = sheet_wash.copy()
         for pid in pids:
             col = far_ink if pid in ("sky", "far") else (mid_ink if pid in ("mid", "secondary") else fore_ink)
             thick = 1 if pid in ("sky", "far") else 2
+            for poly in plane_cels_480.get(pid, []):
+                if len(poly) >= 3:
+                    arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
+                    cv2.fillPoly(panel, [arr], (242, 246, 250))
+                    cv2.polylines(panel, [arr], True, (214, 222, 230), 1, cv2.LINE_AA)
             for s in planes_480.get(pid, []):
                 arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
                 cv2.polylines(panel, [arr], False, col, thick, cv2.LINE_AA)
@@ -1458,6 +1467,7 @@ def render_scion_multiplane_shot(
 
     for f in range(33):
         stage = wash_plate.copy()
+        k_bg = (f // 2) % 4
 
         cx_cam, cy_cam = cam[f]
         pts_c = [p for s in cast_frames_480[f] for p in s]
@@ -1503,11 +1513,25 @@ def render_scion_multiplane_shot(
             else:
                 if pz >= 6.0:
                     col, thick = far_ink, 1
+                    cel_fill, cel_rim = (242, 246, 250), (218, 225, 232)
                 elif pz >= 2.4:
                     col, thick = mid_ink, 2
+                    cel_fill, cel_rim = (239, 245, 249), (210, 219, 227)
                 else:
                     col, thick = fore_ink, 2
-                for s in planes_480.get(pid, []):
+                    cel_fill, cel_rim = (236, 243, 248), (202, 212, 222)
+
+                # Paint watertight multiplane gouache cel backing so nearer background planes occlude farther planes (zero X-ray bleed)
+                for poly in plane_cels_480.get(pid, []):
+                    if len(poly) >= 3:
+                        arr = np.array([[int(round(p[0] * sx_up + dx)), int(round(p[1] * sy_up + dy))] for p in poly], dtype=np.int32)
+                        cv2.fillPoly(stage, [arr], cel_fill)
+                        cv2.polylines(stage, [arr], True, cel_rim, 1, cv2.LINE_AA)
+
+                # Cycle through the 4 living background keyframes (BG-K01..BG-K04) on twos
+                bg_keys = plane_bg_keys_480.get(pid, [])
+                strokes_pid = bg_keys[k_bg] if len(bg_keys) > k_bg else planes_480.get(pid, [])
+                for s in strokes_pid:
                     if len(s) >= 2:
                         arr = np.array([[int(round(p[0] * sx_up + dx)), int(round(p[1] * sy_up + dy))] for p in s], dtype=np.int32)
                         cv2.polylines(stage, [arr], False, col, thick, cv2.LINE_AA)
@@ -1646,7 +1670,8 @@ def render_scion_multiplane_shot(
         shutil.copy2(sdir / "rl-overlay-pass.png", ART_DIR / f"rl_overlay_{slug}.png")
         shutil.copy2(p_dir / "multiplane-stack.png", ART_DIR / f"stack_{slug}.png")
 
-    # Save shot.json
+    # Save shot.json (keep cel_polygons + strokes, omit 4x bg_keyframes to keep bundle compact)
+    compact_objects = [{k: v for k, v in obj.items() if k != "bg_keyframes"} for obj in objects]
     shot_payload = {
         "shot_id": slug,
         "title": slug.replace("-", " ").title(),
@@ -1656,7 +1681,7 @@ def render_scion_multiplane_shot(
         "z_ref": Z_REF,
         "camera": cam,
         "planes": MULTIPLANE_STACK,
-        "objects": objects,
+        "objects": compact_objects,
         "masks": cel_masks_480,
         "cast": {
             "character": slug,

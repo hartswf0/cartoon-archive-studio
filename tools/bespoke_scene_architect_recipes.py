@@ -1,0 +1,378 @@
+#!/usr/bin/env python3
+"""
+50 Unique Scene Recipes for `tools/bespoke_scene_architect.py`
+Every single shot has its own distinct architectural / landscape / marine / interior theme
+and well-spaced peripheral prop coordinates.
+"""
+
+SHOT_SCENE_RECIPES = {
+    # --- REGIME I: TERRESTRIAL MAMMALS & MARSUPIALS ---
+    "lion": {
+        "theme": "savannah_outcrop",
+        "sky": [("sun", 0, 545, 52, 58, 58), ("cloud", 1, 135, 48, 110, 44), ("bird", 0, 320, 44, 36, 22)],
+        "far": [("mountain", 2, 130, 140, 210, 70), ("mountain", 5, 510, 145, 200, 68)],
+        "mid": [("tree", 3, 76, 195, 108, 125), ("tree", 7, 565, 198, 104, 120)],
+        "fore": [("grass", 0, 68, 428, 80, 42), ("grass", 2, 565, 430, 82, 42)],
+    },
+    "tiger": {
+        "theme": "bamboo_jungle",
+        "sky": [("bird", 2, 310, 45, 42, 26)],
+        "far": [("mountain", 1, 320, 132, 250, 75)],
+        "mid": [("palm_tree", 0, 118, 185, 105, 135), ("palm_tree", 2, 525, 188, 105, 135)],
+        "fore": [("leaf", 0, 115, 415, 72, 55), ("leaf", 2, 525, 418, 72, 55)],
+    },
+    "bear": {
+        "theme": "salmon_river_rapids",
+        "sky": [("cloud", 2, 485, 48, 115, 44), ("bird", 1, 565, 58, 36, 22)],
+        "far": [("mountain", 0, 475, 132, 230, 78)],
+        "mid": [("tree", 1, 515, 185, 75, 92), ("tree", 4, 585, 190, 70, 88)],
+        "secondary": [("fish", 0, 505, 345, 56, 30), ("fish", 2, 425, 395, 50, 26)],
+        "fore": [("grass", 3, 565, 432, 82, 40)],
+    },
+    "zebra": {
+        "theme": "serengeti_plains",
+        "sky": [("cloud", 3, 130, 46, 115, 42), ("cloud", 6, 495, 50, 118, 44), ("sun", 1, 320, 48, 54, 54)],
+        "far": [("mountain", 4, 495, 145, 210, 66)],
+        "mid": [("tree", 5, 74, 198, 105, 118), ("giraffe", 0, 565, 195, 62, 82)],
+        "fore": [("grass", 2, 78, 430, 86, 42), ("grass", 5, 555, 432, 88, 42)],
+    },
+    "camel": {
+        "theme": "desert_oasis_corral",
+        "sky": [("sun", 2, 105, 52, 62, 62), ("cloud", 0, 485, 48, 110, 40)],
+        "far": [("mountain", 3, 215, 148, 195, 68)],
+        "mid": [("palm_tree", 1, 78, 210, 105, 135)],
+        "fore": [("cactus", 0, 72, 395, 62, 85), ("grass", 0, 555, 432, 78, 38)],
+    },
+    "kangaroo": {
+        "theme": "outback_mesa",
+        "sky": [("sun", 3, 525, 52, 60, 60), ("boomerang", 0, 145, 58, 52, 38)],
+        "far": [("mountain", 6, 135, 145, 200, 65)],
+        "mid": [("tree", 2, 555, 198, 100, 122), ("cactus", 1, 74, 235, 62, 90)],
+        "fore": [("grass", 1, 85, 430, 85, 42), ("bush", 0, 555, 422, 82, 46)],
+    },
+    "cow": {
+        "theme": "pasture_barn_fence",
+        "sky": [("cloud", 4, 145, 48, 115, 42), ("cloud", 1, 495, 50, 110, 40)],
+        "far": [("barn", 0, 545, 138, 115, 85), ("windmill", 0, 420, 135, 70, 88)],
+        "mid": [("tree", 0, 72, 185, 100, 120)],
+        "fore": [("flower", 1, 82, 428, 44, 46), ("grass", 3, 545, 432, 88, 42)],
+    },
+    "sheep": {
+        "theme": "stone_wall_meadow",
+        "sky": [("cloud", 2, 150, 46, 118, 44), ("cloud", 5, 485, 50, 115, 42), ("bird", 3, 325, 44, 36, 22)],
+        "far": [("house", 1, 540, 142, 105, 80), ("tree", 6, 430, 145, 80, 90)],
+        "mid": [("bush", 1, 74, 245, 86, 48), ("bush", 4, 558, 252, 86, 48)],
+        "fore": [("flower", 0, 68, 426, 42, 44), ("flower", 2, 568, 426, 42, 44), ("grass", 4, 310, 442, 88, 36)],
+    },
+    "pig": {
+        "theme": "farmyard_trough",
+        "sky": [("cloud", 0, 135, 46, 110, 40), ("sun", 0, 540, 52, 56, 56)],
+        "far": [("barn", 1, 115, 138, 120, 88), ("tractor", 0, 530, 152, 90, 65)],
+        "mid": [("fence", 0, 105, 242, 145, 50), ("fence", 1, 535, 242, 145, 50)],
+        "secondary": [("bucket", 0, 555, 348, 54, 58)],
+        "fore": [("grass", 2, 485, 435, 85, 40)],
+    },
+    "squirrel": {
+        "theme": "woodland_oak_trunk",
+        "sky": [("leaf", 1, 90, 48, 60, 46), ("leaf", 3, 550, 50, 60, 46)],
+        "far": [("tree", 8, 110, 165, 118, 140)],
+        "mid": [("bush", 2, 88, 285, 90, 52), ("mushroom", 0, 565, 298, 54, 54)],
+        "fore": [("mushroom", 1, 72, 418, 58, 58), ("flower", 3, 560, 422, 46, 48), ("grass", 5, 220, 442, 85, 36)],
+    },
+
+    # --- REGIME II: PRIMATES, AMPHIBIANS & INVERTEBRATES ---
+    "monkey": {
+        "theme": "jungle_canopy_vines",
+        "sky": [("bird", 4, 485, 50, 46, 30)],
+        "far": [("palm_tree", 3, 95, 185, 120, 150), ("palm_tree", 4, 545, 185, 120, 150)],
+        "mid": [("banana", 0, 550, 275, 58, 48), ("bush", 3, 82, 292, 88, 50)],
+        "fore": [("leaf", 0, 62, 62, 78, 60), ("leaf", 2, 578, 62, 78, 60), ("flower", 4, 82, 422, 50, 50)],
+    },
+    "panda": {
+        "theme": "bamboo_grove_tub",
+        "sky": [("cloud", 1, 145, 46, 110, 40)],
+        "far": [("mountain", 2, 495, 132, 200, 70)],
+        "mid": [("bush", 0, 135, 265, 82, 48), ("bush", 5, 505, 265, 82, 48)],
+        "secondary": [("bucket", 1, 145, 358, 64, 62)],
+        "fore": [("leaf", 3, 120, 422, 66, 48), ("leaf", 1, 520, 422, 66, 48)],
+    },
+    "raccoon": {
+        "theme": "forest_pine_branches",
+        "sky": [("moon", 0, 548, 52, 54, 54), ("star", 0, 125, 44, 30, 30), ("star", 1, 445, 42, 26, 26)],
+        "far": [("tree", 1, 95, 195, 110, 155), ("tree", 3, 545, 195, 110, 155)],
+        "mid": [("owl", 0, 115, 135, 44, 52), ("bush", 2, 535, 305, 88, 50)],
+        "fore": [("mushroom", 2, 85, 418, 54, 54), ("grass", 1, 535, 430, 85, 42)],
+    },
+    "frog": {
+        "theme": "lily_pad_pond",
+        "sky": [("bee", 0, 140, 56, 40, 34), ("butterfly", 0, 520, 60, 46, 40)],
+        "far": [("bush", 1, 105, 138, 108, 52), ("bush", 4, 530, 138, 108, 52)],
+        "mid": [("flower", 1, 82, 258, 54, 54), ("flower", 3, 558, 265, 54, 54)],
+        "fore": [("grass", 0, 66, 418, 80, 50), ("grass", 3, 574, 418, 80, 50)],
+    },
+    "snail": {
+        "theme": "forest_floor_macro",
+        "sky": [("butterfly", 1, 145, 54, 50, 42)],
+        "far": [("mushroom", 0, 110, 158, 88, 88), ("flower", 2, 540, 158, 80, 85)],
+        "mid": [("leaf", 2, 105, 295, 100, 70), ("mushroom", 1, 548, 285, 72, 72)],
+        "fore": [("grass", 2, 82, 428, 95, 44), ("flower", 0, 552, 422, 52, 52)],
+    },
+    "spider": {
+        "theme": "radial_orb_web",
+        "sky": [("moon", 1, 540, 58, 58, 58), ("star", 2, 435, 46, 28, 28)],
+        "far": [("tree", 4, 560, 215, 118, 170)],
+        "mid": [("leaf", 0, 540, 118, 74, 58), ("butterfly", 2, 485, 215, 44, 38)],
+        "fore": [("leaf", 1, 68, 62, 78, 60), ("grass", 4, 545, 430, 88, 42)],
+    },
+
+    # --- REGIME III: AVIAN, AQUATIC & MARINE LIFE ---
+    "swan": {
+        "theme": "willow_lake_ripples",
+        "sky": [("cloud", 3, 135, 44, 110, 40), ("cloud", 5, 505, 48, 110, 40)],
+        "far": [("tree", 2, 82, 142, 105, 105), ("bush", 0, 545, 148, 100, 52)],
+        "mid": [("duck", 0, 530, 238, 54, 42)],
+        "fore": [("grass", 1, 70, 418, 80, 48), ("flower", 1, 562, 422, 48, 48)],
+    },
+    "penguin": {
+        "theme": "antarctic_ice_floes",
+        "sky": [("snowflake", 0, 110, 52, 36, 36), ("snowflake", 1, 530, 54, 36, 36), ("sun", 1, 235, 48, 50, 50)],
+        "far": [("mountain", 0, 125, 140, 195, 78), ("mountain", 3, 520, 140, 195, 78)],
+        "mid": [("fish", 1, 105, 335, 52, 28), ("fish", 3, 538, 342, 52, 28)],
+        "fore": [("snowflake", 2, 72, 422, 40, 40)],
+    },
+    "owl": {
+        "theme": "nocturnal_oak_hollow",
+        "sky": [("moon", 0, 535, 58, 62, 62), ("star", 0, 120, 46, 30, 30), ("star", 1, 285, 40, 26, 26), ("star", 2, 420, 50, 28, 28)],
+        "far": [("tree", 5, 550, 210, 125, 175)],
+        "mid": [("bush", 3, 535, 340, 88, 50)],
+        "fore": [("leaf", 2, 62, 65, 75, 56), ("mushroom", 0, 558, 422, 54, 54)],
+    },
+    "parrot": {
+        "theme": "rainforest_canopy",
+        "sky": [("sun", 2, 540, 54, 58, 58), ("butterfly", 0, 425, 64, 44, 38)],
+        "far": [("palm_tree", 1, 545, 190, 125, 165)],
+        "mid": [("flower", 2, 92, 185, 60, 60), ("pineapple", 0, 548, 315, 58, 72)],
+        "fore": [("leaf", 0, 68, 68, 82, 62), ("leaf", 3, 572, 418, 78, 60), ("flower", 4, 82, 422, 54, 54)],
+    },
+    "flamingo": {
+        "theme": "tropical_lagoon_reeds",
+        "sky": [("sun", 0, 120, 52, 60, 60), ("cloud", 2, 490, 48, 115, 42)],
+        "far": [("palm_tree", 0, 82, 170, 108, 138), ("palm_tree", 2, 558, 170, 108, 138)],
+        "mid": [("flamingo", 1, 145, 265, 58, 74, True)],
+        "fore": [("grass", 0, 74, 418, 84, 50), ("flower", 1, 562, 422, 48, 48)],
+    },
+    "shark": {
+        "theme": "coral_reef_seabed",
+        "sky": [("fish", 0, 120, 72, 48, 26), ("fish", 1, 235, 62, 44, 24), ("fish", 2, 525, 76, 48, 26)],
+        "far": [("submarine", 0, 135, 148, 98, 52)],
+        "mid": [("octopus", 0, 105, 295, 70, 70), ("sea_turtle", 1, 535, 260, 72, 54)],
+        "fore": [("crab", 0, 115, 425, 64, 44), ("star", 0, 545, 430, 42, 42)],
+    },
+    "whale": {
+        "theme": "open_ocean_lighthouse",
+        "sky": [("cloud", 1, 135, 48, 115, 42), ("cloud", 4, 495, 50, 115, 42), ("bird", 0, 310, 46, 38, 24)],
+        "far": [("lighthouse", 0, 78, 140, 64, 98), ("sailboat", 0, 540, 155, 74, 68)],
+        "mid": [("dolphin", 1, 530, 285, 70, 44)],
+        "fore": [("fish", 3, 105, 426, 54, 28)],
+    },
+    "dolphin": {
+        "theme": "sparkling_sea_horizon",
+        "sky": [("sun", 1, 540, 52, 60, 60), ("cloud", 0, 140, 48, 110, 42), ("bird", 2, 415, 48, 36, 22)],
+        "far": [("sailboat", 1, 115, 150, 78, 70), ("mountain", 1, 515, 150, 185, 62)],
+        "mid": [("fish", 0, 535, 295, 54, 28)],
+        "fore": [("fish", 2, 95, 426, 54, 28)],
+    },
+    "sea-turtle": {
+        "theme": "coral_kelp_lagoon",
+        "sky": [("fish", 1, 135, 65, 48, 26), ("fish", 3, 505, 68, 48, 26)],
+        "far": [("sailboat", 2, 115, 122, 70, 64)],
+        "mid": [("octopus", 1, 88, 275, 72, 70), ("fish", 0, 552, 245, 54, 28)],
+        "fore": [("crab", 1, 95, 426, 64, 44), ("star", 1, 260, 435, 42, 42)],
+    },
+    "crab": {
+        "theme": "intertidal_rock_shore",
+        "sky": [("bird", 1, 135, 46, 40, 24), ("bird", 3, 485, 50, 40, 24), ("sun", 0, 558, 52, 54, 54)],
+        "far": [("lighthouse", 1, 548, 138, 62, 90), ("sailboat", 0, 425, 150, 66, 62)],
+        "mid": [("palm_tree", 1, 76, 172, 98, 122)],
+        "fore": [("star", 2, 82, 428, 42, 42), ("snail", 0, 548, 426, 54, 42)],
+    },
+
+    # --- REGIME IV: WHEELED, TRACKED & HEAVY VEHICLES (Each urban setting has a distinct architectural theme!) ---
+    "car": {
+        "theme": "brownstone_rowhouses",
+        "sky": [("cloud", 2, 130, 38, 105, 34), ("cloud", 5, 500, 38, 105, 34)],
+        "far": [],
+        "mid": [("streetlight", 1, 52, 225, 42, 110), ("tree", 2, 582, 220, 82, 105)],
+        "fore": [("fire_hydrant", 0, 560, 402, 42, 54), ("stop_sign", 0, 68, 392, 44, 68)],
+    },
+    "bus": {
+        "theme": "downtown_skyline_shelter",
+        "sky": [("cloud", 0, 320, 38, 110, 36)],
+        "far": [("skyscraper", 0, 68, 138, 78, 145), ("skyscraper", 1, 572, 138, 78, 145)],
+        "mid": [("traffic_light", 0, 565, 248, 42, 68)],
+        "fore": [("bench", 0, 95, 422, 82, 44), ("fire_hydrant", 1, 558, 418, 40, 52)],
+    },
+    "firetruck": {
+        "theme": "brick_firehouse_arches",
+        "sky": [("cloud", 1, 145, 38, 105, 34)],
+        "far": [("clock", 0, 545, 95, 52, 52)],
+        "mid": [("traffic_light", 1, 68, 215, 42, 68)],
+        "fore": [("fire_hydrant", 0, 558, 408, 46, 58)],
+    },
+    "ambulance": {
+        "theme": "city_hospital_portico",
+        "sky": [("cloud", 3, 135, 42, 110, 38), ("helicopter", 0, 515, 52, 72, 44)],
+        "far": [("hospital", 0, 545, 155, 115, 115)],
+        "mid": [("streetlight", 1, 68, 235, 42, 110), ("traffic_light", 0, 572, 265, 40, 65)],
+        "fore": [("stop_sign", 1, 72, 398, 44, 68)],
+    },
+    "motorbike": {
+        "theme": "perspective_highway",
+        "sky": [("cloud", 4, 135, 46, 110, 40), ("cloud", 6, 505, 46, 110, 40), ("sun", 2, 320, 46, 52, 52)],
+        "far": [("mountain", 1, 140, 142, 200, 64), ("mountain", 4, 500, 142, 200, 64)],
+        "mid": [("tree", 3, 72, 202, 85, 98), ("stop_sign", 0, 565, 222, 44, 68)],
+        "fore": [("cactus", 0, 66, 398, 54, 78), ("grass", 2, 562, 426, 80, 42)],
+    },
+    "bulldozer": {
+        "theme": "construction_earthworks",
+        "sky": [("cloud", 2, 495, 44, 110, 38)],
+        "far": [("mountain", 5, 515, 148, 200, 70)],
+        "mid": [("tree", 1, 72, 185, 85, 98), ("truck", 0, 545, 225, 82, 52)],
+        "fore": [("shovel", 0, 72, 408, 52, 64), ("bucket", 0, 558, 418, 50, 52)],
+    },
+    "roller-coaster": {
+        "theme": "amusement_park_trestle",
+        "sky": [("cloud", 0, 125, 44, 105, 38), ("hot_air_balloon", 0, 540, 65, 54, 70), ("sun", 0, 315, 46, 52, 52)],
+        "far": [("tent", 0, 105, 172, 98, 70), ("castle", 0, 535, 168, 98, 80)],
+        "mid": [("tree", 4, 72, 265, 80, 90), ("ice_cream", 0, 568, 285, 42, 58)],
+        "fore": [("bench", 1, 95, 428, 78, 42)],
+    },
+
+    # --- REGIME V: AEROSPACE & HEAVY NAUTICAL VESSELS ---
+    "airplane": {
+        "theme": "airport_tarmac_tower",
+        "sky": [("cloud", 1, 130, 44, 110, 38), ("cloud", 4, 495, 44, 110, 38)],
+        "far": [("lighthouse", 0, 585, 135, 50, 92)],
+        "mid": [("truck", 1, 535, 325, 74, 44)],
+        "fore": [("suitcase", 0, 78, 425, 54, 46)],
+    },
+    "parachute": {
+        "theme": "radio_jump_tower",
+        "sky": [("cloud", 0, 115, 58, 115, 44), ("cloud", 3, 510, 56, 115, 44), ("airplane", 1, 140, 122, 90, 48)],
+        "far": [("the_eiffel_tower", 0, 290, 225, 135, 250)],
+        "mid": [("bird", 0, 115, 255, 42, 26)],
+        "fore": [("tree", 2, 74, 425, 72, 76), ("house", 0, 558, 428, 72, 62)],
+    },
+    "flying-saucer": {
+        "theme": "night_cosmos_observatory",
+        "sky": [("moon", 0, 545, 58, 62, 62), ("star", 0, 410, 44, 30, 30), ("star", 1, 475, 92, 26, 26), ("star", 2, 350, 70, 28, 28)],
+        "far": [("mountain", 2, 495, 315, 220, 70)],
+        "mid": [("tree", 5, 568, 355, 72, 86)],
+        "fore": [("binoculars", 0, 545, 426, 58, 44)],
+    },
+    "aircraft-carrier": {
+        "theme": "naval_fleet_horizon",
+        "sky": [("cloud", 2, 135, 46, 115, 40), ("cloud", 5, 495, 46, 115, 40), ("airplane", 0, 165, 92, 74, 40), ("helicopter", 1, 485, 95, 68, 42)],
+        "far": [("cruise_ship", 0, 110, 162, 90, 48), ("lighthouse", 1, 568, 148, 50, 82)],
+        "mid": [("speedboat", 0, 538, 285, 74, 40)],
+        "fore": [("submarine", 1, 105, 422, 90, 42)],
+    },
+    "cruise-ship": {
+        "theme": "tropical_harbor_bay",
+        "sky": [("sun", 1, 545, 52, 58, 58), ("cloud", 1, 135, 46, 110, 40), ("bird", 2, 390, 48, 36, 22)],
+        "far": [("mountain", 0, 515, 142, 200, 68), ("palm_tree", 0, 568, 162, 72, 90)],
+        "mid": [("sailboat", 0, 540, 255, 74, 68), ("speedboat", 1, 100, 265, 72, 40)],
+        "fore": [("dolphin", 0, 130, 418, 72, 42), ("fish", 1, 530, 426, 52, 26)],
+    },
+
+    # --- REGIME VI: MUSICAL INSTRUMENTS & PERFORMANCE (Each stage/room has its own distinct architecture!) ---
+    "piano": {
+        "theme": "concert_hall_proscenium",
+        "sky": [("chandelier", 0, 140, 56, 80, 70), ("chandelier", 1, 525, 56, 80, 70)],
+        "far": [("picture_frame", 0, 125, 162, 74, 62)],
+        "mid": [("floor_lamp", 0, 82, 258, 54, 128), ("chair", 0, 548, 288, 62, 80)],
+        "fore": [("wine_glass", 0, 85, 418, 40, 54), ("book", 0, 548, 422, 58, 44)],
+    },
+    "violin": {
+        "theme": "wood_paneled_salon",
+        "sky": [("chandelier", 2, 125, 56, 78, 68)],
+        "far": [("picture_frame", 1, 115, 162, 74, 62), ("clock", 0, 548, 142, 54, 54)],
+        "mid": [("floor_lamp", 1, 78, 268, 52, 122), ("house_plant", 0, 558, 278, 64, 90)],
+        "fore": [("chair", 1, 95, 398, 62, 78), ("book", 1, 538, 426, 62, 44)],
+    },
+    "cello": {
+        "theme": "symphony_acoustic_shell",
+        "sky": [("chandelier", 0, 320, 52, 88, 70)],
+        "far": [("harp", 0, 552, 192, 68, 90), ("drums", 0, 448, 202, 74, 62)],
+        "mid": [("violin", 0, 348, 255, 52, 68), ("trumpet", 0, 558, 298, 62, 40)],
+        "fore": [("chair", 2, 548, 398, 62, 76)],
+    },
+    "trumpet": {
+        "theme": "jazz_club_arch",
+        "sky": [("chandelier", 1, 135, 54, 74, 64), ("star", 0, 538, 50, 32, 32)],
+        "far": [("picture_frame", 2, 115, 162, 72, 60)],
+        "mid": [("microphone", 0, 85, 288, 48, 110), ("saxophone", 0, 558, 278, 62, 88)],
+        "fore": [("table", 0, 95, 422, 80, 52), ("wine_glass", 1, 548, 418, 38, 52)],
+    },
+
+    # --- REGIME VII: MONUMENTAL ARCHITECTURE, BRIDGES & LANDMARKS ---
+    "bridge": {
+        "theme": "river_gorge_harbor",
+        "sky": [("cloud", 1, 120, 46, 105, 38), ("bird", 0, 195, 56, 36, 22)],
+        "far": [("skyscraper", 0, 68, 162, 70, 128), ("skyscraper", 2, 148, 172, 64, 115)],
+        "mid": [("sailboat", 1, 115, 325, 64, 58)],
+        "fore": [("speedboat", 0, 530, 422, 74, 40)],
+    },
+    "castle": {
+        "theme": "lakeside_forest_highlands",
+        "sky": [("cloud", 3, 135, 44, 110, 40), ("cloud", 6, 445, 46, 105, 38), ("sun", 0, 565, 48, 54, 54)],
+        "far": [("mountain", 2, 125, 152, 200, 70)],
+        "mid": [("tree", 1, 68, 208, 82, 100), ("tree", 4, 482, 198, 80, 98), ("tree", 6, 568, 198, 80, 98)],
+        "secondary": [("swan", 0, 495, 345, 52, 42)],
+        "fore": [("grass", 1, 82, 426, 80, 42), ("bush", 2, 558, 422, 80, 44)],
+    },
+    "church": {
+        "theme": "village_green_elms",
+        "sky": [("cloud", 0, 135, 44, 110, 38), ("cloud", 4, 495, 44, 110, 38), ("bird", 1, 290, 42, 36, 22)],
+        "far": [("house", 0, 95, 182, 90, 72)],
+        "mid": [("tree", 0, 72, 218, 100, 128), ("tree", 3, 568, 218, 100, 128)],
+        "fore": [("fence", 0, 108, 422, 148, 48), ("fence", 1, 528, 422, 148, 48), ("flower", 2, 235, 435, 42, 42)],
+    },
+    "barn": {
+        "theme": "rural_homestead_silo",
+        "sky": [("cloud", 2, 140, 44, 110, 40), ("sun", 1, 540, 52, 58, 58)],
+        "far": [("windmill", 1, 545, 158, 80, 108), ("mountain", 0, 425, 162, 185, 62)],
+        "mid": [("tree", 5, 572, 245, 88, 108), ("tractor", 1, 495, 318, 80, 58)],
+        "fore": [("fence", 1, 495, 418, 175, 52), ("grass", 3, 95, 435, 85, 40)],
+    },
+
+    # --- REGIME VIII: WEATHER, ELEMENTAL FORCES, OPTICS & FLORA ---
+    "tornado": {
+        "theme": "storm_plain_telegraph",
+        "sky": [("cloud", 0, 130, 46, 125, 48), ("cloud", 3, 500, 46, 125, 48), ("lightning", 0, 115, 112, 52, 80), ("lightning", 1, 535, 112, 52, 80)],
+        "far": [("barn", 0, 540, 252, 98, 74), ("windmill", 0, 95, 242, 68, 90)],
+        "mid": [("tree", 2, 72, 318, 80, 90)],
+        "fore": [("fence", 0, 118, 426, 150, 46), ("grass", 4, 538, 430, 88, 42)],
+    },
+    "ocean": {
+        "theme": "coastal_headland_surf",
+        "sky": [("cloud", 1, 130, 44, 110, 40), ("cloud", 5, 495, 46, 110, 40), ("bird", 2, 280, 50, 40, 24)],
+        "far": [("lighthouse", 0, 76, 132, 60, 94), ("sailboat", 2, 175, 156, 68, 62)],
+        "mid": [("whale", 0, 118, 265, 90, 48)],
+        "fore": [("crab", 0, 85, 428, 60, 42), ("star", 1, 558, 430, 42, 42)],
+    },
+    "camera": {
+        "theme": "soundstage_floodlights",
+        "sky": [("light_bulb", 0, 115, 52, 46, 58), ("light_bulb", 1, 525, 52, 46, 58)],
+        "far": [("picture_frame", 0, 115, 152, 80, 64), ("television", 0, 538, 156, 78, 64)],
+        "mid": [("floor_lamp", 0, 74, 268, 54, 128), ("megaphone", 0, 548, 278, 64, 48)],
+        "fore": [("chair", 0, 95, 408, 64, 74), ("coffee_cup", 0, 548, 422, 48, 44)],
+    },
+    "flower": {
+        "theme": "botanical_conservatory",
+        "sky": [("sun", 0, 112, 54, 54, 54), ("butterfly", 0, 168, 92, 48, 42), ("bee", 1, 515, 82, 42, 36)],
+        "far": [("house_plant", 0, 92, 185, 74, 98), ("house_plant", 1, 548, 185, 74, 98)],
+        "mid": [("leaf", 0, 84, 305, 80, 62), ("leaf", 2, 556, 305, 80, 62)],
+        "fore": [("flower", 1, 95, 418, 54, 54), ("flower", 3, 545, 418, 54, 54), ("grass", 0, 235, 438, 88, 38)],
+    },
+}

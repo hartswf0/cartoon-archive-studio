@@ -680,26 +680,37 @@ table.xsheet-table tr { cursor: pointer; }
       </div>
     </div>
 
-    <!-- Unique Scene Environment Plate & Multiplane Depth Vectorization -->
-    <div class="projector-layout" style="margin-bottom:1.15rem;">
+    <!-- Unique Scene Environment Plate, 4-Pass Living BG Redraw & Multiplane Depth Vectorization -->
+    <div class="look-grid-top" style="margin-bottom:1.15rem;">
       <div class="sheet">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
-          <strong class="mono" style="font-size:0.75rem;">STAGE 4B // UNIQUE GENERATED SCENE ENVIRONMENT PLATE (<code>scene-plate.png</code>)</strong>
+          <strong class="mono" style="font-size:0.74rem;">STAGE 4B // UNIQUE SCENE PLATE (<code>scene-plate.png</code>)</strong>
           <span class="badge info">No Copy-Paste Scenery</span>
         </div>
         <img id="img-scene-plate" src="" alt="Unique Scene Plate" style="width:100%;aspect-ratio:4/3;object-fit:contain;border:1.5px solid var(--ink);background:#FFF;border-radius:3px;">
-        <p class="mono" style="font-size:0.72rem;color:var(--ink-soft);margin:0.45rem 0 0;">
-          Custom-generated hand-drawn Quick, Draw! environment plate drawn directly from this shot's archival footage (<code>source-keys.png</code>) without the main character.
+        <p class="mono" style="font-size:0.71rem;color:var(--ink-soft);margin:0.45rem 0 0;">
+          Custom hand-drawn Quick, Draw! + architectural environment plate synthesized for this shot without the main character.
         </p>
       </div>
 
       <div class="sheet">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
-          <strong class="mono" style="font-size:0.75rem;">STAGE 5B // SKELETON-VECTORIZED MULTIPLANE DEPTH LAYERS (<code>scene-traced.json</code>)</strong>
+          <strong class="mono" style="font-size:0.74rem;">STAGE 4C // 4-PASS BG REDRAW &amp; CELS (<code>bg-redraw-pass.png</code>)</strong>
+          <span class="badge pass">Pass 1&rarr;4 + Gouache Cels</span>
+        </div>
+        <img id="img-bg-redraw-pass" src="" alt="4-Pass Background Redraw & Gouache Occlusion Cels" style="width:100%;aspect-ratio:4/3;object-fit:contain;border:1.5px solid var(--ink);background:#111;border-radius:3px;">
+        <p class="mono" style="font-size:0.71rem;color:var(--ink-soft);margin:0.45rem 0 0;">
+          Pass 1 (Depth Horizon) &rarr; Pass 2 (Wireframe Critique) &rarr; Pass 3 (Relaxed Layout + Tight Gouache Cels) &rarr; Pass 4 (4-Key Living BG Boil).
+        </p>
+      </div>
+
+      <div class="sheet">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+          <strong class="mono" style="font-size:0.74rem;">STAGE 5B // MULTIPLANE DEPTH LAYERS (<code>scene-traced.json</code>)</strong>
           <span class="badge pass" id="scene-trace-badge">Traced Environment</span>
         </div>
         <canvas id="scene-trace-canvas" width="640" height="480" style="width:100%;aspect-ratio:4/3;border:1.5px solid var(--ink);background:#FFF;border-radius:3px;display:block;"></canvas>
-        <p class="mono" style="font-size:0.72rem;color:var(--ink-soft);margin:0.45rem 0 0;">
+        <p class="mono" style="font-size:0.71rem;color:var(--ink-soft);margin:0.45rem 0 0;">
           Decomposed by depth plane: <span style="color:#2B5B84;font-weight:700;">&bull; Sky (z=10)</span> &middot; <span style="color:#5C554C;font-weight:700;">&bull; Far (z=6)</span> &middot; <span style="color:#2F6B4F;font-weight:700;">&bull; Mid (z=3.5)</span> &middot; <span style="color:#6B4C8C;font-weight:700;">&bull; Secondary (z=2.5)</span> &middot; <span style="color:#C94A29;font-weight:700;">&bull; Foreground (z=1.25..0.85)</span>
         </p>
       </div>
@@ -1021,24 +1032,46 @@ function drawMultiplaneFrame(ctx, shotObj, posesArr, fIdx, mode, visMap, useRain
       const stStyle = PLANE_STYLES[pid] || PLANE_STYLES.mid;
 
       const objs = (shotObj.objects || []).filter(o => o.plane === pid);
+      const bgKey = Math.floor(f / 2) % 4;
       for (const obj of objs) {
         ctx.save();
+        // Paint multiplane gouache occlusion cels so nearer background planes hide farther planes (zero X-ray bleed)
+        if (obj.cel_polygons && obj.cel_polygons.length > 0) {
+          ctx.fillStyle = isWhiteGround ? "#FFFFFF" : "#FAF5EB";
+          ctx.strokeStyle = isWhiteGround ? "#E6E2DA" : "#DED5C5";
+          ctx.lineWidth = 1.0;
+          ctx.globalAlpha = 0.96;
+          for (const poly of obj.cel_polygons) {
+            if (!poly || poly.length < 3) continue;
+            ctx.beginPath();
+            ctx.moveTo(poly[0][0] + shiftX, poly[0][1] + shiftY);
+            for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i][0] + shiftX, poly[i][1] + shiftY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
         ctx.strokeStyle = stStyle.stroke;
         ctx.lineWidth = stStyle.width;
         ctx.globalAlpha = stStyle.alpha;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
+        let sIdx = 0;
         for (const s of (obj.strokes || [])) {
+          sIdx++;
           if (!s || s.length < 2) continue;
+          const phase = (bgKey * Math.PI * 0.5) + sIdx * 0.65;
+          const bx = 0.55 * Math.sin(phase);
+          const by = 0.55 * Math.cos(phase);
           ctx.beginPath();
           if (obj.pos && obj.size) {
-            const ox = obj.pos[0] + shiftX, oy = obj.pos[1] + shiftY;
+            const ox = obj.pos[0] + shiftX + bx, oy = obj.pos[1] + shiftY + by;
             const ow = obj.size[0], oh = obj.size[1];
             ctx.moveTo(ox + s[0][0] * ow, oy + s[0][1] * oh);
             for (let i = 1; i < s.length; i++) ctx.lineTo(ox + s[i][0] * ow, oy + s[i][1] * oh);
           } else {
-            ctx.moveTo(s[0][0] + shiftX, s[0][1] + shiftY);
-            for (let i = 1; i < s.length; i++) ctx.lineTo(s[i][0] + shiftX, s[i][1] + shiftY);
+            ctx.moveTo(s[0][0] + shiftX + bx, s[0][1] + shiftY + by);
+            for (let i = 1; i < s.length; i++) ctx.lineTo(s[i][0] + shiftX + bx, s[i][1] + shiftY + by);
           }
           ctx.stroke();
         }
@@ -1280,12 +1313,15 @@ function selectShot(slug) {
     if (depthBadge) depthBadge.textContent = `Depth-Anything-V2: 33/33 Frames (${s.depth_sam_analysis.planes_verified ? s.depth_sam_analysis.planes_verified.length : 7} Planes)`;
   }
 
-  // Render Unique Scene Environment Plate & Depth Vectorization
+  // Render Unique Scene Environment Plate, 4-Pass Living BG Redraw & Depth Vectorization
   const spImg = document.getElementById("img-scene-plate");
   if (spImg && s.assets.scene_plate) spImg.src = s.assets.scene_plate;
+  const bgRedrawImg = document.getElementById("img-bg-redraw-pass");
+  if (bgRedrawImg) bgRedrawImg.src = s.assets.bg_redraw_pass || s.assets.scene_plate;
   const stBadge = document.getElementById("scene-trace-badge");
   if (stBadge && s.scene_traced) {
-    stBadge.textContent = `${s.scene_traced.n_strokes} Traced Env Strokes (Recall ${s.scene_traced.recall})`;
+    const celsTxt = s.scene_traced.n_gouache_cels ? ` + ${s.scene_traced.n_gouache_cels} Cels` : "";
+    stBadge.textContent = `${s.scene_traced.n_strokes} Strokes${celsTxt}`;
   }
   const stCanvas = document.getElementById("scene-trace-canvas");
   if (stCanvas && s.shot) {
