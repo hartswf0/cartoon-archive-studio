@@ -1,0 +1,47 @@
+{
+  "category": "crab",
+  "shot_id": "crab",
+  "body_plan": "Regime III: Nautical & Marine",
+  "interval": [
+    2.19,
+    5.79
+  ],
+  "key_times": [
+    2.19,
+    3.31,
+    4.55,
+    5.79
+  ],
+  "key_notes": [
+    "Key 1 (t=2.19s): Initial archival pose of crab; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.31s): Mid-sequence articulation of crab; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.55s): Peak dynamic extension of crab over 7-plane multiplane environment.",
+    "Key 4 (t=5.79s): Follow-through and settle of crab with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of crab (2.19s..5.79s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_ad3d2427",
+    "source_id": "01_ad3d2427",
+    "source_slug": "crab",
+    "source_title": "Moving Image Archive // Crab",
+    "source_year": 1956,
+    "start_seconds": 2.19,
+    "end_seconds": 5.79,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/crab/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/crab/videos/01_ad3d2427-10cc-5a8d-a28f-95548f6de597.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4602858257252352",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

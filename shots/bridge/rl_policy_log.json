@@ -1,0 +1,14 @@
+{
+  "shot": "bridge",
+  "category": "bridge",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.955,
+  "mean_reward_ep0": 0.387,
+  "mean_reward_ep1": 0.5313,
+  "mean_reward_ep2": 0.5869,
+  "mean_reward_ep3": 0.6049,
+  "mean_sil_iou_ep3": 0.767,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9239,
+  "reward_delta": 0.2179
+}

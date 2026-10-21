@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "owl", "clip": "24_0fdbee5e", "interval": [19.82, 23.42]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "owl", "mean_sam_iou": 0.9205}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "owl", "key_id": "4989031819509760", "country": "NL"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "owl", "ep0": 0.2532, "ep3": 0.793, "sil_iou": 0.771, "in_mask": 0.9418}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "owl", "gates": "16/16"}

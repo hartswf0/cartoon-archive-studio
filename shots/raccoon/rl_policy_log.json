@@ -1,0 +1,14 @@
+{
+  "shot": "raccoon",
+  "category": "raccoon",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.929,
+  "mean_reward_ep0": 0.3811,
+  "mean_reward_ep1": 0.752,
+  "mean_reward_ep2": 0.7947,
+  "mean_reward_ep3": 0.8127,
+  "mean_sil_iou_ep3": 0.781,
+  "mean_edge_recall_ep3": 0.6864,
+  "mean_stroke_precision_ep3": 0.9451,
+  "reward_delta": 0.4316
+}

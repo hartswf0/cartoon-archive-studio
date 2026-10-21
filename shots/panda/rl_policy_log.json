@@ -1,0 +1,14 @@
+{
+  "shot": "panda",
+  "category": "panda",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.8813,
+  "mean_reward_ep0": 0.1858,
+  "mean_reward_ep1": 0.7892,
+  "mean_reward_ep2": 0.8577,
+  "mean_reward_ep3": 0.8757,
+  "mean_sil_iou_ep3": 0.8426,
+  "mean_edge_recall_ep3": 0.7476,
+  "mean_stroke_precision_ep3": 0.9772,
+  "reward_delta": 0.69
+}

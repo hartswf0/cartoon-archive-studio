@@ -1,0 +1,14 @@
+{
+  "shot": "zebra",
+  "category": "zebra",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9418,
+  "mean_reward_ep0": 0.4023,
+  "mean_reward_ep1": 0.6216,
+  "mean_reward_ep2": 0.6787,
+  "mean_reward_ep3": 0.6967,
+  "mean_sil_iou_ep3": 0.7568,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9666,
+  "reward_delta": 0.2944
+}

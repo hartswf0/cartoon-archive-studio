@@ -1,0 +1,14 @@
+{
+  "shot": "swan",
+  "category": "swan",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.8664,
+  "mean_reward_ep0": 0.0735,
+  "mean_reward_ep1": 0.7717,
+  "mean_reward_ep2": 0.8303,
+  "mean_reward_ep3": 0.8483,
+  "mean_sil_iou_ep3": 0.7472,
+  "mean_edge_recall_ep3": 0.7897,
+  "mean_stroke_precision_ep3": 0.9771,
+  "reward_delta": 0.7748
+}

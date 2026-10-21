@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "spider", "clip": "03_a3adb5c4", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "spider", "mean_sam_iou": 0.9561}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "spider", "key_id": "6711412824997888", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "spider", "ep0": 0.3905, "ep3": 0.683, "sil_iou": 0.7736, "in_mask": 0.9454}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "spider", "gates": "16/16"}

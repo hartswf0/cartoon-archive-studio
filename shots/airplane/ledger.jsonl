@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "airplane", "clip": "07_9b26db60", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "airplane", "mean_sam_iou": 0.9561}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "airplane", "key_id": "5593589151170560", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "airplane", "ep0": 0.5379, "ep3": 0.7264, "sil_iou": 0.8111, "in_mask": 0.9348}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "airplane", "gates": "16/16"}

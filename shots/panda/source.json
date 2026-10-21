@@ -1,0 +1,47 @@
+{
+  "category": "panda",
+  "shot_id": "panda",
+  "body_plan": "Regime I: Terrestrial & Arboreal",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of panda; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of panda; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of panda over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of panda with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of panda (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_e60a3b35",
+    "source_id": "06_e60a3b35",
+    "source_slug": "panda",
+    "source_title": "Moving Image Archive // Panda",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/panda/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/panda/videos/06_e60a3b35-a2c9-5372-a300-f22160afb808.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5751369791176704",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

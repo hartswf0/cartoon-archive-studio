@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "firetruck", "clip": "01_fe3af7f8", "interval": [0.94, 4.54]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "firetruck", "mean_sam_iou": 0.9553}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "firetruck", "key_id": "5667571141443584", "country": "DE"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "firetruck", "ep0": 0.0588, "ep3": 0.6972, "sil_iou": 0.74, "in_mask": 0.9791}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "firetruck", "gates": "16/16"}

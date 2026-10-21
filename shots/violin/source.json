@@ -1,0 +1,47 @@
+{
+  "category": "violin",
+  "shot_id": "violin",
+  "body_plan": "Regime VI: Musical Performance",
+  "interval": [
+    6.16,
+    9.76
+  ],
+  "key_times": [
+    6.16,
+    7.29,
+    8.52,
+    9.76
+  ],
+  "key_notes": [
+    "Key 1 (t=6.16s): Initial archival pose of violin; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.29s): Mid-sequence articulation of violin; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.52s): Peak dynamic extension of violin over 7-plane multiplane environment.",
+    "Key 4 (t=9.76s): Follow-through and settle of violin with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of violin (6.16s..9.76s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_30f4a323",
+    "source_id": "03_30f4a323",
+    "source_slug": "violin",
+    "source_title": "Moving Image Archive // Violin",
+    "source_year": 1956,
+    "start_seconds": 6.16,
+    "end_seconds": 9.76,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/violin/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/violin/videos/03_30f4a323-79e2-5e35-9913-7ef937edd864.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6412415539347456",
+    "n_strokes": 7,
+    "country": "GB",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (GB, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

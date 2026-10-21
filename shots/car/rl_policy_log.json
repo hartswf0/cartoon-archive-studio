@@ -1,0 +1,14 @@
+{
+  "shot": "car",
+  "category": "car",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9523,
+  "mean_reward_ep0": 0.303,
+  "mean_reward_ep1": 0.5983,
+  "mean_reward_ep2": 0.6668,
+  "mean_reward_ep3": 0.6866,
+  "mean_sil_iou_ep3": 0.7446,
+  "mean_edge_recall_ep3": 0.6288,
+  "mean_stroke_precision_ep3": 0.9133,
+  "reward_delta": 0.3837
+}

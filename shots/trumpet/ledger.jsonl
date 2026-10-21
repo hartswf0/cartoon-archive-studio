@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "trumpet", "clip": "01_015d2d81", "interval": [2.14, 5.74]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "trumpet", "mean_sam_iou": 0.9417}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "trumpet", "key_id": "5299020241043456", "country": "AR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "trumpet", "ep0": 0.259, "ep3": 0.7791, "sil_iou": 0.7531, "in_mask": 0.9146}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "trumpet", "gates": "16/16"}

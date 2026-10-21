@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "pig", "clip": "19_580e4cb1", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "pig", "mean_sam_iou": 0.9537}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "pig", "key_id": "5553006479147008", "country": "UA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "pig", "ep0": 0.5176, "ep3": 0.7043, "sil_iou": 0.7814, "in_mask": 0.9214}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "pig", "gates": "16/16"}

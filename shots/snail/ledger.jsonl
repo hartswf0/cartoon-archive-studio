@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "snail", "clip": "19_c6646160", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "snail", "mean_sam_iou": 0.9337}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "snail", "key_id": "6747838476189696", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "snail", "ep0": 0.2014, "ep3": 0.8111, "sil_iou": 0.7959, "in_mask": 0.9261}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "snail", "gates": "16/16"}

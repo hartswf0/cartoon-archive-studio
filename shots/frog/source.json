@@ -1,0 +1,47 @@
+{
+  "category": "frog",
+  "shot_id": "frog",
+  "body_plan": "Regime VIII: Biological Articulation",
+  "interval": [
+    9.35,
+    12.95
+  ],
+  "key_times": [
+    9.35,
+    10.47,
+    11.71,
+    12.95
+  ],
+  "key_notes": [
+    "Key 1 (t=9.35s): Initial archival pose of frog; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=10.47s): Mid-sequence articulation of frog; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=11.71s): Peak dynamic extension of frog over 7-plane multiplane environment.",
+    "Key 4 (t=12.95s): Follow-through and settle of frog with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of frog (9.35s..12.95s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "21_873110fa",
+    "source_id": "21_873110fa",
+    "source_slug": "frog",
+    "source_title": "Moving Image Archive // Frog",
+    "source_year": 1956,
+    "start_seconds": 9.35,
+    "end_seconds": 12.95,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/frog/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/frog/videos/21_873110fa-6de8-5fce-ab74-f4595fc24ed4.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4919655783202816",
+    "n_strokes": 7,
+    "country": "SG",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (SG, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

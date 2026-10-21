@@ -1,0 +1,47 @@
+{
+  "category": "sheep",
+  "shot_id": "sheep",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    10.03,
+    13.63
+  ],
+  "key_times": [
+    10.03,
+    11.15,
+    12.39,
+    13.63
+  ],
+  "key_notes": [
+    "Key 1 (t=10.03s): Initial archival pose of sheep; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=11.15s): Mid-sequence articulation of sheep; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=12.39s): Peak dynamic extension of sheep over 7-plane multiplane environment.",
+    "Key 4 (t=13.63s): Follow-through and settle of sheep with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of sheep (10.03s..13.63s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "17_8ccec8f2",
+    "source_id": "17_8ccec8f2",
+    "source_slug": "sheep",
+    "source_title": "Moving Image Archive // Sheep",
+    "source_year": 1956,
+    "start_seconds": 10.03,
+    "end_seconds": 13.63,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/sheep/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/sheep/videos/17_8ccec8f2-d76e-56e8-b772-826ca0b0d7ae.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5177062467829760",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -13,6 +13,7 @@ SHOTS_DIR = STUDIO_DIR / "shots"
 DATA_DIR = STUDIO_DIR / "data"
 
 SHOT_ORDER = [
+    # Initial 20 Shots (8 Joined + 12 Universal Argon RL)
     "giraffe-walks-past",
     "dog",
     "horse",
@@ -33,6 +34,57 @@ SHOT_ORDER = [
     "lighthouse",
     "hot-air-balloon",
     "butterfly",
+    # Batch-50 Full SCION Multiplane Cartoons (50 New Shots Across 8 Regimes)
+    "lion",
+    "tiger",
+    "bear",
+    "zebra",
+    "camel",
+    "kangaroo",
+    "cow",
+    "sheep",
+    "pig",
+    "squirrel",
+    "monkey",
+    "panda",
+    "raccoon",
+    "frog",
+    "snail",
+    "spider",
+    "swan",
+    "penguin",
+    "owl",
+    "parrot",
+    "flamingo",
+    "shark",
+    "whale",
+    "dolphin",
+    "sea-turtle",
+    "crab",
+    "car",
+    "bus",
+    "firetruck",
+    "ambulance",
+    "motorbike",
+    "bulldozer",
+    "roller-coaster",
+    "airplane",
+    "parachute",
+    "flying-saucer",
+    "aircraft-carrier",
+    "cruise-ship",
+    "piano",
+    "violin",
+    "cello",
+    "trumpet",
+    "bridge",
+    "castle",
+    "church",
+    "barn",
+    "tornado",
+    "ocean",
+    "camera",
+    "flower",
 ]
 
 
@@ -43,7 +95,7 @@ def load_json(path: Path, default=None):
 
 
 def build_showcase_video():
-    """Concatenate a 2x2 showcase MP4 of our 20 Joined & Universal Argon RL shots."""
+    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 8 regimes."""
     out_path = STUDIO_DIR / "Cartoon_Archive_Living_Doodles_Showcase.mp4"
     writer = cv2.VideoWriter(str(out_path), cv2.VideoWriter_fourcc(*"mp4v"), 12.0, (1280, 720))
 
@@ -53,6 +105,10 @@ def build_showcase_video():
         ("PART III: UNIVERSAL ARGON RL — MEGAFAUNA & VEHICLES", ["elephant", "duck", "canoe", "tractor"]),
         ("PART IV: UNIVERSAL ARGON RL — RAIL, NAUTICAL & FIRE", ["train", "speedboat", "campfire", "guitar"]),
         ("PART V: UNIVERSAL ARGON RL — OBJECTS, ARCHITECTURE & NATURE", ["clock", "lighthouse", "hot-air-balloon", "butterfly"]),
+        ("PART VI: SCION BATCH-50 — PREDATORS & UNGULATES", ["lion", "tiger", "zebra", "kangaroo"]),
+        ("PART VII: SCION BATCH-50 — MARINE & AVIAN", ["swan", "penguin", "dolphin", "whale"]),
+        ("PART VIII: SCION BATCH-50 — VEHICLES, AEROSPACE & MUSIC", ["car", "airplane", "piano", "violin"]),
+        ("PART IX: SCION BATCH-50 — LANDMARKS & NATURAL FORCES", ["bridge", "castle", "tornado", "flower"]),
     ]
 
     for title, slugs in groups:
@@ -66,10 +122,10 @@ def build_showcase_video():
             cv2.rectangle(canvas, (0, 0), (1280, 48), (18, 20, 22), -1)
             cv2.putText(
                 canvas,
-                f"SECONDHAND MOTION // {title}   [FRAME {f_idx + 1:02d}/33]",
+                f"SECONDHAND MOTION (70 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
                 (20, 31),
                 cv2.FONT_HERSHEY_DUPLEX,
-                0.62,
+                0.58,
                 (227, 239, 246),
                 1,
                 cv2.LINE_AA,
@@ -94,7 +150,6 @@ def build_showcase_video():
                 cap.release()
 
     writer.release()
-    # Transcode to H.264 yuv420p for universal browser playback
     import subprocess
     tmp_path = STUDIO_DIR / "Cartoon_Archive_Living_Doodles_Showcase_tmp.mp4"
     out_path.rename(tmp_path)
@@ -144,12 +199,23 @@ def bundle_data():
                     t["how"] = f"SAM + adaptive skeletonize across all 4 keys (mean recall {mean_rec:.3f}, min key {min_rec:.3f})"
             (sdir / "tests.json").write_text(json.dumps(tests, indent=2), encoding="utf-8")
 
+        # Ensure shot["masks"] is populated and remove duplicate cast.cel_masks to save bundle size
+        if "cast" in shot and "cel_masks" in shot["cast"]:
+            if "masks" not in shot or not shot["masks"]:
+                shot["masks"] = shot["cast"]["cel_masks"]
+            del shot["cast"]["cel_masks"]
+        if "camera" not in shot or not shot["camera"]:
+            shot["camera"] = camera
+
         ledger_lines = []
         ledger_path = sdir / "ledger.jsonl"
         if ledger_path.exists():
             for line in ledger_path.read_text().splitlines():
                 if line.strip():
                     ledger_lines.append(json.loads(line))
+
+        raw_planes = scene_traced.get("planes", {})
+        plane_counts = {pid: (len(v) if isinstance(v, list) else v) for pid, v in raw_planes.items()}
 
         t_keys = traced.get("keys", [])
         shots_bundle[slug] = {
@@ -171,7 +237,7 @@ def bundle_data():
                 "recall": scene_traced.get("recall", 0.99),
                 "precision": scene_traced.get("precision", 1.0),
                 "parts_kept": scene_traced.get("parts_kept", 1.0),
-                "planes": scene_traced.get("planes", {}),
+                "planes": plane_counts,
             },
             "traced": {
                 "W": traced.get("W", 640),
@@ -227,8 +293,8 @@ def bundle_data():
     archive_base = load_json(DATA_DIR / "cartoon_archive_data.json", {})
 
     full_payload = {
-        "project": "Secondhand Motion — The Joined Studio (Look Lane + Motion Lane)",
-        "generated_at": "2026-10-20",
+        "project": "Secondhand Motion — The Joined Studio (70 Full SCION Multiplane Cartoons)",
+        "generated_at": "2026-10-21",
         "shot_order": SHOT_ORDER,
         "shots": shots_bundle,
         "lane_compare": lane_compare,
@@ -239,8 +305,8 @@ def bundle_data():
     }
 
     js_path = STUDIO_DIR / "cartoon_archive_data.js"
-    js_path.write_text("window.SECONDHAND_STUDIO_DATA = " + json.dumps(full_payload) + ";\n")
-    print(f"Wrote {js_path} ({js_path.stat().st_size / 1e6:.2f} MB)")
+    js_path.write_text("window.SECONDHAND_STUDIO_DATA = " + json.dumps(full_payload, separators=(",", ":")) + ";\n")
+    print(f"Wrote {js_path} ({js_path.stat().st_size / 1e6:.2f} MB) with {len(shots_bundle)} shots")
 
 
 if __name__ == "__main__":

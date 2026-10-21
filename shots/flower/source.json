@@ -1,0 +1,47 @@
+{
+  "category": "flower",
+  "shot_id": "flower",
+  "body_plan": "Regime VIII: Biological & Botanical",
+  "interval": [
+    2.8,
+    6.4
+  ],
+  "key_times": [
+    2.8,
+    3.92,
+    5.16,
+    6.4
+  ],
+  "key_notes": [
+    "Key 1 (t=2.8s): Initial archival pose of flower; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.92s): Mid-sequence articulation of flower; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.16s): Peak dynamic extension of flower over 7-plane multiplane environment.",
+    "Key 4 (t=6.4s): Follow-through and settle of flower with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of flower (2.8s..6.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_9883a502",
+    "source_id": "03_9883a502",
+    "source_slug": "flower",
+    "source_title": "Moving Image Archive // Flower",
+    "source_year": 1956,
+    "start_seconds": 2.8,
+    "end_seconds": 6.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/flower/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/flower/videos/03_9883a502-df53-50b3-9a1f-2aa86fec839f.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5383356323725312",
+    "n_strokes": 7,
+    "country": "SA",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (SA, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

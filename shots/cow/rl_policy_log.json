@@ -1,0 +1,14 @@
+{
+  "shot": "cow",
+  "category": "cow",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9482,
+  "mean_reward_ep0": 0.4841,
+  "mean_reward_ep1": 0.5049,
+  "mean_reward_ep2": 0.5868,
+  "mean_reward_ep3": 0.6048,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9088,
+  "reward_delta": 0.1207
+}

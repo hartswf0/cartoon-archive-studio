@@ -1,0 +1,47 @@
+{
+  "category": "swan",
+  "shot_id": "swan",
+  "body_plan": "Regime III: Nautical & Waterline",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of swan; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of swan; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of swan over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of swan with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of swan (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_58b155a0",
+    "source_id": "06_58b155a0",
+    "source_slug": "swan",
+    "source_title": "Moving Image Archive // Swan",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/swan/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/swan/videos/06_58b155a0-2000-5caa-b10d-3138f197cbd9.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4919865951387648",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

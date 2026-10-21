@@ -1,0 +1,47 @@
+{
+  "category": "parrot",
+  "shot_id": "parrot",
+  "body_plan": "Regime IV: Aerial & Avian",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of parrot; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of parrot; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of parrot over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of parrot with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of parrot (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "12_814a9b77",
+    "source_id": "12_814a9b77",
+    "source_slug": "parrot",
+    "source_title": "Moving Image Archive // Parrot",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/parrot/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/parrot/videos/12_814a9b77-4e4b-53c5-8d03-5d4d85fff939.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5381584679075840",
+    "n_strokes": 6,
+    "country": "GB",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (GB, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

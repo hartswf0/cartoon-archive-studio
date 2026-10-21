@@ -1,0 +1,47 @@
+{
+  "category": "pig",
+  "shot_id": "pig",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of pig; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of pig; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of pig over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of pig with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of pig (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "19_580e4cb1",
+    "source_id": "19_580e4cb1",
+    "source_slug": "pig",
+    "source_title": "Moving Image Archive // Pig",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/pig/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/pig/videos/19_580e4cb1-26ca-5d9a-804c-1d9b3217ff30.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5553006479147008",
+    "n_strokes": 9,
+    "country": "UA",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (UA, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

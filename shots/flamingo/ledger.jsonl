@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "flamingo", "clip": "07_67be6de9", "interval": [1.95, 5.55]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "flamingo", "mean_sam_iou": 0.9075}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "flamingo", "key_id": "6397949892362240", "country": "BR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "flamingo", "ep0": 0.0, "ep3": 0.7383, "sil_iou": 0.74, "in_mask": 0.9555}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "flamingo", "gates": "16/16"}

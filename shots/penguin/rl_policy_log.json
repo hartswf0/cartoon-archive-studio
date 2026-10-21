@@ -1,0 +1,14 @@
+{
+  "shot": "penguin",
+  "category": "penguin",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9281,
+  "mean_reward_ep0": 0.5282,
+  "mean_reward_ep1": 0.7206,
+  "mean_reward_ep2": 0.8061,
+  "mean_reward_ep3": 0.8241,
+  "mean_sil_iou_ep3": 0.7856,
+  "mean_edge_recall_ep3": 0.7048,
+  "mean_stroke_precision_ep3": 0.9551,
+  "reward_delta": 0.2959
+}

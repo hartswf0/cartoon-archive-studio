@@ -1,0 +1,47 @@
+{
+  "category": "flamingo",
+  "shot_id": "flamingo",
+  "body_plan": "Regime III: Nautical & Waterline",
+  "interval": [
+    1.95,
+    5.55
+  ],
+  "key_times": [
+    1.95,
+    3.08,
+    4.31,
+    5.55
+  ],
+  "key_notes": [
+    "Key 1 (t=1.95s): Initial archival pose of flamingo; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.08s): Mid-sequence articulation of flamingo; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.31s): Peak dynamic extension of flamingo over 7-plane multiplane environment.",
+    "Key 4 (t=5.55s): Follow-through and settle of flamingo with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of flamingo (1.95s..5.55s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "07_67be6de9",
+    "source_id": "07_67be6de9",
+    "source_slug": "flamingo",
+    "source_title": "Moving Image Archive // Flamingo",
+    "source_year": 1956,
+    "start_seconds": 1.95,
+    "end_seconds": 5.55,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/flamingo/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/flamingo/videos/07_67be6de9-ac6d-58ca-a697-37b993984a1a.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6397949892362240",
+    "n_strokes": 6,
+    "country": "BR",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (BR, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

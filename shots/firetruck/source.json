@@ -1,0 +1,47 @@
+{
+  "category": "firetruck",
+  "shot_id": "firetruck",
+  "body_plan": "Regime II: Wheeled & Rail Machines",
+  "interval": [
+    0.94,
+    4.54
+  ],
+  "key_times": [
+    0.94,
+    2.06,
+    3.3,
+    4.54
+  ],
+  "key_notes": [
+    "Key 1 (t=0.94s): Initial archival pose of firetruck; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.06s): Mid-sequence articulation of firetruck; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.3s): Peak dynamic extension of firetruck over 7-plane multiplane environment.",
+    "Key 4 (t=4.54s): Follow-through and settle of firetruck with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of firetruck (0.94s..4.54s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_fe3af7f8",
+    "source_id": "01_fe3af7f8",
+    "source_slug": "firetruck",
+    "source_title": "Moving Image Archive // Firetruck",
+    "source_year": 1956,
+    "start_seconds": 0.94,
+    "end_seconds": 4.54,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/firetruck/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/firetruck/videos/01_fe3af7f8-067d-569f-ab24-9ceba898d824.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5667571141443584",
+    "n_strokes": 8,
+    "country": "DE",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (DE, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

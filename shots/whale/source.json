@@ -1,0 +1,47 @@
+{
+  "category": "whale",
+  "shot_id": "whale",
+  "body_plan": "Regime III: Nautical & Marine",
+  "interval": [
+    19.9,
+    23.5
+  ],
+  "key_times": [
+    19.9,
+    21.02,
+    22.26,
+    23.5
+  ],
+  "key_notes": [
+    "Key 1 (t=19.9s): Initial archival pose of whale; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=21.02s): Mid-sequence articulation of whale; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=22.26s): Peak dynamic extension of whale over 7-plane multiplane environment.",
+    "Key 4 (t=23.5s): Follow-through and settle of whale with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of whale (19.9s..23.5s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "13_5c119730",
+    "source_id": "13_5c119730",
+    "source_slug": "whale",
+    "source_title": "Moving Image Archive // Whale",
+    "source_year": 1956,
+    "start_seconds": 19.9,
+    "end_seconds": 23.5,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/whale/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/whale/videos/13_5c119730-dd15-5610-8f27-3e2ed20170e2.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4591051408932864",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

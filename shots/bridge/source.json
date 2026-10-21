@@ -1,0 +1,47 @@
+{
+  "category": "bridge",
+  "shot_id": "bridge",
+  "body_plan": "Regime VIII: Architecture & Landmarks",
+  "interval": [
+    1.94,
+    5.54
+  ],
+  "key_times": [
+    1.94,
+    3.06,
+    4.3,
+    5.54
+  ],
+  "key_notes": [
+    "Key 1 (t=1.94s): Initial archival pose of bridge; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.06s): Mid-sequence articulation of bridge; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.3s): Peak dynamic extension of bridge over 7-plane multiplane environment.",
+    "Key 4 (t=5.54s): Follow-through and settle of bridge with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of bridge (1.94s..5.54s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_779163c5",
+    "source_id": "01_779163c5",
+    "source_slug": "bridge",
+    "source_title": "Moving Image Archive // Bridge",
+    "source_year": 1956,
+    "start_seconds": 1.94,
+    "end_seconds": 5.54,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/bridge/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bridge/videos/01_779163c5-69c5-5120-81f1-b6a3e96f7ba2.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4874158980726784",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

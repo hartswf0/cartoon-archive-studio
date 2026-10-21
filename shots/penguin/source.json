@@ -1,0 +1,47 @@
+{
+  "category": "penguin",
+  "shot_id": "penguin",
+  "body_plan": "Regime III: Nautical & Waterline",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of penguin; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of penguin; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of penguin over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of penguin with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of penguin (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "07_07a0dcb7",
+    "source_id": "07_07a0dcb7",
+    "source_slug": "penguin",
+    "source_title": "Moving Image Archive // Penguin",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/penguin/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/penguin/videos/07_07a0dcb7-205b-5e4b-8bf0-813d767905f5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5044994761031680",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

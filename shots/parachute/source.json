@@ -1,0 +1,47 @@
+{
+  "category": "parachute",
+  "shot_id": "parachute",
+  "body_plan": "Regime IV: Rotary & Aerial Flight",
+  "interval": [
+    3.0,
+    6.6
+  ],
+  "key_times": [
+    3.0,
+    4.12,
+    5.36,
+    6.6
+  ],
+  "key_notes": [
+    "Key 1 (t=3.0s): Initial archival pose of parachute; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.12s): Mid-sequence articulation of parachute; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.36s): Peak dynamic extension of parachute over 7-plane multiplane environment.",
+    "Key 4 (t=6.6s): Follow-through and settle of parachute with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of parachute (3.0s..6.6s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_3a1889f5",
+    "source_id": "03_3a1889f5",
+    "source_slug": "parachute",
+    "source_title": "Moving Image Archive // Parachute",
+    "source_year": 1956,
+    "start_seconds": 3.0,
+    "end_seconds": 6.6,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/parachute/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/parachute/videos/03_3a1889f5-2b27-5fe7-b2c1-b73349105ee8.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6245182615846912",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

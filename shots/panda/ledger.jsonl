@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "panda", "clip": "06_e60a3b35", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "panda", "mean_sam_iou": 0.8813}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "panda", "key_id": "5751369791176704", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "panda", "ep0": 0.1858, "ep3": 0.8757, "sil_iou": 0.8426, "in_mask": 0.9772}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "panda", "gates": "16/16"}

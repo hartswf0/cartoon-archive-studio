@@ -349,11 +349,11 @@ section { margin-top: 3.2rem; }
   </a>
   <nav class="pegbar-nav">
     <a href="index.html">&larr; Back to Main Studio Desk</a>
-    <a href="reel.html" style="background:var(--forest-pale);border-color:var(--ink);font-weight:700;">Screening Reel &amp; Wall of 20 &nearr;</a>
+    <a href="reel.html" style="background:var(--forest-pale);border-color:var(--ink);font-weight:700;">Screening Reel &amp; Wall of 70 &nearr;</a>
     <a href="#thesis" class="active">01. Core Thesis</a>
     <a href="#architecture">02. 7-Stage Architecture</a>
     <a href="#argon-rl">03. Argon RL Overlay Policy</a>
-    <a href="#interactive-explorer">04. Interactive 20-Shot Walkthrough</a>
+    <a href="#interactive-explorer">04. Interactive 70-Shot Walkthrough</a>
     <a href="#regimes">05. 8 Kinematic Regimes</a>
     <a href="reel.html#whats-next">06. What's Next Roadmap &nearr;</a>
   </nav>
@@ -365,22 +365,23 @@ section { margin-top: 3.2rem; }
   <section id="thesis" style="margin-top:0.5rem;">
     <div class="hero-grid">
       <div>
-        <span class="tag-pill">Visual Essay &amp; System Explainer // 345 Categories &times; 20 Production Cartoons</span>
+        <span class="tag-pill">Visual Essay &amp; System Explainer // 345 Categories &times; 70 Full SCION Multiplane Cartoons</span>
         <h1 style="margin-top:0.65rem;">How to Turn 50 Million Human Doodles &amp; Archival Film into a Living Multiplane Cartoon Archive</h1>
         <p style="font-size:1.04rem;color:var(--ink-soft);">
           Google&rsquo;s <strong>Quick, Draw!</strong> dataset captures how human beings mentally compress the visual world into 5 to 15 rapid pen strokes—an extraordinary dictionary of <strong>iconic form</strong> across 345 categories, but frozen in static 2D sketches. Conversely, the Internet Archive&rsquo;s <strong>Moving Image Archive</strong> preserves a century of real physical weight, locomotion, fluid dynamics, and camera choreography—but trapped inside noisy historical pixels.
         </p>
         <p style="font-size:0.96rem;color:var(--ink-soft);">
-          Inspired by <strong>Jordan Mechner&rsquo;s 1989 <em>Prince of Persia</em> rotoscoping workflow</strong>, Disney&rsquo;s <strong>1937 Multiplane Camera</strong>, and the <strong>Secondhand Motion</strong> benchmark, this project builds a <strong>Universal Zero-Hardcoding Argon RL Multiplane Engine</strong> that evolves minimal human doodles into full 7-plane animated cartoons across <strong>8 radically distinct kinematic and ontological regimes</strong>.
+          Inspired by <strong>Jordan Mechner&rsquo;s 1989 <em>Prince of Persia</em> rotoscoping workflow</strong>, Disney&rsquo;s <strong>1937 Multiplane Camera</strong>, and the <strong>Secondhand Motion</strong> benchmark, this project builds a <strong>Universal Zero-Hardcoding Argon RL Multiplane Engine</strong> that evolves minimal human doodles into full 7-plane animated cartoons across <strong>70 shots (`2,310` frames) and 8 radically distinct kinematic and ontological regimes</strong>.
         </p>
         <div class="btn-row">
-          <a href="#interactive-explorer" class="btn primary">Explore All 20 Cartoons Step-by-Step &darr;</a>
+          <a href="#interactive-explorer" class="btn primary">Explore All 70 Cartoons Step-by-Step &darr;</a>
+          <a href="reel.html" class="btn" style="background:var(--forest-pale);">Watch Simultaneous Wall of All 70 &rarr;</a>
           <a href="#regimes" class="btn">Read the 8-Regime Taxonomy &darr;</a>
           <a href="index.html" class="btn">Open Full Multiplane Studio &rarr;</a>
         </div>
         <div class="stat-strip">
           <div class="stat-box">
-            <div class="num">20</div>
+            <div class="num">70</div>
             <div class="lbl">Complete 33-Frame Cartoons</div>
           </div>
           <div class="stat-box">
@@ -388,8 +389,8 @@ section { margin-top: 3.2rem; }
             <div class="lbl">Ontological &amp; Kinematic Regimes</div>
           </div>
           <div class="stat-box">
-            <div class="num">0.94+</div>
-            <div class="lbl">Mean Auto-SAM Silhouette IoU</div>
+            <div class="num">2,310</div>
+            <div class="lbl">Multiplane Frames @ 8 FPS</div>
           </div>
           <div class="stat-box">
             <div class="num">7 Planes</div>
@@ -424,7 +425,7 @@ section { margin-top: 3.2rem; }
         <div class="kicker">Section 02 // End-to-End Studio Pipeline</div>
         <h2>The 7-Stage Universal Zero-Hardcoding Architecture</h2>
       </div>
-      <span class="badge info">tools/universal_argon_rl_engine.py</span>
+      <span class="badge info">tools/universal_argon_rl_engine.py + scion_batch50_engine.py</span>
     </div>
 
     <div class="pipeline-diagram">
@@ -436,7 +437,7 @@ section { margin-top: 3.2rem; }
       <div class="pipe-step">
         <span class="step-num">STAGE 02 // AUTO-SAM</span>
         <h4>DINO + Depth + Flow + SAM</h4>
-        <p>Zero-hardcoding GroundingDINO + Depth-Anything-V2 + GrabCut + Optical Flow synthesizes 6 positive medial-axis &amp; 6 negative points per frame for SAM.</p>
+        <p>Zero-hardcoding GroundingDINO + Depth-Anything-V2 + Viterbi Trajectory Linker + Optical Flow synthesizes positive &amp; negative prompts for SAM.</p>
       </div>
       <div class="pipe-step">
         <span class="step-num">STAGE 03 // LOOK LANE</span>
@@ -451,7 +452,7 @@ section { margin-top: 3.2rem; }
       <div class="pipe-step">
         <span class="step-num">STAGE 05 // ARGON RL</span>
         <h4>4-Episode Overlay Evolution</h4>
-        <p>Evolve from raw doodle (<code>Ep 0</code>) to Box Registration (<code>Ep 1</code>), 2D FFD Cage (<code>Ep 2</code>), and Action-Space Keyframe Cage Policy (<code>Ep 3</code>).</p>
+        <p>Evolve from raw doodle (<code>Ep 0</code>) to Box Registration (<code>Ep 1</code>), 2D Smooth Cage (<code>Ep 2</code>), and Rotoscope-Fused Keyframe Policy (<code>Ep 3</code>).</p>
       </div>
       <div class="pipe-step">
         <span class="step-num">STAGE 06 // DEPTH STACK</span>
@@ -479,12 +480,12 @@ section { margin-top: 3.2rem; }
     <div class="trilemma-grid">
       <div class="sheet">
         <span class="badge info" style="margin-bottom:0.5rem;">1. Auto-Synthesized SAM Prompts</span>
-        <h3>Medial-Axis Positive + Pocket Negative Points</h3>
+        <h3>Viterbi Trajectory Linker + Medial-Axis SAM Prompts</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);">
-          Instead of hand-tuning bounding boxes per video, <code>universal_auto_sam_pass</code> fuses <strong>GroundingDINO</strong> text detections with <strong>Depth-Anything-V2</strong> foreground depth, <strong>Farneb&auml;ck optical flow</strong>, and <strong>GrabCut</strong> color contrast.
+          Instead of hand-tuning bounding boxes per video, our engine fuses <strong>GroundingDINO</strong> text detections with <strong>Depth-Anything-V2</strong> foreground depth, <strong>Farneb&auml;ck optical flow</strong>, and a <strong>Viterbi Dynamic Programming Trajectory Linker</strong>.
         </p>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:0;">
-          On every frame, it computes the L2 distance transform of the prior mask to place <strong>6 Positive Points (Cyan)</strong> along the internal skeleton ridge and <strong>6 Negative Points (Red)</strong> in low-probability background pockets, plus a <strong>Temporal Waterline Filter</strong> that trims narrow bottom reflection spikes.
+          On every frame, it computes foreground salience inside the Viterbi-smoothed box to place <strong>Positive Points</strong> along internal structural ridges and <strong>Negative Points</strong> in background pockets, plus a <strong>Waterline Filter</strong> that prevents water reflection bleed.
         </p>
       </div>
 
@@ -505,27 +506,27 @@ section { margin-top: 3.2rem; }
         <span class="badge warn" style="margin-bottom:0.5rem;">3. 4-Episode Smooth 2D Cage Policy</span>
         <h3>Reward Function &amp; Elastic Regularization</h3>
         <p style="font-size:0.86rem;color:var(--ink-soft);margin-bottom:0.4rem;">
-          For each frame, the Argon RL policy evaluates candidate smooth 2D row/column cage warps $\mathbf{a} = (\alpha_{\text{row}}, \alpha_{\text{col}}, \delta_{\text{inset}})$ to maximize:
+          For each frame, the Argon RL policy evaluates candidate smooth 2D cage + radial boundary warps to maximize:
         </p>
         <div class="formula-box" style="font-size:0.76rem;padding:0.65rem;margin:0.4rem 0;">
-          R(S, M) = 0.40 &middot; IoU_sil(Cel(S), M)<br>
+          R(S, M) = 0.35 &middot; IoU_sil(Cel(S), M)<br>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.35 &middot; Recall_edge(S, &part;M)<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.25 &middot; Precision_in(S, M)<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&minus; &lambda;(&alpha;_row&sup2; + &alpha;_col&sup2;)
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.30 &middot; Precision_in(S, M)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&minus; &lambda; ||&Delta;C||&sup2;
         </div>
         <p style="font-size:0.83rem;color:var(--ink-soft);margin-bottom:0;">
-          Because the deformation acts on smooth 14-band Gaussian-filtered row/column spans rather than raw pixel gradients, strokes never crumple or fold.
+          Because the deformation acts on a regularized smooth $2\times 2$ bilinear cage and 16-ray angular envelope rather than raw pixel gradients, strokes never crumple or fold.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- SECTION 04: INTERACTIVE 20-SHOT STEP-BY-STEP EXPLORER -->
+  <!-- SECTION 04: INTERACTIVE 70-SHOT STEP-BY-STEP EXPLORER -->
   <section id="interactive-explorer">
     <div class="section-head">
       <div>
         <div class="kicker">Section 04 // Interactive Visual Walkthrough</div>
-        <h2>Inspect Any of the 20 Cartoons Across All Pipeline Stages</h2>
+        <h2>Inspect Any of the 70 Cartoons Across All Pipeline Stages</h2>
       </div>
       <span class="mono" style="font-size:0.78rem;">Click any shot pill below to switch the live visual explainer &darr;</span>
     </div>
@@ -607,114 +608,114 @@ section { margin-top: 3.2rem; }
     <div class="section-head">
       <div>
         <div class="kicker">Section 05 // Empirical Findings Across Diverse Cases</div>
-        <h2>What Testing Across 8 Radically Different Regimes Reveals</h2>
+        <h2>What Testing Across 70 Cartoons &amp; 8 Radically Different Regimes Reveals</h2>
       </div>
-      <span class="badge info">20 Shots // Animals, Vehicles, Fire, Music, Clocks, Architecture, Flight &amp; Flora/Insects</span>
+      <span class="badge info">70 Shots // Predators, Ungulates, Marine, Vehicles, Aerospace, Music, Architecture &amp; Nature</span>
     </div>
 
     <p style="font-size:0.96rem;color:var(--ink-soft);margin-bottom:1.25rem;">
-      A pipeline that only animates side-profile walking quadrupeds or translating cars can hide severe architectural blind spots. By pushing the exact same zero-hardcoding engine across <strong>8 distinct ontological and kinematic regimes</strong> from the 345-category archive, we uncover how each regime stresses segmentation, topology, and multiplane depth:
+      A pipeline that only animates side-profile walking quadrupeds or translating cars can hide severe architectural blind spots. By pushing the exact same zero-hardcoding engine across <strong>70 shots spanning 8 distinct ontological and kinematic regimes</strong> from the 345-category archive, we uncover how each regime stresses segmentation, topology, and multiplane depth:
     </p>
 
     <div class="regime-grid">
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge pass">Regime I // Terrestrial Locomotion</span>
-          <span class="mono" style="font-size:0.74rem;">giraffe, dog, horse, rabbit, elephant</span>
+          <span class="badge pass">Regime I // Terrestrial Locomotion (18 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">giraffe, dog, horse, lion, tiger, bear, zebra, camel, kangaroo...</span>
         </div>
         <h3>Articulated Limbs, Scissoring Gaits &amp; World-Space Foot Lock</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Non-rigid limb articulation where legs cross over one another (`giraffe`, `horse`), posture shifts from frontal to profile (`rabbit`), or massive self-occluding trunks and tusks swing (`elephant`).<br>
-          <strong>Key finding:</strong> A single warped doodle fails because topology changes across the gait cycle. Generating 4 chronological keyframe poses on white ground + anchoring contact baselines in world space prevents foot sliding while preserving open hand-drawn contour gaps via morphological hull-bounded cel sealing.
+          <strong>What it tests:</strong> Non-rigid limb articulation where legs cross over one another (`giraffe`, `horse`, `zebra`), predators prowl (`lion`, `tiger`, `bear`), bipedal hoppers bound (`rabbit`, `kangaroo`), primates climb (`monkey`, `panda`, `raccoon`), or megafauna swing trunks (`elephant`).<br>
+          <strong>Key finding:</strong> Generating 4 chronological keyframe poses on white ground + anchoring contact baselines in world space prevents foot sliding while preserving open hand-drawn contour gaps via watertight SAM cel sealing.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge pass">Regime II // Wheeled &amp; Rail Machines</span>
-          <span class="mono" style="font-size:0.74rem;">bicycle, tractor, train</span>
+          <span class="badge pass">Regime II // Wheeled &amp; Rail Machines (10 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">bicycle, tractor, train, car, bus, firetruck, ambulance, motorbike, bulldozer, roller-coaster</span>
         </div>
         <h3>Perspective Foreshortening &amp; Internal Structural Grids</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Vehicles advancing diagonally or head-on toward the lens (`tractor`, `train` locomotive #53), where scale doubles over 33 frames and internal geometry (4 cab windows, radiator grille, spoked wheels) must not shear.<br>
-          <strong>Key finding:</strong> High-frequency pixel-gradient warps destroy straight mechanical lines and round wheels. Constraining Episode 3 to low-frequency 2D cage registration (`col_blend &le; 0.12`) preserves crisp cab windows and wheel circles across 2&times; scale looms (`train SilIoU = 0.95`).
+          <strong>What it tests:</strong> Vehicles advancing diagonally or head-on toward the lens (`tractor`, `train`, `firetruck`, `bulldozer`, `roller-coaster`), where scale changes over 33 frames and internal geometry (cab windows, ladders, radiator grilles, spoked wheels) must not shear.<br>
+          <strong>Key finding:</strong> Constraining Episode 3 to regularized smooth $2\times 2$ cage registration + rotoscope interior contours preserves crisp cab windows and wheel circles across perspective looms.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge pass">Regime III // Nautical &amp; Waterline Craft</span>
-          <span class="mono" style="font-size:0.74rem;">sailboat, canoe, speedboat, duck</span>
+          <span class="badge pass">Regime III // Nautical, Marine &amp; Waterline (14 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">sailboat, canoe, speedboat, duck, swan, penguin, flamingo, shark, whale, dolphin, sea-turtle, crab, aircraft-carrier, cruise-ship</span>
         </div>
         <h3>Waterline Occlusion &amp; Dark Water-Reflection Filtering</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Buoyant hulls and waterfowl riding a specular fluid surface where dark upside-down reflections (`duck`) or submerged paddle blades (`canoe`) fool standard segmentation.<br>
-          <strong>Key finding:</strong> Without temporal aspect-ratio regularization, SAM masks periodically leak into dark water reflections beneath the subject, vertically stretching the character. Our <strong>Universal Temporal Waterline Filter</strong> detects narrow bottom appendages (`row_w &lt; 0.50 &middot; peak_w`) that exceed the clip&rsquo;s 20th-percentile height-to-width baseline and slices them cleanly at the waterline.
+          <strong>What it tests:</strong> Buoyant hulls (`sailboat`, `canoe`, `speedboat`, `aircraft-carrier`, `cruise-ship`), waterfowl (`duck`, `swan`, `penguin`, `flamingo`), and marine swimmers (`shark`, `whale`, `dolphin`, `sea-turtle`, `crab`) riding or breaching specular water.<br>
+          <strong>Key finding:</strong> Our <strong>Universal Waterline Filter</strong> + bottom-border negative SAM points prevent masks from leaking into dark water reflections beneath the subject, while Plane 3 (`secondary`) animates synchronized water wake ripples.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge pass">Regime IV // Rotary &amp; Aerial Machines</span>
-          <span class="mono" style="font-size:0.74rem;">helicopter, windmill, hot-air-balloon</span>
+          <span class="badge pass">Regime IV // Rotary, Avian &amp; Aerial Flight (8 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">helicopter, windmill, hot-air-balloon, airplane, parachute, flying-saucer, owl, parrot</span>
         </div>
         <h3>Thin Swept Blades, Buoyant Envelopes &amp; Sky Parallax</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Thin lattice sails (`windmill`), banking rotorcraft (`helicopter`), and ascending ribbed envelopes with suspended baskets (`hot-air-balloon`) surrounded by competing sky objects.<br>
-          <strong>Key finding:</strong> Separating the primary ascending balloon (`z=2.0`) from companion festival balloons placed on distant multiplane sheets (`z=6.0..3.5`) creates genuine aerial depth parallax without merging adjacent envelopes.
+          <strong>What it tests:</strong> Thin lattice sails (`windmill`), rotorcraft &amp; fixed-wing aircraft (`helicopter`, `airplane`), descending canopies (`parachute`), discs (`flying-saucer`), avian perches (`owl`, `parrot`), and ascending ribbed aerostats (`hot-air-balloon`).<br>
+          <strong>Key finding:</strong> Separating the primary aerial actor (`z=2.0`) from distant cloud/horizon planes (`z=10..3.5`) creates genuine multiplane flight parallax.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge warn">Regime V // Amorphous Natural Phenomena</span>
-          <span class="mono" style="font-size:0.74rem;">campfire</span>
+          <span class="badge warn">Regime V // Amorphous Natural Phenomena (3 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">campfire, tornado, ocean</span>
         </div>
-        <h3>Stochastic Flickering Flames Anchored to Rigid Fuel Logs</h3>
+        <h3>Stochastic Flickering Flames, Vortex Funnels &amp; Breaking Surf</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Fire is neither a rigid vehicle nor a skeletal animal—its upper boundary flickers stochastically while its lower wooden teepee logs remain stationary on the riverbank.<br>
-          <strong>Key finding:</strong> The 4-keyframe doodle representation naturally captures discrete flame tongue states (`K01..K04`), while the smooth 2D cage keeps the bottom log pyramid planted on the rocky clearing (`z=2.0`) and lets the upper flame tips dance with the optical-flow/SAM envelope.
+          <strong>What it tests:</strong> Elemental forces (`campfire` flames, `tornado` funnel cloud, breaking `ocean` surf) whose boundaries deform continuously rather than following rigid skeletal bones.<br>
+          <strong>Key finding:</strong> The 4-keyframe rotoscope-doodle representation captures discrete wave/flame/vortex states (`K01..K04`), while the smooth 2D cage and 16-ray radial warp track the evolving optical-flow/SAM envelope.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge info">Regime VI // Musical Performance</span>
-          <span class="mono" style="font-size:0.74rem;">guitar</span>
+          <span class="badge info">Regime VI // Musical Performance (5 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">guitar, piano, violin, cello, trumpet</span>
         </div>
         <h3>Human-Instrument Interaction &amp; Fine Internal Landmarks</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> An acoustic guitar held by a seated performer—featuring concentric soundhole rings, parallel strings, fret markers, and a figure-eight bouts contour swaying in rhythm.<br>
-          <strong>Key finding:</strong> Morphological centerline thinning (`morph_skeletonize`) preserves the parallel guitar strings and circular soundhole as single crisp strokes (`recall &gt; 0.99`), while the performer&rsquo;s shoes, mic cable, and stage rug live on background/midground planes.
+          <strong>What it tests:</strong> Acoustic and orchestral instruments (`guitar`, `piano`, `violin`, `cello`, `trumpet`) played in performance—featuring parallel strings, keyboards, f-holes, brass valves, and bowing motion.<br>
+          <strong>Key finding:</strong> Morphological centerline thinning (`morph_skeletonize`) preserves fine strings, keys, and soundholes as crisp strokes (`recall &gt; 0.99`), while stage environments live on background planes.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge info">Regime VII // Everyday Tabletop Mechanisms</span>
-          <span class="mono" style="font-size:0.74rem;">clock</span>
+          <span class="badge info">Regime VII // Everyday Mechanisms &amp; Optics (2 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">clock, camera</span>
         </div>
-        <h3>Close-Up Concentric Dial Typography &amp; Tabletop Parallax</h3>
+        <h3>Close-Up Concentric Dial/Lens Geometry &amp; Tabletop Parallax</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> A macro tabletop shot of a vintage mechanical alarm clock flanked by patterned porcelain canisters, where any radial distortion immediately warps the circular bezel and numerals (`12, 3, 6, 9`).<br>
-          <strong>Key finding:</strong> High-contrast GrabCut + Depth-Anything-V2 cleanly separates the foreground clock dial from the floral kitchen canisters behind it, and low-distortion Ep 3 registration translates the clock smoothly across the counter without warping the dial circle.
+          <strong>What it tests:</strong> Macro shots of precision mechanical objects (`clock`, `camera`) where any high-frequency warp distorts circular bezels, lens barrels, or dial numerals.<br>
+          <strong>Key finding:</strong> Regularized $2\times 2$ cage registration translates and scales precision mechanisms smoothly across the frame without warping concentric circular dials or lenses.
         </p>
       </div>
 
       <div class="regime-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="badge pass">Regime VIII // Architecture &amp; Winged Biology</span>
-          <span class="mono" style="font-size:0.74rem;">lighthouse, butterfly</span>
+          <span class="badge pass">Regime VIII // Architecture, Invertebrates &amp; Flora (10 Shots)</span>
+          <span class="mono" style="font-size:0.74rem;">lighthouse, bridge, castle, church, barn, butterfly, frog, snail, spider, flower</span>
         </div>
-        <h3>Vertical Camera Tilts &amp; Bilateral Wing Articulation</h3>
+        <h3>Monumental Landmarks, Camera Tilts &amp; Delicate Biological Motion</h3>
         <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
-          <strong>What it tests:</strong> Extreme vertical camera tilt from the base cottage to the top lantern cupola of a striped `lighthouse`, vs. stationary-body bilateral wing flapping of a `butterfly` perched on garden blossoms.<br>
-          <strong>Key finding:</strong> In `lighthouse`, the 4 keyframes progress structurally up the architectural shaft (`base bands &rarr; middle bands &rarr; gallery rim &rarr; domed beacon`), while framing trees sit on foreground occlusion planes (`z=1.25`). In `butterfly`, the 2D cage tracks the expanding/contracting wing span while the flower cluster remains rock-steady on its perch plane.
+          <strong>What it tests:</strong> Monumental architecture under camera pan/tilt (`lighthouse`, `bridge`, `castle`, `church`, `barn`) alongside delicate biological articulation (`butterfly`, `frog`, `snail`, `spider`, blooming `flower`).<br>
+          <strong>Key finding:</strong> Multiplane depth stratification (`Planes 6..0`) separates foreground framing foliage and bridge piers (`z=1.25..0.85`) from the primary architectural or biological subject (`z=2.0`).
         </p>
       </div>
     </div>
 
-    <!-- Summary Table of All 20 Shots -->
+    <!-- Summary Table of All 70 Shots -->
     <div style="margin-top:1.75rem;overflow-x:auto;">
       <table class="data-table" id="all-shots-table">
         <thead>
@@ -748,21 +749,71 @@ section { margin-top: 3.2rem; }
     "horse": "Regime I: Terrestrial Locomotion (Quadruped)",
     "rabbit": "Regime I: Terrestrial Locomotion (Biped/Hopper)",
     "elephant": "Regime I: Terrestrial Locomotion (Megafauna)",
+    "lion": "Regime I: Terrestrial Locomotion (Predator)",
+    "tiger": "Regime I: Terrestrial Locomotion (Predator)",
+    "bear": "Regime I: Terrestrial Locomotion (Predator)",
+    "zebra": "Regime I: Terrestrial Locomotion (Ungulate)",
+    "camel": "Regime I: Terrestrial Locomotion (Ungulate)",
+    "kangaroo": "Regime I: Terrestrial Locomotion (Marsupial Hopper)",
+    "cow": "Regime I: Terrestrial Locomotion (Ungulate)",
+    "sheep": "Regime I: Terrestrial Locomotion (Ungulate)",
+    "pig": "Regime I: Terrestrial Locomotion (Ungulate)",
+    "squirrel": "Regime I: Terrestrial & Arboreal Mammal",
+    "monkey": "Regime I: Terrestrial & Arboreal Primate",
+    "panda": "Regime I: Terrestrial & Arboreal Mammal",
+    "raccoon": "Regime I: Terrestrial & Arboreal Mammal",
     "bicycle": "Regime II: Wheeled & Rail Machines",
     "tractor": "Regime II: Wheeled & Rail Machines",
     "train": "Regime II: Wheeled & Rail Machines",
+    "car": "Regime II: Wheeled & Rail Machines",
+    "bus": "Regime II: Wheeled & Rail Machines",
+    "firetruck": "Regime II: Wheeled & Rail Machines",
+    "ambulance": "Regime II: Wheeled & Rail Machines",
+    "motorbike": "Regime II: Wheeled & Rail Machines",
+    "bulldozer": "Regime II: Wheeled & Rail Machines",
+    "roller-coaster": "Regime II: Wheeled & Rail Machines",
     "sailboat": "Regime III: Nautical & Waterline Craft",
     "canoe": "Regime III: Nautical & Waterline Craft",
     "speedboat": "Regime III: Nautical & Waterline Craft",
+    "aircraft-carrier": "Regime III: Nautical & Waterline Craft",
+    "cruise-ship": "Regime III: Nautical & Waterline Craft",
     "duck": "Regime III: Nautical & Waterline Waterfowl",
+    "swan": "Regime III: Nautical & Waterline Waterfowl",
+    "penguin": "Regime III: Nautical & Waterline Seabird",
+    "flamingo": "Regime III: Nautical & Waterline Wader",
+    "shark": "Regime III: Nautical & Marine Predator",
+    "whale": "Regime III: Nautical & Marine Cetacean",
+    "dolphin": "Regime III: Nautical & Marine Cetacean",
+    "sea-turtle": "Regime III: Nautical & Marine Reptile",
+    "crab": "Regime III: Nautical & Marine Crustacean",
     "helicopter": "Regime IV: Rotary & Aerial Flight",
     "windmill": "Regime IV: Rotary & Aerial Machines",
     "hot-air-balloon": "Regime IV: Buoyant Aerostat Flight",
+    "airplane": "Regime IV: Rotary & Aerial Flight",
+    "parachute": "Regime IV: Rotary & Aerial Flight",
+    "flying-saucer": "Regime IV: Rotary & Aerial Flight",
+    "owl": "Regime IV: Avian Perch & Flight",
+    "parrot": "Regime IV: Avian Perch & Flight",
     "campfire": "Regime V: Amorphous Natural Phenomenon (Fire)",
+    "tornado": "Regime V: Amorphous Natural Phenomenon (Vortex)",
+    "ocean": "Regime V: Amorphous Natural Phenomenon (Wave)",
     "guitar": "Regime VI: Musical Instrument Performance",
+    "piano": "Regime VI: Musical Instrument Performance",
+    "violin": "Regime VI: Musical Instrument Performance",
+    "cello": "Regime VI: Musical Instrument Performance",
+    "trumpet": "Regime VI: Musical Instrument Performance",
     "clock": "Regime VII: Everyday Tabletop Timepiece",
+    "camera": "Regime VII: Everyday Optical Mechanism",
     "lighthouse": "Regime VIII: Monumental Architecture & Camera Tilt",
-    "butterfly": "Regime VIII: Winged Invertebrate Articulation"
+    "bridge": "Regime VIII: Monumental Architecture & Landmarks",
+    "castle": "Regime VIII: Monumental Architecture & Landmarks",
+    "church": "Regime VIII: Monumental Architecture & Landmarks",
+    "barn": "Regime VIII: Monumental Architecture & Landmarks",
+    "butterfly": "Regime VIII: Winged Invertebrate Articulation",
+    "frog": "Regime VIII: Biological & Amphibian Articulation",
+    "snail": "Regime VIII: Biological & Invertebrate Articulation",
+    "spider": "Regime VIII: Biological & Arachnid Articulation",
+    "flower": "Regime VIII: Botanical & Floral Articulation"
   };
 
   const pillBar = document.getElementById("explainer-pill-bar");
@@ -777,7 +828,7 @@ section { margin-top: 3.2rem; }
       btn.classList.toggle("active", btn.dataset.slug === slug);
     });
 
-    document.getElementById("exp-regime-badge").textContent = REGIME_MAP[slug] || "Universal Argon RL";
+    document.getElementById("exp-regime-badge").textContent = REGIME_MAP[slug] || (s.source && s.source.body_plan) || "SCION + Universal Argon RL";
     document.getElementById("exp-title").textContent = slug.toUpperCase();
 
     const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
@@ -790,7 +841,7 @@ section { margin-top: 3.2rem; }
     const keyStrokes = (s.traced && s.traced.summary) ? s.traced.summary.mean_strokes : 42;
     document.getElementById("exp-strokes-badge").textContent = keyStrokes + " Key Strokes + " + sceneStrokes + " Multiplane Scene Strokes";
 
-    const clipTitle = (s.source && s.source.source && s.source.source.title) ? s.source.source.title : slug;
+    const clipTitle = (s.source && s.source.source && (s.source.source.title || s.source.source.source_title)) ? (s.source.source.title || s.source.source.source_title) : slug;
     const whyText = (s.design && s.design.why) ? s.design.why : "Evolved from canonical Google Quick, Draw! human vector seed over 33 archival frames via 4-Episode Argon RL Smooth 2D Cage Policy and 7-Plane Multiplane Depth-Anything-V2 stratification.";
     document.getElementById("exp-desc").innerHTML = "<strong>Archival Source:</strong> <em>" + clipTitle + "</em> &mdash; " + whyText;
 
@@ -800,7 +851,7 @@ section { margin-top: 3.2rem; }
     vid.play().catch(() => {});
 
     document.getElementById("exp-stack-img").src = s.assets.multiplane_stack;
-    document.getElementById("exp-sam-img").src = s.assets.sam_pass;
+    document.getElementById("exp-sam-img").src = s.assets.rl_overlay_pass || s.assets.sam_pass;
     document.getElementById("exp-src-keys").src = s.assets.source_keys;
     document.getElementById("exp-design").src = s.assets.design;
     document.getElementById("exp-sel-keys").src = s.assets.selected_keys;
@@ -822,12 +873,12 @@ section { margin-top: 3.2rem; }
     const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
     const meanRec = (s.traced && s.traced.summary) ? s.traced.summary.mean_recall.toFixed(3) : "0.995";
     const sceneStrokes = (s.scene_traced && s.scene_traced.n_strokes) ? s.scene_traced.n_strokes : 85;
-    const qdInfo = (s.design && s.design.qd_index !== undefined) ? ("QD #" + s.design.qd_index) : ((s.design && s.design.key_id) ? ("key_id " + s.design.key_id.slice(-6)) : "Canonical QD");
+    const qdInfo = (s.design && s.design.qd_index !== undefined) ? ("QD #" + s.design.qd_index) : ((s.design && s.design.key_id) ? ("key_id " + String(s.design.key_id).slice(-6)) : "Canonical QD");
 
     tr.innerHTML =
       "<td>" + (idx + 1) + "</td>" +
       "<td><strong>" + slug + "</strong></td>" +
-      "<td>" + (REGIME_MAP[slug] || "Universal Argon RL") + "</td>" +
+      "<td>" + (REGIME_MAP[slug] || "SCION + Universal Argon RL") + "</td>" +
       "<td><code>" + qdInfo + "</code></td>" +
       "<td><span class='badge pass'>" + samIou + "</span></td>" +
       "<td>" + meanRec + "</td>" +
@@ -841,7 +892,7 @@ section { margin-top: 3.2rem; }
   });
 
   if (order.length > 0) {
-    selectShot(order.includes("campfire") ? "campfire" : order[0]);
+    selectShot(order.includes("lion") ? "lion" : order[0]);
   }
 })();
 </script>

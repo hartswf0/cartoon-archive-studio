@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "swan", "clip": "06_58b155a0", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "swan", "mean_sam_iou": 0.8664}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "swan", "key_id": "4919865951387648", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "swan", "ep0": 0.0735, "ep3": 0.8483, "sil_iou": 0.7472, "in_mask": 0.9771}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "swan", "gates": "16/16"}

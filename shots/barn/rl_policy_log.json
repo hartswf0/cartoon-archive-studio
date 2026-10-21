@@ -1,0 +1,14 @@
+{
+  "shot": "barn",
+  "category": "barn",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9206,
+  "mean_reward_ep0": 0.3696,
+  "mean_reward_ep1": 0.5622,
+  "mean_reward_ep2": 0.6541,
+  "mean_reward_ep3": 0.6721,
+  "mean_sil_iou_ep3": 0.7574,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9082,
+  "reward_delta": 0.3024
+}

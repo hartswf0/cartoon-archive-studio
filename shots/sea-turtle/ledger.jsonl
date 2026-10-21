@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "sea-turtle", "clip": "02_72f885d6", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "sea-turtle", "mean_sam_iou": 0.9297}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "sea-turtle", "key_id": "4775917958201344", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "sea-turtle", "ep0": 0.0, "ep3": 0.8786, "sil_iou": 0.8236, "in_mask": 0.9649}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "sea-turtle", "gates": "16/16"}

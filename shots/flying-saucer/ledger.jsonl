@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "flying-saucer", "clip": "01_2f7d519e", "interval": [3.8, 7.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "flying-saucer", "mean_sam_iou": 0.9292}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "flying-saucer", "key_id": "6195045499666432", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "flying-saucer", "ep0": 0.449, "ep3": 0.6975, "sil_iou": 0.74, "in_mask": 0.9}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "flying-saucer", "gates": "16/16"}

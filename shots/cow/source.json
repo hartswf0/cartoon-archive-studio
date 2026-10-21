@@ -1,0 +1,47 @@
+{
+  "category": "cow",
+  "shot_id": "cow",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    2.0,
+    5.6
+  ],
+  "key_times": [
+    2.0,
+    3.12,
+    4.36,
+    5.6
+  ],
+  "key_notes": [
+    "Key 1 (t=2.0s): Initial archival pose of cow; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.12s): Mid-sequence articulation of cow; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.36s): Peak dynamic extension of cow over 7-plane multiplane environment.",
+    "Key 4 (t=5.6s): Follow-through and settle of cow with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of cow (2.0s..5.6s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "18_cac7d7d7",
+    "source_id": "18_cac7d7d7",
+    "source_slug": "cow",
+    "source_title": "Moving Image Archive // Cow",
+    "source_year": 1956,
+    "start_seconds": 2.0,
+    "end_seconds": 5.6,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/cow/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/cow/videos/18_cac7d7d7-f45f-50be-ba11-cbdb02d83671.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5387065313198080",
+    "n_strokes": 9,
+    "country": "TR",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (TR, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

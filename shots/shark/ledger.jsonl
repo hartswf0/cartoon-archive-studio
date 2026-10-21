@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "shark", "clip": "03_c6646160", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "shark", "mean_sam_iou": 0.9301}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "shark", "key_id": "5780948446609408", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "shark", "ep0": 0.2494, "ep3": 0.7139, "sil_iou": 0.7422, "in_mask": 0.919}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "shark", "gates": "16/16"}

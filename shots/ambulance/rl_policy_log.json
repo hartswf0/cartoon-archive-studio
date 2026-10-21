@@ -1,0 +1,14 @@
+{
+  "shot": "ambulance",
+  "category": "ambulance",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9306,
+  "mean_reward_ep0": 0.4095,
+  "mean_reward_ep1": 0.6207,
+  "mean_reward_ep2": 0.6997,
+  "mean_reward_ep3": 0.7177,
+  "mean_sil_iou_ep3": 0.765,
+  "mean_edge_recall_ep3": 0.6342,
+  "mean_stroke_precision_ep3": 0.9197,
+  "reward_delta": 0.3082
+}

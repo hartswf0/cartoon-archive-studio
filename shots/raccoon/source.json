@@ -1,0 +1,47 @@
+{
+  "category": "raccoon",
+  "shot_id": "raccoon",
+  "body_plan": "Regime I: Terrestrial & Arboreal",
+  "interval": [
+    17.86,
+    21.46
+  ],
+  "key_times": [
+    17.86,
+    18.98,
+    20.22,
+    21.46
+  ],
+  "key_notes": [
+    "Key 1 (t=17.86s): Initial archival pose of raccoon; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=18.98s): Mid-sequence articulation of raccoon; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=20.22s): Peak dynamic extension of raccoon over 7-plane multiplane environment.",
+    "Key 4 (t=21.46s): Follow-through and settle of raccoon with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of raccoon (17.86s..21.46s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "12_54f88395",
+    "source_id": "12_54f88395",
+    "source_slug": "raccoon",
+    "source_title": "Moving Image Archive // Raccoon",
+    "source_year": 1956,
+    "start_seconds": 17.86,
+    "end_seconds": 21.46,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/raccoon/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/raccoon/videos/12_54f88395-0815-52b8-9343-d55b5f6281f6.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5241534976884736",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

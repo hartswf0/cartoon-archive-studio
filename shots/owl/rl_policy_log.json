@@ -1,0 +1,14 @@
+{
+  "shot": "owl",
+  "category": "owl",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9205,
+  "mean_reward_ep0": 0.2532,
+  "mean_reward_ep1": 0.6794,
+  "mean_reward_ep2": 0.775,
+  "mean_reward_ep3": 0.793,
+  "mean_sil_iou_ep3": 0.771,
+  "mean_edge_recall_ep3": 0.6375,
+  "mean_stroke_precision_ep3": 0.9418,
+  "reward_delta": 0.5399
+}

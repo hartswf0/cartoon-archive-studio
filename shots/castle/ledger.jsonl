@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "castle", "clip": "02_68391720", "interval": [0.6, 4.2]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "castle", "mean_sam_iou": 0.9774}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "castle", "key_id": "6273942119514112", "country": "SA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "castle", "ep0": 0.3057, "ep3": 0.7744, "sil_iou": 0.7564, "in_mask": 0.9928}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "castle", "gates": "16/16"}

@@ -1,0 +1,47 @@
+{
+  "category": "bus",
+  "shot_id": "bus",
+  "body_plan": "Regime II: Wheeled & Rail Machines",
+  "interval": [
+    0.84,
+    4.44
+  ],
+  "key_times": [
+    0.84,
+    1.97,
+    3.2,
+    4.44
+  ],
+  "key_notes": [
+    "Key 1 (t=0.84s): Initial archival pose of bus; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.97s): Mid-sequence articulation of bus; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.2s): Peak dynamic extension of bus over 7-plane multiplane environment.",
+    "Key 4 (t=4.44s): Follow-through and settle of bus with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of bus (0.84s..4.44s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_7f7bfad1",
+    "source_id": "02_7f7bfad1",
+    "source_slug": "bus",
+    "source_title": "Moving Image Archive // Bus",
+    "source_year": 1956,
+    "start_seconds": 0.84,
+    "end_seconds": 4.44,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/bus/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bus/videos/02_7f7bfad1-3a0a-5a73-a7ed-db774da90ad5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6157295928999936",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

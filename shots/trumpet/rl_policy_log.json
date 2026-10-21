@@ -1,0 +1,14 @@
+{
+  "shot": "trumpet",
+  "category": "trumpet",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9417,
+  "mean_reward_ep0": 0.259,
+  "mean_reward_ep1": 0.6798,
+  "mean_reward_ep2": 0.7611,
+  "mean_reward_ep3": 0.7791,
+  "mean_sil_iou_ep3": 0.7531,
+  "mean_edge_recall_ep3": 0.6524,
+  "mean_stroke_precision_ep3": 0.9146,
+  "reward_delta": 0.5201
+}

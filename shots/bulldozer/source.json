@@ -1,0 +1,47 @@
+{
+  "category": "bulldozer",
+  "shot_id": "bulldozer",
+  "body_plan": "Regime II: Wheeled & Rail Machines",
+  "interval": [
+    1.26,
+    4.86
+  ],
+  "key_times": [
+    1.26,
+    2.39,
+    3.62,
+    4.86
+  ],
+  "key_notes": [
+    "Key 1 (t=1.26s): Initial archival pose of bulldozer; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.39s): Mid-sequence articulation of bulldozer; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.62s): Peak dynamic extension of bulldozer over 7-plane multiplane environment.",
+    "Key 4 (t=4.86s): Follow-through and settle of bulldozer with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of bulldozer (1.26s..4.86s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_16f2ada7",
+    "source_id": "03_16f2ada7",
+    "source_slug": "bulldozer",
+    "source_title": "Moving Image Archive // Bulldozer",
+    "source_year": 1956,
+    "start_seconds": 1.26,
+    "end_seconds": 4.86,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/bulldozer/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bulldozer/videos/03_16f2ada7-6d86-58a6-bc45-8e2cc7f1a1dc.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5642679029334016",
+    "n_strokes": 7,
+    "country": "CO",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (CO, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

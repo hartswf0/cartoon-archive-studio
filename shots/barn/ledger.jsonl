@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "barn", "clip": "02_43f58fe4", "interval": [0.6, 4.2]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "barn", "mean_sam_iou": 0.9206}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "barn", "key_id": "6548711159103488", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "barn", "ep0": 0.3696, "ep3": 0.6721, "sil_iou": 0.7574, "in_mask": 0.9082}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "barn", "gates": "16/16"}

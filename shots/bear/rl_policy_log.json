@@ -1,0 +1,14 @@
+{
+  "shot": "bear",
+  "category": "bear",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9601,
+  "mean_reward_ep0": 0.2583,
+  "mean_reward_ep1": 0.5563,
+  "mean_reward_ep2": 0.6001,
+  "mean_reward_ep3": 0.6181,
+  "mean_sil_iou_ep3": 0.7403,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9307,
+  "reward_delta": 0.3598
+}

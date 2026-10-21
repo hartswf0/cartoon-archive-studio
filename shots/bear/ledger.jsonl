@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "bear", "clip": "10_c99bfee6", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "bear", "mean_sam_iou": 0.9601}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "bear", "key_id": "6253577011986432", "country": "CZ"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "bear", "ep0": 0.2583, "ep3": 0.6181, "sil_iou": 0.7403, "in_mask": 0.9307}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "bear", "gates": "16/16"}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "sheep", "clip": "17_8ccec8f2", "interval": [10.03, 13.63]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "sheep", "mean_sam_iou": 0.9231}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "sheep", "key_id": "5177062467829760", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "sheep", "ep0": 0.353, "ep3": 0.6444, "sil_iou": 0.74, "in_mask": 0.9173}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "sheep", "gates": "16/16"}

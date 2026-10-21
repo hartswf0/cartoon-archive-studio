@@ -1,0 +1,14 @@
+{
+  "shot": "camel",
+  "category": "camel",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9489,
+  "mean_reward_ep0": 0.5495,
+  "mean_reward_ep1": 0.697,
+  "mean_reward_ep2": 0.7516,
+  "mean_reward_ep3": 0.7696,
+  "mean_sil_iou_ep3": 0.8321,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9668,
+  "reward_delta": 0.2202
+}

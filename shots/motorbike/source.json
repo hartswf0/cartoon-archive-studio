@@ -1,0 +1,47 @@
+{
+  "category": "motorbike",
+  "shot_id": "motorbike",
+  "body_plan": "Regime II: Wheeled & Rail Machines",
+  "interval": [
+    0.6,
+    4.2
+  ],
+  "key_times": [
+    0.6,
+    1.73,
+    2.96,
+    4.2
+  ],
+  "key_notes": [
+    "Key 1 (t=0.6s): Initial archival pose of motorbike; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.73s): Mid-sequence articulation of motorbike; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.96s): Peak dynamic extension of motorbike over 7-plane multiplane environment.",
+    "Key 4 (t=4.2s): Follow-through and settle of motorbike with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of motorbike (0.6s..4.2s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_64702c3e",
+    "source_id": "03_64702c3e",
+    "source_slug": "motorbike",
+    "source_title": "Moving Image Archive // Motorbike",
+    "source_year": 1956,
+    "start_seconds": 0.6,
+    "end_seconds": 4.2,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/motorbike/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/motorbike/videos/03_64702c3e-f4d9-5396-a959-3b35013f0fc3.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5671061855141888",
+    "n_strokes": 6,
+    "country": "LV",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (LV, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

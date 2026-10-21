@@ -1,0 +1,47 @@
+{
+  "category": "bear",
+  "shot_id": "bear",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    0.8,
+    4.4
+  ],
+  "key_times": [
+    0.8,
+    1.93,
+    3.16,
+    4.4
+  ],
+  "key_notes": [
+    "Key 1 (t=0.8s): Initial archival pose of bear; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.93s): Mid-sequence articulation of bear; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.16s): Peak dynamic extension of bear over 7-plane multiplane environment.",
+    "Key 4 (t=4.4s): Follow-through and settle of bear with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of bear (0.8s..4.4s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "10_c99bfee6",
+    "source_id": "10_c99bfee6",
+    "source_slug": "bear",
+    "source_title": "Moving Image Archive // Bear",
+    "source_year": 1956,
+    "start_seconds": 0.8,
+    "end_seconds": 4.4,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/bear/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bear/videos/10_c99bfee6-ca43-5d8c-be34-a308b88ecb1b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6253577011986432",
+    "n_strokes": 8,
+    "country": "CZ",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (CZ, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

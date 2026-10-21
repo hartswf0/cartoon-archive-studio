@@ -1,0 +1,14 @@
+{
+  "shot": "frog",
+  "category": "frog",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9039,
+  "mean_reward_ep0": 0.3719,
+  "mean_reward_ep1": 0.5078,
+  "mean_reward_ep2": 0.5719,
+  "mean_reward_ep3": 0.5899,
+  "mean_sil_iou_ep3": 0.7414,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9,
+  "reward_delta": 0.218
+}

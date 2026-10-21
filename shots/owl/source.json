@@ -1,0 +1,47 @@
+{
+  "category": "owl",
+  "shot_id": "owl",
+  "body_plan": "Regime IV: Aerial & Avian",
+  "interval": [
+    19.82,
+    23.42
+  ],
+  "key_times": [
+    19.82,
+    20.95,
+    22.18,
+    23.42
+  ],
+  "key_notes": [
+    "Key 1 (t=19.82s): Initial archival pose of owl; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=20.95s): Mid-sequence articulation of owl; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=22.18s): Peak dynamic extension of owl over 7-plane multiplane environment.",
+    "Key 4 (t=23.42s): Follow-through and settle of owl with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of owl (19.82s..23.42s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "24_0fdbee5e",
+    "source_id": "24_0fdbee5e",
+    "source_slug": "owl",
+    "source_title": "Moving Image Archive // Owl",
+    "source_year": 1956,
+    "start_seconds": 19.82,
+    "end_seconds": 23.42,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/owl/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/owl/videos/24_0fdbee5e-c147-5b06-83b6-1e132448eddd.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4989031819509760",
+    "n_strokes": 8,
+    "country": "NL",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (NL, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

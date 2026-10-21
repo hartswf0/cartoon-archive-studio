@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "parrot", "clip": "12_814a9b77", "interval": [0.8, 4.4]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "parrot", "mean_sam_iou": 0.9414}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "parrot", "key_id": "5381584679075840", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "parrot", "ep0": 0.2978, "ep3": 0.6388, "sil_iou": 0.74, "in_mask": 0.9415}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "parrot", "gates": "16/16"}

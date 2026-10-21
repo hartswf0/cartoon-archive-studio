@@ -1,0 +1,47 @@
+{
+  "category": "zebra",
+  "shot_id": "zebra",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    9.75,
+    13.35
+  ],
+  "key_times": [
+    9.75,
+    10.88,
+    12.11,
+    13.35
+  ],
+  "key_notes": [
+    "Key 1 (t=9.75s): Initial archival pose of zebra; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=10.88s): Mid-sequence articulation of zebra; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=12.11s): Peak dynamic extension of zebra over 7-plane multiplane environment.",
+    "Key 4 (t=13.35s): Follow-through and settle of zebra with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of zebra (9.75s..13.35s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "21_34202f03",
+    "source_id": "21_34202f03",
+    "source_slug": "zebra",
+    "source_title": "Moving Image Archive // Zebra",
+    "source_year": 1956,
+    "start_seconds": 9.75,
+    "end_seconds": 13.35,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/zebra/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/zebra/videos/21_34202f03-0751-50a0-aec5-61d30f7d05c0.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6375721704357888",
+    "n_strokes": 7,
+    "country": "GB",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (GB, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

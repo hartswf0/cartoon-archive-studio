@@ -1,0 +1,47 @@
+{
+  "category": "tornado",
+  "shot_id": "tornado",
+  "body_plan": "Regime V: Amorphous Natural Phenomenon",
+  "interval": [
+    0.6,
+    4.2
+  ],
+  "key_times": [
+    0.6,
+    1.73,
+    2.96,
+    4.2
+  ],
+  "key_notes": [
+    "Key 1 (t=0.6s): Initial archival pose of tornado; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.73s): Mid-sequence articulation of tornado; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.96s): Peak dynamic extension of tornado over 7-plane multiplane environment.",
+    "Key 4 (t=4.2s): Follow-through and settle of tornado with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of tornado (0.6s..4.2s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_59683b41",
+    "source_id": "03_59683b41",
+    "source_slug": "tornado",
+    "source_title": "Moving Image Archive // Tornado",
+    "source_year": 1956,
+    "start_seconds": 0.6,
+    "end_seconds": 4.2,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/tornado/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/tornado/videos/03_59683b41-7cd0-506b-b86b-3b683c1c3f80.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5044841681518592",
+    "n_strokes": 9,
+    "country": "PH",
+    "qd_index": 0,
+    "why": "Selected Quick, Draw! human doodle #0 (PH, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}
