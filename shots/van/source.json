@@ -1,0 +1,47 @@
+{
+  "category": "van",
+  "shot_id": "van",
+  "body_plan": "Regime IV: Wheeled & Heavy Vehicles",
+  "interval": [
+    2.49,
+    6.09
+  ],
+  "key_times": [
+    2.49,
+    3.62,
+    4.85,
+    6.09
+  ],
+  "key_notes": [
+    "Key 1 (t=2.49s): Initial archival pose of van; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.62s): Mid-sequence articulation of van; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.85s): Peak dynamic extension of van over 7-plane multiplane environment.",
+    "Key 4 (t=6.09s): Follow-through and settle of van with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of van (2.49s..6.09s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_fdd822dd",
+    "source_id": "04_fdd822dd",
+    "source_slug": "van",
+    "source_title": "Moving Image Archive // Van",
+    "source_year": 1956,
+    "start_seconds": 2.49,
+    "end_seconds": 6.09,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/van/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/van/videos/04_fdd822dd-b85d-5d4e-858a-ed09618b4a54.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5367304957198336",
+    "n_strokes": 7,
+    "country": "DE",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (DE, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

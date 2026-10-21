@@ -1,0 +1,47 @@
+{
+  "category": "hourglass",
+  "shot_id": "hourglass",
+  "body_plan": "Regime VII: Mechanical & Interior",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of hourglass; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of hourglass; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of hourglass over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of hourglass with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of hourglass (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_d799093a",
+    "source_id": "02_d799093a",
+    "source_slug": "hourglass",
+    "source_title": "Moving Image Archive // Hourglass",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/hourglass/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/hourglass/videos/02_d799093a-0dea-50e8-8797-4b54d98c6ff0.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5833848615075840",
+    "n_strokes": 7,
+    "country": "HU",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (HU, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

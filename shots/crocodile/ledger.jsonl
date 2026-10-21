@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "crocodile", "clip": "03_866f29b0", "interval": [1.83, 5.43]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "crocodile", "mean_sam_iou": 0.9583}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "crocodile", "key_id": "5334573816741888", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "crocodile", "ep0": 0.1764, "ep3": 0.6497, "sil_iou": 0.7657, "in_mask": 0.9018}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "crocodile", "gates": "16/16"}

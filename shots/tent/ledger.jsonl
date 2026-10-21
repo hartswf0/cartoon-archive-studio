@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "tent", "clip": "01_1a8278dd", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "tent", "mean_sam_iou": 0.9456}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "tent", "key_id": "5738214037913600", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "tent", "ep0": 0.4163, "ep3": 0.6664, "sil_iou": 0.74, "in_mask": 0.966}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "tent", "gates": "16/16"}

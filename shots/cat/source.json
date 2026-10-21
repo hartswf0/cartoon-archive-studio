@@ -1,0 +1,47 @@
+{
+  "category": "cat",
+  "shot_id": "cat",
+  "body_plan": "Regime I: Terrestrial Locomotion",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of cat; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of cat; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of cat over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of cat with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of cat (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_ccf4e561",
+    "source_id": "01_ccf4e561",
+    "source_slug": "cat",
+    "source_title": "Moving Image Archive // Cat",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/cat/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/cat/videos/01_ccf4e561-d837-5b58-845e-c4b5414938bb.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5110818133770240",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

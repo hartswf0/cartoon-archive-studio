@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "octopus", "clip": "01_cc9f2f9b", "interval": [1.56, 5.16]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "octopus", "mean_sam_iou": 0.9197}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "octopus", "key_id": "5915242791960576", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "octopus", "ep0": 0.2586, "ep3": 0.5966, "sil_iou": 0.74, "in_mask": 0.9}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "octopus", "gates": "16/16"}

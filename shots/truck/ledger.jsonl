@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "truck", "clip": "04_784accb4", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "truck", "mean_sam_iou": 0.9674}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "truck", "key_id": "5996655121793024", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "truck", "ep0": 0.5525, "ep3": 0.6886, "sil_iou": 0.8061, "in_mask": 0.9005}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "truck", "gates": "16/16"}

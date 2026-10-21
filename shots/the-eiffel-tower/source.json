@@ -1,0 +1,47 @@
+{
+  "category": "the_eiffel_tower",
+  "shot_id": "the-eiffel-tower",
+  "body_plan": "Regime VII: Monumental Architecture",
+  "interval": [
+    6.13,
+    9.73
+  ],
+  "key_times": [
+    6.13,
+    7.25,
+    8.49,
+    9.73
+  ],
+  "key_notes": [
+    "Key 1 (t=6.13s): Initial archival pose of the-eiffel-tower; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.25s): Mid-sequence articulation of the-eiffel-tower; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.49s): Peak dynamic extension of the-eiffel-tower over 7-plane multiplane environment.",
+    "Key 4 (t=9.73s): Follow-through and settle of the-eiffel-tower with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of the-eiffel-tower (6.13s..9.73s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_d917013f",
+    "source_id": "05_d917013f",
+    "source_slug": "the-eiffel-tower",
+    "source_title": "Moving Image Archive // The Eiffel Tower",
+    "source_year": 1956,
+    "start_seconds": 6.13,
+    "end_seconds": 9.73,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/the-eiffel-tower/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/the_eiffel_tower/videos/05_d917013f-7d44-5716-8ec5-2a6e02b3af5f.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6338564516216832",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

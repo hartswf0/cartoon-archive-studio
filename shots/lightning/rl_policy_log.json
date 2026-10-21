@@ -1,0 +1,14 @@
+{
+  "shot": "lightning",
+  "category": "lightning",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9735,
+  "mean_reward_ep0": 0.0,
+  "mean_reward_ep1": 0.8014,
+  "mean_reward_ep2": 0.8341,
+  "mean_reward_ep3": 0.8521,
+  "mean_sil_iou_ep3": 0.7773,
+  "mean_edge_recall_ep3": 0.7714,
+  "mean_stroke_precision_ep3": 0.9636,
+  "reward_delta": 0.8521
+}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "rollerskates", "clip": "02_c51b47ec", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "rollerskates", "mean_sam_iou": 0.9649}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "rollerskates", "key_id": "5293873414799360", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "rollerskates", "ep0": 0.4482, "ep3": 0.7914, "sil_iou": 0.8528, "in_mask": 0.9468}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "rollerskates", "gates": "16/16"}

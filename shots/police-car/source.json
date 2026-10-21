@@ -1,0 +1,47 @@
+{
+  "category": "police_car",
+  "shot_id": "police-car",
+  "body_plan": "Regime IV: Wheeled & Heavy Vehicles",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of police-car; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of police-car; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of police-car over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of police-car with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of police-car (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_613bbfc6",
+    "source_id": "03_613bbfc6",
+    "source_slug": "police-car",
+    "source_title": "Moving Image Archive // Police Car",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/police-car/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/police_car/videos/03_613bbfc6-8770-53b8-bfbc-16c172587fd5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6587105163608064",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "shot": "house",
+  "category": "house",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9482,
+  "mean_reward_ep0": 0.2764,
+  "mean_reward_ep1": 0.5924,
+  "mean_reward_ep2": 0.671,
+  "mean_reward_ep3": 0.689,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9362,
+  "reward_delta": 0.4126
+}

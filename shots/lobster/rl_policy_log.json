@@ -1,0 +1,14 @@
+{
+  "shot": "lobster",
+  "category": "lobster",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9118,
+  "mean_reward_ep0": 0.2867,
+  "mean_reward_ep1": 0.5099,
+  "mean_reward_ep2": 0.607,
+  "mean_reward_ep3": 0.6284,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.7876,
+  "mean_stroke_precision_ep3": 0.9,
+  "reward_delta": 0.3417
+}

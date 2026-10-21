@@ -1,0 +1,47 @@
+{
+  "category": "palm_tree",
+  "shot_id": "palm-tree",
+  "body_plan": "Regime VIII: Elemental & Botanical",
+  "interval": [
+    2.07,
+    5.67
+  ],
+  "key_times": [
+    2.07,
+    3.19,
+    4.43,
+    5.67
+  ],
+  "key_notes": [
+    "Key 1 (t=2.07s): Initial archival pose of palm-tree; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.19s): Mid-sequence articulation of palm-tree; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.43s): Peak dynamic extension of palm-tree over 7-plane multiplane environment.",
+    "Key 4 (t=5.67s): Follow-through and settle of palm-tree with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of palm-tree (2.07s..5.67s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_8e5f55a8",
+    "source_id": "05_8e5f55a8",
+    "source_slug": "palm-tree",
+    "source_title": "Moving Image Archive // Palm Tree",
+    "source_year": 1956,
+    "start_seconds": 2.07,
+    "end_seconds": 5.67,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/palm-tree/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/palm_tree/videos/05_8e5f55a8-bdd6-5809-baf7-e464ed72e74b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5187811114221568",
+    "n_strokes": 6,
+    "country": "CA",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (CA, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

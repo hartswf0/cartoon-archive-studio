@@ -1,0 +1,14 @@
+{
+  "shot": "umbrella",
+  "category": "umbrella",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.8509,
+  "mean_reward_ep0": 0.1077,
+  "mean_reward_ep1": 0.4942,
+  "mean_reward_ep2": 0.5503,
+  "mean_reward_ep3": 0.5683,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9,
+  "reward_delta": 0.4606
+}

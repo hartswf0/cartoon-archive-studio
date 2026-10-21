@@ -1,0 +1,14 @@
+{
+  "shot": "truck",
+  "category": "truck",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9674,
+  "mean_reward_ep0": 0.5525,
+  "mean_reward_ep1": 0.5803,
+  "mean_reward_ep2": 0.6706,
+  "mean_reward_ep3": 0.6886,
+  "mean_sil_iou_ep3": 0.8061,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9005,
+  "reward_delta": 0.1361
+}

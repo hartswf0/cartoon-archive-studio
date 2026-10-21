@@ -1,0 +1,14 @@
+{
+  "shot": "mountain",
+  "category": "mountain",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9417,
+  "mean_reward_ep0": 0.1075,
+  "mean_reward_ep1": 0.6407,
+  "mean_reward_ep2": 0.6969,
+  "mean_reward_ep3": 0.7149,
+  "mean_sil_iou_ep3": 0.7808,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9225,
+  "reward_delta": 0.6074
+}

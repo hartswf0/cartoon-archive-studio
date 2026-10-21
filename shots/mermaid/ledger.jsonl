@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "mermaid", "clip": "01_e82a7edd", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "mermaid", "mean_sam_iou": 0.9547}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "mermaid", "key_id": "6006444866404352", "country": "FR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "mermaid", "ep0": 0.2396, "ep3": 0.51, "sil_iou": 0.74, "in_mask": 0.9}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "mermaid", "gates": "16/16"}

@@ -1,0 +1,14 @@
+{
+  "shot": "van",
+  "category": "van",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.969,
+  "mean_reward_ep0": 0.2844,
+  "mean_reward_ep1": 0.6293,
+  "mean_reward_ep2": 0.7431,
+  "mean_reward_ep3": 0.7611,
+  "mean_sil_iou_ep3": 0.793,
+  "mean_edge_recall_ep3": 0.6243,
+  "mean_stroke_precision_ep3": 0.933,
+  "reward_delta": 0.4767
+}

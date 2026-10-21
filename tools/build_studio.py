@@ -85,6 +85,57 @@ SHOT_ORDER = [
     "ocean",
     "camera",
     "flower",
+    # Batch-2 of 50 Full SCION Multiplane Cartoons (Shots #71–#120)
+    "cat",
+    "rhinoceros",
+    "crocodile",
+    "snake",
+    "hedgehog",
+    "mouse",
+    "scorpion",
+    "ant",
+    "bee",
+    "bat",
+    "bird",
+    "fish",
+    "octopus",
+    "lobster",
+    "mermaid",
+    "dragon",
+    "pickup-truck",
+    "police-car",
+    "school-bus",
+    "truck",
+    "van",
+    "skateboard",
+    "rollerskates",
+    "submarine",
+    "clarinet",
+    "drums",
+    "harp",
+    "saxophone",
+    "trombone",
+    "microphone",
+    "the-eiffel-tower",
+    "the-great-wall-of-china",
+    "skyscraper",
+    "house",
+    "hospital",
+    "tent",
+    "cannon",
+    "hurricane",
+    "lightning",
+    "rainbow",
+    "mountain",
+    "palm-tree",
+    "cactus",
+    "basketball",
+    "soccer-ball",
+    "baseball-bat",
+    "ceiling-fan",
+    "lantern",
+    "hourglass",
+    "umbrella",
 ]
 
 
@@ -95,7 +146,7 @@ def load_json(path: Path, default=None):
 
 
 def build_showcase_video():
-    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 8 regimes."""
+    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 120 cartoons."""
     out_path = STUDIO_DIR / "Cartoon_Archive_Living_Doodles_Showcase.mp4"
     writer = cv2.VideoWriter(str(out_path), cv2.VideoWriter_fourcc(*"mp4v"), 12.0, (1280, 720))
 
@@ -105,10 +156,13 @@ def build_showcase_video():
         ("PART III: UNIVERSAL ARGON RL — MEGAFAUNA & VEHICLES", ["elephant", "duck", "canoe", "tractor"]),
         ("PART IV: UNIVERSAL ARGON RL — RAIL, NAUTICAL & FIRE", ["train", "speedboat", "campfire", "guitar"]),
         ("PART V: UNIVERSAL ARGON RL — OBJECTS, ARCHITECTURE & NATURE", ["clock", "lighthouse", "hot-air-balloon", "butterfly"]),
-        ("PART VI: SCION BATCH-50 — PREDATORS & UNGULATES", ["lion", "tiger", "zebra", "kangaroo"]),
-        ("PART VII: SCION BATCH-50 — MARINE & AVIAN", ["swan", "penguin", "dolphin", "whale"]),
-        ("PART VIII: SCION BATCH-50 — VEHICLES, AEROSPACE & MUSIC", ["car", "airplane", "piano", "violin"]),
-        ("PART IX: SCION BATCH-50 — LANDMARKS & NATURAL FORCES", ["bridge", "castle", "tornado", "flower"]),
+        ("PART VI: SCION BATCH-1 — PREDATORS & UNGULATES", ["lion", "tiger", "zebra", "kangaroo"]),
+        ("PART VII: SCION BATCH-1 — MARINE & AVIAN", ["swan", "penguin", "dolphin", "whale"]),
+        ("PART VIII: SCION BATCH-1 — VEHICLES, AEROSPACE & MUSIC", ["car", "airplane", "piano", "violin"]),
+        ("PART IX: SCION BATCH-1 — LANDMARKS & NATURAL FORCES", ["bridge", "castle", "tornado", "flower"]),
+        ("PART X: SCION BATCH-2 — REPTILES, FAUNA & REEF LIFE", ["cat", "rhinoceros", "crocodile", "octopus"]),
+        ("PART XI: SCION BATCH-2 — FLEET, SYMPHONY & JAZZ", ["police-car", "school-bus", "saxophone", "harp"]),
+        ("PART XII: SCION BATCH-2 — WORLD MONUMENTS & ELEMENTS", ["the-eiffel-tower", "skyscraper", "hurricane", "rainbow"]),
     ]
 
     for title, slugs in groups:
@@ -122,7 +176,7 @@ def build_showcase_video():
             cv2.rectangle(canvas, (0, 0), (1280, 48), (18, 20, 22), -1)
             cv2.putText(
                 canvas,
-                f"SECONDHAND MOTION (70 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
+                f"SECONDHAND MOTION (120 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
                 (20, 31),
                 cv2.FONT_HERSHEY_DUPLEX,
                 0.58,
@@ -295,11 +349,20 @@ def bundle_data():
     lane_compare = load_json(DATA_DIR / "lane_compare.json", [])
     archive_base = load_json(DATA_DIR / "cartoon_archive_data.json", {})
 
+    def round_coords(x):
+        if isinstance(x, float):
+            return round(x, 1)
+        if isinstance(x, list):
+            return [round_coords(v) for v in x]
+        if isinstance(x, dict):
+            return {k: round_coords(v) for k, v in x.items()}
+        return x
+
     full_payload = {
-        "project": "Secondhand Motion — The Joined Studio (70 Full SCION Multiplane Cartoons)",
+        "project": "Secondhand Motion — The Joined Studio (120 Full SCION Multiplane Cartoons)",
         "generated_at": "2026-10-21",
         "shot_order": SHOT_ORDER,
-        "shots": shots_bundle,
+        "shots": round_coords(shots_bundle),
         "lane_compare": lane_compare,
         "archive_345": {
             "total_categories": archive_base.get("stats", {}).get("total_categories", 345),

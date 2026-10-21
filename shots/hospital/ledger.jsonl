@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "hospital", "clip": "05_6ebf67a4", "interval": [3.98, 7.58]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "hospital", "mean_sam_iou": 0.9481}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "hospital", "key_id": "5758924336660480", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "hospital", "ep0": 0.3532, "ep3": 0.7112, "sil_iou": 0.7515, "in_mask": 0.9326}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "hospital", "gates": "16/16"}

@@ -1,0 +1,14 @@
+{
+  "shot": "hourglass",
+  "category": "hourglass",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9467,
+  "mean_reward_ep0": 0.4244,
+  "mean_reward_ep1": 0.4811,
+  "mean_reward_ep2": 0.6331,
+  "mean_reward_ep3": 0.6511,
+  "mean_sil_iou_ep3": 0.7733,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9,
+  "reward_delta": 0.2267
+}

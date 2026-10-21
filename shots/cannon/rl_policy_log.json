@@ -1,0 +1,14 @@
+{
+  "shot": "cannon",
+  "category": "cannon",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9263,
+  "mean_reward_ep0": 0.0,
+  "mean_reward_ep1": 0.7694,
+  "mean_reward_ep2": 0.795,
+  "mean_reward_ep3": 0.813,
+  "mean_sil_iou_ep3": 0.7719,
+  "mean_edge_recall_ep3": 0.656,
+  "mean_stroke_precision_ep3": 0.9648,
+  "reward_delta": 0.813
+}

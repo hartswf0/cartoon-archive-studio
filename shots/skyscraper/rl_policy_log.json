@@ -1,0 +1,14 @@
+{
+  "shot": "skyscraper",
+  "category": "skyscraper",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9795,
+  "mean_reward_ep0": 0.5038,
+  "mean_reward_ep1": 0.5882,
+  "mean_reward_ep2": 0.6824,
+  "mean_reward_ep3": 0.7004,
+  "mean_sil_iou_ep3": 0.7703,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9386,
+  "reward_delta": 0.1966
+}

@@ -1,0 +1,14 @@
+{
+  "shot": "ant",
+  "category": "ant",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.8514,
+  "mean_reward_ep0": 0.3897,
+  "mean_reward_ep1": 0.5384,
+  "mean_reward_ep2": 0.6021,
+  "mean_reward_ep3": 0.6201,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.6254,
+  "mean_stroke_precision_ep3": 0.9021,
+  "reward_delta": 0.2304
+}

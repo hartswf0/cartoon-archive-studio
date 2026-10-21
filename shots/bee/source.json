@@ -1,0 +1,47 @@
+{
+  "category": "bee",
+  "shot_id": "bee",
+  "body_plan": "Regime II: Aerial & Wingbeat",
+  "interval": [
+    6.35,
+    9.95
+  ],
+  "key_times": [
+    6.35,
+    7.47,
+    8.71,
+    9.95
+  ],
+  "key_notes": [
+    "Key 1 (t=6.35s): Initial archival pose of bee; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.47s): Mid-sequence articulation of bee; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.71s): Peak dynamic extension of bee over 7-plane multiplane environment.",
+    "Key 4 (t=9.95s): Follow-through and settle of bee with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of bee (6.35s..9.95s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_d235d1b1",
+    "source_id": "02_d235d1b1",
+    "source_slug": "bee",
+    "source_title": "Moving Image Archive // Bee",
+    "source_year": 1956,
+    "start_seconds": 6.35,
+    "end_seconds": 9.95,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/bee/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bee/videos/02_d235d1b1-9a0e-5748-a67d-8867ad1f29fc.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5179143064911872",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

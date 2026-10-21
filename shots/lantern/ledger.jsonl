@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "lantern", "clip": "01_4e46b7b2", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "lantern", "mean_sam_iou": 0.9623}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "lantern", "key_id": "4685721984040960", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "lantern", "ep0": 0.2854, "ep3": 0.7733, "sil_iou": 0.7894, "in_mask": 0.9}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "lantern", "gates": "16/16"}

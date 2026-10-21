@@ -1,0 +1,14 @@
+{
+  "shot": "snake",
+  "category": "snake",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9553,
+  "mean_reward_ep0": 0.3682,
+  "mean_reward_ep1": 0.3409,
+  "mean_reward_ep2": 0.3858,
+  "mean_reward_ep3": 0.4038,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9,
+  "reward_delta": 0.0357
+}

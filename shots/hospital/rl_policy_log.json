@@ -1,0 +1,14 @@
+{
+  "shot": "hospital",
+  "category": "hospital",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9481,
+  "mean_reward_ep0": 0.3532,
+  "mean_reward_ep1": 0.6268,
+  "mean_reward_ep2": 0.6932,
+  "mean_reward_ep3": 0.7112,
+  "mean_sil_iou_ep3": 0.7515,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9326,
+  "reward_delta": 0.358
+}

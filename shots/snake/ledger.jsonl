@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "snake", "clip": "01_8b702d41", "interval": [3.92, 7.52]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "snake", "mean_sam_iou": 0.9553}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "snake", "key_id": "5838936809144320", "country": "KR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "snake", "ep0": 0.3682, "ep3": 0.4038, "sil_iou": 0.74, "in_mask": 0.9}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "snake", "gates": "16/16"}

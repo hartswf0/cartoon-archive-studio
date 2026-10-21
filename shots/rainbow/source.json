@@ -1,0 +1,47 @@
+{
+  "category": "rainbow",
+  "shot_id": "rainbow",
+  "body_plan": "Regime VIII: Elemental & Botanical",
+  "interval": [
+    0.3,
+    3.9
+  ],
+  "key_times": [
+    0.3,
+    1.43,
+    2.66,
+    3.9
+  ],
+  "key_notes": [
+    "Key 1 (t=0.3s): Initial archival pose of rainbow; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.43s): Mid-sequence articulation of rainbow; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.66s): Peak dynamic extension of rainbow over 7-plane multiplane environment.",
+    "Key 4 (t=3.9s): Follow-through and settle of rainbow with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of rainbow (0.3s..3.9s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_ae2c513a",
+    "source_id": "01_ae2c513a",
+    "source_slug": "rainbow",
+    "source_title": "Moving Image Archive // Rainbow",
+    "source_year": 1956,
+    "start_seconds": 0.3,
+    "end_seconds": 3.9,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/rainbow/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/rainbow/videos/01_ae2c513a-e30f-5646-9796-a4862d323fb5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4543732999258112",
+    "n_strokes": 8,
+    "country": "FI",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (FI, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

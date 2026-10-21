@@ -1,0 +1,47 @@
+{
+  "category": "snake",
+  "shot_id": "snake",
+  "body_plan": "Regime VIII: Biological Articulation",
+  "interval": [
+    3.92,
+    7.52
+  ],
+  "key_times": [
+    3.92,
+    5.04,
+    6.28,
+    7.52
+  ],
+  "key_notes": [
+    "Key 1 (t=3.92s): Initial archival pose of snake; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.04s): Mid-sequence articulation of snake; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.28s): Peak dynamic extension of snake over 7-plane multiplane environment.",
+    "Key 4 (t=7.52s): Follow-through and settle of snake with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of snake (3.92s..7.52s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_8b702d41",
+    "source_id": "01_8b702d41",
+    "source_slug": "snake",
+    "source_title": "Moving Image Archive // Snake",
+    "source_year": 1956,
+    "start_seconds": 3.92,
+    "end_seconds": 7.52,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/snake/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/snake/videos/01_8b702d41-8b6f-5a9d-84cd-254e3da2ba1e.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5838936809144320",
+    "n_strokes": 7,
+    "country": "KR",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (KR, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

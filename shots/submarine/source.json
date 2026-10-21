@@ -1,0 +1,47 @@
+{
+  "category": "submarine",
+  "shot_id": "submarine",
+  "body_plan": "Regime V: Naval & Maritime",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of submarine; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of submarine; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of submarine over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of submarine with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of submarine (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_310a45b5",
+    "source_id": "02_310a45b5",
+    "source_slug": "submarine",
+    "source_title": "Moving Image Archive // Submarine",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/submarine/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/submarine/videos/02_310a45b5-aa86-5343-ad2d-1fed92a6bcf5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6649789204660224",
+    "n_strokes": 6,
+    "country": "US",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (US, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

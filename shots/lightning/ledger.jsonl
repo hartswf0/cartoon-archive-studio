@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "lightning", "clip": "02_90b306fc", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "lightning", "mean_sam_iou": 0.9735}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "lightning", "key_id": "5963750236487680", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "lightning", "ep0": 0.0, "ep3": 0.8521, "sil_iou": 0.7773, "in_mask": 0.9636}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "lightning", "gates": "16/16"}

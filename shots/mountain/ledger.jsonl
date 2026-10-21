@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "mountain", "clip": "04_87d34cc3", "interval": [3.44, 7.04]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "mountain", "mean_sam_iou": 0.9417}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "mountain", "key_id": "5751554827091968", "country": "TR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "mountain", "ep0": 0.1075, "ep3": 0.7149, "sil_iou": 0.7808, "in_mask": 0.9225}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "mountain", "gates": "16/16"}

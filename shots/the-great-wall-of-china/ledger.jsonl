@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "the-great-wall-of-china", "clip": "03_a61d250e", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "the-great-wall-of-china", "mean_sam_iou": 0.9628}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "the-great-wall-of-china", "key_id": "5141918126178304", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "the-great-wall-of-china", "ep0": 0.2144, "ep3": 0.6274, "sil_iou": 0.74, "in_mask": 0.9013}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "the-great-wall-of-china", "gates": "16/16"}

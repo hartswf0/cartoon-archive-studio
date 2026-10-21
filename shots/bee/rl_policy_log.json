@@ -1,0 +1,14 @@
+{
+  "shot": "bee",
+  "category": "bee",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9559,
+  "mean_reward_ep0": 0.214,
+  "mean_reward_ep1": 0.5591,
+  "mean_reward_ep2": 0.6374,
+  "mean_reward_ep3": 0.6554,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.6638,
+  "mean_stroke_precision_ep3": 0.9344,
+  "reward_delta": 0.4414
+}

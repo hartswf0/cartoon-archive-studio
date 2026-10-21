@@ -448,16 +448,20 @@ def run_fast_auto_sam_and_depth(
 
         if compact_cands:
             scored_cands = []
+            fg_ref = max(1e-3, float(np.percentile(depths[idx][50:H-50, 60:W-60], 72)) / 255.0)
+            g_sob = cv2.Sobel(grays[idx], cv2.CV_32F, 1, 1, ksize=3)
             for b, sc, af in compact_cands:
                 ix1, iy1, ix2, iy2 = [max(0, int(round(v))) for v in b]
                 ix2, iy2 = min(W, ix2), min(H, iy2)
                 m_flow = float(flow_mags[idx][iy1:iy2, ix1:ix2].mean()) if (ix2 > ix1 and iy2 > iy1) else 0.0
                 m_depth = float(depths[idx][iy1:iy2, ix1:ix2].mean()) / 255.0 if (ix2 > ix1 and iy2 > iy1) else 0.0
+                m_edge = float(np.abs(g_sob[iy1:iy2, ix1:ix2]).mean()) / 25.0 if (ix2 > ix1 and iy2 > iy1) else 0.0
                 cx = 0.5 * (b[0] + b[2]) / float(W)
                 cy = 0.5 * (b[1] + b[3]) / float(H)
                 center_bonus = 1.0 - 0.90 * ((cx - 0.5) ** 2 + (cy - 0.5) ** 2)
                 top_corner_pen = 0.38 if (spec.get("grounded", False) and b[1] <= 12.0 and (cx > 0.72 or cx < 0.28)) else 0.0
-                val = sc + 0.12 * min(3.0, m_flow) + 0.14 * m_depth + 0.22 * center_bonus - top_corner_pen
+                bg_wall_pen = 0.32 if (m_depth < 0.45 * fg_ref and m_flow < 0.4) else 0.0
+                val = sc + 0.14 * min(3.0, m_flow) + 0.22 * m_depth + 0.10 * min(1.5, m_edge) + 0.22 * center_bonus - top_corner_pen - bg_wall_pen
                 scored_cands.append((b, float(val)))
             cand_by_frame[idx] = scored_cands
 

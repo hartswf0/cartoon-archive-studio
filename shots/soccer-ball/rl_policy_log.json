@@ -1,0 +1,14 @@
+{
+  "shot": "soccer-ball",
+  "category": "soccer_ball",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9886,
+  "mean_reward_ep0": 0.4294,
+  "mean_reward_ep1": 0.6202,
+  "mean_reward_ep2": 0.6667,
+  "mean_reward_ep3": 0.6847,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9751,
+  "reward_delta": 0.2552
+}

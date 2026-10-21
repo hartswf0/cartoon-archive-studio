@@ -1,0 +1,852 @@
+[
+  {
+    "idx": 51,
+    "slug": "cat",
+    "category": "cat",
+    "clip": "01_ccf4e561",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9531,
+    "ep0": 0.2746,
+    "ep3": 0.7408,
+    "sil_iou": 0.7895,
+    "in_mask": 0.9593,
+    "qd_key_id": "5110818133770240",
+    "sec": 13.2
+  },
+  {
+    "idx": 52,
+    "slug": "rhinoceros",
+    "category": "rhinoceros",
+    "clip": "03_503abe90",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.942,
+    "ep0": 0.3609,
+    "ep3": 0.6447,
+    "sil_iou": 0.74,
+    "in_mask": 0.943,
+    "qd_key_id": "4529418326245376",
+    "sec": 11.2
+  },
+  {
+    "idx": 53,
+    "slug": "crocodile",
+    "category": "crocodile",
+    "clip": "03_866f29b0",
+    "interval": [
+      1.83,
+      5.43
+    ],
+    "sam_iou": 0.9583,
+    "ep0": 0.1764,
+    "ep3": 0.6497,
+    "sil_iou": 0.7657,
+    "in_mask": 0.9018,
+    "qd_key_id": "5334573816741888",
+    "sec": 10.7
+  },
+  {
+    "idx": 54,
+    "slug": "snake",
+    "category": "snake",
+    "clip": "01_8b702d41",
+    "interval": [
+      3.92,
+      7.52
+    ],
+    "sam_iou": 0.9553,
+    "ep0": 0.3682,
+    "ep3": 0.4038,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "5838936809144320",
+    "sec": 11.3
+  },
+  {
+    "idx": 55,
+    "slug": "hedgehog",
+    "category": "hedgehog",
+    "clip": "05_70252743",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9576,
+    "ep0": 0.2576,
+    "ep3": 0.8243,
+    "sil_iou": 0.74,
+    "in_mask": 0.9816,
+    "qd_key_id": "5733511770144768",
+    "sec": 10.6
+  },
+  {
+    "idx": 56,
+    "slug": "mouse",
+    "category": "mouse",
+    "clip": "05_8a591802",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9046,
+    "ep0": 0.0429,
+    "ep3": 0.3902,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "6537722753712128",
+    "sec": 11.1
+  },
+  {
+    "idx": 57,
+    "slug": "scorpion",
+    "category": "scorpion",
+    "clip": "02_bac024f3",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9435,
+    "ep0": 0.4216,
+    "ep3": 0.6435,
+    "sil_iou": 0.7446,
+    "in_mask": 0.9214,
+    "qd_key_id": "4708921388302336",
+    "sec": 11.3
+  },
+  {
+    "idx": 58,
+    "slug": "ant",
+    "category": "ant",
+    "clip": "03_08aba22b",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.8514,
+    "ep0": 0.3897,
+    "ep3": 0.6201,
+    "sil_iou": 0.74,
+    "in_mask": 0.9021,
+    "qd_key_id": "5156977590140928",
+    "sec": 10.2
+  },
+  {
+    "idx": 59,
+    "slug": "bee",
+    "category": "bee",
+    "clip": "02_d235d1b1",
+    "interval": [
+      6.35,
+      9.95
+    ],
+    "sam_iou": 0.9559,
+    "ep0": 0.214,
+    "ep3": 0.6554,
+    "sil_iou": 0.74,
+    "in_mask": 0.9344,
+    "qd_key_id": "5179143064911872",
+    "sec": 10.8
+  },
+  {
+    "idx": 60,
+    "slug": "bat",
+    "category": "bat",
+    "clip": "01_a5852c9d",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9523,
+    "ep0": 0.4613,
+    "ep3": 0.6895,
+    "sil_iou": 0.7832,
+    "in_mask": 0.9,
+    "qd_key_id": "6532221890461696",
+    "sec": 11.4
+  },
+  {
+    "idx": 61,
+    "slug": "bird",
+    "category": "bird",
+    "clip": "04_34dfbaf9",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9523,
+    "ep0": 0.0,
+    "ep3": 0.5536,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "5649784570380288",
+    "sec": 11.2
+  },
+  {
+    "idx": 62,
+    "slug": "fish",
+    "category": "fish",
+    "clip": "05_89998cd6",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9672,
+    "ep0": 0.0292,
+    "ep3": 0.7404,
+    "sil_iou": 0.7828,
+    "in_mask": 0.9555,
+    "qd_key_id": "6709002295574528",
+    "sec": 9.9
+  },
+  {
+    "idx": 63,
+    "slug": "octopus",
+    "category": "octopus",
+    "clip": "01_cc9f2f9b",
+    "interval": [
+      1.56,
+      5.16
+    ],
+    "sam_iou": 0.9197,
+    "ep0": 0.2586,
+    "ep3": 0.5966,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "5915242791960576",
+    "sec": 10.6
+  },
+  {
+    "idx": 64,
+    "slug": "lobster",
+    "category": "lobster",
+    "clip": "05_60c56c03",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9118,
+    "ep0": 0.2867,
+    "ep3": 0.6284,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "6056015948677120",
+    "sec": 11.2
+  },
+  {
+    "idx": 65,
+    "slug": "mermaid",
+    "category": "mermaid",
+    "clip": "01_e82a7edd",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9547,
+    "ep0": 0.2396,
+    "ep3": 0.51,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "6006444866404352",
+    "sec": 9.6
+  },
+  {
+    "idx": 66,
+    "slug": "dragon",
+    "category": "dragon",
+    "clip": "04_dd4eb346",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9353,
+    "ep0": 0.4763,
+    "ep3": 0.6891,
+    "sil_iou": 0.7624,
+    "in_mask": 0.917,
+    "qd_key_id": "4649805622018048",
+    "sec": 12.5
+  },
+  {
+    "idx": 67,
+    "slug": "pickup-truck",
+    "category": "pickup_truck",
+    "clip": "02_7d1254bb",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.8908,
+    "ep0": 0.0544,
+    "ep3": 0.8241,
+    "sil_iou": 0.7811,
+    "in_mask": 0.9533,
+    "qd_key_id": "5968264448442368",
+    "sec": 11.1
+  },
+  {
+    "idx": 68,
+    "slug": "police-car",
+    "category": "police_car",
+    "clip": "03_613bbfc6",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9417,
+    "ep0": 0.3246,
+    "ep3": 0.809,
+    "sil_iou": 0.7605,
+    "in_mask": 0.9739,
+    "qd_key_id": "6587105163608064",
+    "sec": 11.7
+  },
+  {
+    "idx": 69,
+    "slug": "school-bus",
+    "category": "school_bus",
+    "clip": "04_0b445e20",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9293,
+    "ep0": 0.4715,
+    "ep3": 0.6882,
+    "sil_iou": 0.7532,
+    "in_mask": 0.9341,
+    "qd_key_id": "6035528472330240",
+    "sec": 13.4
+  },
+  {
+    "idx": 70,
+    "slug": "truck",
+    "category": "truck",
+    "clip": "04_784accb4",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9674,
+    "ep0": 0.5525,
+    "ep3": 0.6886,
+    "sil_iou": 0.8061,
+    "in_mask": 0.9005,
+    "qd_key_id": "5996655121793024",
+    "sec": 14.9
+  },
+  {
+    "idx": 71,
+    "slug": "van",
+    "category": "van",
+    "clip": "04_fdd822dd",
+    "interval": [
+      2.49,
+      6.09
+    ],
+    "sam_iou": 0.969,
+    "ep0": 0.2844,
+    "ep3": 0.7611,
+    "sil_iou": 0.793,
+    "in_mask": 0.933,
+    "qd_key_id": "5367304957198336",
+    "sec": 499.8
+  },
+  {
+    "idx": 72,
+    "slug": "skateboard",
+    "category": "skateboard",
+    "clip": "05_64a227d1",
+    "interval": [
+      5.95,
+      9.55
+    ],
+    "sam_iou": 0.9293,
+    "ep0": 0.2418,
+    "ep3": 0.6882,
+    "sil_iou": 0.74,
+    "in_mask": 0.979,
+    "qd_key_id": "4632983849926656",
+    "sec": 11.9
+  },
+  {
+    "idx": 73,
+    "slug": "rollerskates",
+    "category": "rollerskates",
+    "clip": "02_c51b47ec",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9649,
+    "ep0": 0.4482,
+    "ep3": 0.7914,
+    "sil_iou": 0.8528,
+    "in_mask": 0.9468,
+    "qd_key_id": "5293873414799360",
+    "sec": 12.5
+  },
+  {
+    "idx": 74,
+    "slug": "submarine",
+    "category": "submarine",
+    "clip": "02_310a45b5",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9187,
+    "ep0": 0.3186,
+    "ep3": 0.5738,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "6649789204660224",
+    "sec": 12.3
+  },
+  {
+    "idx": 75,
+    "slug": "clarinet",
+    "category": "clarinet",
+    "clip": "04_ccdc3318",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9388,
+    "ep0": 0.3925,
+    "ep3": 0.5192,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "5653396453326848",
+    "sec": 10.6
+  },
+  {
+    "idx": 76,
+    "slug": "drums",
+    "category": "drums",
+    "clip": "03_2f462742",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.946,
+    "ep0": 0.0797,
+    "ep3": 0.7886,
+    "sil_iou": 0.7698,
+    "in_mask": 0.9889,
+    "qd_key_id": "5021821730553856",
+    "sec": 11.0
+  },
+  {
+    "idx": 77,
+    "slug": "harp",
+    "category": "harp",
+    "clip": "02_755c5a02",
+    "interval": [
+      4.15,
+      7.75
+    ],
+    "sam_iou": 0.9062,
+    "ep0": 0.1107,
+    "ep3": 0.7378,
+    "sil_iou": 0.7589,
+    "in_mask": 0.9583,
+    "qd_key_id": "5217611618975744",
+    "sec": 10.3
+  },
+  {
+    "idx": 78,
+    "slug": "saxophone",
+    "category": "saxophone",
+    "clip": "03_47a15a89",
+    "interval": [
+      3.56,
+      7.16
+    ],
+    "sam_iou": 0.8997,
+    "ep0": 0.2909,
+    "ep3": 0.5914,
+    "sil_iou": 0.74,
+    "in_mask": 0.9313,
+    "qd_key_id": "6476530861473792",
+    "sec": 10.9
+  },
+  {
+    "idx": 79,
+    "slug": "trombone",
+    "category": "trombone",
+    "clip": "05_316022bb",
+    "interval": [
+      1.71,
+      5.31
+    ],
+    "sam_iou": 0.9284,
+    "ep0": 0.4101,
+    "ep3": 0.5702,
+    "sil_iou": 0.74,
+    "in_mask": 0.9032,
+    "qd_key_id": "6631666955059200",
+    "sec": 11.7
+  },
+  {
+    "idx": 80,
+    "slug": "microphone",
+    "category": "microphone",
+    "clip": "02_63d5a73d",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9406,
+    "ep0": 0.3776,
+    "ep3": 0.5118,
+    "sil_iou": 0.74,
+    "in_mask": 0.904,
+    "qd_key_id": "5161047675633664",
+    "sec": 10.5
+  },
+  {
+    "idx": 81,
+    "slug": "the-eiffel-tower",
+    "category": "the_eiffel_tower",
+    "clip": "05_d917013f",
+    "interval": [
+      6.13,
+      9.73
+    ],
+    "sam_iou": 0.9341,
+    "ep0": 0.3481,
+    "ep3": 0.6027,
+    "sil_iou": 0.74,
+    "in_mask": 0.9081,
+    "qd_key_id": "6338564516216832",
+    "sec": 11.0
+  },
+  {
+    "idx": 82,
+    "slug": "the-great-wall-of-china",
+    "category": "the_great_wall_of_china",
+    "clip": "03_a61d250e",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9628,
+    "ep0": 0.2144,
+    "ep3": 0.6274,
+    "sil_iou": 0.74,
+    "in_mask": 0.9013,
+    "qd_key_id": "5141918126178304",
+    "sec": 12.4
+  },
+  {
+    "idx": 83,
+    "slug": "skyscraper",
+    "category": "skyscraper",
+    "clip": "05_60439bcd",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9795,
+    "ep0": 0.5038,
+    "ep3": 0.7004,
+    "sil_iou": 0.7703,
+    "in_mask": 0.9386,
+    "qd_key_id": "4870265722896384",
+    "sec": 11.9
+  },
+  {
+    "idx": 84,
+    "slug": "house",
+    "category": "house",
+    "clip": "04_aa111d3b",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9482,
+    "ep0": 0.2764,
+    "ep3": 0.689,
+    "sil_iou": 0.74,
+    "in_mask": 0.9362,
+    "qd_key_id": "4791047332823040",
+    "sec": 11.8
+  },
+  {
+    "idx": 85,
+    "slug": "hospital",
+    "category": "hospital",
+    "clip": "05_6ebf67a4",
+    "interval": [
+      3.98,
+      7.58
+    ],
+    "sam_iou": 0.9481,
+    "ep0": 0.3532,
+    "ep3": 0.7112,
+    "sil_iou": 0.7515,
+    "in_mask": 0.9326,
+    "qd_key_id": "5758924336660480",
+    "sec": 10.6
+  },
+  {
+    "idx": 86,
+    "slug": "tent",
+    "category": "tent",
+    "clip": "01_1a8278dd",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9456,
+    "ep0": 0.4163,
+    "ep3": 0.6664,
+    "sil_iou": 0.74,
+    "in_mask": 0.966,
+    "qd_key_id": "5738214037913600",
+    "sec": 11.8
+  },
+  {
+    "idx": 87,
+    "slug": "cannon",
+    "category": "cannon",
+    "clip": "03_8bc48288",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9263,
+    "ep0": 0.0,
+    "ep3": 0.813,
+    "sil_iou": 0.7719,
+    "in_mask": 0.9648,
+    "qd_key_id": "4767735592517632",
+    "sec": 10.0
+  },
+  {
+    "idx": 88,
+    "slug": "hurricane",
+    "category": "hurricane",
+    "clip": "01_83e2cd5e",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9219,
+    "ep0": 0.3658,
+    "ep3": 0.7301,
+    "sil_iou": 0.7682,
+    "in_mask": 0.9194,
+    "qd_key_id": "5749368806178816",
+    "sec": 10.5
+  },
+  {
+    "idx": 89,
+    "slug": "lightning",
+    "category": "lightning",
+    "clip": "02_90b306fc",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9735,
+    "ep0": 0.0,
+    "ep3": 0.8521,
+    "sil_iou": 0.7773,
+    "in_mask": 0.9636,
+    "qd_key_id": "5963750236487680",
+    "sec": 11.8
+  },
+  {
+    "idx": 90,
+    "slug": "rainbow",
+    "category": "rainbow",
+    "clip": "01_ae2c513a",
+    "interval": [
+      0.3,
+      3.9
+    ],
+    "sam_iou": 0.8519,
+    "ep0": 0.2294,
+    "ep3": 0.6139,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "4543732999258112",
+    "sec": 13.4
+  },
+  {
+    "idx": 91,
+    "slug": "mountain",
+    "category": "mountain",
+    "clip": "04_87d34cc3",
+    "interval": [
+      3.44,
+      7.04
+    ],
+    "sam_iou": 0.9417,
+    "ep0": 0.1075,
+    "ep3": 0.7149,
+    "sil_iou": 0.7808,
+    "in_mask": 0.9225,
+    "qd_key_id": "5751554827091968",
+    "sec": 12.4
+  },
+  {
+    "idx": 92,
+    "slug": "palm-tree",
+    "category": "palm_tree",
+    "clip": "05_8e5f55a8",
+    "interval": [
+      2.07,
+      5.67
+    ],
+    "sam_iou": 0.9153,
+    "ep0": 0.5129,
+    "ep3": 0.6893,
+    "sil_iou": 0.767,
+    "in_mask": 0.9384,
+    "qd_key_id": "5187811114221568",
+    "sec": 14.0
+  },
+  {
+    "idx": 93,
+    "slug": "cactus",
+    "category": "cactus",
+    "clip": "05_6e41b935",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9479,
+    "ep0": 0.2451,
+    "ep3": 0.5962,
+    "sil_iou": 0.74,
+    "in_mask": 0.9414,
+    "qd_key_id": "5576930466201600",
+    "sec": 13.7
+  },
+  {
+    "idx": 94,
+    "slug": "basketball",
+    "category": "basketball",
+    "clip": "04_98b880c2",
+    "interval": [
+      5.5,
+      9.1
+    ],
+    "sam_iou": 0.9768,
+    "ep0": 0.5288,
+    "ep3": 0.8199,
+    "sil_iou": 0.8882,
+    "in_mask": 0.9893,
+    "qd_key_id": "6300735702564864",
+    "sec": 13.9
+  },
+  {
+    "idx": 95,
+    "slug": "soccer-ball",
+    "category": "soccer_ball",
+    "clip": "05_53ca6073",
+    "interval": [
+      1.07,
+      4.67
+    ],
+    "sam_iou": 0.9886,
+    "ep0": 0.4294,
+    "ep3": 0.6847,
+    "sil_iou": 0.74,
+    "in_mask": 0.9751,
+    "qd_key_id": "4878846111252480",
+    "sec": 13.6
+  },
+  {
+    "idx": 96,
+    "slug": "baseball-bat",
+    "category": "baseball_bat",
+    "clip": "02_7414153b",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.905,
+    "ep0": 0.0,
+    "ep3": 0.659,
+    "sil_iou": 0.74,
+    "in_mask": 0.9226,
+    "qd_key_id": "4643142903005184",
+    "sec": 14.4
+  },
+  {
+    "idx": 97,
+    "slug": "ceiling-fan",
+    "category": "ceiling_fan",
+    "clip": "01_5b16a1d6",
+    "interval": [
+      1.2,
+      4.8
+    ],
+    "sam_iou": 0.9713,
+    "ep0": 0.5444,
+    "ep3": 0.7241,
+    "sil_iou": 0.8371,
+    "in_mask": 0.9431,
+    "qd_key_id": "5570534957907968",
+    "sec": 14.1
+  },
+  {
+    "idx": 98,
+    "slug": "lantern",
+    "category": "lantern",
+    "clip": "01_4e46b7b2",
+    "interval": [
+      4.2,
+      7.8
+    ],
+    "sam_iou": 0.9623,
+    "ep0": 0.2854,
+    "ep3": 0.7733,
+    "sil_iou": 0.7894,
+    "in_mask": 0.9,
+    "qd_key_id": "4685721984040960",
+    "sec": 13.4
+  },
+  {
+    "idx": 99,
+    "slug": "hourglass",
+    "category": "hourglass",
+    "clip": "02_d799093a",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.9467,
+    "ep0": 0.4244,
+    "ep3": 0.6511,
+    "sil_iou": 0.7733,
+    "in_mask": 0.9,
+    "qd_key_id": "5833848615075840",
+    "sec": 13.9
+  },
+  {
+    "idx": 100,
+    "slug": "umbrella",
+    "category": "umbrella",
+    "clip": "05_613e8071",
+    "interval": [
+      7.5,
+      11.1
+    ],
+    "sam_iou": 0.8509,
+    "ep0": 0.1077,
+    "ep3": 0.5683,
+    "sil_iou": 0.74,
+    "in_mask": 0.9,
+    "qd_key_id": "5683976586919936",
+    "sec": 13.6
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "shot": "the-great-wall-of-china",
+  "category": "the_great_wall_of_china",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9628,
+  "mean_reward_ep0": 0.2144,
+  "mean_reward_ep1": 0.5738,
+  "mean_reward_ep2": 0.6094,
+  "mean_reward_ep3": 0.6274,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9013,
+  "reward_delta": 0.413
+}

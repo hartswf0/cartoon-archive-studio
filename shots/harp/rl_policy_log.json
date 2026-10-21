@@ -1,0 +1,14 @@
+{
+  "shot": "harp",
+  "category": "harp",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9062,
+  "mean_reward_ep0": 0.1107,
+  "mean_reward_ep1": 0.676,
+  "mean_reward_ep2": 0.7198,
+  "mean_reward_ep3": 0.7378,
+  "mean_sil_iou_ep3": 0.7589,
+  "mean_edge_recall_ep3": 0.6549,
+  "mean_stroke_precision_ep3": 0.9583,
+  "reward_delta": 0.6272
+}

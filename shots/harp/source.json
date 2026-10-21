@@ -1,0 +1,47 @@
+{
+  "category": "harp",
+  "shot_id": "harp",
+  "body_plan": "Regime VI: Musical Performance",
+  "interval": [
+    4.15,
+    7.75
+  ],
+  "key_times": [
+    4.15,
+    5.28,
+    6.51,
+    7.75
+  ],
+  "key_notes": [
+    "Key 1 (t=4.15s): Initial archival pose of harp; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.28s): Mid-sequence articulation of harp; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.51s): Peak dynamic extension of harp over 7-plane multiplane environment.",
+    "Key 4 (t=7.75s): Follow-through and settle of harp with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of harp (4.15s..7.75s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_755c5a02",
+    "source_id": "02_755c5a02",
+    "source_slug": "harp",
+    "source_title": "Moving Image Archive // Harp",
+    "source_year": 1956,
+    "start_seconds": 4.15,
+    "end_seconds": 7.75,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/harp/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/harp/videos/02_755c5a02-4d55-5278-82b5-9b64bc952d94.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5217611618975744",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

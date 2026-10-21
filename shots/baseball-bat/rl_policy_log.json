@@ -1,0 +1,14 @@
+{
+  "shot": "baseball-bat",
+  "category": "baseball_bat",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.905,
+  "mean_reward_ep0": 0.0,
+  "mean_reward_ep1": 0.5768,
+  "mean_reward_ep2": 0.641,
+  "mean_reward_ep3": 0.659,
+  "mean_sil_iou_ep3": 0.74,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9226,
+  "reward_delta": 0.659
+}

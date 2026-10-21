@@ -1,0 +1,47 @@
+{
+  "category": "the_great_wall_of_china",
+  "shot_id": "the-great-wall-of-china",
+  "body_plan": "Regime VII: Monumental Architecture",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of the-great-wall-of-china; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of the-great-wall-of-china; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of the-great-wall-of-china over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of the-great-wall-of-china with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of the-great-wall-of-china (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_a61d250e",
+    "source_id": "03_a61d250e",
+    "source_slug": "the-great-wall-of-china",
+    "source_title": "Moving Image Archive // The Great Wall Of China",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/the-great-wall-of-china/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/the_great_wall_of_china/videos/03_a61d250e-0b01-5935-be3b-d007f3e62283.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5141918126178304",
+    "n_strokes": 9,
+    "country": "US",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (US, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "category": "school_bus",
+  "shot_id": "school-bus",
+  "body_plan": "Regime IV: Wheeled & Heavy Vehicles",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of school-bus; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of school-bus; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of school-bus over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of school-bus with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of school-bus (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_0b445e20",
+    "source_id": "04_0b445e20",
+    "source_slug": "school-bus",
+    "source_title": "Moving Image Archive // School Bus",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/school-bus/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/school_bus/videos/04_0b445e20-2b79-5b22-9b9a-96bb71d1c92a.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6035528472330240",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 0,
+    "why": "Selected Quick, Draw! human doodle #0 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

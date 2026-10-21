@@ -1,0 +1,14 @@
+{
+  "shot": "basketball",
+  "category": "basketball",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9768,
+  "mean_reward_ep0": 0.5288,
+  "mean_reward_ep1": 0.7355,
+  "mean_reward_ep2": 0.8019,
+  "mean_reward_ep3": 0.8199,
+  "mean_sil_iou_ep3": 0.8882,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9893,
+  "reward_delta": 0.2911
+}

@@ -1,0 +1,47 @@
+{
+  "category": "trombone",
+  "shot_id": "trombone",
+  "body_plan": "Regime VI: Musical Performance",
+  "interval": [
+    1.71,
+    5.31
+  ],
+  "key_times": [
+    1.71,
+    2.83,
+    4.07,
+    5.31
+  ],
+  "key_notes": [
+    "Key 1 (t=1.71s): Initial archival pose of trombone; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.83s): Mid-sequence articulation of trombone; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.07s): Peak dynamic extension of trombone over 7-plane multiplane environment.",
+    "Key 4 (t=5.31s): Follow-through and settle of trombone with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of trombone (1.71s..5.31s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_316022bb",
+    "source_id": "05_316022bb",
+    "source_slug": "trombone",
+    "source_title": "Moving Image Archive // Trombone",
+    "source_year": 1956,
+    "start_seconds": 1.71,
+    "end_seconds": 5.31,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/trombone/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/trombone/videos/05_316022bb-4dcf-5bb7-9d95-4417676bf911.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6631666955059200",
+    "n_strokes": 7,
+    "country": "NO",
+    "qd_index": 3,
+    "why": "Selected Quick, Draw! human doodle #3 (NO, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

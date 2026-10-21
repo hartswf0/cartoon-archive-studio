@@ -1,0 +1,14 @@
+{
+  "shot": "rollerskates",
+  "category": "rollerskates",
+  "policy": "SCION-Universal-Argon-RL-v6",
+  "mean_sam_iou": 0.9649,
+  "mean_reward_ep0": 0.4482,
+  "mean_reward_ep1": 0.6874,
+  "mean_reward_ep2": 0.7734,
+  "mean_reward_ep3": 0.7914,
+  "mean_sil_iou_ep3": 0.8528,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9468,
+  "reward_delta": 0.3432
+}

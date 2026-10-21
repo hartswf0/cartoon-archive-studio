@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "drums", "clip": "03_2f462742", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "drums", "mean_sam_iou": 0.946}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "drums", "key_id": "5021821730553856", "country": "FI"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "drums", "ep0": 0.0797, "ep3": 0.7886, "sil_iou": 0.7698, "in_mask": 0.9889}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "drums", "gates": "16/16"}
