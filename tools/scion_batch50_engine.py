@@ -1282,138 +1282,102 @@ def load_qd_env_doodle(cat_name: str, seed_idx: int, target_cx: float, target_cy
     return out
 
 
+def chaikin_smooth_polyline(poly: list, iterations: int = 2) -> list:
+    """
+    Applies Chaikin corner-cutting curve smoothing to a polyline so pixel staircases
+    become fluid, hand-inked animation layout strokes.
+    """
+    pts = [list(p) for p in poly]
+    for _ in range(iterations):
+        if len(pts) < 3:
+            break
+        new_pts = [pts[0]]
+        for i in range(len(pts) - 1):
+            p0, p1 = pts[i], pts[i + 1]
+            q = [0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]
+            r = [0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]
+            new_pts.extend([q, r])
+        new_pts.append(pts[-1])
+        pts = new_pts
+    # Subsample slightly to keep JSON compact while preserving smooth curves
+    if len(pts) > 6:
+        arr = np.array(pts, dtype=np.float32).reshape(-1, 1, 2)
+        approx = cv2.approxPolyDP(arr, 1.15, False)[:, 0, :]
+        pts = [[round(float(p[0]), 2), round(float(p[1]), 2)] for p in approx]
+    else:
+        pts = [[round(float(p[0]), 2), round(float(p[1]), 2)] for p in pts]
+    return pts
+
+
+def detect_broadcast_chyron_mask(gray_bg: np.ndarray) -> np.ndarray:
+    """
+    Detects if the lower third (`y in [0.72*H, 0.96*H]`) contains high-frequency broadcast
+    subtitle/chyron lettering (many small high-contrast connected components) and returns a mask
+    to suppress ONLY those lettering components while keeping real foreground scenery/keys/tracks.
+    """
+    chyron_mask = np.zeros_like(gray_bg, dtype=np.uint8)
+    y0, y1 = int(0.72 * H), int(0.96 * H)
+    roi = gray_bg[y0:y1, :]
+    gx = cv2.Sobel(roi, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(roi, cv2.CV_32F, 0, 1, ksize=3)
+    mag = np.hypot(gx, gy)
+    bw = (mag > 65.0).astype(np.uint8) * 255
+    n_lbl, lbls, stats, _ = cv2.connectedComponentsWithStats(bw, connectivity=8)
+    letter_like = 0
+    cand_boxes = []
+    for i in range(1, n_lbl):
+        x, y, w, h, area = stats[i]
+        if 4 <= w <= 28 and 8 <= h <= 34 and 12 <= area <= 450:
+            letter_like += 1
+            cand_boxes.append((x, y, w, h))
+    # Only mask if a cluster of >= 8 letter-sized high-contrast glyphs exists in the lower third
+    if letter_like >= 8:
+        for x, y, w, h in cand_boxes:
+            cv2.rectangle(chyron_mask, (max(0, x - 4), max(0, y0 + y - 4)), (min(W, x + w + 4), min(H, y0 + y + h + 4)), 255, -1)
+    return chyron_mask
+
+
 def synthesize_unique_7plane_scene(spec: dict, sdir: Path, frames_bgr: list, sam_masks_640: list, depths: list):
     """
-    Stage 5: Temporal Character-Free Background Plate Inpainting + 6-Plane Depth-Stratified Quick, Draw! Scenery & Archival Horizon Vectorization.
-    Populates ALL 6 environment planes (`sky`, `far`, `mid`, `secondary`, `fore`, `mask`) with genuine hand-drawn Quick, Draw! environment doodles
-    plus the archival footage's longest structural horizon contours so `scene-plate.png` and `planes/multiplane-stack.png` are rich and unique per shot.
+    Stage 5: Authentic Archival Background Plate Inpainting & Bespoke 6-Plane Scene Architect.
+    Every shot's `scene-plate.png` and 6 depth planes (`sky`, `far`, `mid`, `secondary`, `fore`, `mask`)
+    are synthesized by combining:
+      1. Temporal character-free background plate (`bg-plate-color.png`) + `Depth-Anything-V2` horizon geometry (`d_med`)
+      2. Bespoke procedural architectural / interior / stage / marine / landscape line art (`SHOT_SCENE_RECIPES`)
+      3. Curated prop drawings from the 345-category `Quick, Draw!` library placed around `subject_envelope`
+      4. Clean long-span archival structural contours strictly outside `subject_envelope`
     """
+    from tools.bespoke_scene_architect import build_bespoke_50_scene
+
     stack_bgr = np.stack(frames_bgr[::2], axis=0)
-    stack_m = np.stack([cv2.dilate(m, np.ones((19, 19), np.uint8)) > 127 for m in sam_masks_640[::2]], axis=0)
+    stack_m = np.stack([cv2.dilate(m, np.ones((15, 15), np.uint8)) > 127 for m in sam_masks_640[::2]], axis=0)
+    occ_freq = stack_m.mean(axis=0)
     bg_plate = np.median(stack_bgr, axis=0).astype(np.uint8)
 
-    ever_outside = (~stack_m).sum(axis=0) >= 2
+    ever_outside = occ_freq <= 0.75
     masked_vals = np.where(~stack_m[:, :, :, None], stack_bgr, np.nan)
     with np.errstate(all="ignore"):
         clean_med = np.nanmedian(masked_vals, axis=0)
-    bg_plate[ever_outside] = np.nan_to_num(clean_med[ever_outside], nan=180.0).astype(np.uint8)
+    valid_clean = ever_outside & (~np.isnan(clean_med[:, :, 0]))
+    bg_plate[valid_clean] = clean_med[valid_clean].astype(np.uint8)
 
-    always_inside = ((~ever_outside) * 255).astype(np.uint8)
-    if cv2.countNonZero(always_inside) > 0:
-        bg_plate = cv2.inpaint(bg_plate, always_inside, 7, cv2.INPAINT_TELEA)
+    inpaint_mask = cv2.dilate(((occ_freq >= 0.30) * 255).astype(np.uint8), np.ones((15, 15), np.uint8))
+    if (inpaint_mask > 0).mean() > 0.65:
+        inpaint_mask = ((occ_freq >= 0.60) * 255).astype(np.uint8)
+    if cv2.countNonZero(inpaint_mask) > 0:
+        bg_plate = cv2.inpaint(bg_plate, inpaint_mask, 13, cv2.INPAINT_TELEA)
 
-    # Extract only the longest, smoothest structural horizon/architecture contours from `bg_plate` outside the character core
+    cv2.imwrite(str(sdir / "bg-plate-color.png"), bg_plate)
+
+    subject_envelope = cv2.dilate(((occ_freq >= 0.22) * 255).astype(np.uint8), np.ones((21, 21), np.uint8))
+    if (subject_envelope > 0).mean() > 0.55:
+        subject_envelope = cv2.erode(((occ_freq >= 0.50) * 255).astype(np.uint8), np.ones((9, 9), np.uint8))
+
     gray_bg = cv2.cvtColor(bg_plate, cv2.COLOR_BGR2GRAY)
-    smooth_bg = cv2.bilateralFilter(gray_bg, 11, 65, 65)
-    v_med = float(np.median(smooth_bg))
-    edges_bg = cv2.Canny(smooth_bg, int(max(40, 0.75 * v_med)), int(min(225, 1.50 * v_med + 35)))
-    char_union = (np.any(stack_m, axis=0) * 255).astype(np.uint8)
-    edges_bg[char_union > 0] = 0
-
-    raw_contours = binary_to_polylines(edges_bg, min_len=32, eps=2.6)
-    # Keep only wide horizon/terrain contours (span >= 95px and above lower-third subtitle zone y < 0.70*H)
-    archival_contours = [
-        s for s in raw_contours
-        if (max(p[0] for p in s) - min(p[0] for p in s)) >= 95.0 and max(p[1] for p in s) < 0.70 * H
-    ]
-    archival_contours.sort(key=lambda s: sum(math.hypot(s[i+1][0]-s[i][0], s[i+1][1]-s[i][1]) for i in range(len(s)-1)), reverse=True)
-    archival_contours = archival_contours[:14]
-
+    chyron_mask = detect_broadcast_chyron_mask(gray_bg)
     d_med = np.median(np.stack(depths[::4], axis=0), axis=0).astype(np.float32)
-    p30, p60, p82 = [float(np.percentile(d_med, q)) for q in [30, 60, 82]]
 
-    planes_640 = {"sky": [], "far": [], "mid": [], "secondary": [], "fore": [], "mask": []}
-    for s in archival_contours:
-        mid_pt = s[len(s) // 2]
-        ix, iy = min(W - 1, max(0, int(round(mid_pt[0])))), min(H - 1, max(0, int(round(mid_pt[1]))))
-        dv = float(d_med[iy, ix])
-        if iy < 0.25 * H or dv < p30:
-            planes_640["far"].append(s)
-        elif dv < p60:
-            planes_640["mid"].append(s)
-        elif dv < p82:
-            planes_640["secondary"].append(s)
-        else:
-            planes_640["fore"].append(s)
-
-    # Deterministically seed real Quick, Draw! environment doodles per shot so every plane (`sky`, `far`, `mid`, `secondary`, `fore`, `mask`) is richly populated
-    seed = sum((i + 1) * ord(ch) for i, ch in enumerate(spec["slug"]))
-    is_water = bool(spec.get("water", False))
-    regime = spec.get("regime", "")
-
-    # Plane 6 (`sky`): Quick, Draw! clouds + sun/celestial arc in upper sky
-    planes_640["sky"].extend(load_qd_env_doodle("cloud", seed + 1, 125.0 + (seed % 45), 52.0, 115.0, 46.0))
-    planes_640["sky"].extend(load_qd_env_doodle("cloud", seed + 3, 495.0 - (seed % 50), 58.0, 125.0, 48.0))
-    if seed % 2 == 0:
-        planes_640["sky"].extend(load_qd_env_doodle("sun", seed + 2, 555.0, 54.0, 62.0, 62.0))
-
-    # Plane 5 (`far`): Quick, Draw! distant mountain ridge or coastal skyline along horizon (y ~ 115..165)
-    planes_640["far"].extend(load_qd_env_doodle("mountain", seed + 5, 190.0, 132.0, 260.0, 82.0))
-    planes_640["far"].extend(load_qd_env_doodle("mountain", seed + 7, 455.0, 136.0, 250.0, 78.0))
-
-    # Plane 4 (`mid`): Quick, Draw! midground trees, barn/house, or shoreline structures flanking left & right
-    if "mechanical" in regime or "architecture" in regime:
-        planes_640["mid"].extend(load_qd_env_doodle("barn" if seed % 2 == 0 else "house", seed + 9, 98.0, 215.0, 130.0, 110.0))
-        planes_640["mid"].extend(load_qd_env_doodle("tree", seed + 11, 548.0, 210.0, 115.0, 135.0))
-    else:
-        planes_640["mid"].extend(load_qd_env_doodle("tree", seed + 9, 92.0, 208.0, 115.0, 140.0))
-        planes_640["mid"].extend(load_qd_env_doodle("tree", seed + 11, 552.0, 212.0, 115.0, 138.0))
-
-    # Plane 3 (`secondary`): Quick, Draw! secondary bushes, ocean waves, or fence props
-    if is_water:
-        planes_640["secondary"].extend(load_qd_env_doodle("ocean", seed + 13, 180.0, 345.0, 220.0, 48.0))
-        planes_640["secondary"].extend(load_qd_env_doodle("ocean", seed + 15, 460.0, 355.0, 220.0, 48.0))
-    else:
-        planes_640["secondary"].extend(load_qd_env_doodle("bush", seed + 13, 145.0, 305.0, 110.0, 68.0))
-        planes_640["secondary"].extend(load_qd_env_doodle("fence" if seed % 3 == 0 else "bush", seed + 15, 505.0, 308.0, 115.0, 68.0))
-
-    # Plane 1 (`fore`): Quick, Draw! foreground grass/flowers/reeds near bottom left & right
-    planes_640["fore"].extend(load_qd_env_doodle("grass", seed + 17, 115.0, 422.0, 135.0, 68.0))
-    planes_640["fore"].extend(load_qd_env_doodle("flower" if seed % 2 == 0 else "grass", seed + 19, 525.0, 424.0, 130.0, 68.0))
-
-    # Plane 0 (`mask`): Quick, Draw! extreme foreground corner framing repoussoir (low left & right corners)
-    planes_640["mask"].extend(load_qd_env_doodle("bush", seed + 21, 58.0, 442.0, 105.0, 65.0))
-    planes_640["mask"].extend(load_qd_env_doodle("grass", seed + 23, 585.0, 444.0, 100.0, 64.0))
-
-    # Render `scene-plate.png` (all 6 environment planes drawn in clean hand-drawn ink on pure white #FFFFFF)
-    sp_canvas = np.full((H, W, 3), 255, dtype=np.uint8)
-    all_bg_strokes_640 = []
-    for pid in ["sky", "far", "mid", "secondary", "fore", "mask"]:
-        thick = 2 if pid in ("sky", "far") else 3
-        for s in planes_640[pid]:
-            all_bg_strokes_640.append(s)
-            if len(s) >= 2:
-                arr = np.array([[int(round(p[0])), int(round(p[1]))] for p in s], dtype=np.int32)
-                cv2.polylines(sp_canvas, [arr], False, (20, 20, 20), thick, cv2.LINE_AA)
-    cv2.imwrite(str(sdir / "scene-plate.png"), sp_canvas)
-
-    sx_stage, sy_stage = STAGE_W / float(W), STAGE_H / float(H)
-    planes_480 = {
-        pid: [[[round(p[0] * sx_stage, 2), round(p[1] * sy_stage, 2)] for p in s] for s in planes_640[pid]]
-        for pid in planes_640
-    }
-
-    scene_traced = {
-        "W": STAGE_W,
-        "H": STAGE_H,
-        "n_strokes": len(all_bg_strokes_640),
-        "recall": 0.996,
-        "precision": 0.998,
-        "parts_kept": 1.0,
-        "planes": planes_480,
-    }
-    (sdir / "scene-traced.json").write_text(json.dumps(scene_traced, indent=2), encoding="utf-8")
-
-    objects = []
-    for pid, st_list in planes_480.items():
-        if st_list:
-            objects.append({
-                "id": f"{spec['slug']}_{pid}_env",
-                "plane": pid,
-                "source": "scene-plate.png + QuickDraw Scenery + Depth-Anything-V2 stratification",
-                "strokes": st_list,
-            })
-    return planes_480, objects
+    return build_bespoke_50_scene(spec, sdir, bg_plate, d_med, sam_masks_640, subject_envelope, chyron_mask)
 
 
 def render_scion_multiplane_shot(
@@ -1426,7 +1390,8 @@ def render_scion_multiplane_shot(
     objects: list,
 ):
     """
-    Stage 7: Renders the 7-Plane SCION Multiplane Stage across all 33 frames,
+    Stage 7: Renders the 7-Plane SCION Multiplane Stage across all 33 frames using a
+    shot-specific watercolor atmospheric wash derived from `bg-plate-color.png`,
     synthesizes frame-synced Foley audio (`soundtrack.wav`), writes H.264 `comparison.mp4`,
     `planes/multiplane-stack.png`, `shot.json`, and `preview/{cartoon,pure_cartoon}_<slug>.gif`.
     """
@@ -1439,11 +1404,29 @@ def render_scion_multiplane_shot(
 
     sx_up, sy_up = float(W) / STAGE_W, float(H) / STAGE_H
 
+    # Build shot-specific watercolor paper wash from `bg-plate-color.png` so each shot has its own unique atmospheric mood & horizon palette
+    bg_color_path = sdir / "bg-plate-color.png"
+    if bg_color_path.exists():
+        bg_col = cv2.imread(str(bg_color_path))
+    else:
+        bg_col = np.median(np.stack(frames_bgr[::4], axis=0), axis=0).astype(np.uint8)
+    bg_blur = cv2.GaussianBlur(bg_col, (91, 91), 0).astype(np.float32)
+    paper_base = np.full((H, W, 3), (235.0, 241.0, 246.0), dtype=np.float32)
+    # Blend 28% of the shot's true blurred archival environment palette into 72% warm animation paper (clamped luminous [182, 252])
+    wash_plate = np.clip(0.72 * paper_base + 0.28 * bg_blur, 182, 252).astype(np.uint8)
+    sheet_wash = np.clip(0.84 * paper_base + 0.16 * bg_blur, 202, 253).astype(np.uint8)
+
+    # Derive depth-plane ink colors harmonized with the shot's own archival tone
+    med_bgr = np.median(bg_col.reshape(-1, 3), axis=0).astype(np.float32)
+    far_ink = tuple(int(np.clip(0.42 * med_bgr[c] + 72.0, 68, 145)) for c in range(3))
+    mid_ink = tuple(int(np.clip(0.28 * med_bgr[c] + 38.0, 36, 98)) for c in range(3))
+    fore_ink = (20, 18, 16)
+
     # Build multiplane-stack.png (2x2 sheet showing the separated depth planes at f=10)
     def make_sheet_panel(title, pids, include_char=False):
-        panel = np.full((H, W, 3), (235, 243, 248), dtype=np.uint8)
+        panel = sheet_wash.copy()
         for pid in pids:
-            col = (125, 115, 105) if pid in ("sky", "far") else ((75, 68, 60) if pid in ("mid", "secondary") else (22, 20, 18))
+            col = far_ink if pid in ("sky", "far") else (mid_ink if pid in ("mid", "secondary") else fore_ink)
             thick = 1 if pid in ("sky", "far") else 2
             for s in planes_480.get(pid, []):
                 arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
@@ -1451,8 +1434,8 @@ def render_scion_multiplane_shot(
         if include_char:
             for poly in cel_masks_480[10]:
                 arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                cv2.fillPoly(panel, [arr], (236, 246, 251))
-                cv2.polylines(panel, [arr], True, (210, 222, 230), 2, cv2.LINE_AA)
+                cv2.fillPoly(panel, [arr], (238, 246, 251))
+                cv2.polylines(panel, [arr], True, (205, 218, 226), 2, cv2.LINE_AA)
             for s in cast_frames_480[10]:
                 arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
                 cv2.polylines(panel, [arr], False, (18, 20, 22), 3, cv2.LINE_AA)
@@ -1468,19 +1451,13 @@ def render_scion_multiplane_shot(
     stack_grid = np.vstack([np.hstack([p1, p2]), np.hstack([p3, p4])])
     cv2.imwrite(str(p_dir / "multiplane-stack.png"), stack_grid)
 
-    # Render all 33 SCION Multiplane Stage frames (640x480) + Side-by-Side Comparison frames (1280x480) + 3-Panel Trio GIF
     pure_frames_rgb = []
     trio_frames_rgb = []
     comp_frames_bgr = []
     xsheet = []
 
     for f in range(33):
-        stage = np.full((H, W, 3), (227, 239, 246), dtype=np.uint8)
-        # Pass E: Atmospheric sky-to-ground wash
-        for y in range(160):
-            a = (160 - y) / 160.0
-            stage[y, :] = np.clip(stage[y, :].astype(np.float32) - a * np.array([9.0, 4.0, 0.0]), 0, 255).astype(np.uint8)
-        stage[395:, :] = np.clip(stage[395:, :].astype(np.float32) - np.array([10.0, 8.0, 5.0]), 0, 255).astype(np.uint8)
+        stage = wash_plate.copy()
 
         cx_cam, cy_cam = cam[f]
         pts_c = [p for s in cast_frames_480[f] for p in s]
@@ -1504,14 +1481,14 @@ def render_scion_multiplane_shot(
             if pid == "char":
                 # Pass F: Soft ground contact shadow under grounded characters
                 if spec.get("grounded", True):
-                    cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(24, mw_c // 3), 7), 0, 0, 360, (204, 214, 222), -1, cv2.LINE_AA)
+                    cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(24, mw_c // 3), 7), 0, 0, 360, (195, 205, 214), -1, cv2.LINE_AA)
 
                 # Pass C & E: Watertight warm-ivory gouache SAM cel + inner rim shadow
                 for poly in cel_masks_480[f]:
                     if len(poly) >= 3:
                         arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                        cv2.fillPoly(stage, [arr], (236, 246, 251))
-                        cv2.polylines(stage, [arr], True, (212, 224, 232), 3, cv2.LINE_AA)
+                        cv2.fillPoly(stage, [arr], (238, 246, 251))
+                        cv2.polylines(stage, [arr], True, (206, 218, 228), 3, cv2.LINE_AA)
 
                 # Pass A & B: Faint non-photo blue anatomical line-of-action & volume masses on breakdown frames
                 if f in (5, 15, 26):
@@ -1525,11 +1502,11 @@ def render_scion_multiplane_shot(
                         cv2.polylines(stage, [arr], False, (16, 18, 20), 3, cv2.LINE_AA)
             else:
                 if pz >= 6.0:
-                    col, thick = (142, 134, 124), 1
+                    col, thick = far_ink, 1
                 elif pz >= 2.4:
-                    col, thick = (82, 74, 66), 2
+                    col, thick = mid_ink, 2
                 else:
-                    col, thick = (26, 24, 22), 2
+                    col, thick = fore_ink, 2
                 for s in planes_480.get(pid, []):
                     if len(s) >= 2:
                         arr = np.array([[int(round(p[0] * sx_up + dx)), int(round(p[1] * sy_up + dy))] for p in s], dtype=np.int32)
@@ -1539,20 +1516,18 @@ def render_scion_multiplane_shot(
                 if pid == "secondary":
                     phase = 2.0 * math.pi * f / 16.0
                     if spec.get("water", False):
-                        # Animated water wake ripples trailing character
                         rx = int(mcx_c - 18 * math.cos(phase))
                         ry = min(H - 12, int(by1_c + 4))
-                        cv2.ellipse(stage, (rx, ry), (max(28, mw_c // 2), 6), 0, 0, 180, (92, 84, 74), 2, cv2.LINE_AA)
+                        cv2.ellipse(stage, (rx, ry), (max(28, mw_c // 2), 6), 0, 0, 180, mid_ink, 2, cv2.LINE_AA)
                     else:
-                        # Subtle motion/breeze/dust trail arc on Plane 3
                         tx0 = max(12, int(bx0_c - 18 - (f % 6) * 5))
                         ty0 = min(H - 12, int(by1_c - 8))
-                        cv2.line(stage, (tx0, ty0), (tx0 + 22, ty0), (92, 84, 74), 2, cv2.LINE_AA)
+                        cv2.line(stage, (tx0, ty0), (tx0 + 22, ty0), mid_ink, 2, cv2.LINE_AA)
 
         # Pass F: Subtle diagonal theatrical sunlight beam
         beam = np.zeros_like(stage)
         beam_poly = np.array([[70, 0], [240, 0], [500, H], [300, H]], dtype=np.int32)
-        cv2.fillPoly(beam, [beam_poly], (10, 14, 18))
+        cv2.fillPoly(beam, [beam_poly], (8, 11, 14))
         stage = cv2.add(stage, beam)
 
         k_act = 1 if f < 6 else (2 if f < 16 else (3 if f < 27 else 4))

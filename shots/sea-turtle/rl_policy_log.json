@@ -2,13 +2,13 @@
   "shot": "sea-turtle",
   "category": "sea_turtle",
   "policy": "SCION-Universal-Argon-RL-v6",
-  "mean_sam_iou": 0.9297,
-  "mean_reward_ep0": 0.0,
-  "mean_reward_ep1": 0.7723,
-  "mean_reward_ep2": 0.8606,
-  "mean_reward_ep3": 0.8786,
-  "mean_sil_iou_ep3": 0.8236,
-  "mean_edge_recall_ep3": 0.8093,
-  "mean_stroke_precision_ep3": 0.9649,
-  "reward_delta": 0.8786
+  "mean_sam_iou": 0.955,
+  "mean_reward_ep0": 0.568,
+  "mean_reward_ep1": 0.6332,
+  "mean_reward_ep2": 0.6737,
+  "mean_reward_ep3": 0.6917,
+  "mean_sil_iou_ep3": 0.7669,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9433,
+  "reward_delta": 0.1237
 }

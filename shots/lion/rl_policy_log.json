@@ -2,13 +2,13 @@
   "shot": "lion",
   "category": "lion",
   "policy": "SCION-Universal-Argon-RL-v6",
-  "mean_sam_iou": 0.9885,
-  "mean_reward_ep0": 0.0,
-  "mean_reward_ep1": 0.6932,
-  "mean_reward_ep2": 0.7635,
-  "mean_reward_ep3": 0.7815,
-  "mean_sil_iou_ep3": 0.7531,
-  "mean_edge_recall_ep3": 0.6214,
-  "mean_stroke_precision_ep3": 0.9616,
-  "reward_delta": 0.7815
+  "mean_sam_iou": 0.955,
+  "mean_reward_ep0": 0.2407,
+  "mean_reward_ep1": 0.6852,
+  "mean_reward_ep2": 0.7322,
+  "mean_reward_ep3": 0.7502,
+  "mean_sil_iou_ep3": 0.7567,
+  "mean_edge_recall_ep3": 0.62,
+  "mean_stroke_precision_ep3": 0.9508,
+  "reward_delta": 0.5094
 }
