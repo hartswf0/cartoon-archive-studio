@@ -1,0 +1,47 @@
+{
+  "category": "train",
+  "shot_id": "train",
+  "body_plan": "rail_locomotive",
+  "interval": [
+    1.0,
+    4.8
+  ],
+  "key_times": [
+    1.0,
+    2.19,
+    3.49,
+    4.8
+  ],
+  "key_notes": [
+    "Diesel switch locomotive #53 approaches in frontal railyard view; headlamp and 4 cab windows clear",
+    "Locomotive advances steadily along yard track; curved front handrail and coupler prominent",
+    "Brakeman steps onto right footboard of front handrail as locomotive nears camera",
+    "Locomotive fills left-center foreground beside multi-story brick railyard warehouse"
+  ],
+  "why_continuous": "Continuous archival shot of train (1.0s..4.8s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "01_659c1805",
+    "source_id": "01_659c1805",
+    "source_slug": "train",
+    "source_title": "Moving Image Archive \u2014 Train",
+    "source_year": 1955,
+    "start_seconds": 1.0,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.8,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/train/videos/01_659c1805.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/train/videos/01_659c1805.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6145999170961408",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 3,
+    "why": "Automatically selected Quick, Draw! prototype #3 (US, 8 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

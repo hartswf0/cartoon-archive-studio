@@ -1,0 +1,16 @@
+{
+  "shot": "duck",
+  "category": "duck",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 0,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9329,
+  "mean_reward_ep0": 0.1876,
+  "mean_reward_ep1": 0.7855,
+  "mean_reward_ep2": 0.8292,
+  "mean_reward_ep3": 0.8013,
+  "mean_sil_iou_ep3": 0.7443,
+  "mean_edge_recall_ep3": 0.7807,
+  "mean_stroke_precision_ep3": 0.9214,
+  "reward_delta": 0.6138
+}

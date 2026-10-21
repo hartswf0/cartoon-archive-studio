@@ -1,0 +1,16 @@
+{
+  "shot": "campfire",
+  "category": "campfire",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 1,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9075,
+  "mean_reward_ep0": 0.5841,
+  "mean_reward_ep1": 0.6799,
+  "mean_reward_ep2": 0.7689,
+  "mean_reward_ep3": 0.7405,
+  "mean_sil_iou_ep3": 0.7882,
+  "mean_edge_recall_ep3": 0.5451,
+  "mean_stroke_precision_ep3": 0.9377,
+  "reward_delta": 0.1563
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.npy
+cartoon_archive_data.json
+cartoon_archive_studio.html
+concat_list.txt
+quickdraw_samples/*.ndjson
+shots/*/frames-src/
+shots/*/depth-maps/
+shots/*/sam-masks/

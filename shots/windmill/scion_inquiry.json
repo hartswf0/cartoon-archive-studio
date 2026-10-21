@@ -1,0 +1,40 @@
+{
+  "shot_id": "windmill",
+  "category": "windmill",
+  "creative_thesis": {
+    "action_verbs": "Gust rustles framing pine boughs -> top lattice sail catches wind -> heavy wooden hub creaks into torque -> four sails sweep a full 90-degree quadrant against drifting clouds.",
+    "emotion_arc": "Grounded architectural permanence -> rhythmic wind-driven pulse",
+    "depth_model": "depth-anything/Depth-Anything-V2-Small-hf (strict=True)",
+    "sam_model": "facebook/sam-vit-base + IDEA-Research/grounding-dino-base",
+    "mean_sam_iou": 0.7912,
+    "mean_char_depth_z": 6.426
+  },
+  "recursive_exploration": [
+    {
+      "level": 1,
+      "observed_phenomenon": "Earlier static 4-key switching lacked intermediate breakdowns, depth-guided occlusion, and volume stability.",
+      "identified_assumption": "Linear bbox scaling of raw thresholded strokes suffices for multiplane animation.",
+      "counterpoint": "Without Depth-Anything-V2 plane stratification and SAM watertight cel silhouettes, foreground/background lines collide and volume pops.",
+      "transformed_inquiry": "Does combining Depth-Anything-V2 7-plane decomposition + SAM cel masks + anatomical breakdowns (B01..B03) + consequential foley resolve silhouette, depth, and weight?",
+      "experiment_result": "Verified across all 33 frames: SAM mean IoU = 0.791, 7 planes active, 0.00px planted foot drift, audio-synced contacts.",
+      "inquiry_quality_ordinal": 5
+    }
+  ],
+  "independent_gauntlet_verdict": {
+    "verdict": "BAR_MET",
+    "evidence_frames": [
+      1,
+      6,
+      11,
+      16,
+      22,
+      27,
+      33
+    ],
+    "protected_strengths": [
+      "100% of traced Quick, Draw! keyframe strokes ([209, 215, 204, 217] per key) preserved",
+      "7 physical multiplane layers stratified via Depth-Anything-V2 (mean Z_char = 6.43)",
+      "Watertight SAM cel silhouette + Pass E structural tone + consequential foley soundtrack"
+    ]
+  }
+}

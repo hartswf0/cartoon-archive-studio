@@ -1,0 +1,7 @@
+{
+  "slug": "campfire",
+  "action_verbs": "crackles -> flares upward -> catches kindling -> dances in wind",
+  "emotion_arc": "Warm elemental vitality",
+  "secondary_action": "Layered riverbank boulders and stony campsite pebbles frame the clearing",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

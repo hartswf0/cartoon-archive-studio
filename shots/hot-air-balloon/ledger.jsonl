@@ -1,0 +1,6 @@
+{"stage": 1, "event": "source_extract", "slug": "hot-air-balloon", "clip": "03_1cbe7b9a", "interval": [1.5, 5.1], "frames": 33}
+{"stage": 2, "event": "quickdraw_match", "slug": "hot-air-balloon", "qd_index": 7, "key_id": "58009912000007", "country": "AE"}
+{"stage": 3, "event": "auto_dino_depth_sam", "slug": "hot-air-balloon", "mean_sam_iou": 0.955, "viterbi_linked": true}
+{"stage": 4, "event": "subagent_keyframes_and_scene", "slug": "hot-air-balloon", "keys": 4, "mean_trace_recall": 0.959}
+{"stage": 5, "event": "argon_rl_policy_evolution", "slug": "hot-air-balloon", "ep0": 0.485, "ep3": 0.635, "sil_iou": 0.672, "in_mask": 0.823}
+{"stage": 6, "event": "multiplane_render_and_gate_check", "slug": "hot-air-balloon", "gates_passed": "16/16"}

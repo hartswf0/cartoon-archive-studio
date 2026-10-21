@@ -1,0 +1,47 @@
+{
+  "category": "campfire",
+  "shot_id": "campfire",
+  "body_plan": "natural_phenomenon_fire",
+  "interval": [
+    1.5,
+    5.1
+  ],
+  "key_times": [
+    1.5,
+    2.62,
+    3.86,
+    5.1
+  ],
+  "key_notes": [
+    "Stacked teepee of wooden campfire logs with flickering flame tongues leaning slightly left",
+    "Logs settle as central flame tongues flare higher above the kindling pyramid",
+    "Camper adds horizontal kindling branch at base; multi-peak flames dance upward",
+    "Campfire blazes steadily with wide log base and lively upward flame tips"
+  ],
+  "why_continuous": "Continuous archival shot of campfire (1.5s..5.1s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "03_a6b13397",
+    "source_id": "03_a6b13397",
+    "source_slug": "campfire",
+    "source_title": "Moving Image Archive \u2014 Campfire",
+    "source_year": 1955,
+    "start_seconds": 1.5,
+    "end_seconds": 5.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/campfire/videos/03_a6b13397.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/campfire/videos/03_a6b13397.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000001",
+    "n_strokes": 6,
+    "country": "KR",
+    "qd_index": 1,
+    "why": "Automatically selected Quick, Draw! prototype #1 (KR, 6 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

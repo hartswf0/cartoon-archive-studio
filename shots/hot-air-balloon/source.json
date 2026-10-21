@@ -1,0 +1,47 @@
+{
+  "category": "hot_air_balloon",
+  "shot_id": "hot-air-balloon",
+  "body_plan": "buoyant_aerostat",
+  "interval": [
+    1.5,
+    5.1
+  ],
+  "key_times": [
+    1.5,
+    2.62,
+    3.86,
+    5.1
+  ],
+  "key_notes": [
+    "Primary foreground hot-air balloon envelope and suspended wicker basket rise in upper-center",
+    "Vertical gore ribs and scalloped throat collar shift slightly rightward as balloon ascends",
+    "Bright burner flame ignites inside the throat collar above the suspended woven basket",
+    "Foreground balloon reaches peak buoyancy while companion festival balloons drift in background"
+  ],
+  "why_continuous": "Continuous archival shot of hot-air-balloon (1.5s..5.1s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "03_1cbe7b9a",
+    "source_id": "03_1cbe7b9a",
+    "source_slug": "hot-air-balloon",
+    "source_title": "Moving Image Archive \u2014 Hot Air Balloon",
+    "source_year": 1955,
+    "start_seconds": 1.5,
+    "end_seconds": 5.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/hot_air_balloon/videos/03_1cbe7b9a.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/hot_air_balloon/videos/03_1cbe7b9a.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000007",
+    "n_strokes": 6,
+    "country": "AE",
+    "qd_index": 7,
+    "why": "Automatically selected Quick, Draw! prototype #7 (AE, 6 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

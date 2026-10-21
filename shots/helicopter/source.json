@@ -1,0 +1,45 @@
+{
+  "category": "helicopter",
+  "shot_id": "helicopter",
+  "body_plan": "rotorcraft",
+  "interval": [
+    0.2,
+    4.0
+  ],
+  "key_times": [
+    0.2,
+    1.4,
+    2.6,
+    3.8
+  ],
+  "key_notes": [
+    "Helicopter nose-down banking right in airshow climb, landing skids angled",
+    "Fuselage levels in right three-quarter profile, main rotor disc tilted forward",
+    "Helicopter pitches nose up slightly as tail boom sweeps across sky",
+    "High banking turn in right profile with rotor blades extended"
+  ],
+  "why_continuous": "Single continuous ground-to-air pan following a helicopter banking at an airshow.",
+  "source": {
+    "clip_id": "4457b8b4-fe41-5266-9505-5f55f3124344",
+    "source_id": "d9cb8b73-48ea-55ac-a19f-79c4e089e03c",
+    "source_slug": "recap-of-sun-n-fun-2008-airshow-and-events-d9cb8b73",
+    "source_title": "Recap of Sun 'n Fun 2008 Airshow and Events",
+    "source_year": 2008,
+    "start_seconds": 700.4,
+    "end_seconds": 710.777,
+    "duration_seconds": 10.377000000000066,
+    "match_timestamp_seconds": 703.4,
+    "visual_similarity_score": 0.313308,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/recap-of-sun-n-fun-2008-airshow-and-events-d9cb8b73",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/recap-of-sun-n-fun-2008-airshow-and-events-d9cb8b73?clip=4457b8b4-fe41-5266-9505-5f55f3124344",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/d9cb8b73-48ea-55ac-a19f-79c4e089e03c/v4-conditional-luna-1/clips/4457b8b4-fe41-5266-9505-5f55f3124344.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/helicopter/videos/01_4457b8b4-fe41-5266-9505-5f55f3124344.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "5901244503687168",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

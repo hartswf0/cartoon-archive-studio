@@ -1,0 +1,16 @@
+{
+  "shot": "tractor",
+  "category": "tractor",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 8,
+  "qd_flip_x": true,
+  "mean_sam_iou": 0.95,
+  "mean_reward_ep0": 0.2781,
+  "mean_reward_ep1": 0.8111,
+  "mean_reward_ep2": 0.8802,
+  "mean_reward_ep3": 0.7926,
+  "mean_sil_iou_ep3": 0.8368,
+  "mean_edge_recall_ep3": 0.6366,
+  "mean_stroke_precision_ep3": 0.9402,
+  "reward_delta": 0.5145
+}

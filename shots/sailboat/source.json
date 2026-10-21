@@ -1,0 +1,45 @@
+{
+  "category": "sailboat",
+  "shot_id": "sailboat",
+  "body_plan": "watercraft",
+  "interval": [
+    0.4,
+    4.0
+  ],
+  "key_times": [
+    0.5,
+    1.6,
+    2.7,
+    3.8
+  ],
+  "key_notes": [
+    "Sailboat hull heels slightly on open river water, mainsail and jib full",
+    "Bow cuts forward across ripples as boom swings slightly outward",
+    "Hull glides past midground water plane, mast tall against sky",
+    "Sailboat advances into three-quarter view with wake trailing astern"
+  ],
+  "why_continuous": "Single continuous shot of a sailboat gliding across river water in Dordrecht.",
+  "source": {
+    "clip_id": "4c3c2e00-a804-5f5a-a743-66e58774123a",
+    "source_id": "60beb157-a81e-5ee1-be7e-9cca2cb8b696",
+    "source_slug": "dordrecht",
+    "source_title": "Dordrecht",
+    "source_year": 1926,
+    "start_seconds": 470.6,
+    "end_seconds": 498.48,
+    "duration_seconds": 27.879999999999995,
+    "match_timestamp_seconds": 470.62,
+    "visual_similarity_score": 0.28003,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/dordrecht",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/dordrecht?clip=4c3c2e00-a804-5f5a-a743-66e58774123a",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/dordrecht/clips/0000470600-0000498480.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/sailboat/videos/01_4c3c2e00-a804-5f5a-a743-66e58774123a.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "6198442108878848",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

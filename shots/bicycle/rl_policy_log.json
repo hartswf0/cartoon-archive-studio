@@ -1,0 +1,12 @@
+{
+  "shot": "bicycle",
+  "policy": "Argon-RL-Doodle-Evolution-v2",
+  "mean_reward_ep0": 0.4908,
+  "mean_reward_ep1": 0.573,
+  "mean_reward_ep2": 0.676,
+  "mean_reward_ep3": 0.7339,
+  "mean_sil_iou_ep3": 0.5848,
+  "mean_edge_recall_ep3": 0.8056,
+  "mean_stroke_precision_ep3": 0.8723,
+  "reward_delta": 0.2432
+}

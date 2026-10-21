@@ -1,0 +1,45 @@
+{
+  "category": "giraffe",
+  "shot_id": "giraffe-walks-past",
+  "body_plan": "quadruped",
+  "interval": [
+    0.0,
+    4.0
+  ],
+  "key_times": [
+    0.0,
+    1.2,
+    2.4,
+    3.6
+  ],
+  "key_notes": [
+    "Adult giraffe walks right with head high; left front leg reaches back",
+    "Mid-stride past bare thorn tree and two young giraffes; camera pan decelerates",
+    "Front legs spread in wide walking stance; hind leg steps forward",
+    "Giraffe slows and turns head slightly toward camera on right"
+  ],
+  "why_continuous": "Continuous savanna tracking shot of an adult giraffe walking left-to-right past two young giraffes and trees.",
+  "source": {
+    "clip_id": "2f255422-bf67-5d69-902e-bed46222c8a3",
+    "source_id": "88b26602-1cee-5b9e-8766-8acd565b5c55",
+    "source_slug": "wonderful-world-part-ii-88b26602",
+    "source_title": "Wonderful World (Part II)",
+    "source_year": null,
+    "start_seconds": 358.258,
+    "end_seconds": 362.462,
+    "duration_seconds": 4.204000000000008,
+    "match_timestamp_seconds": 362.258,
+    "visual_similarity_score": 0.26918,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/wonderful-world-part-ii-88b26602",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/wonderful-world-part-ii-88b26602?clip=2f255422-bf67-5d69-902e-bed46222c8a3",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/88b26602-1cee-5b9e-8766-8acd565b5c55/v4-conditional-luna-1/clips/2f255422-bf67-5d69-902e-bed46222c8a3.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/giraffe/videos/02_2f255422-bf67-5d69-902e-bed46222c8a3.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "5642198301698048",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

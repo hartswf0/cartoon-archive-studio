@@ -1,0 +1,6 @@
+{"stage": 1, "event": "source_extract", "slug": "speedboat", "clip": "03_d839308f", "interval": [7.4, 11.0], "frames": 33}
+{"stage": 2, "event": "quickdraw_match", "slug": "speedboat", "qd_index": 4, "key_id": "5118160879484928", "country": "TH"}
+{"stage": 3, "event": "auto_dino_depth_sam", "slug": "speedboat", "mean_sam_iou": 0.939, "viterbi_linked": true}
+{"stage": 4, "event": "subagent_keyframes_and_scene", "slug": "speedboat", "keys": 4, "mean_trace_recall": 0.983}
+{"stage": 5, "event": "argon_rl_policy_evolution", "slug": "speedboat", "ep0": 0.111, "ep3": 0.93, "sil_iou": 0.92, "in_mask": 0.985}
+{"stage": 6, "event": "multiplane_render_and_gate_check", "slug": "speedboat", "gates_passed": "16/16"}

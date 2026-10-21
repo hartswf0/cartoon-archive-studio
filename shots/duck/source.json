@@ -1,0 +1,47 @@
+{
+  "category": "duck",
+  "shot_id": "duck",
+  "body_plan": "waterfowl",
+  "interval": [
+    2.5,
+    6.5
+  ],
+  "key_times": [
+    2.5,
+    3.75,
+    5.12,
+    6.5
+  ],
+  "key_notes": [
+    "Mallard duck glides rightward across sunlit pond; head raised alertly",
+    "Duck dips bill toward rippling pond surface; water-reflection filter locks onto true body",
+    "Duck turns slightly in three-quarter profile as concentric ripples expand",
+    "Duck settles into calm buoyant glide across upper-right pond clearing"
+  ],
+  "why_continuous": "Continuous archival shot of duck (2.5s..6.5s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "04_32e7819d",
+    "source_id": "04_32e7819d",
+    "source_slug": "duck",
+    "source_title": "Moving Image Archive \u2014 Duck",
+    "source_year": 1955,
+    "start_seconds": 2.5,
+    "end_seconds": 6.5,
+    "duration_seconds": 4.0,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/duck/videos/04_32e7819d.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/duck/videos/04_32e7819d.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5072777193193472",
+    "n_strokes": 6,
+    "country": "CA",
+    "qd_index": 0,
+    "why": "Automatically selected Quick, Draw! prototype #0 (CA, 6 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "shot": "windmill",
+  "policy": "Argon-RL-Doodle-Evolution-v2",
+  "mean_reward_ep0": 0.403,
+  "mean_reward_ep1": 0.4652,
+  "mean_reward_ep2": 0.5607,
+  "mean_reward_ep3": 0.7777,
+  "mean_sil_iou_ep3": 0.4539,
+  "mean_edge_recall_ep3": 0.9907,
+  "mean_stroke_precision_ep3": 0.9973,
+  "reward_delta": 0.3746
+}

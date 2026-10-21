@@ -1,0 +1,7 @@
+{
+  "slug": "speedboat",
+  "action_verbs": "planes bow -> accelerates -> carves wake -> surges rightward",
+  "emotion_arc": "Brisk nautical velocity",
+  "secondary_action": "Distant forested shoreline and horizontal river wave ripples glide in multiplane depth",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

@@ -1,0 +1,12 @@
+{
+  "shot": "giraffe-walks-past",
+  "policy": "Argon-RL-Doodle-Evolution-v2",
+  "mean_reward_ep0": 0.1947,
+  "mean_reward_ep1": 0.4547,
+  "mean_reward_ep2": 0.6127,
+  "mean_reward_ep3": 0.7474,
+  "mean_sil_iou_ep3": 0.5023,
+  "mean_edge_recall_ep3": 0.9493,
+  "mean_stroke_precision_ep3": 0.857,
+  "reward_delta": 0.5527
+}

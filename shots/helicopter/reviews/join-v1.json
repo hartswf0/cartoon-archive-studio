@@ -1,0 +1,31 @@
+{
+  "shot_id": "helicopter",
+  "category": "helicopter",
+  "revision": "join-v1",
+  "key_verdict": "bar_met",
+  "playback_verdict": "bar_met_in_join_pipeline",
+  "scope": "4 image-generator keyframes traced via skeletonization (T1 recall >= 0.98, parts_kept = 1.0) and joined to a 6-plane multiplane rig under phase-correlation camera pan.",
+  "timed_key_evidence": [
+    {
+      "time_seconds": 0.2,
+      "evidence": "Helicopter nose-down banking right in airshow climb, landing skids angled"
+    },
+    {
+      "time_seconds": 1.4,
+      "evidence": "Fuselage levels in right three-quarter profile, main rotor disc tilted forward"
+    },
+    {
+      "time_seconds": 2.6,
+      "evidence": "Helicopter pitches nose up slightly as tail boom sweeps across sky"
+    },
+    {
+      "time_seconds": 3.8,
+      "evidence": "High banking turn in right profile with rotor blades extended"
+    }
+  ],
+  "protected_strengths": [
+    "Retains Quick, Draw! key_id 5901244503687168 stroke construction across all 4 generated keys.",
+    "Character and background drawn on separate planes: 100% of background strokes hold across keys (B1).",
+    "Planted contacts locked in world space (< 1 px drift, M4) with SAM cel silhouette occlusion (S5)."
+  ]
+}

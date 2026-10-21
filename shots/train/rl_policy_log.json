@@ -1,0 +1,16 @@
+{
+  "shot": "train",
+  "category": "train",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 3,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9721,
+  "mean_reward_ep0": 0.4445,
+  "mean_reward_ep1": 0.6674,
+  "mean_reward_ep2": 0.7476,
+  "mean_reward_ep3": 0.9304,
+  "mean_sil_iou_ep3": 0.9529,
+  "mean_edge_recall_ep3": 0.8719,
+  "mean_stroke_precision_ep3": 0.9762,
+  "reward_delta": 0.4859
+}

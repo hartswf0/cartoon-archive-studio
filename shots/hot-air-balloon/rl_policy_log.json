@@ -1,0 +1,16 @@
+{
+  "shot": "hot-air-balloon",
+  "category": "hot_air_balloon",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 7,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9553,
+  "mean_reward_ep0": 0.4846,
+  "mean_reward_ep1": 0.5503,
+  "mean_reward_ep2": 0.6253,
+  "mean_reward_ep3": 0.6351,
+  "mean_sil_iou_ep3": 0.6717,
+  "mean_edge_recall_ep3": 0.4592,
+  "mean_stroke_precision_ep3": 0.8228,
+  "reward_delta": 0.1505
+}

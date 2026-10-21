@@ -1,0 +1,6 @@
+{"stage": 1, "event": "source_extract", "slug": "canoe", "clip": "03_dbfef29e", "interval": [4.6, 8.6], "frames": 33}
+{"stage": 2, "event": "quickdraw_match", "slug": "canoe", "qd_index": 5, "key_id": "5278942468505600", "country": "US"}
+{"stage": 3, "event": "auto_dino_depth_sam", "slug": "canoe", "mean_sam_iou": 0.91, "viterbi_linked": true}
+{"stage": 4, "event": "subagent_keyframes_and_scene", "slug": "canoe", "keys": 4, "mean_trace_recall": 0.985}
+{"stage": 5, "event": "argon_rl_policy_evolution", "slug": "canoe", "ep0": 0.268, "ep3": 0.814, "sil_iou": 0.761, "in_mask": 0.943}
+{"stage": 6, "event": "multiplane_render_and_gate_check", "slug": "canoe", "gates_passed": "16/16"}

@@ -1,0 +1,7 @@
+{
+  "slug": "canoe",
+  "action_verbs": "enters rapid -> braces paddle -> pitches bow -> rides current",
+  "emotion_arc": "Focused balance against rushing water",
+  "secondary_action": "Whitewater wave crests and cobblestone riverbank boulders separate across 6 depth planes",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

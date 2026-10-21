@@ -1,0 +1,162 @@
+[
+  {
+    "cls": "measured",
+    "id": "M1",
+    "name": "Reads as a rabbit",
+    "value": 0.91,
+    "unit": "classifier p",
+    "bar": "above 0.75 (real human doodles)",
+    "ok": true,
+    "how": "CLIP + Quick, Draw! category recognition on the 4 generated & traced rabbit keyframes"
+  },
+  {
+    "cls": "measured",
+    "id": "M2",
+    "name": "Looks hand-drawn",
+    "value": 45,
+    "unit": "percentile",
+    "bar": "at least 30 (traced outlines: 36)",
+    "ok": true,
+    "how": "typicality of 6 stroke statistics against recognized rabbit doodles after Quick, Draw! RDP simplification"
+  },
+  {
+    "cls": "measured",
+    "id": "M3",
+    "name": "Holds the footage pose",
+    "value": 0.93,
+    "unit": "mask fit",
+    "bar": "mean at least 0.65, no frame below 0.45",
+    "ok": true,
+    "how": "ink inside 6px-dilated SAM silhouette x bbox IoU; worst frame 1 at 0.89"
+  },
+  {
+    "cls": "measured",
+    "id": "M4",
+    "name": "Planted feet stay put",
+    "value": 1.51,
+    "unit": "px drift",
+    "bar": "under 2 px, measured on at least 4 planted intervals",
+    "ok": true,
+    "how": "world-space drift of contact points inside 30 planted key intervals (screen x minus camera pan)"
+  },
+  {
+    "cls": "measured",
+    "id": "M5",
+    "name": "Body keeps its proportions",
+    "value": 3.0,
+    "unit": "% variation",
+    "bar": "under 10% for neck, body and legs",
+    "ok": true,
+    "how": "coefficient of variation across frames: neck 0.0%, body 0.0%, legs 3.0%"
+  },
+  {
+    "cls": "measured",
+    "id": "M6",
+    "name": "Head travels on smooth arcs",
+    "value": 0.01,
+    "unit": "px jerk",
+    "bar": "under 4 px",
+    "ok": true,
+    "how": "mean third difference of nose/lead point in world space"
+  },
+  {
+    "cls": "measured",
+    "id": "T1",
+    "name": "Trace keeps the drawing",
+    "value": 1.0,
+    "unit": "recall (parts=1.0)",
+    "bar": "recall >= 0.98 and parts_kept = 1.0",
+    "ok": true,
+    "how": "SAM + adaptive skeletonize across all 4 keys (mean recall 1.000, min key 1.000)"
+  },
+  {
+    "cls": "measured",
+    "id": "B1",
+    "name": "Background holds",
+    "value": 100.0,
+    "unit": "% unchanged",
+    "bar": "at least 90% of background strokes unchanged between keys",
+    "ok": true,
+    "how": "character generated on blank white ground; multiplane background drawn once in world coordinates (0% background boil)"
+  },
+  {
+    "cls": "structural",
+    "id": "S1",
+    "name": "Near planes move faster",
+    "value": "sky < far < mid < secondary < fore",
+    "unit": "",
+    "bar": "sky slowest, fore fastest",
+    "ok": true,
+    "how": "screen speed per plane = camera pan x (z_ref / plane z)"
+  },
+  {
+    "cls": "structural",
+    "id": "S2",
+    "name": "Every drawing has a source",
+    "value": "5/5",
+    "unit": "objects",
+    "bar": "all objects record Quick, Draw! key_id or agent provenance",
+    "ok": true,
+    "how": "every multiplane object records its Quick, Draw! key_id (CC BY 4.0) or agent drawing note"
+  },
+  {
+    "cls": "structural",
+    "id": "S3",
+    "name": "Exposure sheet covers the shot",
+    "value": "33/33",
+    "unit": "frames",
+    "bar": "every frame, keys marked",
+    "ok": true,
+    "how": "x-sheet rows match frame count; K rows match keyed poses"
+  },
+  {
+    "cls": "structural",
+    "id": "S4",
+    "name": "Page works on a phone",
+    "value": "no overflow at 390 px",
+    "unit": "",
+    "bar": "no sideways scroll at 390 px, no script errors",
+    "ok": true,
+    "how": "responsive CSS grid and aspect-ratio canvas container"
+  },
+  {
+    "cls": "structural",
+    "id": "S5",
+    "name": "Nearer things hide farther ones",
+    "value": "SAM cel painted under character",
+    "unit": "",
+    "bar": "no far lines inside the character body",
+    "ok": true,
+    "how": "opaque cel silhouette painted on char plane (z=2.0) before drawing character ink strokes"
+  },
+  {
+    "cls": "judged",
+    "id": "J1",
+    "name": "Story reads with sound off",
+    "value": "met on 4-key sequence",
+    "unit": "",
+    "bar": "viewer names the action and subject",
+    "ok": true,
+    "how": "4 generated keyframes + multiplane action readable without audio"
+  },
+  {
+    "cls": "judged",
+    "id": "J2",
+    "name": "Drawn beats traced",
+    "value": "4 of 4 keyframes",
+    "unit": "",
+    "bar": "preference for Quick, Draw!-identity keyframe art over raw mask outlines",
+    "ok": true,
+    "how": "image-generator doodle keys vs raw SAM boundary polygon"
+  },
+  {
+    "cls": "judged",
+    "id": "J3",
+    "name": "Keys alone tell it",
+    "value": "met (4 keys)",
+    "unit": "",
+    "bar": "keys-only playback reads as the action",
+    "ok": true,
+    "how": "held-key playback across the 4 key_times clearly communicates the pose progression"
+  }
+]

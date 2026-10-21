@@ -1,0 +1,16 @@
+{
+  "shot": "speedboat",
+  "category": "speedboat",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 4,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9392,
+  "mean_reward_ep0": 0.1106,
+  "mean_reward_ep1": 0.79,
+  "mean_reward_ep2": 0.8553,
+  "mean_reward_ep3": 0.9305,
+  "mean_sil_iou_ep3": 0.9202,
+  "mean_edge_recall_ep3": 0.903,
+  "mean_stroke_precision_ep3": 0.9854,
+  "reward_delta": 0.8199
+}

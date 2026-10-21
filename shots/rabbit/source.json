@@ -1,0 +1,45 @@
+{
+  "category": "rabbit",
+  "shot_id": "rabbit",
+  "body_plan": "quadruped_hopper",
+  "interval": [
+    4.6,
+    9.0
+  ],
+  "key_times": [
+    4.8,
+    5.8,
+    7.0,
+    8.8
+  ],
+  "key_notes": [
+    "Rabbit emerges obliquely through doorway; rear occluded by door jamb, front paw reaching down",
+    "Body clears doorway; forelegs extend forward onto floor as head turns right",
+    "Rabbit settles into compact right-facing crouch with bent hindquarter and grounded forefeet",
+    "Rabbit hops rightward out of frame; elongated rear torso, round tail and hind feet visible"
+  ],
+  "why_continuous": "Single continuous interior shot of a white rabbit emerging through a doorway, landing, crouching, and hopping out right.",
+  "source": {
+    "clip_id": "16866ed1-bc06-5d59-a8fe-81d8665d0d75",
+    "source_id": "c0bf71ff-0a76-584e-b937-bc37eb6c41d1",
+    "source_slug": "frances-and-her-rabbit-c0bf71ff",
+    "source_title": "Frances and Her Rabbit",
+    "source_year": 1961,
+    "start_seconds": 575.809,
+    "end_seconds": 585.452,
+    "duration_seconds": 9.643000000000029,
+    "match_timestamp_seconds": 583.809,
+    "visual_similarity_score": 0.278286,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/frances-and-her-rabbit-c0bf71ff",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/frances-and-her-rabbit-c0bf71ff?clip=16866ed1-bc06-5d59-a8fe-81d8665d0d75",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/c0bf71ff-0a76-584e-b937-bc37eb6c41d1/v4-conditional-luna-1/clips/16866ed1-bc06-5d59-a8fe-81d8665d0d75.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/rabbit/videos/01_16866ed1-bc06-5d59-a8fe-81d8665d0d75.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "5769012443086848",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

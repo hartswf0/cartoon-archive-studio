@@ -1,0 +1,45 @@
+{
+  "category": "horse",
+  "shot_id": "horse",
+  "body_plan": "quadruped_head_neck",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.3,
+    5.5,
+    6.4,
+    7.5
+  ],
+  "key_notes": [
+    "Horse head and neck enter from left in near-frontal view behind corral fence rails",
+    "Head turns three-quarter right and begins lowering behind foreground wooden rail",
+    "Neck arches downward; foreground fence rail occludes upper face while muzzle emerges below",
+    "Muzzle reaches the hay pile at the bottom below the lower rail, grazing"
+  ],
+  "why_continuous": "Single continuous close-up shot of a white horse lowering its head behind wooden fence rails to eat hay.",
+  "source": {
+    "clip_id": "fd0a7bab-8330-57e5-8c1b-5943070d0605",
+    "source_id": "dd68369a-882b-575d-b148-8c89a5d497b1",
+    "source_slug": "billie-the-buffalo-baby-dd68369a",
+    "source_title": "Billie, the Buffalo Baby",
+    "source_year": 1956,
+    "start_seconds": 292.926,
+    "end_seconds": 301.235,
+    "duration_seconds": 8.309000000000026,
+    "match_timestamp_seconds": 298.926,
+    "visual_similarity_score": 0.267631,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/billie-the-buffalo-baby-dd68369a",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/billie-the-buffalo-baby-dd68369a?clip=fd0a7bab-8330-57e5-8c1b-5943070d0605",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/dd68369a-882b-575d-b148-8c89a5d497b1/v4-conditional-luna-1/clips/fd0a7bab-8330-57e5-8c1b-5943070d0605.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/horse/videos/01_fd0a7bab-8330-57e5-8c1b-5943070d0605.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "5184421804965888",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

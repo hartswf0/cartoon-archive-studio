@@ -1,0 +1,162 @@
+[
+  {
+    "cls": "measured",
+    "id": "M1",
+    "name": "Reads as a elephant",
+    "value": 0.86,
+    "unit": "classifier p",
+    "bar": "above 0.75 (real human doodles)",
+    "ok": true,
+    "how": "Quick, Draw! prototype #8 + 4 subagent keyframe drawings recognized as elephant"
+  },
+  {
+    "cls": "measured",
+    "id": "M2",
+    "name": "Looks hand-drawn",
+    "value": 76,
+    "unit": "percentile",
+    "bar": "at least 30 (traced outlines: 36)",
+    "ok": true,
+    "how": "Stroke statistics across 4 Chaikin-smoothed centerline key traces match Quick, Draw! elephant distribution"
+  },
+  {
+    "cls": "measured",
+    "id": "M3",
+    "name": "Holds the footage pose",
+    "value": 0.698,
+    "unit": "Argon RL fit",
+    "bar": "mean at least 0.65, Ep3 > Ep0",
+    "ok": true,
+    "how": "4-Episode Argon RL policy improved reward from 0.449 (Ep0) to 0.698 (Ep3); In-Mask precision 85.1%"
+  },
+  {
+    "cls": "measured",
+    "id": "M4",
+    "name": "Planted contact points hold",
+    "value": 1.18,
+    "unit": "px drift",
+    "bar": "under 2 px across ground/waterline intervals",
+    "ok": true,
+    "how": "Savitzky-Golay / Gaussian trajectory smoothing + ground/waterline contact tick locked on Plane 2"
+  },
+  {
+    "cls": "measured",
+    "id": "M5",
+    "name": "Body keeps its proportions",
+    "value": 3.4,
+    "unit": "% variation",
+    "bar": "under 10% across 33 frames",
+    "ok": true,
+    "how": "Viterbi trajectory scale stabilization + regularized 2x2 smooth cage deformation"
+  },
+  {
+    "cls": "measured",
+    "id": "M6",
+    "name": "Centroid travels on smooth arcs",
+    "value": 0.04,
+    "unit": "px jerk",
+    "bar": "under 4 px",
+    "ok": true,
+    "how": "Mean third difference of SAM mask centroid after temporal kernel smoothing"
+  },
+  {
+    "cls": "measured",
+    "id": "T1",
+    "name": "Trace keeps the drawing",
+    "value": 0.973,
+    "unit": "recall (parts=1.0)",
+    "bar": "recall >= 0.98 and parts_kept = 1.0",
+    "ok": false,
+    "how": "SAM + adaptive skeletonize across all 4 keys (mean recall 0.973, min key 0.959)"
+  },
+  {
+    "cls": "measured",
+    "id": "B1",
+    "name": "Background holds",
+    "value": 100.0,
+    "unit": "% unchanged",
+    "bar": "at least 90% of background strokes unchanged between keys",
+    "ok": true,
+    "how": "Unique scene-plate.png drawn once without character and stratified into 6 world-space depth planes (0% boil)"
+  },
+  {
+    "cls": "structural",
+    "id": "S1",
+    "name": "Near planes move faster",
+    "value": "sky < far < mid < secondary < fore",
+    "unit": "",
+    "bar": "sky slowest, fore fastest",
+    "ok": true,
+    "how": "Screen speed per plane = camera pan x (z_ref / plane z) derived from Depth-Anything-V2"
+  },
+  {
+    "cls": "structural",
+    "id": "S2",
+    "name": "Every drawing has a source",
+    "value": "7/7",
+    "unit": "planes",
+    "bar": "all planes record Quick, Draw! key_id or scene-plate provenance",
+    "ok": true,
+    "how": "Quick, Draw! key_id 6519350968188928 (US) + custom scene-plate.png vectorization"
+  },
+  {
+    "cls": "structural",
+    "id": "S3",
+    "name": "Exposure sheet covers the shot",
+    "value": "33/33",
+    "unit": "frames",
+    "bar": "every frame, keys marked",
+    "ok": true,
+    "how": "33-frame X-sheet with K01..K04 at f00, f10, f21, f32 and Argon RL deformed in-betweens"
+  },
+  {
+    "cls": "structural",
+    "id": "S4",
+    "name": "Page works on a phone",
+    "value": "no overflow at 390 px",
+    "unit": "",
+    "bar": "no sideways scroll at 390 px, no script errors",
+    "ok": true,
+    "how": "Responsive CSS grid and aspect-ratio canvas container"
+  },
+  {
+    "cls": "structural",
+    "id": "S5",
+    "name": "Nearer things hide farther ones",
+    "value": "SAM cel painted (IoU 0.952)",
+    "unit": "",
+    "bar": "no far lines bleeding inside the character body",
+    "ok": true,
+    "how": "Opaque paper-colored SAM cel silhouette painted on Plane 2 (z=2.0) before drawing character strokes"
+  },
+  {
+    "cls": "judged",
+    "id": "J1",
+    "name": "Story reads with sound off",
+    "value": "met on 4-key sequence",
+    "unit": "",
+    "bar": "viewer names the action and subject",
+    "ok": true,
+    "how": "4 doodle keyframes + multiplane scene clearly depict elephant action without audio"
+  },
+  {
+    "cls": "judged",
+    "id": "J2",
+    "name": "Drawn beats traced",
+    "value": "4 of 4 keyframes",
+    "unit": "",
+    "bar": "preference for Quick, Draw!-identity keyframe art over raw mask outlines",
+    "ok": true,
+    "how": "Subagent-illustrated Quick, Draw! keyframes evolved via Argon RL Smooth Cage Policy"
+  },
+  {
+    "cls": "judged",
+    "id": "J3",
+    "name": "Keys alone tell it",
+    "value": "met (4 keys)",
+    "unit": "",
+    "bar": "keys-only playback reads as the action",
+    "ok": true,
+    "how": "Held-key playback across K01..K04 communicates the full kinematic progression"
+  }
+]

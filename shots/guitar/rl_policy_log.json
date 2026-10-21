@@ -1,0 +1,16 @@
+{
+  "shot": "guitar",
+  "category": "guitar",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 1,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9501,
+  "mean_reward_ep0": 0.5172,
+  "mean_reward_ep1": 0.6166,
+  "mean_reward_ep2": 0.6599,
+  "mean_reward_ep3": 0.6124,
+  "mean_sil_iou_ep3": 0.7033,
+  "mean_edge_recall_ep3": 0.2538,
+  "mean_stroke_precision_ep3": 0.9691,
+  "reward_delta": 0.0952
+}

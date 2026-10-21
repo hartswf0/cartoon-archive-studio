@@ -1,0 +1,45 @@
+{
+  "category": "bicycle",
+  "shot_id": "bicycle",
+  "body_plan": "wheeled_vehicle",
+  "interval": [
+    1.8,
+    3.6
+  ],
+  "key_times": [
+    1.9,
+    2.4,
+    2.9,
+    3.4
+  ],
+  "key_notes": [
+    "Front wheel and diamond frame enter left; rider's knee high at top of pedal stroke",
+    "Bicycle rolls left; pedal crank pushes downward, spokes rotating",
+    "Rider's leg extends near bottom dead center of pedal stroke; frame centered",
+    "Rear wheel and chainstay advance as pedal comes back up"
+  ],
+  "why_continuous": "Continuous side-angle tracking shot of a rider pedaling a bicycle across pavement.",
+  "source": {
+    "clip_id": "e31c97d5-19c1-5017-a28a-7eaf9c994a34",
+    "source_id": "b101b72c-8174-55f4-bfe9-815923c1add6",
+    "source_slug": "we-use-power-b101b72c",
+    "source_title": "We Use Power",
+    "source_year": 1956,
+    "start_seconds": 626.994,
+    "end_seconds": 630.664,
+    "duration_seconds": 3.669999999999959,
+    "match_timestamp_seconds": 626.994,
+    "visual_similarity_score": 0.27627,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/we-use-power-b101b72c",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/we-use-power-b101b72c?clip=e31c97d5-19c1-5017-a28a-7eaf9c994a34",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/b101b72c-8174-55f4-bfe9-815923c1add6/v4-conditional-luna-1/clips/e31c97d5-19c1-5017-a28a-7eaf9c994a34.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/bicycle/videos/01_e31c97d5-19c1-5017-a28a-7eaf9c994a34.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "5429811218481152",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

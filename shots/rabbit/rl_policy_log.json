@@ -1,0 +1,12 @@
+{
+  "shot": "rabbit",
+  "policy": "Argon-RL-Doodle-Evolution-v2",
+  "mean_reward_ep0": 0.3115,
+  "mean_reward_ep1": 0.6872,
+  "mean_reward_ep2": 0.8524,
+  "mean_reward_ep3": 0.8564,
+  "mean_sil_iou_ep3": 0.7747,
+  "mean_edge_recall_ep3": 0.9358,
+  "mean_stroke_precision_ep3": 0.8761,
+  "reward_delta": 0.5449
+}

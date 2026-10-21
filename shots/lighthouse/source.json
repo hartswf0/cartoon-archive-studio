@@ -1,0 +1,47 @@
+{
+  "category": "lighthouse",
+  "shot_id": "lighthouse",
+  "body_plan": "architectural_monument",
+  "interval": [
+    2.1,
+    5.7
+  ],
+  "key_times": [
+    2.1,
+    3.23,
+    4.46,
+    5.7
+  ],
+  "key_notes": [
+    "Lower-middle shaft of the tapered striped lighthouse tower with horizontal bands and slit window",
+    "Camera tilts upward along middle section showing three horizontal stripe bands and two windows",
+    "Upper-middle cylindrical shaft tapers narrower toward the top gallery rim",
+    "Summit of the lighthouse crowned by the circular lantern gallery railing and domed beacon roof"
+  ],
+  "why_continuous": "Continuous archival shot of lighthouse (2.1s..5.7s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "01_998660df",
+    "source_id": "01_998660df",
+    "source_slug": "lighthouse",
+    "source_title": "Moving Image Archive \u2014 Lighthouse",
+    "source_year": 1955,
+    "start_seconds": 2.1,
+    "end_seconds": 5.7,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/lighthouse/videos/01_998660df.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/lighthouse/videos/01_998660df.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000002",
+    "n_strokes": 6,
+    "country": "SK",
+    "qd_index": 2,
+    "why": "Automatically selected Quick, Draw! prototype #2 (SK, 6 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "category": "windmill",
+  "shot_id": "windmill",
+  "body_plan": "rotary_structure",
+  "interval": [
+    0.2,
+    4.6
+  ],
+  "key_times": [
+    0.3,
+    1.6,
+    3.0,
+    4.4
+  ],
+  "key_notes": [
+    "Windmill tower framed by trees; four lattice sails at +15 deg diagonal",
+    "Four sails rotate counter-clockwise to +45 deg X-cross position",
+    "Sails continue rotating through +75 deg steep angle against sky",
+    "Sails complete quarter-turn cycle to +105 deg above octagonal tower"
+  ],
+  "why_continuous": "Continuous locked-off shot looking up at a Dutch windmill's rotating sails framed by foliage.",
+  "source": {
+    "clip_id": "2cefc97c-12b2-5141-ae30-570c652db9f0",
+    "source_id": "f9fc6af6-d0f2-52be-a167-aa5fb0429486",
+    "source_slug": "golden-gate-city-f9fc6af6",
+    "source_title": "Golden Gate City",
+    "source_year": null,
+    "start_seconds": 558.425,
+    "end_seconds": 564.531,
+    "duration_seconds": 6.1059999999999945,
+    "match_timestamp_seconds": 563.425,
+    "visual_similarity_score": 0.28618,
+    "color_mode": "black_and_white",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/golden-gate-city-f9fc6af6",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/golden-gate-city-f9fc6af6?clip=2cefc97c-12b2-5141-ae30-570c652db9f0",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/f9fc6af6-d0f2-52be-a167-aa5fb0429486/v3-ffmpeg-openclip-1/clips/2cefc97c-12b2-5141-ae30-570c652db9f0.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/windmill/videos/01_2cefc97c-12b2-5141-ae30-570c652db9f0.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "4812904411922432",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

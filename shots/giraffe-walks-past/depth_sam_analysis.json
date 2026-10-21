@@ -1,0 +1,681 @@
+{
+  "shot_id": "giraffe-walks-past",
+  "category": "giraffe",
+  "action_verbs": "Tall adult giraffe perceives camera -> shifts weight onto left foreleg -> neck swings in figure-8 arc -> strides across savannah behind foreground grass while two juveniles watch.",
+  "emotion_arc": "Calm vigilance -> rhythmic poise -> curious glance",
+  "depth_model": "depth-anything/Depth-Anything-V2-Small-hf (strict=True)",
+  "sam_model": "facebook/sam-vit-base + IDEA-Research/grounding-dino-base",
+  "mean_sam_iou": 0.905,
+  "mean_char_depth_z": 7.592,
+  "plane_depth_distribution": {
+    "P0_extreme_fore": 0.0464,
+    "P1_fore": 0.0466,
+    "P2_char": 0.2213,
+    "P3_secondary": 0.0574,
+    "P4_mid": 0.1583,
+    "P5_far": 0.1543,
+    "P6_sky": 0.5304
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "bbox": [
+        8.0,
+        95.0,
+        220.0,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 8.123,
+      "centroid": [
+        153.5,
+        260.8
+      ],
+      "contact": [
+        108.0,
+        428.0
+      ],
+      "mask_area_pct": 20.87
+    },
+    {
+      "frame": 1,
+      "bbox": [
+        10.7,
+        95.0,
+        223.0,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 8.811,
+      "centroid": [
+        166.1,
+        242.1
+      ],
+      "contact": [
+        112.0,
+        428.0
+      ],
+      "mask_area_pct": 20.01
+    },
+    {
+      "frame": 2,
+      "bbox": [
+        13.4,
+        95.0,
+        226.0,
+        438.0
+      ],
+      "sam_iou": 0.8907,
+      "z_char": 9.237,
+      "centroid": [
+        172.5,
+        232.2
+      ],
+      "contact": [
+        116.0,
+        417.0
+      ],
+      "mask_area_pct": 19.89
+    },
+    {
+      "frame": 3,
+      "bbox": [
+        16.1,
+        95.0,
+        229.0,
+        438.0
+      ],
+      "sam_iou": 0.8911,
+      "z_char": 9.205,
+      "centroid": [
+        175.7,
+        220.0
+      ],
+      "contact": [
+        110.0,
+        407.0
+      ],
+      "mask_area_pct": 19.7
+    },
+    {
+      "frame": 4,
+      "bbox": [
+        18.8,
+        95.0,
+        232.0,
+        438.0
+      ],
+      "sam_iou": 0.8904,
+      "z_char": 8.489,
+      "centroid": [
+        163.6,
+        238.0
+      ],
+      "contact": [
+        118.0,
+        412.0
+      ],
+      "mask_area_pct": 18.73
+    },
+    {
+      "frame": 5,
+      "bbox": [
+        21.5,
+        95.0,
+        235.0,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 6.949,
+      "centroid": [
+        215.4,
+        240.2
+      ],
+      "contact": [
+        150.0,
+        401.0
+      ],
+      "mask_area_pct": 25.29
+    },
+    {
+      "frame": 6,
+      "bbox": [
+        24.2,
+        95.0,
+        238.0,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 7.048,
+      "centroid": [
+        221.2,
+        234.1
+      ],
+      "contact": [
+        186.0,
+        415.0
+      ],
+      "mask_area_pct": 25.8
+    },
+    {
+      "frame": 7,
+      "bbox": [
+        26.9,
+        95.0,
+        241.0,
+        438.0
+      ],
+      "sam_iou": 0.8987,
+      "z_char": 7.096,
+      "centroid": [
+        224.7,
+        238.7
+      ],
+      "contact": [
+        190.0,
+        417.0
+      ],
+      "mask_area_pct": 26.69
+    },
+    {
+      "frame": 8,
+      "bbox": [
+        29.6,
+        95.0,
+        244.0,
+        438.0
+      ],
+      "sam_iou": 0.8917,
+      "z_char": 6.789,
+      "centroid": [
+        187.7,
+        254.6
+      ],
+      "contact": [
+        154.0,
+        408.0
+      ],
+      "mask_area_pct": 21.06
+    },
+    {
+      "frame": 9,
+      "bbox": [
+        32.3,
+        95.0,
+        247.0,
+        438.0
+      ],
+      "sam_iou": 0.9066,
+      "z_char": 7.274,
+      "centroid": [
+        221.8,
+        225.6
+      ],
+      "contact": [
+        209.0,
+        405.0
+      ],
+      "mask_area_pct": 22.08
+    },
+    {
+      "frame": 10,
+      "bbox": [
+        35.0,
+        95.0,
+        250.0,
+        438.0
+      ],
+      "sam_iou": 0.8948,
+      "z_char": 6.912,
+      "centroid": [
+        190.7,
+        236.0
+      ],
+      "contact": [
+        195.0,
+        387.0
+      ],
+      "mask_area_pct": 18.0
+    },
+    {
+      "frame": 11,
+      "bbox": [
+        42.3,
+        95.0,
+        259.1,
+        438.0
+      ],
+      "sam_iou": 0.8914,
+      "z_char": 7.275,
+      "centroid": [
+        253.2,
+        238.3
+      ],
+      "contact": [
+        239.0,
+        407.0
+      ],
+      "mask_area_pct": 23.9
+    },
+    {
+      "frame": 12,
+      "bbox": [
+        49.5,
+        95.0,
+        268.2,
+        438.0
+      ],
+      "sam_iou": 0.8976,
+      "z_char": 7.568,
+      "centroid": [
+        201.0,
+        227.8
+      ],
+      "contact": [
+        184.0,
+        378.0
+      ],
+      "mask_area_pct": 16.65
+    },
+    {
+      "frame": 13,
+      "bbox": [
+        56.8,
+        95.0,
+        277.3,
+        438.0
+      ],
+      "sam_iou": 0.9079,
+      "z_char": 7.468,
+      "centroid": [
+        285.3,
+        239.7
+      ],
+      "contact": [
+        244.0,
+        406.0
+      ],
+      "mask_area_pct": 25.64
+    },
+    {
+      "frame": 14,
+      "bbox": [
+        64.1,
+        95.0,
+        286.4,
+        438.0
+      ],
+      "sam_iou": 0.9107,
+      "z_char": 7.521,
+      "centroid": [
+        292.3,
+        249.5
+      ],
+      "contact": [
+        248.0,
+        402.0
+      ],
+      "mask_area_pct": 23.63
+    },
+    {
+      "frame": 15,
+      "bbox": [
+        71.4,
+        95.0,
+        295.5,
+        438.0
+      ],
+      "sam_iou": 0.9025,
+      "z_char": 7.746,
+      "centroid": [
+        313.6,
+        248.9
+      ],
+      "contact": [
+        266.0,
+        397.0
+      ],
+      "mask_area_pct": 23.6
+    },
+    {
+      "frame": 16,
+      "bbox": [
+        78.6,
+        95.0,
+        304.5,
+        438.0
+      ],
+      "sam_iou": 0.9288,
+      "z_char": 5.599,
+      "centroid": [
+        254.3,
+        268.4
+      ],
+      "contact": [
+        228.0,
+        395.0
+      ],
+      "mask_area_pct": 18.49
+    },
+    {
+      "frame": 17,
+      "bbox": [
+        85.9,
+        95.0,
+        313.6,
+        438.0
+      ],
+      "sam_iou": 0.9327,
+      "z_char": 7.935,
+      "centroid": [
+        349.5,
+        244.9
+      ],
+      "contact": [
+        309.0,
+        397.0
+      ],
+      "mask_area_pct": 23.95
+    },
+    {
+      "frame": 18,
+      "bbox": [
+        93.2,
+        95.0,
+        322.7,
+        438.0
+      ],
+      "sam_iou": 0.9121,
+      "z_char": 8.379,
+      "centroid": [
+        359.9,
+        236.3
+      ],
+      "contact": [
+        315.0,
+        390.0
+      ],
+      "mask_area_pct": 22.99
+    },
+    {
+      "frame": 19,
+      "bbox": [
+        100.5,
+        95.0,
+        331.8,
+        438.0
+      ],
+      "sam_iou": 0.9096,
+      "z_char": 8.522,
+      "centroid": [
+        365.7,
+        236.8
+      ],
+      "contact": [
+        321.0,
+        391.0
+      ],
+      "mask_area_pct": 22.5
+    },
+    {
+      "frame": 20,
+      "bbox": [
+        107.7,
+        95.0,
+        340.9,
+        438.0
+      ],
+      "sam_iou": 0.9143,
+      "z_char": 4.979,
+      "centroid": [
+        284.3,
+        270.9
+      ],
+      "contact": [
+        244.0,
+        397.0
+      ],
+      "mask_area_pct": 15.66
+    },
+    {
+      "frame": 21,
+      "bbox": [
+        115.0,
+        95.0,
+        350.0,
+        438.0
+      ],
+      "sam_iou": 0.9449,
+      "z_char": 7.908,
+      "centroid": [
+        365.5,
+        245.7
+      ],
+      "contact": [
+        308.0,
+        396.0
+      ],
+      "mask_area_pct": 22.57
+    },
+    {
+      "frame": 22,
+      "bbox": [
+        123.6,
+        96.8,
+        357.3,
+        438.0
+      ],
+      "sam_iou": 0.9232,
+      "z_char": 7.802,
+      "centroid": [
+        364.1,
+        244.4
+      ],
+      "contact": [
+        307.0,
+        396.0
+      ],
+      "mask_area_pct": 23.37
+    },
+    {
+      "frame": 23,
+      "bbox": [
+        132.3,
+        98.6,
+        364.5,
+        438.0
+      ],
+      "sam_iou": 0.9073,
+      "z_char": 7.309,
+      "centroid": [
+        360.4,
+        248.7
+      ],
+      "contact": [
+        308.0,
+        403.0
+      ],
+      "mask_area_pct": 25.24
+    },
+    {
+      "frame": 24,
+      "bbox": [
+        140.9,
+        100.5,
+        371.8,
+        438.0
+      ],
+      "sam_iou": 0.9186,
+      "z_char": 6.275,
+      "centroid": [
+        333.6,
+        258.9
+      ],
+      "contact": [
+        283.0,
+        396.0
+      ],
+      "mask_area_pct": 21.51
+    },
+    {
+      "frame": 25,
+      "bbox": [
+        149.5,
+        102.3,
+        379.1,
+        438.0
+      ],
+      "sam_iou": 0.9104,
+      "z_char": 7.793,
+      "centroid": [
+        366.9,
+        239.9
+      ],
+      "contact": [
+        321.5,
+        400.0
+      ],
+      "mask_area_pct": 26.27
+    },
+    {
+      "frame": 26,
+      "bbox": [
+        158.2,
+        104.1,
+        386.4,
+        438.0
+      ],
+      "sam_iou": 0.9044,
+      "z_char": 8.34,
+      "centroid": [
+        373.1,
+        235.7
+      ],
+      "contact": [
+        326.0,
+        396.0
+      ],
+      "mask_area_pct": 24.78
+    },
+    {
+      "frame": 27,
+      "bbox": [
+        166.8,
+        105.9,
+        393.6,
+        438.0
+      ],
+      "sam_iou": 0.9128,
+      "z_char": 7.674,
+      "centroid": [
+        383.2,
+        241.5
+      ],
+      "contact": [
+        342.0,
+        401.0
+      ],
+      "mask_area_pct": 24.5
+    },
+    {
+      "frame": 28,
+      "bbox": [
+        175.5,
+        107.7,
+        400.9,
+        438.0
+      ],
+      "sam_iou": 0.9122,
+      "z_char": 6.722,
+      "centroid": [
+        357.5,
+        244.1
+      ],
+      "contact": [
+        292.0,
+        391.0
+      ],
+      "mask_area_pct": 19.03
+    },
+    {
+      "frame": 29,
+      "bbox": [
+        184.1,
+        109.5,
+        408.2,
+        438.0
+      ],
+      "sam_iou": 0.9112,
+      "z_char": 7.707,
+      "centroid": [
+        402.9,
+        242.9
+      ],
+      "contact": [
+        381.0,
+        411.0
+      ],
+      "mask_area_pct": 23.71
+    },
+    {
+      "frame": 30,
+      "bbox": [
+        192.7,
+        111.4,
+        415.5,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 7.978,
+      "centroid": [
+        407.9,
+        242.0
+      ],
+      "contact": [
+        394.0,
+        412.0
+      ],
+      "mask_area_pct": 23.24
+    },
+    {
+      "frame": 31,
+      "bbox": [
+        201.4,
+        113.2,
+        422.7,
+        438.0
+      ],
+      "sam_iou": 0.89,
+      "z_char": 8.207,
+      "centroid": [
+        413.4,
+        239.5
+      ],
+      "contact": [
+        406.0,
+        413.0
+      ],
+      "mask_area_pct": 23.2
+    },
+    {
+      "frame": 32,
+      "bbox": [
+        210.0,
+        115.0,
+        430.0,
+        438.0
+      ],
+      "sam_iou": 0.9074,
+      "z_char": 7.905,
+      "centroid": [
+        375.8,
+        225.2
+      ],
+      "contact": [
+        320.0,
+        376.0
+      ],
+      "mask_area_pct": 17.89
+    }
+  ]
+}

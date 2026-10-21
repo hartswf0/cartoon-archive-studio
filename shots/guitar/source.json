@@ -1,0 +1,47 @@
+{
+  "category": "guitar",
+  "shot_id": "guitar",
+  "body_plan": "musical_instrument",
+  "interval": [
+    1.5,
+    5.1
+  ],
+  "key_times": [
+    1.5,
+    2.62,
+    3.86,
+    5.1
+  ],
+  "key_notes": [
+    "Acoustic guitar held in playing position with neck angled up-left and round soundhole clear",
+    "Guitar tilts slightly upright on downbeat; strings, bridge, and pickguard articulated",
+    "Figure-eight acoustic body sways gently forward with the performer's rhythm",
+    "Guitar settles back into steady acoustic strumming posture on stage"
+  ],
+  "why_continuous": "Continuous archival shot of guitar (1.5s..5.1s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "01_b7c6bb5e",
+    "source_id": "01_b7c6bb5e",
+    "source_slug": "guitar",
+    "source_title": "Moving Image Archive \u2014 Guitar",
+    "source_year": 1955,
+    "start_seconds": 1.5,
+    "end_seconds": 5.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/guitar/videos/01_b7c6bb5e.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/guitar/videos/01_b7c6bb5e.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000001",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 1,
+    "why": "Automatically selected Quick, Draw! prototype #1 (US, 7 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

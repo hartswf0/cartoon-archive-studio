@@ -1,0 +1,7 @@
+{
+  "slug": "tractor",
+  "action_verbs": "chugs forward -> climbs furrow -> steers right -> fills foreground",
+  "emotion_arc": "Steady mechanical industry",
+  "secondary_action": "Clapboard farmhouse gable, deciduous treeline, and plowed earth furrows parallax behind",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

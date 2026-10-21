@@ -1,0 +1,7 @@
+{
+  "slug": "butterfly",
+  "action_verbs": "perches -> spreads hindwing -> folds upward -> extends full wingspan",
+  "emotion_arc": "Delicate biological articulation",
+  "secondary_action": "Five-petaled garden blossoms and veined leaves hold steady on the foreground perch plane",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

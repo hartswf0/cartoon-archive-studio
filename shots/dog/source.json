@@ -1,0 +1,45 @@
+{
+  "category": "dog",
+  "shot_id": "dog",
+  "body_plan": "quadruped",
+  "interval": [
+    0.2,
+    4.2
+  ],
+  "key_times": [
+    0.2,
+    1.4,
+    2.8,
+    4.0
+  ],
+  "key_notes": [
+    "Dog stands alert facing left toward coat hem, head raised, four legs planted",
+    "Dog turns head and torso right-ward toward water bowl, front right paw stepping",
+    "Dog extends neck and muzzle down toward bowl on the right, hind legs braced",
+    "Dog lowers head over bowl rim in right profile, tail perked"
+  ],
+  "why_continuous": "Single uncut home-movie exterior shot of a dog turning from a person on the left toward a water bowl on the right.",
+  "source": {
+    "clip_id": "2fdacde1-8a23-58e1-b905-5407385bd039",
+    "source_id": "c65a8960-c79f-5f1c-a57a-832d4068764a",
+    "source_slug": "amateur-film-new-jersey-c-c65a8960",
+    "source_title": "Amateur Film New Jersey C",
+    "source_year": null,
+    "start_seconds": 225.559,
+    "end_seconds": 235.402,
+    "duration_seconds": 9.84299999999999,
+    "match_timestamp_seconds": 229.559,
+    "visual_similarity_score": 0.250152,
+    "color_mode": "black_and_white",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/sources/amateur-film-new-jersey-c-c65a8960",
+    "shot_page_url": "https://www.movingimagearchive.com/sources/amateur-film-new-jersey-c-c65a8960?clip=2fdacde1-8a23-58e1-b905-5407385bd039",
+    "video_url": "https://pub-075ff01374c04555b51c9bc50f258b42.r2.dev/sources/c65a8960-c79f-5f1c-a57a-832d4068764a/v4-conditional-luna-1/clips/2fdacde1-8a23-58e1-b905-5407385bd039.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/dog/videos/01_2fdacde1-8a23-58e1-b905-5407385bd039.mp4",
+    "rights_statement": "As reported per Moving Image Archive source record"
+  },
+  "design_selection": {
+    "key_id": "6507786613555200",
+    "method": "Recognized Quick, Draw! sample matched by CLIP gap-corrected similarity + stroke typicality."
+  }
+}

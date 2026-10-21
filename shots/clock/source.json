@@ -1,0 +1,47 @@
+{
+  "category": "clock",
+  "shot_id": "clock",
+  "body_plan": "tabletop_timepiece",
+  "interval": [
+    0.9,
+    4.5
+  ],
+  "key_times": [
+    0.9,
+    2.02,
+    3.26,
+    4.5
+  ],
+  "key_notes": [
+    "Round vintage tabletop alarm clock on sculpted base; numerals 12-3-6-9 and top subdial clear",
+    "Camera pans gently left, shifting the round clock rightward across the counter",
+    "Clock dial, double bezel ring, and hands pointing toward 3 and 5 hold crisp circular geometry",
+    "Clock settles in right-center foreground flanked by floral porcelain kitchen canisters"
+  ],
+  "why_continuous": "Continuous archival shot of clock (0.9s..4.5s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "02_8b8de972",
+    "source_id": "02_8b8de972",
+    "source_slug": "clock",
+    "source_title": "Moving Image Archive \u2014 Clock",
+    "source_year": 1955,
+    "start_seconds": 0.9,
+    "end_seconds": 4.5,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/clock/videos/02_8b8de972.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/clock/videos/02_8b8de972.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000005",
+    "n_strokes": 6,
+    "country": "GB",
+    "qd_index": 5,
+    "why": "Automatically selected Quick, Draw! prototype #5 (GB, 6 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

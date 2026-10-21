@@ -1,0 +1,47 @@
+{
+  "category": "butterfly",
+  "shot_id": "butterfly",
+  "body_plan": "winged_invertebrate",
+  "interval": [
+    0.8,
+    3.8
+  ],
+  "key_times": [
+    0.8,
+    1.74,
+    2.77,
+    3.8
+  ],
+  "key_notes": [
+    "Striped butterfly perched on garden blossoms in three-quarter profile with forewing raised",
+    "Butterfly spreads lower hindwing downward, displaying full veined stripe pattern",
+    "Wings fold partially upward during the delicate bilateral wingbeat cycle",
+    "Butterfly extends both forewing and hindwing open with curled antennae crisp"
+  ],
+  "why_continuous": "Continuous archival shot of butterfly (0.8s..3.8s) segmented with GroundingDINO + SAM + Depth-Anything-V2.",
+  "source": {
+    "clip_id": "03_5f80185c",
+    "source_id": "03_5f80185c",
+    "source_slug": "butterfly",
+    "source_title": "Moving Image Archive \u2014 Butterfly",
+    "source_year": 1955,
+    "start_seconds": 0.8,
+    "end_seconds": 3.8,
+    "duration_seconds": 3.0,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "moving_image_archive_dataset/by_term/butterfly/videos/03_5f80185c.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/butterfly/videos/03_5f80185c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "58009912000003",
+    "n_strokes": 8,
+    "country": "MY",
+    "qd_index": 3,
+    "why": "Automatically selected Quick, Draw! prototype #3 (MY, 8 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks.",
+    "method": "Zero-shot Silhouette + Edge-Orientation Quick, Draw! Prototype Matcher (top-15 recognized drawings)"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "slug": "train",
+  "action_verbs": "rolls forward -> headlamp gleams -> brakeman boards -> commands track",
+  "emotion_arc": "Heavy iron momentum and railyard precision",
+  "secondary_action": "Multi-story brick warehouse, rooftop water tower, and overhead utility wires hold steady",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

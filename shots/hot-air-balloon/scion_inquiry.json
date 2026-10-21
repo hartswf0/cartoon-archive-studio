@@ -1,0 +1,7 @@
+{
+  "slug": "hot-air-balloon",
+  "action_verbs": "inflates -> burner ignites -> ascends buoyantly -> floats above festival",
+  "emotion_arc": "Buoyant aerial lift",
+  "secondary_action": "Checkered and striped companion festival balloons float on distant sky planes",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}

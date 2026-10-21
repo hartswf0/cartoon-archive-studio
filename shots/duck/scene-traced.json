@@ -1,0 +1,14 @@
+{
+  "n_strokes": 395,
+  "recall": 0.9757,
+  "precision": 1.0,
+  "parts_kept": 1.0,
+  "planes": {
+    "sky": 110,
+    "far": 106,
+    "mid": 80,
+    "secondary": 51,
+    "fore": 23,
+    "mask": 25
+  }
+}

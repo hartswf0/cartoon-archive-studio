@@ -1,0 +1,12 @@
+{
+  "shot": "dog",
+  "policy": "Argon-RL-Doodle-Evolution-v2",
+  "mean_reward_ep0": 0.3698,
+  "mean_reward_ep1": 0.7107,
+  "mean_reward_ep2": 0.8409,
+  "mean_reward_ep3": 0.7911,
+  "mean_sil_iou_ep3": 0.6419,
+  "mean_edge_recall_ep3": 0.8823,
+  "mean_stroke_precision_ep3": 0.9024,
+  "reward_delta": 0.4214
+}

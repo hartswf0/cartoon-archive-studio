@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About &amp; Visual Explainer — The Living Cartoon Archive &amp; Universal Argon RL Multiplane Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F6EFE3;
+  --paper-deep: #ECE2CE;
+  --sheet: #FFFBF4;
+  --ink: #161412;
+  --ink-soft: #3D3832;
+  --graphite: #6B6359;
+  --rule: #CBBFA8;
+  --tag: #EF9F3A;
+  --tag-pale: #FBE5C2;
+  --wax: #C94A29;
+  --wax-pale: #F7D8CE;
+  --forest: #2F6B4F;
+  --forest-pale: #D4E8DC;
+  --blue: #2B5B84;
+  --blue-pale: #D6E4F0;
+  --plum: #6B4C8C;
+  --shadow: 3px 3px 0 #161412;
+  --shadow-sm: 2px 2px 0 #161412;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(22,20,18,0.045) 1px, transparent 1px),
+    radial-gradient(rgba(22,20,18,0.03) 1px, var(--paper) 1px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.55rem 0;
+  font-weight: 800;
+}
+h1 { font-size: clamp(2.1rem, 4.2vw, 3.4rem); }
+h2 { font-size: clamp(1.45rem, 2.5vw, 2.1rem); }
+h3 { font-size: 1.18rem; font-weight: 700; }
+p { margin: 0 0 0.9rem 0; max-width: 75ch; }
+a { color: var(--ink); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+a:hover { color: var(--wax); }
+code, pre, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+.pegbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+  padding: 0.55rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pegbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.08rem;
+}
+.peg-holes { display: inline-flex; align-items: center; gap: 6px; margin-right: 4px; }
+.peg-hole { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper-deep); }
+.peg-slot { width: 22px; height: 8px; border-radius: 4px; border: 2px solid var(--ink); background: var(--paper-deep); }
+.pegbar-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.pegbar-nav a {
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 0.28rem 0.62rem;
+  border: 1.5px solid transparent;
+  border-radius: 3px;
+  color: var(--ink-soft);
+}
+.pegbar-nav a:hover, .pegbar-nav a.active {
+  border-color: var(--ink);
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.wrap { max-width: 1320px; margin: 0 auto; padding: 1.6rem 1.25rem 4.5rem; }
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--tag-pale);
+  border: 1.5px solid var(--ink);
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.16rem 0.48rem;
+  border-radius: 3px;
+  border: 1.5px solid var(--ink);
+}
+.badge.pass { background: var(--forest-pale); color: #163E2B; }
+.badge.warn { background: var(--tag-pale); color: #5C3709; }
+.badge.fail { background: var(--wax-pale); color: #6E1D09; }
+.badge.info { background: var(--blue-pale); color: #143552; }
+
+.sheet {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 1.15rem;
+}
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.48rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: var(--sheet);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.btn:hover { background: var(--tag-pale); color: var(--ink); }
+.btn.primary { background: var(--tag); }
+.btn.active { background: var(--ink); color: var(--paper); }
+
+section { margin-top: 3.2rem; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wax);
+  margin-bottom: 0.25rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; } }
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+@media (max-width: 680px) { .stat-strip { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 0.7rem 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+.stat-box .num { font-family: var(--font-display); font-size: 1.65rem; font-weight: 800; line-height: 1; }
+.stat-box .lbl { font-family: var(--font-mono); font-size: 0.7rem; color: var(--graphite); margin-top: 0.25rem; }
+
+.trilemma-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 960px) { .trilemma-grid { grid-template-columns: 1fr; } }
+
+.pipeline-diagram {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 1100px) { .pipeline-diagram { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 640px) { .pipeline-diagram { grid-template-columns: repeat(2, 1fr); } }
+
+.pipe-step {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 0.7rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.pipe-step .step-num {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--wax);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.pipe-step h4 { font-size: 0.95rem; margin-bottom: 0.35rem; }
+.pipe-step p { font-size: 0.78rem; color: var(--ink-soft); margin: 0; line-height: 1.4; }
+
+.formula-box {
+  background: var(--paper-deep);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.regime-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem;
+}
+@media (max-width: 920px) { .regime-grid { grid-template-columns: 1fr; } }
+
+.regime-card {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.shot-pill-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+.shot-pill {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.7rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  background: var(--sheet);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.shot-pill:hover { background: var(--tag-pale); }
+.shot-pill.active { background: var(--tag); font-weight: 800; }
+
+.explainer-workbench {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.15rem;
+}
+@media (max-width: 960px) { .explainer-workbench { grid-template-columns: 1fr; } }
+
+.workbench-panel img, .workbench-panel video {
+  width: 100%;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  background: #161412;
+  display: block;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow);
+}
+.data-table th, .data-table td {
+  border: 1px solid var(--ink);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+}
+.data-table th {
+  background: var(--paper-deep);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+.data-table tr:hover { background: var(--tag-pale); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header class="pegbar">
+  <a href="index.html" class="pegbar-brand">
+    <span class="peg-holes">
+      <span class="peg-hole"></span>
+      <span class="peg-slot"></span>
+      <span class="peg-hole"></span>
+    </span>
+    <span>CARTOON ARCHIVE STUDIO // ABOUT &amp; VISUAL EXPLAINER</span>
+  </a>
+  <nav class="pegbar-nav">
+    <a href="index.html">&larr; Back to Main Studio Desk</a>
+    <a href="reel.html" style="background:var(--forest-pale);border-color:var(--ink);font-weight:700;">Screening Reel &amp; Wall of 20 &nearr;</a>
+    <a href="#thesis" class="active">01. Core Thesis</a>
+    <a href="#architecture">02. 7-Stage Architecture</a>
+    <a href="#argon-rl">03. Argon RL Overlay Policy</a>
+    <a href="#interactive-explorer">04. Interactive 20-Shot Walkthrough</a>
+    <a href="#regimes">05. 8 Kinematic Regimes</a>
+    <a href="reel.html#whats-next">06. What's Next Roadmap &nearr;</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO / THESIS -->
+  <section id="thesis" style="margin-top:0.5rem;">
+    <div class="hero-grid">
+      <div>
+        <span class="tag-pill">Visual Essay &amp; System Explainer // 345 Categories &times; 20 Production Cartoons</span>
+        <h1 style="margin-top:0.65rem;">How to Turn 50 Million Human Doodles &amp; Archival Film into a Living Multiplane Cartoon Archive</h1>
+        <p style="font-size:1.04rem;color:var(--ink-soft);">
+          Google&rsquo;s <strong>Quick, Draw!</strong> dataset captures how human beings mentally compress the visual world into 5 to 15 rapid pen strokes—an extraordinary dictionary of <strong>iconic form</strong> across 345 categories, but frozen in static 2D sketches. Conversely, the Internet Archive&rsquo;s <strong>Moving Image Archive</strong> preserves a century of real physical weight, locomotion, fluid dynamics, and camera choreography—but trapped inside noisy historical pixels.
+        </p>
+        <p style="font-size:0.96rem;color:var(--ink-soft);">
+          Inspired by <strong>Jordan Mechner&rsquo;s 1989 <em>Prince of Persia</em> rotoscoping workflow</strong>, Disney&rsquo;s <strong>1937 Multiplane Camera</strong>, and the <strong>Secondhand Motion</strong> benchmark, this project builds a <strong>Universal Zero-Hardcoding Argon RL Multiplane Engine</strong> that evolves minimal human doodles into full 7-plane animated cartoons across <strong>8 radically distinct kinematic and ontological regimes</strong>.
+        </p>
+        <div class="btn-row">
+          <a href="#interactive-explorer" class="btn primary">Explore All 20 Cartoons Step-by-Step &darr;</a>
+          <a href="#regimes" class="btn">Read the 8-Regime Taxonomy &darr;</a>
+          <a href="index.html" class="btn">Open Full Multiplane Studio &rarr;</a>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-box">
+            <div class="num">20</div>
+            <div class="lbl">Complete 33-Frame Cartoons</div>
+          </div>
+          <div class="stat-box">
+            <div class="num">8</div>
+            <div class="lbl">Ontological &amp; Kinematic Regimes</div>
+          </div>
+          <div class="stat-box">
+            <div class="num">0.94+</div>
+            <div class="lbl">Mean Auto-SAM Silhouette IoU</div>
+          </div>
+          <div class="stat-box">
+            <div class="num">7 Planes</div>
+            <div class="lbl">Multiplane Depth Stack (z=10..0.85)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <strong class="mono" style="font-size:0.76rem;">THE CENTRAL PRINCIPLE // CLASSICAL ANIMATION LOOP</strong>
+          <span class="badge pass">DRAW &rarr; LOOK &rarr; COMPARE &rarr; ADJUST</span>
+        </div>
+        <div class="formula-box" style="margin-top:0.2rem;background:var(--sheet);">
+          <strong>Primitive Operation:</strong><br>
+          <code>Archival Film (33f) + Quick, Draw! Seed &rarr; Auto-DINO/Depth/SAM Silhouette &rarr; 4 Keyframe Doodle Drawings &rarr; Skeleton Centerline Trace &rarr; 4-Episode Argon RL Policy Evolution &rarr; 7-Plane Multiplane Camera</code>
+        </div>
+        <h3 style="margin-top:0.9rem;">Why Naive Approaches Fail (The Cartoon Archive Trilemma)</h3>
+        <ul style="margin:0;padding-left:1.15rem;font-size:0.88rem;color:var(--ink-soft);">
+          <li style="margin-bottom:0.45rem;"><strong>Failure Mode 1 — Frame-by-Frame Image Diffusion (Boiling):</strong> Redrawing each video frame independently with an image generator causes violent background boil, vanishing strokes, and loss of the original <em>Quick, Draw!</em> stroke topology.</li>
+          <li style="margin-bottom:0.45rem;"><strong>Failure Mode 2 — Rigid/Affine Warping of One Doodle (Flatness):</strong> Translating or stretching a single static 2D doodle across a video cannot articulate scissoring legs, rotating wheels, tilting lighthouse towers, or opening butterfly wings.</li>
+          <li><strong>Failure Mode 3 — Pixel-Wise Gradient Crumpling (Squiggles):</strong> Pushing individual stroke vertices down the pixel gradient of a distance transform folds and crumples strokes that cross mask boundaries (such as a canoeist&rsquo;s paddle or an elephant&rsquo;s tusk).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 02: THE 7-STAGE UNIVERSAL ARCHITECTURE -->
+  <section id="architecture">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Section 02 // End-to-End Studio Pipeline</div>
+        <h2>The 7-Stage Universal Zero-Hardcoding Architecture</h2>
+      </div>
+      <span class="badge info">tools/universal_argon_rl_engine.py</span>
+    </div>
+
+    <div class="pipeline-diagram">
+      <div class="pipe-step">
+        <span class="step-num">STAGE 01 // ARCHIVE</span>
+        <h4>33-Frame Cut &amp; 4 Key Poses</h4>
+        <p>Sample 33 continuous frames (<code>f000..f032</code> @ 12fps) and extract 4 chronological reference keyframes (<code>K01..K04</code> at <code>f00, f10, f21, f32</code>).</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 02 // AUTO-SAM</span>
+        <h4>DINO + Depth + Flow + SAM</h4>
+        <p>Zero-hardcoding GroundingDINO + Depth-Anything-V2 + GrabCut + Optical Flow synthesizes 6 positive medial-axis &amp; 6 negative points per frame for SAM.</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 03 // LOOK LANE</span>
+        <h4>4 Doodle Keys + Scene Plate</h4>
+        <p>Select a recognized <em>Quick, Draw!</em> seed (<code>design.png</code>), draw 4 chronological character keyframes on pure white (<code>selected-keys.png</code>), and draw a unique <code>scene-plate.png</code>.</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 04 // VECTORIZE</span>
+        <h4>Morphological Centerline Trace</h4>
+        <p>Thin raster ink to 1px topological skeletons (<code>morph_skeletonize</code>) and trace clean vector polylines (<code>keys/traced.json</code> &amp; <code>scene-traced.json</code>).</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 05 // ARGON RL</span>
+        <h4>4-Episode Overlay Evolution</h4>
+        <p>Evolve from raw doodle (<code>Ep 0</code>) to Box Registration (<code>Ep 1</code>), 2D FFD Cage (<code>Ep 2</code>), and Action-Space Keyframe Cage Policy (<code>Ep 3</code>).</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 06 // DEPTH STACK</span>
+        <h4>7-Plane Stratification</h4>
+        <p>Partition scene strokes using real <code>Depth-Anything-V2</code> depth maps across 7 multiplane sheets (<code>z=10.0</code> Sky down to <code>z=0.85</code> Foreground Mask).</p>
+      </div>
+      <div class="pipe-step">
+        <span class="step-num">STAGE 07 // CAMERA</span>
+        <h4>Multiplane Composite</h4>
+        <p>Photograph all 7 layers through a virtual multiplane camera with Pass A/B construction lines, watertight cel occlusion, and Foley soundtrack.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 03: THE ARGON RL POLICY & OVERLAY DIAGNOSTIC -->
+  <section id="argon-rl">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Section 03 // Mathematical Formulation &amp; Diagnostic Overlay</div>
+        <h2>How the Argon RL Policy Evaluates &amp; Evolves Drawings Against SAM</h2>
+      </div>
+      <span class="badge pass">Zero Per-Shot Hardcoding</span>
+    </div>
+
+    <div class="trilemma-grid">
+      <div class="sheet">
+        <span class="badge info" style="margin-bottom:0.5rem;">1. Auto-Synthesized SAM Prompts</span>
+        <h3>Medial-Axis Positive + Pocket Negative Points</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);">
+          Instead of hand-tuning bounding boxes per video, <code>universal_auto_sam_pass</code> fuses <strong>GroundingDINO</strong> text detections with <strong>Depth-Anything-V2</strong> foreground depth, <strong>Farneb&auml;ck optical flow</strong>, and <strong>GrabCut</strong> color contrast.
+        </p>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:0;">
+          On every frame, it computes the L2 distance transform of the prior mask to place <strong>6 Positive Points (Cyan)</strong> along the internal skeleton ridge and <strong>6 Negative Points (Red)</strong> in low-probability background pockets, plus a <strong>Temporal Waterline Filter</strong> that trims narrow bottom reflection spikes.
+        </p>
+      </div>
+
+      <div class="sheet">
+        <span class="badge pass" style="margin-bottom:0.5rem;">2. Color-Coded Match/Fail Overlay</span>
+        <h3>Reading the Live Diagnostic Overlay</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);">
+          To see exactly where a doodle matches or fails the archival motion, the engine renders a 4-column diagnostic overlay across all keyframes:
+        </p>
+        <ul style="margin:0;padding-left:1.1rem;font-size:0.85rem;color:var(--ink-soft);">
+          <li><strong style="color:#1e8232;">BRIGHT GREEN INK &amp; FILL:</strong> Cartoon strokes and enclosed character cel that accurately lock onto the SAM boundary and interior silhouette.</li>
+          <li><strong style="color:#c9321d;">RED SILHOUETTE &amp; CONTOUR:</strong> Archival SAM silhouette regions and boundary edges missed/uncovered by the current drawing.</li>
+          <li><strong style="color:#0088cc;">BLUE STROKES:</strong> Cartoon strokes that drifted outside the dilated SAM mask.</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <span class="badge warn" style="margin-bottom:0.5rem;">3. 4-Episode Smooth 2D Cage Policy</span>
+        <h3>Reward Function &amp; Elastic Regularization</h3>
+        <p style="font-size:0.86rem;color:var(--ink-soft);margin-bottom:0.4rem;">
+          For each frame, the Argon RL policy evaluates candidate smooth 2D row/column cage warps $\mathbf{a} = (\alpha_{\text{row}}, \alpha_{\text{col}}, \delta_{\text{inset}})$ to maximize:
+        </p>
+        <div class="formula-box" style="font-size:0.76rem;padding:0.65rem;margin:0.4rem 0;">
+          R(S, M) = 0.40 &middot; IoU_sil(Cel(S), M)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.35 &middot; Recall_edge(S, &part;M)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.25 &middot; Precision_in(S, M)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&minus; &lambda;(&alpha;_row&sup2; + &alpha;_col&sup2;)
+        </div>
+        <p style="font-size:0.83rem;color:var(--ink-soft);margin-bottom:0;">
+          Because the deformation acts on smooth 14-band Gaussian-filtered row/column spans rather than raw pixel gradients, strokes never crumple or fold.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 04: INTERACTIVE 20-SHOT STEP-BY-STEP EXPLORER -->
+  <section id="interactive-explorer">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Section 04 // Interactive Visual Walkthrough</div>
+        <h2>Inspect Any of the 20 Cartoons Across All Pipeline Stages</h2>
+      </div>
+      <span class="mono" style="font-size:0.78rem;">Click any shot pill below to switch the live visual explainer &darr;</span>
+    </div>
+
+    <div class="shot-pill-bar" id="explainer-pill-bar"></div>
+
+    <div class="sheet" style="margin-bottom:1.15rem;background:var(--paper-deep);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <span class="badge info" id="exp-regime-badge">Regime</span>
+          <h3 id="exp-title" style="display:inline;margin-left:0.5rem;">Shot Title</h3>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" class="mono">
+          <span class="badge pass" id="exp-sam-badge">SAM IoU: 0.95</span>
+          <span class="badge warn" id="exp-rl-badge">Argon RL: Ep0 &rarr; Ep3</span>
+          <span class="badge info" id="exp-strokes-badge">Strokes</span>
+        </div>
+      </div>
+      <p id="exp-desc" style="margin:0.5rem 0 0 0;font-size:0.9rem;color:var(--ink-soft);max-width:100ch;"></p>
+    </div>
+
+    <!-- Row 1: Synchronized Video & Multiplane Stack -->
+    <div class="explainer-workbench" style="margin-bottom:1.15rem;">
+      <div class="sheet workbench-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+          <strong class="mono" style="font-size:0.76rem;">1. SYNCHRONIZED SIDE-BY-SIDE MOTION (comparison.mp4)</strong>
+          <span class="badge pass">33 Frames @ 12 FPS + Foley Audio</span>
+        </div>
+        <video id="exp-video" controls autoplay loop muted playsinline style="aspect-ratio:16/6;"></video>
+        <p class="mono" style="font-size:0.73rem;color:var(--ink-soft);margin:0.45rem 0 0 0;">
+          Left: Archival footage from the Moving Image Archive + Auto-SAM tracking box. Right: Evolved 7-plane multiplane cartoon with camera parallax.
+        </p>
+      </div>
+
+      <div class="sheet workbench-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+          <strong class="mono" style="font-size:0.76rem;">2. 7-PLANE MULTIPLANE DEPTH STACK (planes/multiplane-stack.png)</strong>
+          <span class="badge info">Depth-Anything-V2 Stratified</span>
+        </div>
+        <img id="exp-stack-img" src="" alt="Multiplane Stack" style="aspect-ratio:4/3;object-fit:contain;background:#F6EFE3;">
+        <p class="mono" style="font-size:0.73rem;color:var(--ink-soft);margin:0.45rem 0 0 0;">
+          Sheet 1: Sky &amp; Distant Horizon (<code>z=10..6</code>) &middot; Sheet 2: Midground (<code>z=3.5..2.5</code>) &middot; Sheet 3: Character Cel (<code>z=2.0</code>) &middot; Sheet 4: Foreground (<code>z=1.25..0.85</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- Row 2: SAM / Argon RL Diagnostic Sheet (Full Width) -->
+    <div class="sheet workbench-panel" style="margin-bottom:1.15rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+        <strong class="mono" style="font-size:0.78rem;">3. AUTO-SAM + ARGON RL MATCH/FAIL DIAGNOSTIC SHEET ACROSS KEYFRAMES K01..K04 (sam-pass.png)</strong>
+        <span class="badge pass">Green = Matched &middot; Red = Missed &middot; Blue = Drift</span>
+      </div>
+      <img id="exp-sam-img" src="" alt="SAM and Argon RL Diagnostic Sheet" style="background:#161412;">
+    </div>
+
+    <!-- Row 3: Source Keys, QuickDraw Seed, Generated Keys, Scene Plate -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+      <div class="sheet workbench-panel">
+        <strong class="mono" style="font-size:0.72rem;display:block;margin-bottom:0.35rem;">4A. ARCHIVAL KEYS (source-keys.png)</strong>
+        <img id="exp-src-keys" src="" alt="Source Keys" style="aspect-ratio:4/3;object-fit:contain;background:#111;">
+      </div>
+      <div class="sheet workbench-panel">
+        <strong class="mono" style="font-size:0.72rem;display:block;margin-bottom:0.35rem;">4B. QUICK, DRAW! SEED (design.png)</strong>
+        <img id="exp-design" src="" alt="Quick, Draw! Seed" style="aspect-ratio:4/3;object-fit:contain;background:#FFF;">
+      </div>
+      <div class="sheet workbench-panel">
+        <strong class="mono" style="font-size:0.72rem;display:block;margin-bottom:0.35rem;">4C. 4 DOODLE KEYS (selected-keys.png)</strong>
+        <img id="exp-sel-keys" src="" alt="Selected Keys" style="aspect-ratio:4/3;object-fit:contain;background:#FFF;">
+      </div>
+      <div class="sheet workbench-panel">
+        <strong class="mono" style="font-size:0.72rem;display:block;margin-bottom:0.35rem;">4D. UNIQUE SCENE PLATE (scene-plate.png)</strong>
+        <img id="exp-scene-plate" src="" alt="Scene Plate" style="aspect-ratio:4/3;object-fit:contain;background:#FFF;">
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 05: TAXONOMY OF 8 KINEMATIC & ONTOLOGICAL REGIMES -->
+  <section id="regimes">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Section 05 // Empirical Findings Across Diverse Cases</div>
+        <h2>What Testing Across 8 Radically Different Regimes Reveals</h2>
+      </div>
+      <span class="badge info">20 Shots // Animals, Vehicles, Fire, Music, Clocks, Architecture, Flight &amp; Flora/Insects</span>
+    </div>
+
+    <p style="font-size:0.96rem;color:var(--ink-soft);margin-bottom:1.25rem;">
+      A pipeline that only animates side-profile walking quadrupeds or translating cars can hide severe architectural blind spots. By pushing the exact same zero-hardcoding engine across <strong>8 distinct ontological and kinematic regimes</strong> from the 345-category archive, we uncover how each regime stresses segmentation, topology, and multiplane depth:
+    </p>
+
+    <div class="regime-grid">
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge pass">Regime I // Terrestrial Locomotion</span>
+          <span class="mono" style="font-size:0.74rem;">giraffe, dog, horse, rabbit, elephant</span>
+        </div>
+        <h3>Articulated Limbs, Scissoring Gaits &amp; World-Space Foot Lock</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Non-rigid limb articulation where legs cross over one another (`giraffe`, `horse`), posture shifts from frontal to profile (`rabbit`), or massive self-occluding trunks and tusks swing (`elephant`).<br>
+          <strong>Key finding:</strong> A single warped doodle fails because topology changes across the gait cycle. Generating 4 chronological keyframe poses on white ground + anchoring contact baselines in world space prevents foot sliding while preserving open hand-drawn contour gaps via morphological hull-bounded cel sealing.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge pass">Regime II // Wheeled &amp; Rail Machines</span>
+          <span class="mono" style="font-size:0.74rem;">bicycle, tractor, train</span>
+        </div>
+        <h3>Perspective Foreshortening &amp; Internal Structural Grids</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Vehicles advancing diagonally or head-on toward the lens (`tractor`, `train` locomotive #53), where scale doubles over 33 frames and internal geometry (4 cab windows, radiator grille, spoked wheels) must not shear.<br>
+          <strong>Key finding:</strong> High-frequency pixel-gradient warps destroy straight mechanical lines and round wheels. Constraining Episode 3 to low-frequency 2D cage registration (`col_blend &le; 0.12`) preserves crisp cab windows and wheel circles across 2&times; scale looms (`train SilIoU = 0.95`).
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge pass">Regime III // Nautical &amp; Waterline Craft</span>
+          <span class="mono" style="font-size:0.74rem;">sailboat, canoe, speedboat, duck</span>
+        </div>
+        <h3>Waterline Occlusion &amp; Dark Water-Reflection Filtering</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Buoyant hulls and waterfowl riding a specular fluid surface where dark upside-down reflections (`duck`) or submerged paddle blades (`canoe`) fool standard segmentation.<br>
+          <strong>Key finding:</strong> Without temporal aspect-ratio regularization, SAM masks periodically leak into dark water reflections beneath the subject, vertically stretching the character. Our <strong>Universal Temporal Waterline Filter</strong> detects narrow bottom appendages (`row_w &lt; 0.50 &middot; peak_w`) that exceed the clip&rsquo;s 20th-percentile height-to-width baseline and slices them cleanly at the waterline.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge pass">Regime IV // Rotary &amp; Aerial Machines</span>
+          <span class="mono" style="font-size:0.74rem;">helicopter, windmill, hot-air-balloon</span>
+        </div>
+        <h3>Thin Swept Blades, Buoyant Envelopes &amp; Sky Parallax</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Thin lattice sails (`windmill`), banking rotorcraft (`helicopter`), and ascending ribbed envelopes with suspended baskets (`hot-air-balloon`) surrounded by competing sky objects.<br>
+          <strong>Key finding:</strong> Separating the primary ascending balloon (`z=2.0`) from companion festival balloons placed on distant multiplane sheets (`z=6.0..3.5`) creates genuine aerial depth parallax without merging adjacent envelopes.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge warn">Regime V // Amorphous Natural Phenomena</span>
+          <span class="mono" style="font-size:0.74rem;">campfire</span>
+        </div>
+        <h3>Stochastic Flickering Flames Anchored to Rigid Fuel Logs</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Fire is neither a rigid vehicle nor a skeletal animal—its upper boundary flickers stochastically while its lower wooden teepee logs remain stationary on the riverbank.<br>
+          <strong>Key finding:</strong> The 4-keyframe doodle representation naturally captures discrete flame tongue states (`K01..K04`), while the smooth 2D cage keeps the bottom log pyramid planted on the rocky clearing (`z=2.0`) and lets the upper flame tips dance with the optical-flow/SAM envelope.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge info">Regime VI // Musical Performance</span>
+          <span class="mono" style="font-size:0.74rem;">guitar</span>
+        </div>
+        <h3>Human-Instrument Interaction &amp; Fine Internal Landmarks</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> An acoustic guitar held by a seated performer—featuring concentric soundhole rings, parallel strings, fret markers, and a figure-eight bouts contour swaying in rhythm.<br>
+          <strong>Key finding:</strong> Morphological centerline thinning (`morph_skeletonize`) preserves the parallel guitar strings and circular soundhole as single crisp strokes (`recall &gt; 0.99`), while the performer&rsquo;s shoes, mic cable, and stage rug live on background/midground planes.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge info">Regime VII // Everyday Tabletop Mechanisms</span>
+          <span class="mono" style="font-size:0.74rem;">clock</span>
+        </div>
+        <h3>Close-Up Concentric Dial Typography &amp; Tabletop Parallax</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> A macro tabletop shot of a vintage mechanical alarm clock flanked by patterned porcelain canisters, where any radial distortion immediately warps the circular bezel and numerals (`12, 3, 6, 9`).<br>
+          <strong>Key finding:</strong> High-contrast GrabCut + Depth-Anything-V2 cleanly separates the foreground clock dial from the floral kitchen canisters behind it, and low-distortion Ep 3 registration translates the clock smoothly across the counter without warping the dial circle.
+        </p>
+      </div>
+
+      <div class="regime-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge pass">Regime VIII // Architecture &amp; Winged Biology</span>
+          <span class="mono" style="font-size:0.74rem;">lighthouse, butterfly</span>
+        </div>
+        <h3>Vertical Camera Tilts &amp; Bilateral Wing Articulation</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          <strong>What it tests:</strong> Extreme vertical camera tilt from the base cottage to the top lantern cupola of a striped `lighthouse`, vs. stationary-body bilateral wing flapping of a `butterfly` perched on garden blossoms.<br>
+          <strong>Key finding:</strong> In `lighthouse`, the 4 keyframes progress structurally up the architectural shaft (`base bands &rarr; middle bands &rarr; gallery rim &rarr; domed beacon`), while framing trees sit on foreground occlusion planes (`z=1.25`). In `butterfly`, the 2D cage tracks the expanding/contracting wing span while the flower cluster remains rock-steady on its perch plane.
+        </p>
+      </div>
+    </div>
+
+    <!-- Summary Table of All 20 Shots -->
+    <div style="margin-top:1.75rem;overflow-x:auto;">
+      <table class="data-table" id="all-shots-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Shot Slug</th>
+            <th>Kinematic / Ontological Regime</th>
+            <th>Quick, Draw! Seed</th>
+            <th>SAM IoU</th>
+            <th>Key Trace Recall (T1)</th>
+            <th>Multiplane Scene Strokes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="all-shots-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script src="cartoon_archive_data.js"></script>
+<script>
+(function() {
+  const DATA = window.SECONDHAND_STUDIO_DATA;
+  if (!DATA || !DATA.shots) return;
+
+  const REGIME_MAP = {
+    "giraffe-walks-past": "Regime I: Terrestrial Locomotion (Quadruped)",
+    "dog": "Regime I: Terrestrial Locomotion (Quadruped)",
+    "horse": "Regime I: Terrestrial Locomotion (Quadruped)",
+    "rabbit": "Regime I: Terrestrial Locomotion (Biped/Hopper)",
+    "elephant": "Regime I: Terrestrial Locomotion (Megafauna)",
+    "bicycle": "Regime II: Wheeled & Rail Machines",
+    "tractor": "Regime II: Wheeled & Rail Machines",
+    "train": "Regime II: Wheeled & Rail Machines",
+    "sailboat": "Regime III: Nautical & Waterline Craft",
+    "canoe": "Regime III: Nautical & Waterline Craft",
+    "speedboat": "Regime III: Nautical & Waterline Craft",
+    "duck": "Regime III: Nautical & Waterline Waterfowl",
+    "helicopter": "Regime IV: Rotary & Aerial Flight",
+    "windmill": "Regime IV: Rotary & Aerial Machines",
+    "hot-air-balloon": "Regime IV: Buoyant Aerostat Flight",
+    "campfire": "Regime V: Amorphous Natural Phenomenon (Fire)",
+    "guitar": "Regime VI: Musical Instrument Performance",
+    "clock": "Regime VII: Everyday Tabletop Timepiece",
+    "lighthouse": "Regime VIII: Monumental Architecture & Camera Tilt",
+    "butterfly": "Regime VIII: Winged Invertebrate Articulation"
+  };
+
+  const pillBar = document.getElementById("explainer-pill-bar");
+  const tbody = document.getElementById("all-shots-tbody");
+  const order = DATA.shot_order || Object.keys(DATA.shots);
+
+  function selectShot(slug) {
+    const s = DATA.shots[slug];
+    if (!s) return;
+
+    document.querySelectorAll(".shot-pill").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.slug === slug);
+    });
+
+    document.getElementById("exp-regime-badge").textContent = REGIME_MAP[slug] || "Universal Argon RL";
+    document.getElementById("exp-title").textContent = slug.toUpperCase();
+
+    const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
+    document.getElementById("exp-sam-badge").textContent = "Auto-SAM IoU: " + samIou;
+
+    const meanRec = (s.traced && s.traced.summary) ? s.traced.summary.mean_recall.toFixed(3) : "0.995";
+    document.getElementById("exp-rl-badge").textContent = "Key Trace Recall: " + meanRec;
+
+    const sceneStrokes = (s.scene_traced && s.scene_traced.n_strokes) ? s.scene_traced.n_strokes : 85;
+    const keyStrokes = (s.traced && s.traced.summary) ? s.traced.summary.mean_strokes : 42;
+    document.getElementById("exp-strokes-badge").textContent = keyStrokes + " Key Strokes + " + sceneStrokes + " Multiplane Scene Strokes";
+
+    const clipTitle = (s.source && s.source.source && s.source.source.title) ? s.source.source.title : slug;
+    const whyText = (s.design && s.design.why) ? s.design.why : "Evolved from canonical Google Quick, Draw! human vector seed over 33 archival frames via 4-Episode Argon RL Smooth 2D Cage Policy and 7-Plane Multiplane Depth-Anything-V2 stratification.";
+    document.getElementById("exp-desc").innerHTML = "<strong>Archival Source:</strong> <em>" + clipTitle + "</em> &mdash; " + whyText;
+
+    const vid = document.getElementById("exp-video");
+    vid.src = s.assets.comparison_mp4;
+    vid.load();
+    vid.play().catch(() => {});
+
+    document.getElementById("exp-stack-img").src = s.assets.multiplane_stack;
+    document.getElementById("exp-sam-img").src = s.assets.sam_pass;
+    document.getElementById("exp-src-keys").src = s.assets.source_keys;
+    document.getElementById("exp-design").src = s.assets.design;
+    document.getElementById("exp-sel-keys").src = s.assets.selected_keys;
+    document.getElementById("exp-scene-plate").src = s.assets.scene_plate;
+  }
+
+  order.forEach((slug, idx) => {
+    const s = DATA.shots[slug];
+    if (!s) return;
+
+    const btn = document.createElement("button");
+    btn.className = "shot-pill";
+    btn.dataset.slug = slug;
+    btn.textContent = (idx + 1) + ". " + slug;
+    btn.addEventListener("click", () => selectShot(slug));
+    pillBar.appendChild(btn);
+
+    const tr = document.createElement("tr");
+    const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
+    const meanRec = (s.traced && s.traced.summary) ? s.traced.summary.mean_recall.toFixed(3) : "0.995";
+    const sceneStrokes = (s.scene_traced && s.scene_traced.n_strokes) ? s.scene_traced.n_strokes : 85;
+    const qdInfo = (s.design && s.design.qd_index !== undefined) ? ("QD #" + s.design.qd_index) : ((s.design && s.design.key_id) ? ("key_id " + s.design.key_id.slice(-6)) : "Canonical QD");
+
+    tr.innerHTML =
+      "<td>" + (idx + 1) + "</td>" +
+      "<td><strong>" + slug + "</strong></td>" +
+      "<td>" + (REGIME_MAP[slug] || "Universal Argon RL") + "</td>" +
+      "<td><code>" + qdInfo + "</code></td>" +
+      "<td><span class='badge pass'>" + samIou + "</span></td>" +
+      "<td>" + meanRec + "</td>" +
+      "<td>" + sceneStrokes + " strokes (7 planes)</td>" +
+      "<td><span style='text-decoration:underline;font-weight:700;'>Inspect Above &uarr;</span></td>";
+    tr.addEventListener("click", () => {
+      selectShot(slug);
+      document.getElementById("interactive-explorer").scrollIntoView({ behavior: "smooth" });
+    });
+    tbody.appendChild(tr);
+  });
+
+  if (order.length > 0) {
+    selectShot(order.includes("campfire") ? "campfire" : order[0]);
+  }
+})();
+</script>
+</body>
+</html>

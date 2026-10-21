@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Screening Reel &amp; Wall of 20 // Plus What's Next Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F6EFE3;
+  --paper-deep: #EAE0CE;
+  --sheet: #FFFBF4;
+  --ink: #161412;
+  --ink-soft: #3B3630;
+  --graphite: #696259;
+  --rule: #CBBFA8;
+  --tag-red: #C94A29;
+  --tag-pale: #F7DDD4;
+  --blueprint: #2B5B84;
+  --blueprint-pale: #DCE8F2;
+  --forest: #2F6B4F;
+  --forest-pale: #D4E8DC;
+  --amber: #D9822B;
+  --amber-pale: #FAE8D0;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --shadow-sm: 3px 3px 0px var(--ink);
+  --shadow-md: 5px 5px 0px var(--ink);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  background-image:
+    linear-gradient(to right, rgba(203,191,168,0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(203,191,168,0.22) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.stamp {
+  background: var(--tag-red);
+  color: var(--sheet);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--ink);
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+nav a, .btn {
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.7rem;
+  border: 1.5px solid var(--ink);
+  background: var(--sheet);
+  cursor: pointer;
+  transition: transform 0.1s, background 0.1s;
+}
+nav a:hover, .btn:hover {
+  background: var(--tag-pale);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+nav a.active, .btn.active {
+  background: var(--ink);
+  color: var(--sheet);
+}
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 4rem;
+}
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  margin-top: 0;
+}
+.mono { font-family: var(--font-mono); }
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border: 1.5px solid var(--ink);
+  text-transform: uppercase;
+}
+.badge.pass { background: var(--forest-pale); color: var(--forest); }
+.badge.info { background: var(--blueprint-pale); color: var(--blueprint); }
+.badge.warn { background: var(--amber-pale); color: #7B460B; }
+
+.card {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-md);
+  padding: 1.35rem;
+  margin-bottom: 2rem;
+}
+
+.reel-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .reel-grid { grid-template-columns: 1fr; }
+}
+
+.wall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 0.9rem;
+}
+.wall-cell {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.wall-cell:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+.wall-cell.active {
+  background: var(--tag-pale);
+  border-width: 2.5px;
+}
+.wall-cell canvas, .wall-cell img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  border: 1.5px solid var(--ink);
+  background: #FFFBF4;
+}
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.15rem;
+}
+.roadmap-card {
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="stamp">REEL // WALL OF 20</span>
+    <div>
+      <strong style="font-family:var(--font-display);font-size:1.05rem;">Secondhand Motion &amp; Universal Argon RL Studio</strong>
+      <div class="mono" style="font-size:0.7rem;color:var(--graphite);">20 Shots &middot; 8 Kinematic &amp; Ontological Regimes &middot; 660 Multiplane Frames</div>
+    </div>
+  </div>
+  <nav>
+    <a href="index.html">&larr; Main Studio &amp; Projector</a>
+    <a href="reel.html" class="active">Screening Reel &amp; Wall of 20</a>
+    <a href="about.html">About &amp; Visual Explainer</a>
+    <a href="#wall-20">Wall of All 20</a>
+    <a href="#whats-next" style="background:var(--forest-pale);color:var(--forest);">What's Next Roadmap</a>
+  </nav>
+</header>
+
+<main>
+  <!-- SECTION 1: CONTINUOUS SCREENING PLAYER -->
+  <section class="card" id="reel-player">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;border-bottom:2px solid var(--ink);padding-bottom:0.75rem;">
+      <div>
+        <span class="badge pass">CONTINUOUS REEL // PLAY ALL 20 IN ORDER</span>
+        <h1 style="font-size:1.85rem;margin:0.25rem 0 0;" id="reel-shot-title">1 / 20 — GIRAFFE-WALKS-PAST</h1>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.45rem;align-items:center;">
+        <button class="btn active" id="btn-auto-advance" onclick="toggleAutoAdvance()">Auto-Advance All 20: ON</button>
+        <button class="btn" onclick="prevShot()">&larr; Prev Shot</button>
+        <button class="btn" onclick="nextShot()">Next Shot &rarr;</button>
+        <span class="mono" style="font-size:0.78rem;padding:0 0.4rem;" id="reel-frame-lbl">Frame 01 / 33</span>
+      </div>
+    </div>
+
+    <div class="reel-grid">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <span class="mono" style="font-size:0.75rem;font-weight:700;">LEFT: SIDE-BY-SIDE ARCHIVAL FOOTAGE + MULTIPLANE CARTOON (H.264)</span>
+          <span class="badge info" id="reel-sam-badge">SAM IoU: 0.950</span>
+        </div>
+        <video id="reel-video" controls autoplay muted playsinline style="width:100%;border:2px solid var(--ink);background:#111;display:block;"></video>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <span class="mono" style="font-size:0.75rem;font-weight:700;">RIGHT: LIVE 7-PLANE VECTOR STAGE CANVAS (PURE DRAWING)</span>
+          <span class="badge pass" id="reel-key-badge">KEY 1 / 4</span>
+        </div>
+        <canvas id="reel-stage-canvas" width="480" height="360" style="width:100%;aspect-ratio:4/3;border:2px solid var(--ink);background:#FFFBF4;display:block;"></canvas>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;">
+      <div>
+        <div class="mono" style="font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;">1. Archival 4-Key Reference (`source-keys.png`)</div>
+        <img id="reel-src-keys" src="shots/giraffe-walks-past/source-keys.png" alt="Source Keys" style="width:100%;border:1.5px solid var(--ink);">
+      </div>
+      <div>
+        <div class="mono" style="font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;">2. Generated Doodle Keys (`selected-keys.png`)</div>
+        <img id="reel-sel-keys" src="shots/giraffe-walks-past/selected-keys.png" alt="Selected Keys" style="width:100%;border:1.5px solid var(--ink);">
+      </div>
+      <div>
+        <div class="mono" style="font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;">3. Unique Scene Environment (`scene-plate.png`)</div>
+        <img id="reel-scene-plate" src="shots/giraffe-walks-past/scene-plate.png" alt="Scene Plate" style="width:100%;border:1.5px solid var(--ink);">
+      </div>
+      <div>
+        <div class="mono" style="font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;">4. Argon RL Overlay (`rl-overlay-pass.png`)</div>
+        <img id="reel-rl-overlay" src="shots/giraffe-walks-past/rl-overlay-pass.png" alt="RL Overlay" style="width:100%;border:1.5px solid var(--ink);">
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: WALL OF ALL 20 CARTOONS -->
+  <section class="card" id="wall-20">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;border-bottom:2px solid var(--ink);padding-bottom:0.75rem;">
+      <div>
+        <span class="badge info">SIMULTANEOUS MULTIPLANE WALL // 20 SHOTS &times; 33 FRAMES = 660 LIVE VECTOR FRAMES</span>
+        <h2 style="font-size:1.6rem;margin:0.25rem 0 0;">Wall of All 20 Living Cartoons Across 8 Ontological Regimes</h2>
+      </div>
+      <div style="display:flex;gap:0.45rem; flex-wrap:wrap;">
+        <button class="btn active" id="wall-mode-canvas" onclick="setWallMode('canvas')">Live Multiplane Vector Canvas</button>
+        <button class="btn" id="wall-mode-gif" onclick="setWallMode('gif')">Side-by-Side Comparison GIFs</button>
+        <button class="btn" id="wall-mode-pure" onclick="setWallMode('pure')">Pure Cartoon GIFs</button>
+      </div>
+    </div>
+
+    <div class="wall-grid" id="wall-container"></div>
+  </section>
+
+  <!-- SECTION 3: WHAT'S NEXT ROADMAP -->
+  <section class="card" id="whats-next">
+    <div style="border-bottom:2px solid var(--ink);padding-bottom:0.75rem;margin-bottom:1.25rem;">
+      <span class="badge warn">RESEARCH &amp; ENGINEERING ROADMAP // BEYOND 20 SHOTS</span>
+      <h2 style="font-size:1.75rem;margin:0.25rem 0 0;">What's Next: Scaling from 20 Multiplane Shots to the Full 345-Category Living Cartoon Archive</h2>
+      <p style="margin:0.4rem 0 0;color:var(--ink-soft);max-width:95ch;">
+        Having validated the zero-hardcoding GroundingDINO + Depth-Anything-V2 + SAM + 4-Episode Argon RL pipeline across 20 shots and 8 kinematic/ontological regimes (quadrupeds, waterfowl, wheeled/rail vehicles, watercraft, fire phenomena, musical performance, tabletop mechanisms, vertical coastal architecture, buoyant aerostats, and winged invertebrates), five concrete research milestones unlock the next generation of the studio:
+      </p>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="roadmap-card">
+        <div><span class="badge pass">NEXT 01 // AMORTIZED NEURAL POLICY</span></div>
+        <h3 style="margin:0;">1. Joint V-JEPA / CLIP + QuickDraw Stroke Policy ($\pi_\theta$)</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          Right now, Episode 0&rarr;3 optimizes the 12-DOF smooth cage per shot via finite-difference RL rollouts against the SAM mask and Sobel gradients. By treating our 20 converged Argon RL trajectories (`660 frames`) as expert demonstrations, we can train a lightweight transformer policy $\pi_\theta(M_{1:T}, D_{1:T}, S_{\text{QD}}) \to \Delta C_{1:T}$ in a shared V-JEPA + QuickDraw embedding space that predicts the full 33-frame cage trajectory in a single forward pass across all 1,380 Moving Image Archive clips.
+        </p>
+      </div>
+
+      <div class="roadmap-card">
+        <div><span class="badge info">NEXT 02 // SUB-PART ARTICULATION</span></div>
+        <h3 style="margin:0;">2. Multi-Part SAM-2 Semantic Decomposition</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          A single 2&times;2 cage + boundary warp handles whole-body translation, tilt, and silhouette breathing (`SilIoU = 0.70–0.95`), but internal sub-parts (scissoring horse legs, rotating bicycle cranks, strumming guitar hands, ticking clock hands, fluttering butterfly forewings vs. hindwings) benefit from independent part masks. Prompting SAM-2 with part-level tokens decomposes Plane 2 into articulated sub-layers (`z = 1.95..2.05`) with true self-occlusion.
+        </p>
+      </div>
+
+      <div class="roadmap-card">
+        <div><span class="badge warn">NEXT 03 // CLOSED-LOOP BREAKDOWNS</span></div>
+        <h3 style="margin:0;">3. Residual-Triggered Generative In-Betweening</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          Our diagnostic overlay colors uncovered SAM mask pixels <strong style="color:var(--tag-red);">RED</strong> and outside-mask stroke drift <strong style="color:var(--blueprint);">BLUE</strong>. Whenever an in-between frame $f \in (k_i, k_{i+1})$ exhibits `SilIoU < 0.70` after Episode 3 (such as a fast wingbeat or flame flare), the engine can automatically invoke the image-generator subagent on that exact frame's red/blue error crop to draw a targeted <em>breakdown keyframe</em> and re-skeletonize it into the exposure sheet.
+        </p>
+      </div>
+
+      <div class="roadmap-card">
+        <div><span class="badge pass">NEXT 04 // SCRIBBLING SPEECH WORLD STAGE</span></div>
+        <h3 style="margin:0;">4. Compositional Multi-Actor Staging via Speech &amp; Text</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin:0;">
+          Realizing Xinyue's <em>Scribbling Speech</em> (2018) at full archival scale: because every character cel (`Plane 2`) and environment layer (`Planes 0, 1, 3, 4, 5, 6`) lives in normalized metric $z$-depth with an opaque paper silhouette backing, multiple actors from different archival clips can be composed onto a single shared multiplane stage driven in real time by spoken narrative or WebSpeech prompts.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="cartoon_archive_data.js"></script>
+<script>
+(function() {
+  const DATA = window.SECONDHAND_STUDIO_DATA;
+  if (!DATA || !DATA.shots) return;
+
+  const order = DATA.shot_order || Object.keys(DATA.shots);
+  let activeIdx = 0;
+  let autoAdvance = true;
+  let wallMode = "canvas";
+  let curFrame = 0;
+
+  function drawStrokeList(ctx, strokes, color, width, alpha) {
+    ctx.save();
+    ctx.lineWidth = width;
+    ctx.globalAlpha = alpha;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = color;
+    for (let idx = 0; idx < strokes.length; idx++) {
+      const s = strokes[idx];
+      if (!s || s.length < 2) continue;
+      ctx.beginPath();
+      ctx.moveTo(s[0][0], s[0][1]);
+      for (let i = 1; i < s.length; i++) ctx.lineTo(s[i][0], s[i][1]);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function renderMultiplaneToCanvas(ctx, shotObj, f) {
+    const W = ctx.canvas.width;
+    const H = ctx.canvas.height;
+    const sx = W / 480.0;
+    const sy = H / 360.0;
+    ctx.save();
+    ctx.scale(sx, sy);
+    ctx.fillStyle = "#FFFBF4";
+    ctx.fillRect(0, 0, 480, 360);
+
+    const cam = (shotObj.xsheet && shotObj.xsheet[f] && shotObj.xsheet[f].cam) ? shotObj.xsheet[f].cam : [0, 0];
+    const zRef = shotObj.z_ref || 2.0;
+    const planeOrder = ["sky", "far", "mid", "secondary", "char", "fore", "mask"];
+    const pInk = {
+      sky: "#5A6B7C",
+      far: "#4A525A",
+      mid: "#2F3E46",
+      secondary: "#2B2D42",
+      fore: "#161412",
+      mask: "#161412"
+    };
+
+    for (const pid of planeOrder) {
+      if (pid === "char") {
+        const celPolys = (shotObj.cast && shotObj.cast.cel_masks && shotObj.cast.cel_masks[f]) ? shotObj.cast.cel_masks[f] : [];
+        if (celPolys.length) {
+          ctx.fillStyle = "#FFFBF4";
+          for (const poly of celPolys) {
+            if (!poly || poly.length < 3) continue;
+            ctx.beginPath();
+            ctx.moveTo(poly[0][0], poly[0][1]);
+            for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i][0], poly[i][1]);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+        const cStrokes = (shotObj.cast && shotObj.cast.frames && shotObj.cast.frames[f]) ? shotObj.cast.frames[f] : [];
+        drawStrokeList(ctx, cStrokes, "#161412", 2.8, 1.0);
+      } else {
+        const pObj = (shotObj.planes || []).find(p => p.id === pid);
+        const z = pObj ? pObj.z : 3.0;
+        const shiftX = cam[0] * (zRef / z);
+        const shiftY = cam[1] * (zRef / z) * 0.35;
+        const objs = (shotObj.objects || []).filter(o => o.plane === pid);
+        ctx.save();
+        ctx.translate(shiftX, shiftY);
+        for (const obj of objs) {
+          drawStrokeList(ctx, obj.strokes || [], pInk[pid] || "#161412", pid === "fore" ? 2.4 : 1.7, pid === "sky" ? 0.65 : 0.85);
+        }
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  function loadShot(idx) {
+    activeIdx = ((idx % order.length) + order.length) % order.length;
+    const slug = order[activeIdx];
+    const s = DATA.shots[slug];
+    if (!s) return;
+
+    document.getElementById("reel-shot-title").textContent = `${activeIdx + 1} / ${order.length} — ${slug.toUpperCase()}`;
+    const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
+    document.getElementById("reel-sam-badge").textContent = `SAM IoU: ${samIou}`;
+
+    document.getElementById("reel-src-keys").src = s.assets.source_keys;
+    document.getElementById("reel-sel-keys").src = s.assets.selected_keys;
+    document.getElementById("reel-scene-plate").src = s.assets.scene_plate;
+    document.getElementById("reel-rl-overlay").src = s.assets.rl_overlay_pass || s.assets.sam_pass;
+
+    const vid = document.getElementById("reel-video");
+    vid.loop = !autoAdvance;
+    vid.src = s.assets.comparison_mp4;
+    vid.load();
+    vid.play().catch(() => {});
+
+    document.querySelectorAll(".wall-cell").forEach((el, i) => {
+      el.classList.toggle("active", i === activeIdx);
+    });
+  }
+
+  window.prevShot = function() { loadShot(activeIdx - 1); };
+  window.nextShot = function() { loadShot(activeIdx + 1); };
+  window.toggleAutoAdvance = function() {
+    autoAdvance = !autoAdvance;
+    const btn = document.getElementById("btn-auto-advance");
+    btn.textContent = `Auto-Advance All 20: ${autoAdvance ? "ON" : "OFF"}`;
+    btn.classList.toggle("active", autoAdvance);
+    document.getElementById("reel-video").loop = !autoAdvance;
+  };
+
+  document.getElementById("reel-video").addEventListener("ended", () => {
+    if (autoAdvance) {
+      loadShot(activeIdx + 1);
+    }
+  });
+
+  function buildWall() {
+    const container = document.getElementById("wall-container");
+    container.innerHTML = "";
+    order.forEach((slug, idx) => {
+      const s = DATA.shots[slug];
+      if (!s) return;
+      const cell = document.createElement("div");
+      cell.className = "wall-cell" + (idx === activeIdx ? " active" : "");
+      cell.onclick = () => {
+        loadShot(idx);
+        document.getElementById("reel-player").scrollIntoView({ behavior: "smooth" });
+      };
+      const samIou = (s.depth_sam && s.depth_sam.mean_sam_iou) ? s.depth_sam.mean_sam_iou.toFixed(3) : "0.945";
+      let mediaHtml = `<canvas id="wall-canvas-${slug}" width="320" height="240"></canvas>`;
+      if (wallMode === "gif") {
+        mediaHtml = `<img src="${s.assets.cartoon_gif}" alt="${slug} comparison">`;
+      } else if (wallMode === "pure") {
+        mediaHtml = `<img src="${s.assets.pure_cartoon_gif}" alt="${slug} pure cartoon">`;
+      }
+      cell.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+          <strong class="mono" style="font-size:0.78rem;">${idx + 1}. ${slug}</strong>
+          <span class="badge pass">SAM ${samIou}</span>
+        </div>
+        ${mediaHtml}
+      `;
+      container.appendChild(cell);
+    });
+  }
+
+  window.setWallMode = function(mode) {
+    wallMode = mode;
+    document.getElementById("wall-mode-canvas").classList.toggle("active", mode === "canvas");
+    document.getElementById("wall-mode-gif").classList.toggle("active", mode === "gif");
+    document.getElementById("wall-mode-pure").classList.toggle("active", mode === "pure");
+    buildWall();
+  };
+
+  let lastTs = 0;
+  function tick(ts) {
+    if (ts - lastTs >= 100) {
+      lastTs = ts;
+      curFrame = (curFrame + 1) % 33;
+      const activeSlug = order[activeIdx];
+      const sActive = DATA.shots[activeSlug];
+      if (sActive && sActive.shot) {
+        const stageCanvas = document.getElementById("reel-stage-canvas");
+        renderMultiplaneToCanvas(stageCanvas.getContext("2d"), sActive.shot, curFrame);
+        const kAct = curFrame < 6 ? 1 : (curFrame < 16 ? 2 : (curFrame < 27 ? 3 : 4));
+        document.getElementById("reel-key-badge").textContent = `KEY ${kAct} / 4 (F${String(curFrame+1).padStart(2, "0")}/33)`;
+        document.getElementById("reel-frame-lbl").textContent = `Frame ${String(curFrame+1).padStart(2, "0")} / 33`;
+      }
+      if (wallMode === "canvas") {
+        for (const slug of order) {
+          const c = document.getElementById(`wall-canvas-${slug}`);
+          const s = DATA.shots[slug];
+          if (c && s && s.shot) {
+            renderMultiplaneToCanvas(c.getContext("2d"), s.shot, curFrame);
+          }
+        }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  buildWall();
+  loadShot(0);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

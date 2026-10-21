@@ -1,0 +1,6 @@
+{"stage": 1, "event": "source_extract", "slug": "clock", "clip": "02_8b8de972", "interval": [0.9, 4.5], "frames": 33}
+{"stage": 2, "event": "quickdraw_match", "slug": "clock", "qd_index": 5, "key_id": "58009912000005", "country": "GB"}
+{"stage": 3, "event": "auto_dino_depth_sam", "slug": "clock", "mean_sam_iou": 0.946, "viterbi_linked": true}
+{"stage": 4, "event": "subagent_keyframes_and_scene", "slug": "clock", "keys": 4, "mean_trace_recall": 0.983}
+{"stage": 5, "event": "argon_rl_policy_evolution", "slug": "clock", "ep0": 0.73, "ep3": 0.908, "sil_iou": 0.906, "in_mask": 0.935}
+{"stage": 6, "event": "multiplane_render_and_gate_check", "slug": "clock", "gates_passed": "16/16"}

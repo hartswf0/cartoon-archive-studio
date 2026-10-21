@@ -1,0 +1,6 @@
+{"stage": 1, "event": "source_extract", "slug": "butterfly", "clip": "03_5f80185c", "interval": [0.8, 3.8], "frames": 33}
+{"stage": 2, "event": "quickdraw_match", "slug": "butterfly", "qd_index": 3, "key_id": "58009912000003", "country": "MY"}
+{"stage": 3, "event": "auto_dino_depth_sam", "slug": "butterfly", "mean_sam_iou": 0.938, "viterbi_linked": true}
+{"stage": 4, "event": "subagent_keyframes_and_scene", "slug": "butterfly", "keys": 4, "mean_trace_recall": 0.967}
+{"stage": 5, "event": "argon_rl_policy_evolution", "slug": "butterfly", "ep0": 0.384, "ep3": 0.743, "sil_iou": 0.715, "in_mask": 0.881}
+{"stage": 6, "event": "multiplane_render_and_gate_check", "slug": "butterfly", "gates_passed": "16/16"}

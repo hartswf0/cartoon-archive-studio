@@ -1,0 +1,31 @@
+{
+  "shot_id": "giraffe-walks-past",
+  "category": "giraffe",
+  "revision": "join-v1",
+  "key_verdict": "bar_met",
+  "playback_verdict": "bar_met_in_join_pipeline",
+  "scope": "4 image-generator keyframes traced via skeletonization (T1 recall >= 0.98, parts_kept = 1.0) and joined to a 6-plane multiplane rig under phase-correlation camera pan.",
+  "timed_key_evidence": [
+    {
+      "time_seconds": 0.0,
+      "evidence": "Adult giraffe walks right with head high; left front leg reaches back"
+    },
+    {
+      "time_seconds": 1.2,
+      "evidence": "Mid-stride past bare thorn tree and two young giraffes; camera pan decelerates"
+    },
+    {
+      "time_seconds": 2.4,
+      "evidence": "Front legs spread in wide walking stance; hind leg steps forward"
+    },
+    {
+      "time_seconds": 3.6,
+      "evidence": "Giraffe slows and turns head slightly toward camera on right"
+    }
+  ],
+  "protected_strengths": [
+    "Retains Quick, Draw! key_id 5642198301698048 stroke construction across all 4 generated keys.",
+    "Character and background drawn on separate planes: 100% of background strokes hold across keys (B1).",
+    "Planted contacts locked in world space (< 1 px drift, M4) with SAM cel silhouette occlusion (S5)."
+  ]
+}

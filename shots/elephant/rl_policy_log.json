@@ -1,0 +1,16 @@
+{
+  "shot": "elephant",
+  "category": "elephant",
+  "policy": "Universal-Zero-Hardcoding-Argon-RL-v4",
+  "qd_index": 8,
+  "qd_flip_x": false,
+  "mean_sam_iou": 0.9518,
+  "mean_reward_ep0": 0.4494,
+  "mean_reward_ep1": 0.6368,
+  "mean_reward_ep2": 0.6692,
+  "mean_reward_ep3": 0.6979,
+  "mean_sil_iou_ep3": 0.6679,
+  "mean_edge_recall_ep3": 0.623,
+  "mean_stroke_precision_ep3": 0.8506,
+  "reward_delta": 0.2485
+}

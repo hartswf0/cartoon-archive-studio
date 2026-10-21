@@ -1,0 +1,145 @@
+{
+  "category": "canoe",
+  "key_id": "5278942468505600",
+  "countrycode": "US",
+  "recognized": true,
+  "flip_x": false,
+  "qd_index": 5,
+  "num_strokes": 5,
+  "license": "CC BY 4.0 (Google Creative Lab, Quick, Draw! Dataset)",
+  "strokes": [
+    [
+      [
+        26,
+        117,
+        204,
+        226,
+        236,
+        237,
+        234,
+        214,
+        113,
+        48,
+        36,
+        41,
+        86
+      ],
+      [
+        21,
+        34,
+        32,
+        27,
+        20,
+        12,
+        9,
+        1,
+        2,
+        8,
+        14,
+        20,
+        28
+      ]
+    ],
+    [
+      [
+        35,
+        29,
+        29,
+        39,
+        59,
+        107,
+        170,
+        206,
+        232,
+        239,
+        243,
+        226
+      ],
+      [
+        7,
+        10,
+        33,
+        51,
+        66,
+        79,
+        82,
+        69,
+        47,
+        30,
+        8,
+        5
+      ]
+    ],
+    [
+      [
+        0,
+        3,
+        16,
+        44,
+        103,
+        118,
+        169,
+        177,
+        211,
+        226,
+        234,
+        255
+      ],
+      [
+        76,
+        84,
+        92,
+        92,
+        64,
+        65,
+        86,
+        85,
+        68,
+        66,
+        68,
+        88
+      ]
+    ],
+    [
+      [
+        111,
+        131,
+        148,
+        155,
+        160,
+        163,
+        166,
+        158,
+        150,
+        140,
+        119
+      ],
+      [
+        29,
+        70,
+        114,
+        123,
+        122,
+        119,
+        106,
+        98,
+        70,
+        47,
+        13
+      ]
+    ],
+    [
+      [
+        113,
+        110
+      ],
+      [
+        20,
+        26
+      ]
+    ]
+  ],
+  "country": "US",
+  "n_strokes": 5,
+  "why": "Automatically selected Quick, Draw! prototype #5 (US, 5 strokes) via silhouette aspect-ratio and edge-orientation compatibility with the archival SAM masks."
+}

@@ -1,0 +1,7 @@
+{
+  "slug": "lighthouse",
+  "action_verbs": "anchors coast -> tapers upward -> reveals stripe bands -> crowns with beacon cupola",
+  "emotion_arc": "Vertical architectural ascent",
+  "secondary_action": "Coastal tree foliage and keeper's cottage gable frame the foreground occlusion planes",
+  "multiplane_architecture": "7-plane depth stratification via Depth-Anything-V2 + opaque SAM cel silhouette on Plane 2"
+}
