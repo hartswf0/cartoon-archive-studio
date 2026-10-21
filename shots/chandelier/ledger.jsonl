@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "chandelier", "clip": "02_b47e251f", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "chandelier", "mean_sam_iou": 0.9706}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "chandelier", "key_id": "6719048437989376", "country": "NZ"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "chandelier", "ep0": 0.3497, "ep3": 0.7134, "sil_iou": 0.8004, "in_mask": 0.9678}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "chandelier", "gates": "16/16"}

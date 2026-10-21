@@ -1,0 +1,14 @@
+{
+  "shot": "fire-hydrant",
+  "category": "fire_hydrant",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9806,
+  "mean_reward_ep0": 0.1624,
+  "mean_reward_ep1": 0.6796,
+  "mean_reward_ep2": 0.758,
+  "mean_reward_ep3": 0.7969,
+  "mean_sil_iou_ep3": 0.8035,
+  "mean_edge_recall_ep3": 0.7124,
+  "mean_stroke_precision_ep3": 0.9802,
+  "reward_delta": 0.6345
+}

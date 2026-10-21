@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "river", "clip": "04_0733ddc7", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "river", "mean_sam_iou": 0.9025}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "river", "key_id": "6199424722141184", "country": "TW"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "river", "ep0": 0.2265, "ep3": 0.7231, "sil_iou": 0.8, "in_mask": 0.9705}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "river", "gates": "16/16"}

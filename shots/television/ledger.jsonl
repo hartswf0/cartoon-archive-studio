@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "television", "clip": "02_545af5ce", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "television", "mean_sam_iou": 0.9286}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "television", "key_id": "5474886053003264", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "television", "ep0": 0.1371, "ep3": 0.8426, "sil_iou": 0.8138, "in_mask": 0.9702}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "television", "gates": "16/16"}

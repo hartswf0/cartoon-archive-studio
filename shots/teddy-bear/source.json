@@ -1,0 +1,47 @@
+{
+  "category": "teddy_bear",
+  "shot_id": "teddy-bear",
+  "body_plan": "Regime I: Character & Figure",
+  "interval": [
+    0.37,
+    3.97
+  ],
+  "key_times": [
+    0.37,
+    1.5,
+    2.73,
+    3.97
+  ],
+  "key_notes": [
+    "Key 1 (t=0.37s): Initial archival pose of teddy-bear; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.5s): Mid-sequence articulation of teddy-bear; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.73s): Peak dynamic extension of teddy-bear over 7-plane multiplane environment.",
+    "Key 4 (t=3.97s): Follow-through and settle of teddy-bear with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of teddy-bear (0.37s..3.97s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_11797612",
+    "source_id": "04_11797612",
+    "source_slug": "teddy-bear",
+    "source_title": "Moving Image Archive // Teddy Bear",
+    "source_year": 1956,
+    "start_seconds": 0.37,
+    "end_seconds": 3.97,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/teddy-bear/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/teddy_bear/videos/04_11797612-b904-5a03-a0f0-edbd737914c8.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5650121565929472",
+    "n_strokes": 7,
+    "country": "SE",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (SE, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

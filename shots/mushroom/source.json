@@ -1,0 +1,47 @@
+{
+  "category": "mushroom",
+  "shot_id": "mushroom",
+  "body_plan": "Regime VIII: Botanical & Elemental",
+  "interval": [
+    6.01,
+    9.61
+  ],
+  "key_times": [
+    6.01,
+    7.13,
+    8.37,
+    9.61
+  ],
+  "key_notes": [
+    "Key 1 (t=6.01s): Initial archival pose of mushroom; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.13s): Mid-sequence articulation of mushroom; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.37s): Peak dynamic extension of mushroom over 7-plane multiplane environment.",
+    "Key 4 (t=9.61s): Follow-through and settle of mushroom with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of mushroom (6.01s..9.61s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_766952c1",
+    "source_id": "02_766952c1",
+    "source_slug": "mushroom",
+    "source_title": "Moving Image Archive // Mushroom",
+    "source_year": 1956,
+    "start_seconds": 6.01,
+    "end_seconds": 9.61,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/mushroom/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/mushroom/videos/02_766952c1-cc9b-58c2-afd2-cd78bdace849.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5524053093777408",
+    "n_strokes": 8,
+    "country": "FR",
+    "qd_index": 3,
+    "why": "Selected Quick, Draw! human doodle #3 (FR, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

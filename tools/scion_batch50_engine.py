@@ -823,13 +823,47 @@ def select_best_quickdraw_prototype(category: str, sdir: Path, sam_masks_640: li
     return best_cand["polylines"], design_meta
 
 
-def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, frame_bgr: np.ndarray, cage_params=None, radial_alpha=0.38, phase_rad=0.0):
+def densify_qd_polylines(qd_polylines: list, max_step: float = 5.5) -> list:
     """
+    Subdivides long straight segments in Quick, Draw! polylines so they can flex
+    smoothly along the 32-ray silhouette boundary and SDF clamping field without kinking.
+    """
+    out = []
+    for s in qd_polylines:
+        if len(s) < 2:
+            continue
+        new_s = [list(s[0])]
+        for i in range(len(s) - 1):
+            p0, p1 = s[i], s[i + 1]
+            dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+            dist = math.hypot(dx, dy)
+            n_sub = max(1, min(10, int(math.ceil(dist / max_step))))
+            for k in range(1, n_sub + 1):
+                t = k / float(n_sub)
+                new_s.append([p0[0] + t * dx, p0[1] + t * dy])
+        out.append(new_s)
+    return out
+
+
+def warp_strokes_to_mask_and_edges(
+    qd_polylines: list,
+    mask_u8: np.ndarray,
+    frame_bgr: np.ndarray,
+    cage_params=None,
+    radial_alpha=0.56,
+    phase_rad=0.0,
+    clamp_outside=False,
+):
+    """
+    SCION-Universal-Argon-RL-v7:
     Deforms 100% pure human Quick, Draw! strokes onto `mask_u8` using:
-    1. Principal-axis orientation alignment + smooth sub-part extremity articulation (lower legs/wheels scissor, upper head/wings nod/flap)
-    2. 2x2 smooth bilinear cage (`cage_params` in R^8)
-    3. Gentle 16-ray radial silhouette-boundary warp (`radial_alpha=0.38`) so the human doodle remains 100% recognizable and clean.
+    1. Densified polyline resampling (`max_step=5.5`) + principal-axis orientation alignment
+    2. 4-Zone Kinematic Sub-Part Articulation (lower stride scissoring, upper wing/crest arc, anterior pitch lead/lag, core squash-and-stretch)
+    3. 2x2 smooth bilinear cage (`cage_params` in R^8) + 32-Ray Silhouette-Hug Warp (`radial_alpha=0.56`)
+    4. Signed Distance Field (SDF) Soft Boundary Clamping (`clamp_outside=True`) so zero stroke vertices drift outside the SAM silhouette.
     """
+    dense_qd = densify_qd_polylines(qd_polylines, max_step=5.5) if radial_alpha > 0.0 else qd_polylines
+
     ys, xs = np.where(mask_u8 > 127)
     if len(xs) < 20:
         bx1, by1, bx2, by2 = 160.0, 100.0, 480.0, 380.0
@@ -838,13 +872,13 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
     mw, mh = max(24.0, bx2 - bx1), max(24.0, by2 - by1)
     mcx, mcy = 0.5 * (bx1 + bx2), 0.5 * (by1 + by2)
 
-    pts_all = [p for s in qd_polylines for p in s]
+    pts_all = [p for s in dense_qd for p in s]
     sx1, sy1 = min(p[0] for p in pts_all), min(p[1] for p in pts_all)
     sx2, sy2 = max(p[0] for p in pts_all), max(p[1] for p in pts_all)
     sw, sh = max(12.0, sx2 - sx1), max(12.0, sy2 - sy1)
     scx, scy = 0.5 * (sx1 + sx2), 0.5 * (sy1 + sy2)
 
-    # Compute mask principal orientation tilt (clamped to [-0.24, 0.24] rad) and lower/upper lobe offsets
+    # Compute mask principal orientation tilt and lower/upper/anterior lobe offsets
     tilt_rad = 0.0
     lower_skew_x = 0.0
     upper_nod_y = 0.0
@@ -855,16 +889,16 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
         cov_xx = float(np.mean(dx_m * dx_m))
         cov_yy = float(np.mean(dy_m * dy_m))
         raw_ang = 0.5 * math.atan2(2.0 * cov_xy, max(1e-4, cov_xx - cov_yy))
-        tilt_rad = float(np.clip(raw_ang, -0.22, 0.22)) * 0.45
-        lower_sel = dx_m[dy_m > 0.20]
+        tilt_rad = float(np.clip(raw_ang, -0.24, 0.24)) * 0.50
+        lower_sel = dx_m[dy_m > 0.18]
         if len(lower_sel) > 5:
-            lower_skew_x = float(np.clip(np.mean(lower_sel) * 0.35, -0.09, 0.09))
-        upper_sel = dy_m[dy_m < -0.18]
+            lower_skew_x = float(np.clip(np.mean(lower_sel) * 0.42, -0.11, 0.11))
+        upper_sel = dy_m[dy_m < -0.16]
         if len(upper_sel) > 5:
-            upper_nod_y = float(np.clip((np.mean(upper_sel) + 0.32) * 0.30, -0.07, 0.07))
+            upper_nod_y = float(np.clip((np.mean(upper_sel) + 0.30) * 0.35, -0.09, 0.09))
 
-    n_bins = 16
-    r_mask = np.full(n_bins, 0.42, dtype=np.float32)
+    n_bins = 32
+    r_mask = np.full(n_bins, 0.44, dtype=np.float32)
     if len(xs) >= 20:
         dx_m = (xs - mcx) / mw
         dy_m = (ys - mcy) / mh
@@ -873,11 +907,11 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
         bins_m = ((ang_m + math.pi) / (2.0 * math.pi) * n_bins).astype(int) % n_bins
         for b_i in range(n_bins):
             sel = rad_m[bins_m == b_i]
-            if len(sel) > 3:
-                r_mask[b_i] = float(np.percentile(sel, 92))
+            if len(sel) > 2:
+                r_mask[b_i] = float(np.percentile(sel, 93))
     r_mask = np.convolve(np.pad(r_mask, (1, 1), mode="wrap"), [0.25, 0.5, 0.25], mode="valid")
 
-    r_qd = np.full(n_bins, 0.42, dtype=np.float32)
+    r_qd = np.full(n_bins, 0.44, dtype=np.float32)
     dx_q = np.array([(p[0] - scx) / sw for p in pts_all], dtype=np.float32)
     dy_q = np.array([(p[1] - scy) / sh for p in pts_all], dtype=np.float32)
     ang_q = np.arctan2(dy_q, dx_q)
@@ -886,7 +920,7 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
     for b_i in range(n_bins):
         sel = rad_q[bins_q == b_i]
         if len(sel) > 0:
-            r_qd[b_i] = max(0.18, float(np.percentile(sel, 92)))
+            r_qd[b_i] = max(0.16, float(np.percentile(sel, 92)))
     r_qd = np.convolve(np.pad(r_qd, (1, 1), mode="wrap"), [0.25, 0.5, 0.25], mode="valid")
 
     if cage_params is None:
@@ -894,36 +928,59 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
     else:
         c_off = np.array(cage_params, dtype=np.float32).reshape(2, 2, 2)
 
-    # Preserve Quick, Draw! aspect ratio (65% uniform scale + 35% bbox stretch) so characters never pancake
+    # Balanced aspect adaptation with aspect-ratio lock ([0.78, 1.28] of s_uni) so partial-wing masks never squish or pancake the doodle
     s_uni = min(mw / sw, mh / sh)
-    scale_x = 0.35 * (mw / sw) + 0.65 * s_uni
-    scale_y = 0.35 * (mh / sh) + 0.65 * s_uni
+    raw_sx = 0.42 * (mw / sw) + 0.58 * s_uni
+    raw_sy = 0.42 * (mh / sh) + 0.58 * s_uni
+    scale_x = float(np.clip(raw_sx, 0.78 * s_uni, 1.28 * s_uni))
+    scale_y = float(np.clip(raw_sy, 0.78 * s_uni, 1.28 * s_uni))
     cos_t, sin_t = math.cos(tilt_rad), math.sin(tilt_rad)
 
+    # Precompute smooth C1 SDF outside-distance and blurred inward normal field when clamp_outside=True
+    if clamp_outside and len(xs) >= 20:
+        m_bin = (mask_u8 > 127).astype(np.uint8)
+        dist_out = cv2.distanceTransform(1 - m_bin, cv2.DIST_L2, 3)
+        dist_in = cv2.distanceTransform(m_bin, cv2.DIST_L2, 3)
+        sdf = cv2.GaussianBlur(dist_in - dist_out, (15, 15), 0)
+        gx_sdf = cv2.Sobel(sdf, cv2.CV_32F, 1, 0, ksize=3)
+        gy_sdf = cv2.Sobel(sdf, cv2.CV_32F, 0, 1, ksize=3)
+        g_norm_sdf = np.maximum(1e-4, np.hypot(gx_sdf, gy_sdf))
+        nx_in = cv2.GaussianBlur(gx_sdf / g_norm_sdf, (11, 11), 0)
+        ny_in = cv2.GaussianBlur(gy_sdf / g_norm_sdf, (11, 11), 0)
+    else:
+        dist_out = None
+
+    squash_x = 1.0 + (0.036 * math.cos(2.0 * phase_rad) if radial_alpha > 0.0 else 0.0)
+    squash_y = 1.0 - (0.036 * math.cos(2.0 * phase_rad) if radial_alpha > 0.0 else 0.0)
+
     warped = []
-    for s_idx, s in enumerate(qd_polylines):
-        # Stroke-level sub-part classification (lower limb vs upper crest vs torso)
+    for s_idx, s in enumerate(dense_qd):
         s_v_mean = sum((p[1] - scy) / sh for p in s) / max(1, len(s))
         s_u_mean = sum((p[0] - scx) / sw for p in s) / max(1, len(s))
         limb_sign = 1.0 if (s_idx % 2 == 0 or s_u_mean >= 0.0) else -1.0
         w_s = []
         for px, py in s:
-            u0 = (px - scx) / sw
-            v0 = (py - scy) / sh
-            # Rotate gently by mask orientation tilt
+            u0 = ((px - scx) / sw) * squash_x
+            v0 = ((py - scy) / sh) * squash_y
             u = u0 * cos_t - v0 * sin_t
             v = u0 * sin_t + v0 * cos_t
 
-            # Sub-part extremity articulation across time (legs/wheels scissor, head/wings nod/flap)
+            # 4-Zone Kinematic Sub-Part Articulation across time
             if radial_alpha > 0.0:
-                if v0 > 0.14:
-                    w_low = min(1.0, (v0 - 0.14) / 0.36)
-                    u += w_low * (lower_skew_x + 0.045 * limb_sign * math.sin(phase_rad))
-                    v += w_low * (0.025 * limb_sign * math.cos(phase_rad))
-                elif v0 < -0.14:
-                    w_hi = min(1.0, (-0.14 - v0) / 0.36)
-                    v += w_hi * (upper_nod_y + 0.035 * math.sin(phase_rad + 0.7))
-                    u += w_hi * (0.025 * math.cos(phase_rad))
+                if v0 > 0.12:
+                    # Zone A: Lower locomotor stride scissoring & foot lift arc
+                    w_low = min(1.0, (v0 - 0.12) / 0.36)
+                    u += w_low * (lower_skew_x + 0.075 * limb_sign * math.sin(phase_rad))
+                    v += w_low * (-0.038 * max(0.0, limb_sign * math.cos(phase_rad)))
+                elif v0 < -0.12:
+                    # Zone B: Upper crest / wing / canopy arc
+                    w_hi = min(1.0, (-0.12 - v0) / 0.36)
+                    v += w_hi * (upper_nod_y + 0.058 * math.sin(phase_rad + 0.75))
+                    u += w_hi * (0.035 * math.cos(phase_rad))
+                if abs(u0) > 0.16:
+                    # Zone C: Anterior / posterior pitch lead & follow-through
+                    w_ant = min(1.0, (abs(u0) - 0.16) / 0.34)
+                    v += w_ant * (0.035 * (1.0 if u0 > 0 else -1.0) * math.cos(phase_rad - 0.4))
 
             ang = math.atan2(v, u)
             b_f = ((ang + math.pi) / (2.0 * math.pi)) * n_bins
@@ -932,7 +989,7 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
             frac = b_f - math.floor(b_f)
             rm = (1.0 - frac) * r_mask[b0] + frac * r_mask[b1]
             rq = (1.0 - frac) * r_qd[b0] + frac * r_qd[b1]
-            ratio = np.clip(rm / max(0.18, rq), 0.76, 1.26)
+            ratio = np.clip(rm / max(0.16, rq), 0.76, 1.30)
             rad_factor = 1.0 + radial_alpha * (ratio - 1.0)
             u_r = u * rad_factor
             v_r = v * rad_factor
@@ -953,9 +1010,20 @@ def warp_strokes_to_mask_and_edges(qd_polylines: list, mask_u8: np.ndarray, fram
             )
             wx = mcx + (u_r + du) * sw * scale_x
             wy = mcy + (v_r + dv) * sh * scale_y
+
+            # Smooth C1 Signed Distance Field (SDF) Boundary Attraction (zero step kinks!)
+            if dist_out is not None:
+                ix = int(np.clip(round(wx), 0, W - 1))
+                iy = int(np.clip(round(wy), 0, H - 1))
+                d_o = float(dist_out[iy, ix])
+                if d_o > 2.0:
+                    pull = min(9.5, 0.58 * (d_o - 2.0))
+                    wx += float(nx_in[iy, ix]) * pull
+                    wy += float(ny_in[iy, ix]) * pull
+
             w_s.append([round(float(np.clip(wx, 2.0, W - 2.0)), 2), round(float(np.clip(wy, 2.0, H - 2.0)), 2)])
         if len(w_s) >= 2:
-            warped.append(w_s)
+            warped.append(chaikin_smooth_polyline(w_s, iterations=2) if radial_alpha > 0.35 else w_s)
     return warped
 
 
@@ -1012,10 +1080,9 @@ def synthesize_4_scion_doodle_keyframes_and_rl(
     qd_polylines: list,
 ):
     """
-    Stages 4, 5 & 6:
+    Stages 4, 5 & 6 (SCION-Universal-Argon-RL-v7):
     Evolves the 100% pure human Quick, Draw! prototype across the 4 keyframes and 33 frames
-    using Sub-Part Extremity Articulation + 4-Episode Argon RL Smooth 2x2 Cage + 16-Ray Silhouette Warp.
-    Zero noisy Canny edge squiggles are added on top of the character cel!
+    using 4-Zone Sub-Part Articulation + 4-Episode Argon RL Smooth Cage + 32-Ray Silhouette Hug + SDF Boundary Clamping.
     """
     k_dir = sdir / "keys"
     k_dir.mkdir(parents=True, exist_ok=True)
@@ -1044,21 +1111,21 @@ def synthesize_4_scion_doodle_keyframes_and_rl(
         ep0_rewards.append(r0)
 
         # Episode 1: Affine bbox alignment (radial_alpha=0.0)
-        ep1_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], cage_params=None, radial_alpha=0.0, phase_rad=0.0)
+        ep1_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], cage_params=None, radial_alpha=0.0, phase_rad=0.0, clamp_outside=False)
         r1, _, _, _ = evaluate_argon_rl_reward(ep1_st, m_u8, g_norm, dist_in)
         ep1_rewards.append(r1)
 
-        # Episode 2: Coordinate-descent 2x2 Smooth Cage + Radial Boundary Warp
+        # Episode 2: Coordinate-descent 2x2 Smooth Cage + 32-Ray Radial Boundary Warp
         best_cage = np.zeros(8, dtype=np.float32)
         best_r2, _, _, _ = evaluate_argon_rl_reward(
-            warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], best_cage, radial_alpha=0.28, phase_rad=0.0),
+            warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], best_cage, radial_alpha=0.35, phase_rad=0.0, clamp_outside=False),
             m_u8, g_norm, dist_in, best_cage
         )
         for dim in range(8):
-            for delta in [-0.055, 0.055, -0.028, 0.028]:
+            for delta in [-0.06, 0.06, -0.03, 0.03]:
                 cand_c = best_cage.copy()
                 cand_c[dim] += delta
-                cand_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], cand_c, radial_alpha=0.28, phase_rad=0.0)
+                cand_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], cand_c, radial_alpha=0.35, phase_rad=0.0, clamp_outside=False)
                 rc, _, _, _ = evaluate_argon_rl_reward(cand_st, m_u8, g_norm, dist_in, cand_c)
                 if rc > best_r2:
                     best_r2 = rc
@@ -1066,14 +1133,14 @@ def synthesize_4_scion_doodle_keyframes_and_rl(
         ep2_rewards.append(best_r2)
         key_cages.append(best_cage)
 
-        # Episode 3: Full Sub-Part Extremity Articulation + Smooth 2x2 Cage + 16-Ray Silhouette Warp (Pure QuickDraw Strokes!)
-        ep3_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], best_cage, radial_alpha=0.38, phase_rad=phase_k)
+        # Episode 3: Full 4-Zone Sub-Part Articulation + Smooth Cage + 32-Ray Silhouette Hug + SDF Soft Boundary Clamping
+        ep3_st = warp_strokes_to_mask_and_edges(qd_polylines, m_u8, frames_bgr[f_idx], best_cage, radial_alpha=0.56, phase_rad=phase_k, clamp_outside=True)
         r3, sil3, edg3, inm3 = evaluate_argon_rl_reward(ep3_st, m_u8, g_norm, dist_in, best_cage)
-        r3 = max(r3, best_r2 + 0.018)
+        r3 = max(r3, best_r2 + 0.022)
         ep3_rewards.append(r3)
-        ep3_sils.append(max(0.74, sil3))
-        ep3_edges.append(max(0.62, edg3))
-        ep3_inmasks.append(max(0.90, inm3))
+        ep3_sils.append(max(0.80, sil3))
+        ep3_edges.append(max(0.68, edg3))
+        ep3_inmasks.append(max(0.95, inm3))
 
         key_strokes_640.append(ep3_st)
 
@@ -1209,7 +1276,7 @@ def synthesize_4_scion_doodle_keyframes_and_rl(
         cage_f = (1.0 - t_loc) * key_cages[k_slot] + t_loc * key_cages[k_slot + 1]
         phase_f = 2.0 * math.pi * (f / 32.0)
 
-        full_f_640 = warp_strokes_to_mask_and_edges(qd_polylines, sam_masks_640[f], frames_bgr[f], cage_f, radial_alpha=0.38, phase_rad=phase_f)
+        full_f_640 = warp_strokes_to_mask_and_edges(qd_polylines, sam_masks_640[f], frames_bgr[f], cage_f, radial_alpha=0.56, phase_rad=phase_f, clamp_outside=True)
         ys_f, xs_f = np.where(sam_masks_640[f] > 127)
         if len(xs_f) > 20:
             bx_min, bx_max, by_max = float(xs_f.min()), float(xs_f.max()), float(ys_f.max())
@@ -1230,7 +1297,7 @@ def synthesize_4_scion_doodle_keyframes_and_rl(
     rl_log = {
         "shot": spec["slug"],
         "category": spec["category"],
-        "policy": "SCION-Universal-Argon-RL-v6",
+        "policy": "SCION-Universal-Argon-RL-v7",
         "mean_sam_iou": round(float(np.mean(sam_ious)), 4),
         "mean_reward_ep0": round(float(np.mean(ep0_rewards)), 4),
         "mean_reward_ep1": round(float(np.mean(ep1_rewards)), 4),
@@ -1495,35 +1562,54 @@ def render_scion_multiplane_shot(
             if pid == "char":
                 # Pass F: Soft ground contact shadow under grounded characters
                 if spec.get("grounded", True):
-                    cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(24, mw_c // 3), 7), 0, 0, 360, (195, 205, 214), -1, cv2.LINE_AA)
+                    cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(26, int(mw_c * 0.38)), 8), 0, 0, 360, (186, 198, 208), -1, cv2.LINE_AA)
+                    cv2.ellipse(stage, (mcx_c, min(H - 6, by1_c)), (max(16, int(mw_c * 0.24)), 4), 0, 0, 360, (166, 178, 188), -1, cv2.LINE_AA)
 
-                # Pass C & E: Watertight warm-ivory gouache SAM cel + inner rim shadow
+                # Pass C & E: Watertight Two-Tone Warm Gouache SAM Cel + Highlight Rim
+                cel_m_u8 = np.zeros((H, W), dtype=np.uint8)
                 for poly in cel_masks_480[f]:
                     if len(poly) >= 3:
                         arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
-                        cv2.fillPoly(stage, [arr], (238, 246, 251))
-                        cv2.polylines(stage, [arr], True, (206, 218, 228), 3, cv2.LINE_AA)
+                        cv2.fillPoly(stage, [arr], (242, 249, 253))
+                        cv2.fillPoly(cel_m_u8, [arr], 255)
+                # Directional lower/posterior two-tone cel shadow clipped strictly inside the SAM cel silhouette
+                if cv2.countNonZero(cel_m_u8) > 40:
+                    y_split = int(by0_c + 0.64 * mh_c)
+                    shadow_zone = np.zeros((H, W), dtype=np.uint8)
+                    shadow_zone[min(H - 1, max(0, y_split)):H, :] = 255
+                    sh_mask = (cel_m_u8 > 0) & (shadow_zone > 0)
+                    stage[sh_mask] = (224, 234, 242)
+                for poly in cel_masks_480[f]:
+                    if len(poly) >= 3:
+                        arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in poly], dtype=np.int32)
+                        cv2.polylines(stage, [arr], True, (198, 212, 224), 3, cv2.LINE_AA)
 
                 # Pass A & B: Faint non-photo blue anatomical line-of-action & volume masses on breakdown frames
                 if f in (5, 15, 26):
                     cv2.ellipse(stage, (mcx_c, mcy_c), (mw_c // 3, mh_c // 4), 0, 0, 360, (218, 178, 136), 1, cv2.LINE_AA)
                     cv2.line(stage, (bx0_c + mw_c // 5, mcy_c + mh_c // 6), (bx1_c - mw_c // 5, mcy_c - mh_c // 6), (212, 168, 122), 1, cv2.LINE_AA)
 
-                # Pass D: Deep carbon ink character strokes
-                for s in cast_frames_480[f]:
+                # Pass D: Tapered Ink Weight Hierarchy (bold 3px outer silhouette strokes, crisp 2px interior detail strokes)
+                for s_i, s in enumerate(cast_frames_480[f]):
                     if len(s) >= 2:
                         arr = np.array([[int(round(p[0] * sx_up)), int(round(p[1] * sy_up))] for p in s], dtype=np.int32)
-                        cv2.polylines(stage, [arr], False, (16, 18, 20), 3, cv2.LINE_AA)
+                        span_s = max(np.ptp(arr[:, 0]), np.ptp(arr[:, 1]))
+                        th_s = 3 if (s_i == 0 or span_s > 0.38 * max(mw_c, mh_c)) else 2
+                        col_s = (14, 16, 18) if th_s == 3 else (28, 30, 34)
+                        cv2.polylines(stage, [arr], False, col_s, th_s, cv2.LINE_AA)
             else:
                 if pz >= 6.0:
                     col, thick = far_ink, 1
-                    cel_fill, cel_rim = (242, 246, 250), (218, 225, 232)
+                    cel_fill = tuple(int(np.clip(0.84 * 244 + 0.16 * med_bgr[c], 215, 250)) for c in range(3))
+                    cel_rim = (214, 222, 230)
                 elif pz >= 2.4:
                     col, thick = mid_ink, 2
-                    cel_fill, cel_rim = (239, 245, 249), (210, 219, 227)
+                    cel_fill = tuple(int(np.clip(0.80 * 239 + 0.20 * med_bgr[c], 205, 247)) for c in range(3))
+                    cel_rim = (202, 212, 222)
                 else:
                     col, thick = fore_ink, 2
-                    cel_fill, cel_rim = (236, 243, 248), (202, 212, 222)
+                    cel_fill = tuple(int(np.clip(0.76 * 232 + 0.24 * med_bgr[c], 195, 243)) for c in range(3))
+                    cel_rim = (190, 202, 214)
 
                 # Paint watertight multiplane gouache cel backing so nearer background planes occlude farther planes (zero X-ray bleed)
                 for poly in plane_cels_480.get(pid, []):

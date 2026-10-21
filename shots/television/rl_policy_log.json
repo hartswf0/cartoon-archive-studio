@@ -1,0 +1,14 @@
+{
+  "shot": "television",
+  "category": "television",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9286,
+  "mean_reward_ep0": 0.1371,
+  "mean_reward_ep1": 0.642,
+  "mean_reward_ep2": 0.8203,
+  "mean_reward_ep3": 0.8426,
+  "mean_sil_iou_ep3": 0.8138,
+  "mean_edge_recall_ep3": 0.7199,
+  "mean_stroke_precision_ep3": 0.9702,
+  "reward_delta": 0.7055
+}

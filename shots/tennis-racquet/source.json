@@ -1,0 +1,47 @@
+{
+  "category": "tennis_racquet",
+  "shot_id": "tennis-racquet",
+  "body_plan": "Regime VII: Pendulum & Ballistic",
+  "interval": [
+    6.28,
+    9.88
+  ],
+  "key_times": [
+    6.28,
+    7.41,
+    8.64,
+    9.88
+  ],
+  "key_notes": [
+    "Key 1 (t=6.28s): Initial archival pose of tennis-racquet; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.41s): Mid-sequence articulation of tennis-racquet; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.64s): Peak dynamic extension of tennis-racquet over 7-plane multiplane environment.",
+    "Key 4 (t=9.88s): Follow-through and settle of tennis-racquet with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of tennis-racquet (6.28s..9.88s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_96fa9daf",
+    "source_id": "03_96fa9daf",
+    "source_slug": "tennis-racquet",
+    "source_title": "Moving Image Archive // Tennis Racquet",
+    "source_year": 1956,
+    "start_seconds": 6.28,
+    "end_seconds": 9.88,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/tennis-racquet/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/tennis_racquet/videos/03_96fa9daf-82e8-5e45-be92-aefb777f3960.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5216238911356928",
+    "n_strokes": 8,
+    "country": "AE",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (AE, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

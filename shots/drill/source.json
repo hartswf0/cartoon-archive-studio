@@ -1,0 +1,47 @@
+{
+  "category": "drill",
+  "shot_id": "drill",
+  "body_plan": "Regime IV: Rotary Mechanism",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of drill; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of drill; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of drill over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of drill with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of drill (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_5ada807b",
+    "source_id": "05_5ada807b",
+    "source_slug": "drill",
+    "source_title": "Moving Image Archive // Drill",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/drill/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/drill/videos/05_5ada807b-222c-5eca-b267-e173d09c0589.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5558907625799680",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

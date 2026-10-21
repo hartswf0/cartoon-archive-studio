@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "stop-sign", "clip": "03_2993a7b0", "interval": [2.34, 5.94]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "stop-sign", "mean_sam_iou": 0.9802}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "stop-sign", "key_id": "4872192066060288", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "stop-sign", "ep0": 0.0508, "ep3": 0.8838, "sil_iou": 0.8527, "in_mask": 0.9796}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "stop-sign", "gates": "16/16"}

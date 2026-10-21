@@ -1,0 +1,47 @@
+{
+  "category": "telephone",
+  "shot_id": "telephone",
+  "body_plan": "Regime V: Acoustic Apparatus",
+  "interval": [
+    0.9,
+    4.5
+  ],
+  "key_times": [
+    0.9,
+    2.02,
+    3.26,
+    4.5
+  ],
+  "key_notes": [
+    "Key 1 (t=0.9s): Initial archival pose of telephone; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.02s): Mid-sequence articulation of telephone; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.26s): Peak dynamic extension of telephone over 7-plane multiplane environment.",
+    "Key 4 (t=4.5s): Follow-through and settle of telephone with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of telephone (0.9s..4.5s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_8c853807",
+    "source_id": "05_8c853807",
+    "source_slug": "telephone",
+    "source_title": "Moving Image Archive // Telephone",
+    "source_year": 1956,
+    "start_seconds": 0.9,
+    "end_seconds": 4.5,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/telephone/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/telephone/videos/05_8c853807-0328-5427-a921-3fe75a645310.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5116691015008256",
+    "n_strokes": 6,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

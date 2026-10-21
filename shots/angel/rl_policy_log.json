@@ -1,0 +1,14 @@
+{
+  "shot": "angel",
+  "category": "angel",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9579,
+  "mean_reward_ep0": 0.2577,
+  "mean_reward_ep1": 0.6803,
+  "mean_reward_ep2": 0.7489,
+  "mean_reward_ep3": 0.7709,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9702,
+  "reward_delta": 0.5132
+}

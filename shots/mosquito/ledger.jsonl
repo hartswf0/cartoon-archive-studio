@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "mosquito", "clip": "05_80b532a2", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "mosquito", "mean_sam_iou": 0.947}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "mosquito", "key_id": "5718233199935488", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "mosquito", "ep0": 0.1329, "ep3": 0.6523, "sil_iou": 0.8, "in_mask": 0.9703}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "mosquito", "gates": "16/16"}

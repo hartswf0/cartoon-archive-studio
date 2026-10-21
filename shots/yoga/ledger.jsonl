@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "yoga", "clip": "03_5e407c68", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "yoga", "mean_sam_iou": 0.9196}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "yoga", "key_id": "5635485214965760", "country": "IN"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "yoga", "ep0": 0.0019, "ep3": 0.772, "sil_iou": 0.8, "in_mask": 0.968}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "yoga", "gates": "16/16"}

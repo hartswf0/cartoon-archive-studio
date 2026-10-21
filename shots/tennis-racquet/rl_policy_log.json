@@ -1,0 +1,14 @@
+{
+  "shot": "tennis-racquet",
+  "category": "tennis_racquet",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9535,
+  "mean_reward_ep0": 0.3081,
+  "mean_reward_ep1": 0.6137,
+  "mean_reward_ep2": 0.7089,
+  "mean_reward_ep3": 0.7309,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.951,
+  "reward_delta": 0.4228
+}

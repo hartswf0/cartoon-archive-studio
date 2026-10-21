@@ -1,0 +1,14 @@
+{
+  "shot": "chandelier",
+  "category": "chandelier",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9706,
+  "mean_reward_ep0": 0.3497,
+  "mean_reward_ep1": 0.5209,
+  "mean_reward_ep2": 0.6914,
+  "mean_reward_ep3": 0.7134,
+  "mean_sil_iou_ep3": 0.8004,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9678,
+  "reward_delta": 0.3637
+}

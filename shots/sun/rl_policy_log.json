@@ -1,0 +1,14 @@
+{
+  "shot": "sun",
+  "category": "sun",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9456,
+  "mean_reward_ep0": 0.3807,
+  "mean_reward_ep1": 0.4893,
+  "mean_reward_ep2": 0.5912,
+  "mean_reward_ep3": 0.6157,
+  "mean_sil_iou_ep3": 0.8184,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9529,
+  "reward_delta": 0.235
+}

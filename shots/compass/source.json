@@ -1,0 +1,47 @@
+{
+  "category": "compass",
+  "shot_id": "compass",
+  "body_plan": "Regime V: Precision Instrument",
+  "interval": [
+    2.59,
+    6.19
+  ],
+  "key_times": [
+    2.59,
+    3.71,
+    4.95,
+    6.19
+  ],
+  "key_notes": [
+    "Key 1 (t=2.59s): Initial archival pose of compass; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.71s): Mid-sequence articulation of compass; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.95s): Peak dynamic extension of compass over 7-plane multiplane environment.",
+    "Key 4 (t=6.19s): Follow-through and settle of compass with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of compass (2.59s..6.19s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_a8cd1cda",
+    "source_id": "02_a8cd1cda",
+    "source_slug": "compass",
+    "source_title": "Moving Image Archive // Compass",
+    "source_year": 1956,
+    "start_seconds": 2.59,
+    "end_seconds": 6.19,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/compass/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/compass/videos/02_a8cd1cda-71bd-5a20-a282-431eda56850f.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4548574635360256",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

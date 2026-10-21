@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "snowman", "clip": "03_75dffc37", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "snowman", "mean_sam_iou": 0.9292}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "snowman", "key_id": "6389246514429952", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "snowman", "ep0": 0.4853, "ep3": 0.5211, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "snowman", "gates": "16/16"}

@@ -1,0 +1,47 @@
+{
+  "category": "radio",
+  "shot_id": "radio",
+  "body_plan": "Regime V: Broadcast Apparatus",
+  "interval": [
+    5.09,
+    8.69
+  ],
+  "key_times": [
+    5.09,
+    6.21,
+    7.45,
+    8.69
+  ],
+  "key_notes": [
+    "Key 1 (t=5.09s): Initial archival pose of radio; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.21s): Mid-sequence articulation of radio; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.45s): Peak dynamic extension of radio over 7-plane multiplane environment.",
+    "Key 4 (t=8.69s): Follow-through and settle of radio with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of radio (5.09s..8.69s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_6cd250bb",
+    "source_id": "03_6cd250bb",
+    "source_slug": "radio",
+    "source_title": "Moving Image Archive // Radio",
+    "source_year": 1956,
+    "start_seconds": 5.09,
+    "end_seconds": 8.69,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/radio/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/radio/videos/03_6cd250bb-9a76-5b23-8e9d-9d9db9f2eae6.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5864006650691584",
+    "n_strokes": 6,
+    "country": "GB",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (GB, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

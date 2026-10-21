@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "see-saw", "clip": "01_790e7562", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "see-saw", "mean_sam_iou": 0.9266}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "see-saw", "key_id": "4708739804299264", "country": "SK"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "see-saw", "ep0": 0.4101, "ep3": 0.5513, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "see-saw", "gates": "16/16"}

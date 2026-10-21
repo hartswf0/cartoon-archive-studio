@@ -1,0 +1,14 @@
+{
+  "shot": "yoga",
+  "category": "yoga",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9196,
+  "mean_reward_ep0": 0.0019,
+  "mean_reward_ep1": 0.6346,
+  "mean_reward_ep2": 0.7351,
+  "mean_reward_ep3": 0.772,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.8008,
+  "mean_stroke_precision_ep3": 0.968,
+  "reward_delta": 0.7701
+}

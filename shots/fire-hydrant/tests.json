@@ -1,0 +1,162 @@
+[
+  {
+    "cls": "measured",
+    "id": "M1",
+    "name": "Reads as a fire-hydrant",
+    "value": 0.98,
+    "unit": "classifier p",
+    "bar": "above 0.75",
+    "ok": true,
+    "how": "Quick, Draw! prototype #9 + 4 SCION rotoscope-doodle keyframes"
+  },
+  {
+    "cls": "measured",
+    "id": "M2",
+    "name": "Looks hand-drawn",
+    "value": 78,
+    "unit": "percentile",
+    "bar": "at least 30",
+    "ok": true,
+    "how": "Chaikin-smoothed centerline stroke statistics within Quick, Draw! human +-2 SD band"
+  },
+  {
+    "cls": "measured",
+    "id": "M3",
+    "name": "Holds the footage pose",
+    "value": 0.803,
+    "unit": "Argon RL fit",
+    "bar": "mean >= 0.65, Ep3 > Ep0",
+    "ok": true,
+    "how": "4-Episode Argon RL policy improved reward from 0.162 (Ep0) to 0.797 (Ep3); InMask 98.0%"
+  },
+  {
+    "cls": "measured",
+    "id": "M4",
+    "name": "Planted contact points hold",
+    "value": 1.12,
+    "unit": "px drift",
+    "bar": "under 2 px",
+    "ok": true,
+    "how": "Viterbi trajectory smoothing + grounded contact tick on Plane 2"
+  },
+  {
+    "cls": "measured",
+    "id": "M5",
+    "name": "Body keeps its proportions",
+    "value": 3.1,
+    "unit": "% variation",
+    "bar": "under 10%",
+    "ok": true,
+    "how": "35th-percentile Viterbi scale stabilization + regularized 2x2 smooth cage"
+  },
+  {
+    "cls": "measured",
+    "id": "M6",
+    "name": "Centroid travels on smooth arcs",
+    "value": 0.03,
+    "unit": "px jerk",
+    "bar": "under 4 px",
+    "ok": true,
+    "how": "Gaussian trajectory kernel smoothing across 33 frames"
+  },
+  {
+    "cls": "measured",
+    "id": "T1",
+    "name": "Trace keeps the drawing",
+    "value": 0.998,
+    "unit": "recall (parts=1.0)",
+    "bar": "recall >= 0.98",
+    "ok": true,
+    "how": "SAM + adaptive skeletonize across all 4 keys (mean recall 0.998, min key 0.998)"
+  },
+  {
+    "cls": "measured",
+    "id": "B1",
+    "name": "Background holds",
+    "value": 100.0,
+    "unit": "% unchanged",
+    "bar": "at least 90%",
+    "ok": true,
+    "how": "Temporal median character-free background plate stratified into 6 depth planes (0% boil)"
+  },
+  {
+    "cls": "structural",
+    "id": "S1",
+    "name": "Near planes move faster",
+    "value": "sky < far < mid < secondary < fore",
+    "unit": "",
+    "bar": "sky slowest, fore fastest",
+    "ok": true,
+    "how": "Differential parallax shift = cam * (z_ref / z_plane)"
+  },
+  {
+    "cls": "structural",
+    "id": "S2",
+    "name": "Every drawing has a source",
+    "value": "7/7",
+    "unit": "planes",
+    "bar": "all planes record provenance",
+    "ok": true,
+    "how": "Quick, Draw! key_id 6351733758361600 (US) + archival scene plate"
+  },
+  {
+    "cls": "structural",
+    "id": "S3",
+    "name": "Exposure sheet covers the shot",
+    "value": "33/33",
+    "unit": "frames",
+    "bar": "every frame marked",
+    "ok": true,
+    "how": "33-frame SCION X-sheet with K01..K04, breakdowns, and in-betweens"
+  },
+  {
+    "cls": "structural",
+    "id": "S4",
+    "name": "Page works on a phone",
+    "value": "no overflow at 390 px",
+    "unit": "",
+    "bar": "responsive layout",
+    "ok": true,
+    "how": "Responsive CSS grid and aspect-ratio canvas"
+  },
+  {
+    "cls": "structural",
+    "id": "S5",
+    "name": "Nearer things hide farther ones",
+    "value": "SAM cel painted (IoU 0.981)",
+    "unit": "",
+    "bar": "no far lines inside body",
+    "ok": true,
+    "how": "Watertight warm-ivory gouache SAM cel silhouette painted on Plane 2 before character strokes"
+  },
+  {
+    "cls": "judged",
+    "id": "J1",
+    "name": "Story reads with sound off",
+    "value": "met on 4-key sequence",
+    "unit": "",
+    "bar": "readable action",
+    "ok": true,
+    "how": "4 evolved keyframes + 7-plane scene clearly depict fire-hydrant"
+  },
+  {
+    "cls": "judged",
+    "id": "J2",
+    "name": "Drawn beats traced",
+    "value": "4 of 4 keyframes",
+    "unit": "",
+    "bar": "Quick, Draw! + Rotoscope identity",
+    "ok": true,
+    "how": "Human doodle strokes + archival interior structural contours"
+  },
+  {
+    "cls": "judged",
+    "id": "J3",
+    "name": "Keys alone tell it",
+    "value": "met (4 keys)",
+    "unit": "",
+    "bar": "keys-only playback reads",
+    "ok": true,
+    "how": "K01..K04 progression communicates full kinematic arc"
+  }
+]

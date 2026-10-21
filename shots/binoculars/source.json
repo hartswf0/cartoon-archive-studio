@@ -1,0 +1,47 @@
+{
+  "category": "binoculars",
+  "shot_id": "binoculars",
+  "body_plan": "Regime V: Optical Instrument",
+  "interval": [
+    1.54,
+    5.14
+  ],
+  "key_times": [
+    1.54,
+    2.67,
+    3.9,
+    5.14
+  ],
+  "key_notes": [
+    "Key 1 (t=1.54s): Initial archival pose of binoculars; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.67s): Mid-sequence articulation of binoculars; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.9s): Peak dynamic extension of binoculars over 7-plane multiplane environment.",
+    "Key 4 (t=5.14s): Follow-through and settle of binoculars with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of binoculars (1.54s..5.14s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_3b973da6",
+    "source_id": "04_3b973da6",
+    "source_slug": "binoculars",
+    "source_title": "Moving Image Archive // Binoculars",
+    "source_year": 1956,
+    "start_seconds": 1.54,
+    "end_seconds": 5.14,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/binoculars/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/binoculars/videos/04_3b973da6-a34e-517c-8213-158f6972b42b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4753814395551744",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

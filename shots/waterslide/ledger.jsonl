@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "waterslide", "clip": "04_6e49e0ee", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "waterslide", "mean_sam_iou": 0.9412}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "waterslide", "key_id": "5902478740553728", "country": "PL"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "waterslide", "ep0": 0.3027, "ep3": 0.671, "sil_iou": 0.8, "in_mask": 0.9653}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "waterslide", "gates": "16/16"}

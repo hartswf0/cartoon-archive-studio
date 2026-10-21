@@ -1,0 +1,14 @@
+{
+  "shot": "pool",
+  "category": "pool",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9832,
+  "mean_reward_ep0": 0.3879,
+  "mean_reward_ep1": 0.6689,
+  "mean_reward_ep2": 0.7168,
+  "mean_reward_ep3": 0.7388,
+  "mean_sil_iou_ep3": 0.8657,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9712,
+  "reward_delta": 0.3509
+}

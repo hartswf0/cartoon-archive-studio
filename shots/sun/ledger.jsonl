@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "sun", "clip": "01_d84e1934", "interval": [5.35, 8.95]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "sun", "mean_sam_iou": 0.9456}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "sun", "key_id": "5510377251012608", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "sun", "ep0": 0.3807, "ep3": 0.6157, "sil_iou": 0.8184, "in_mask": 0.9529}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "sun", "gates": "16/16"}

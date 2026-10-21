@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "house-plant", "clip": "01_f6ada7cd", "interval": [1.34, 4.94]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "house-plant", "mean_sam_iou": 0.9578}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "house-plant", "key_id": "6231671353376768", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "house-plant", "ep0": 0.0262, "ep3": 0.7692, "sil_iou": 0.8, "in_mask": 0.9624}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "house-plant", "gates": "16/16"}

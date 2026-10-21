@@ -1,0 +1,14 @@
+{
+  "shot": "hammer",
+  "category": "hammer",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.8964,
+  "mean_reward_ep0": 0.2611,
+  "mean_reward_ep1": 0.5186,
+  "mean_reward_ep2": 0.6326,
+  "mean_reward_ep3": 0.662,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.741,
+  "mean_stroke_precision_ep3": 0.95,
+  "reward_delta": 0.401
+}

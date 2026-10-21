@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "pliers", "clip": "05_18790cf0", "interval": [2.94, 6.54]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "pliers", "mean_sam_iou": 0.894}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "pliers", "key_id": "6234632016101376", "country": "IS"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "pliers", "ep0": 0.2391, "ep3": 0.4112, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "pliers", "gates": "16/16"}

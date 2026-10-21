@@ -1,0 +1,47 @@
+{
+  "category": "stop_sign",
+  "shot_id": "stop-sign",
+  "body_plan": "Regime VI: Civic Streetscape",
+  "interval": [
+    2.34,
+    5.94
+  ],
+  "key_times": [
+    2.34,
+    3.46,
+    4.7,
+    5.94
+  ],
+  "key_notes": [
+    "Key 1 (t=2.34s): Initial archival pose of stop-sign; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.46s): Mid-sequence articulation of stop-sign; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.7s): Peak dynamic extension of stop-sign over 7-plane multiplane environment.",
+    "Key 4 (t=5.94s): Follow-through and settle of stop-sign with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of stop-sign (2.34s..5.94s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_2993a7b0",
+    "source_id": "03_2993a7b0",
+    "source_slug": "stop-sign",
+    "source_title": "Moving Image Archive // Stop Sign",
+    "source_year": 1956,
+    "start_seconds": 2.34,
+    "end_seconds": 5.94,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/stop-sign/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/stop_sign/videos/03_2993a7b0-d7bd-5ddf-90ee-73a4c13af261.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4872192066060288",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

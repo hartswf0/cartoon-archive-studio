@@ -1,0 +1,47 @@
+{
+  "category": "alarm_clock",
+  "shot_id": "alarm-clock",
+  "body_plan": "Regime V: Precision Timepiece",
+  "interval": [
+    6.55,
+    10.15
+  ],
+  "key_times": [
+    6.55,
+    7.67,
+    8.91,
+    10.15
+  ],
+  "key_notes": [
+    "Key 1 (t=6.55s): Initial archival pose of alarm-clock; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=7.67s): Mid-sequence articulation of alarm-clock; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=8.91s): Peak dynamic extension of alarm-clock over 7-plane multiplane environment.",
+    "Key 4 (t=10.15s): Follow-through and settle of alarm-clock with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of alarm-clock (6.55s..10.15s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_30956829",
+    "source_id": "01_30956829",
+    "source_slug": "alarm-clock",
+    "source_title": "Moving Image Archive // Alarm Clock",
+    "source_year": 1956,
+    "start_seconds": 6.55,
+    "end_seconds": 10.15,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/alarm-clock/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/alarm_clock/videos/01_30956829-ceff-5881-9945-d698b1b27723.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4608088873107456",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 5,
+    "why": "Selected Quick, Draw! human doodle #5 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

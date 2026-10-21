@@ -1,0 +1,47 @@
+{
+  "category": "house_plant",
+  "shot_id": "house-plant",
+  "body_plan": "Regime VIII: Botanical & Elemental",
+  "interval": [
+    1.34,
+    4.94
+  ],
+  "key_times": [
+    1.34,
+    2.47,
+    3.7,
+    4.94
+  ],
+  "key_notes": [
+    "Key 1 (t=1.34s): Initial archival pose of house-plant; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.47s): Mid-sequence articulation of house-plant; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.7s): Peak dynamic extension of house-plant over 7-plane multiplane environment.",
+    "Key 4 (t=4.94s): Follow-through and settle of house-plant with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of house-plant (1.34s..4.94s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_f6ada7cd",
+    "source_id": "01_f6ada7cd",
+    "source_slug": "house-plant",
+    "source_title": "Moving Image Archive // House Plant",
+    "source_year": 1956,
+    "start_seconds": 1.34,
+    "end_seconds": 4.94,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/house-plant/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/house_plant/videos/01_f6ada7cd-54e5-5717-8eca-a7fd86b7ddc7.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6231671353376768",
+    "n_strokes": 8,
+    "country": "US",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (US, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

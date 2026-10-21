@@ -1,0 +1,14 @@
+{
+  "shot": "stop-sign",
+  "category": "stop_sign",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9802,
+  "mean_reward_ep0": 0.0508,
+  "mean_reward_ep1": 0.8174,
+  "mean_reward_ep2": 0.8618,
+  "mean_reward_ep3": 0.8838,
+  "mean_sil_iou_ep3": 0.8527,
+  "mean_edge_recall_ep3": 0.7208,
+  "mean_stroke_precision_ep3": 0.9796,
+  "reward_delta": 0.833
+}

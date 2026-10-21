@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "teddy-bear", "clip": "04_11797612", "interval": [0.37, 3.97]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "teddy-bear", "mean_sam_iou": 0.9376}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "teddy-bear", "key_id": "5650121565929472", "country": "SE"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "teddy-bear", "ep0": 0.4843, "ep3": 0.6203, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "teddy-bear", "gates": "16/16"}

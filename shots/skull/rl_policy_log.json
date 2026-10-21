@@ -1,0 +1,14 @@
+{
+  "shot": "skull",
+  "category": "skull",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.8904,
+  "mean_reward_ep0": 0.0532,
+  "mean_reward_ep1": 0.74,
+  "mean_reward_ep2": 0.8459,
+  "mean_reward_ep3": 0.8686,
+  "mean_sil_iou_ep3": 0.8056,
+  "mean_edge_recall_ep3": 0.8106,
+  "mean_stroke_precision_ep3": 0.9842,
+  "reward_delta": 0.8154
+}

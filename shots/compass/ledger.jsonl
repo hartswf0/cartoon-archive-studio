@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "compass", "clip": "02_a8cd1cda", "interval": [2.59, 6.19]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "compass", "mean_sam_iou": 0.932}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "compass", "key_id": "4548574635360256", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "compass", "ep0": 0.589, "ep3": 0.7428, "sil_iou": 0.8334, "in_mask": 0.972}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "compass", "gates": "16/16"}

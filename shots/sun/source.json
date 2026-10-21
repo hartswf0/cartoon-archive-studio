@@ -1,0 +1,47 @@
+{
+  "category": "sun",
+  "shot_id": "sun",
+  "body_plan": "Regime VIII: Celestial & Radiant",
+  "interval": [
+    5.35,
+    8.95
+  ],
+  "key_times": [
+    5.35,
+    6.47,
+    7.71,
+    8.95
+  ],
+  "key_notes": [
+    "Key 1 (t=5.35s): Initial archival pose of sun; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.47s): Mid-sequence articulation of sun; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.71s): Peak dynamic extension of sun over 7-plane multiplane environment.",
+    "Key 4 (t=8.95s): Follow-through and settle of sun with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of sun (5.35s..8.95s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_d84e1934",
+    "source_id": "01_d84e1934",
+    "source_slug": "sun",
+    "source_title": "Moving Image Archive // Sun",
+    "source_year": 1956,
+    "start_seconds": 5.35,
+    "end_seconds": 8.95,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/sun/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/sun/videos/01_d84e1934-2b60-5ce3-aa78-133237b78755.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5510377251012608",
+    "n_strokes": 7,
+    "country": "GB",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (GB, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

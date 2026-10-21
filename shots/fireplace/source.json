@@ -1,0 +1,47 @@
+{
+  "category": "fireplace",
+  "shot_id": "fireplace",
+  "body_plan": "Regime VI: Architectural Hearth",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of fireplace; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of fireplace; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of fireplace over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of fireplace with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of fireplace (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_b5998af8",
+    "source_id": "01_b5998af8",
+    "source_slug": "fireplace",
+    "source_title": "Moving Image Archive // Fireplace",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/fireplace/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/fireplace/videos/01_b5998af8-a901-556f-99e3-3b7e7e05edf5.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5238508102877184",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 6,
+    "why": "Selected Quick, Draw! human doodle #6 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

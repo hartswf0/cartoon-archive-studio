@@ -1,0 +1,14 @@
+{
+  "shot": "streetlight",
+  "category": "streetlight",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9243,
+  "mean_reward_ep0": 0.1641,
+  "mean_reward_ep1": 0.3917,
+  "mean_reward_ep2": 0.4924,
+  "mean_reward_ep3": 0.5235,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9622,
+  "reward_delta": 0.3594
+}

@@ -1,0 +1,47 @@
+{
+  "category": "pliers",
+  "shot_id": "pliers",
+  "body_plan": "Regime IV: Pivoting Lever Mechanism",
+  "interval": [
+    2.94,
+    6.54
+  ],
+  "key_times": [
+    2.94,
+    4.06,
+    5.3,
+    6.54
+  ],
+  "key_notes": [
+    "Key 1 (t=2.94s): Initial archival pose of pliers; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.06s): Mid-sequence articulation of pliers; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.3s): Peak dynamic extension of pliers over 7-plane multiplane environment.",
+    "Key 4 (t=6.54s): Follow-through and settle of pliers with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of pliers (2.94s..6.54s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_18790cf0",
+    "source_id": "05_18790cf0",
+    "source_slug": "pliers",
+    "source_title": "Moving Image Archive // Pliers",
+    "source_year": 1956,
+    "start_seconds": 2.94,
+    "end_seconds": 6.54,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/pliers/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/pliers/videos/05_18790cf0-586b-5ea0-8d44-dc61a5838038.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6234632016101376",
+    "n_strokes": 7,
+    "country": "IS",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (IS, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

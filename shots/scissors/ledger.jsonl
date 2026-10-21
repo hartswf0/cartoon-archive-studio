@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "scissors", "clip": "04_8266284b", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "scissors", "mean_sam_iou": 0.9431}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "scissors", "key_id": "4772289012826112", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "scissors", "ep0": 0.2156, "ep3": 0.743, "sil_iou": 0.8147, "in_mask": 0.9755}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "scissors", "gates": "16/16"}

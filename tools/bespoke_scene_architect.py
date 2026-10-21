@@ -973,6 +973,31 @@ def build_bespoke_50_scene(
     planes_640 = {pid: [] for pid in plane_order}
     cels_640 = {pid: [] for pid in plane_order}
 
+    # 0. Extract a clean horizontal archival depth-ridge profile from `d_med` across `x` (strictly outside `subject_envelope`)
+    d_blur = cv2.GaussianBlur(d_med, (31, 31), 0)
+    gy_d = np.abs(cv2.Sobel(d_blur, cv2.CV_32F, 0, 1, ksize=3))
+    r0_h, r1_h = max(95, int(y_hor - 45)), min(H - 120, int(y_hor + 45))
+    env_pad = cv2.dilate((subject_envelope > 0).astype(np.uint8) * 255, np.ones((25, 25), np.uint8))
+    if r1_h > r0_h + 12:
+        xs_sample = list(range(18, W - 18, 12))
+        raw_ys = []
+        for x_s in xs_sample:
+            col_slice = gy_d[r0_h:r1_h, x_s]
+            y_s = float(r0_h + int(np.argmax(col_slice))) if len(col_slice) > 0 else y_hor
+            raw_ys.append(y_s)
+        smooth_ys = np.convolve(np.pad(raw_ys, (2, 2), mode="edge"), [0.1, 0.2, 0.4, 0.2, 0.1], mode="valid")
+        cur_seg = []
+        for x_s, y_s in zip(xs_sample, smooth_ys):
+            iy = int(np.clip(round(y_s), 0, H - 1))
+            if env_pad[iy, x_s] == 0:
+                cur_seg.append([float(x_s), float(y_s)])
+            else:
+                if len(cur_seg) >= 4:
+                    add_stroke(planes_640, "far", cur_seg, smooth=2)
+                cur_seg = []
+        if len(cur_seg) >= 4:
+            add_stroke(planes_640, "far", cur_seg, smooth=2)
+
     # 1. Add bespoke procedural architectural / interior / landscape artwork & gouache cels
     add_procedural_theme_artwork(slug, recipe["theme"], planes_640, cels_640, y_hor, subject_box)
 

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "pool", "clip": "05_53ca6073", "interval": [1.07, 4.67]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "pool", "mean_sam_iou": 0.9832}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "pool", "key_id": "4592811510857728", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "pool", "ep0": 0.3879, "ep3": 0.7388, "sil_iou": 0.8657, "in_mask": 0.9712}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "pool", "gates": "16/16"}
