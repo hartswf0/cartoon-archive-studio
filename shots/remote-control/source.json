@@ -1,0 +1,47 @@
+{
+  "category": "remote_control",
+  "shot_id": "remote-control",
+  "body_plan": "Regime V: Broadcast & Electronics",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of remote-control; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of remote-control; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of remote-control over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of remote-control with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of remote-control (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_fc847644",
+    "source_id": "01_fc847644",
+    "source_slug": "remote-control",
+    "source_title": "Moving Image Archive // Remote Control",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/remote-control/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/remote_control/videos/01_fc847644-6913-5dd8-9905-1f2983631730.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5095590209781760",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

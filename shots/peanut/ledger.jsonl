@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "peanut", "clip": "07_7b5fd118", "interval": [3.41, 7.01]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "peanut", "mean_sam_iou": 0.9635}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "peanut", "key_id": "6601007821750272", "country": "NO"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "peanut", "ep0": 0.2562, "ep3": 0.6472, "sil_iou": 0.8, "in_mask": 0.9745}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "peanut", "gates": "16/16"}

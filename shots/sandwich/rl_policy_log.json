@@ -1,0 +1,14 @@
+{
+  "shot": "sandwich",
+  "category": "sandwich",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9088,
+  "mean_reward_ep0": 0.1781,
+  "mean_reward_ep1": 0.5093,
+  "mean_reward_ep2": 0.569,
+  "mean_reward_ep3": 0.5947,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.716,
+  "mean_stroke_precision_ep3": 0.95,
+  "reward_delta": 0.4167
+}

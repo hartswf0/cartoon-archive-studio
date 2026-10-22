@@ -1,0 +1,47 @@
+{
+  "category": "t_shirt",
+  "shot_id": "t-shirt",
+  "body_plan": "Regime VII: Apparel & Haberdashery",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of t-shirt; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of t-shirt; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of t-shirt over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of t-shirt with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of t-shirt (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_e6de4577",
+    "source_id": "01_e6de4577",
+    "source_slug": "t-shirt",
+    "source_title": "Moving Image Archive // T Shirt",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/t-shirt/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/t_shirt/videos/01_e6de4577-205d-57e2-97a6-1931972c04d8.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6375763613843456",
+    "n_strokes": 11,
+    "country": "US",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (US, 11 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

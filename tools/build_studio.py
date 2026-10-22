@@ -289,6 +289,83 @@ SHOT_ORDER = [
     "cloud",
     "rain",
     "snowflake",
+    # Batch-6 of 76 Full-Frame SCION Multiplane Cartoons (Shots #271–#346, SCION-UniqueWorld-v9, 100% Corpus Completion)
+    "arm",
+    "elbow",
+    "finger",
+    "foot",
+    "toe",
+    "knee",
+    "leg",
+    "brain",
+    "tooth",
+    "goatee",
+    "smiley-face",
+    "stitches",
+    "asparagus",
+    "blackberry",
+    "broccoli",
+    "carrot",
+    "onion",
+    "peanut",
+    "peas",
+    "potato",
+    "string-bean",
+    "basket",
+    "bottlecap",
+    "cup",
+    "mug",
+    "fork",
+    "knife",
+    "spoon",
+    "lollipop",
+    "popsicle",
+    "sandwich",
+    "steak",
+    "cooler",
+    "dishwasher",
+    "belt",
+    "bracelet",
+    "diamond",
+    "helmet",
+    "pants",
+    "purse",
+    "shorts",
+    "sock",
+    "sweater",
+    "t-shirt",
+    "underwear",
+    "camouflage",
+    "bandage",
+    "toothpaste",
+    "toilet",
+    "pillow",
+    "candle",
+    "lighter",
+    "matches",
+    "nail",
+    "power-outlet",
+    "headphones",
+    "remote-control",
+    "stereo",
+    "eraser",
+    "paper-clip",
+    "spreadsheet",
+    "passport",
+    "postcard",
+    "mailbox",
+    "bench",
+    "jail",
+    "rifle",
+    "star",
+    "circle",
+    "square",
+    "triangle",
+    "hexagon",
+    "octagon",
+    "line",
+    "squiggle",
+    "zigzag",
 ]
 
 
@@ -299,7 +376,7 @@ def load_json(path: Path, default=None):
 
 
 def build_showcase_video():
-    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 270 cartoons."""
+    """Concatenate a 2x2 showcase MP4 across representative multiplane shots from all 346 cartoons."""
     out_path = STUDIO_DIR / "Cartoon_Archive_Living_Doodles_Showcase.mp4"
     writer = cv2.VideoWriter(str(out_path), cv2.VideoWriter_fourcc(*"mp4v"), 12.0, (1280, 720))
 
@@ -315,9 +392,11 @@ def build_showcase_video():
         ("PART IX: SCION BATCH-2 — REPTILES, FAUNA & REEF LIFE", ["cat", "rhinoceros", "crocodile", "octopus"]),
         ("PART X: SCION BATCH-2 — WORLD MONUMENTS & ELEMENTS", ["the-eiffel-tower", "skyscraper", "hurricane", "rainbow"]),
         ("PART XI: SCION BATCH-3 — LIVING BG REDRAW & TOOLS", ["animal-migration", "tree", "fireplace", "snowman"]),
-        ("PART XII: SCION BATCH-4 — FULL-FRAME BOTANICAL, BAKERY & HEARTH", ["giraffe", "garden", "birthday-cake", "teapot"]),
-        ("PART XIII: SCION BATCH-4 — FULL-FRAME INTERIORS & STUDIO DESK", ["chair", "floor-lamp", "laptop", "picture-frame"]),
-        ("PART XIV: SCION BATCH-5 — FULL-FRAME ATELIER, APPAREL & WEATHER", ["the-mona-lisa", "crown", "bathtub", "snowflake"]),
+        ("PART XII: SCION BATCH-4 — UNIQUE-WORLD BOTANICAL, BAKERY & HEARTH", ["giraffe", "garden", "birthday-cake", "teapot"]),
+        ("PART XIII: SCION BATCH-4 — UNIQUE-WORLD INTERIORS & STUDIO DESK", ["chair", "floor-lamp", "laptop", "picture-frame"]),
+        ("PART XIV: SCION BATCH-5 — UNIQUE-WORLD ATELIER, APPAREL & WEATHER", ["the-mona-lisa", "crown", "bathtub", "snowflake"]),
+        ("PART XV: SCION BATCH-6 — UNIQUE-WORLD HARVEST, TABLEWARE & APPAREL", ["carrot", "basket", "sandwich", "diamond"]),
+        ("PART XVI: SCION BATCH-6 — UNIQUE-WORLD HEARTH, CIVIC & CELESTIAL", ["candle", "stereo", "mailbox", "star"]),
     ]
 
     for title, slugs in groups:
@@ -331,7 +410,7 @@ def build_showcase_video():
             cv2.rectangle(canvas, (0, 0), (1280, 48), (18, 20, 22), -1)
             cv2.putText(
                 canvas,
-                f"SECONDHAND MOTION (270 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
+                f"SECONDHAND MOTION (346 SHOTS) // {title}   [FRAME {f_idx + 1:02d}/33]",
                 (20, 31),
                 cv2.FONT_HERSHEY_DUPLEX,
                 0.56,
@@ -516,8 +595,8 @@ def bundle_data():
         return x
 
     full_payload = {
-        "project": "Secondhand Motion — The Joined Studio (270 Full-Frame SCION Multiplane Cartoons)",
-        "generated_at": "2026-10-21",
+        "project": "Secondhand Motion — The Complete 345-Category Archive (346 Full-Frame SCION Multiplane Cartoons)",
+        "generated_at": "2026-10-22",
         "shot_order": SHOT_ORDER,
         "shots": round_coords(shots_bundle),
         "lane_compare": lane_compare,

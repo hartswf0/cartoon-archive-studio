@@ -222,6 +222,11 @@ def select_best_continuous_interval(category: str, sdir: Path):
         "donut": ("cake", 1),
         "dresser": ("bed", 1),
         "moustache": ("beard", 3),
+        "bench": ("chair", 1),
+        "peanut": ("cookie", 1),
+        "power_outlet": ("light_bulb", 1),
+        "smiley_face": ("face", 1),
+        "sock": ("shoe", 1),
     }
     source_cat, start_idx = SIBLING_VINTAGE_MAP.get(category, (category, 0))
     v_dir = MIA_DIR / "by_term" / source_cat / "videos"

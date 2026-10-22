@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "power-outlet", "clip": "05_9d580700", "interval": [3.08, 6.68]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "power-outlet", "mean_sam_iou": 0.9226}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "power-outlet", "key_id": "6022722335277056", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "power-outlet", "ep0": 0.362, "ep3": 0.6598, "sil_iou": 0.81, "in_mask": 0.953}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "power-outlet", "gates": "16/16"}

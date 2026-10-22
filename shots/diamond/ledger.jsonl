@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "diamond", "clip": "05_a6fb2dc2", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "diamond", "mean_sam_iou": 0.9374}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "diamond", "key_id": "4815459729801216", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "diamond", "ep0": 0.2885, "ep3": 0.7503, "sil_iou": 0.8003, "in_mask": 0.9617}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "diamond", "gates": "16/16"}

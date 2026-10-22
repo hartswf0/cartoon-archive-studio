@@ -1,0 +1,47 @@
+{
+  "category": "knee",
+  "shot_id": "knee",
+  "body_plan": "Regime VIII: Expressive Anatomy & Gesture",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of knee; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of knee; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of knee over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of knee with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of knee (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_c0f7cc64",
+    "source_id": "06_c0f7cc64",
+    "source_slug": "knee",
+    "source_title": "Moving Image Archive // Knee",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/knee/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/knee/videos/06_c0f7cc64-df36-52fe-9803-e50b2a5eac87.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6470199865769984",
+    "n_strokes": 10,
+    "country": "US",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (US, 10 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

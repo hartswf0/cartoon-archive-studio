@@ -1,0 +1,47 @@
+{
+  "category": "spreadsheet",
+  "shot_id": "spreadsheet",
+  "body_plan": "Regime V: Literary & Computing",
+  "interval": [
+    4.2,
+    7.8
+  ],
+  "key_times": [
+    4.2,
+    5.33,
+    6.56,
+    7.8
+  ],
+  "key_notes": [
+    "Key 1 (t=4.2s): Initial archival pose of spreadsheet; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=5.33s): Mid-sequence articulation of spreadsheet; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=6.56s): Peak dynamic extension of spreadsheet over 7-plane multiplane environment.",
+    "Key 4 (t=7.8s): Follow-through and settle of spreadsheet with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of spreadsheet (4.2s..7.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_55be3fd8",
+    "source_id": "01_55be3fd8",
+    "source_slug": "spreadsheet",
+    "source_title": "Moving Image Archive // Spreadsheet",
+    "source_year": 1956,
+    "start_seconds": 4.2,
+    "end_seconds": 7.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/spreadsheet/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/spreadsheet/videos/01_55be3fd8-eb81-5c04-8579-b06908cfbc4d.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4793446407602176",
+    "n_strokes": 9,
+    "country": "AU",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (AU, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

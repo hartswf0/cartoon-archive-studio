@@ -1,0 +1,14 @@
+{
+  "shot": "steak",
+  "category": "steak",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9656,
+  "mean_reward_ep0": 0.4098,
+  "mean_reward_ep1": 0.4915,
+  "mean_reward_ep2": 0.681,
+  "mean_reward_ep3": 0.7147,
+  "mean_sil_iou_ep3": 0.8231,
+  "mean_edge_recall_ep3": 0.7054,
+  "mean_stroke_precision_ep3": 0.9592,
+  "reward_delta": 0.3049
+}

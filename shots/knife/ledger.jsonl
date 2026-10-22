@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "knife", "clip": "03_e098055c", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "knife", "mean_sam_iou": 0.9277}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "knife", "key_id": "4746418579308544", "country": "HU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "knife", "ep0": 0.1932, "ep3": 0.6241, "sil_iou": 0.8, "in_mask": 0.9746}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "knife", "gates": "16/16"}

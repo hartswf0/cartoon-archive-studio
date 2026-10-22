@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "peas", "clip": "01_21313bc5", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "peas", "mean_sam_iou": 0.9668}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "peas", "key_id": "4604715729944576", "country": "KR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "peas", "ep0": 0.3029, "ep3": 0.6803, "sil_iou": 0.8, "in_mask": 0.9732}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "peas", "gates": "16/16"}

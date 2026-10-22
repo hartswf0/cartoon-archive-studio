@@ -1,0 +1,47 @@
+{
+  "category": "peanut",
+  "shot_id": "peanut",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    3.41,
+    7.01
+  ],
+  "key_times": [
+    3.41,
+    4.54,
+    5.77,
+    7.01
+  ],
+  "key_notes": [
+    "Key 1 (t=3.41s): Initial archival pose of peanut; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.54s): Mid-sequence articulation of peanut; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.77s): Peak dynamic extension of peanut over 7-plane multiplane environment.",
+    "Key 4 (t=7.01s): Follow-through and settle of peanut with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of peanut (3.41s..7.01s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "07_7b5fd118",
+    "source_id": "07_7b5fd118",
+    "source_slug": "peanut",
+    "source_title": "Moving Image Archive // Peanut",
+    "source_year": 1956,
+    "start_seconds": 3.41,
+    "end_seconds": 7.01,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/peanut/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/peanut/videos/07_7b5fd118-65ab-5f50-8464-15dfd4356fb1.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6601007821750272",
+    "n_strokes": 9,
+    "country": "NO",
+    "qd_index": 9,
+    "why": "Selected Quick, Draw! human doodle #9 (NO, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

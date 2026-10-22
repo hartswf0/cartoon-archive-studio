@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "stitches", "clip": "05_877dcdd4", "interval": [1.37, 4.97]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "stitches", "mean_sam_iou": 0.9702}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "stitches", "key_id": "6136242099978240", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "stitches", "ep0": 0.3593, "ep3": 0.7157, "sil_iou": 0.8244, "in_mask": 0.9546}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "stitches", "gates": "16/16"}

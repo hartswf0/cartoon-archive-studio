@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "circle", "clip": "04_fa880249", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "circle", "mean_sam_iou": 0.9461}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "circle", "key_id": "5923968441647104", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "circle", "ep0": 0.1536, "ep3": 0.7916, "sil_iou": 0.8, "in_mask": 0.9811}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "circle", "gates": "16/16"}

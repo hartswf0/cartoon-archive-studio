@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "potato", "clip": "05_78ef3a09", "interval": [2.09, 5.69]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "potato", "mean_sam_iou": 0.9248}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "potato", "key_id": "5191271628931072", "country": "KR"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "potato", "ep0": 0.3649, "ep3": 0.5607, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "potato", "gates": "16/16"}

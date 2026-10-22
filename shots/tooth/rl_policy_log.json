@@ -1,0 +1,14 @@
+{
+  "shot": "tooth",
+  "category": "tooth",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9687,
+  "mean_reward_ep0": 0.3253,
+  "mean_reward_ep1": 0.7027,
+  "mean_reward_ep2": 0.8016,
+  "mean_reward_ep3": 0.8296,
+  "mean_sil_iou_ep3": 0.804,
+  "mean_edge_recall_ep3": 0.7136,
+  "mean_stroke_precision_ep3": 0.9622,
+  "reward_delta": 0.5043
+}

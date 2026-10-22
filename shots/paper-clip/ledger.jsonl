@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "paper-clip", "clip": "03_81c2318d", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "paper-clip", "mean_sam_iou": 0.9811}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "paper-clip", "key_id": "4994359877435392", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "paper-clip", "ep0": 0.1784, "ep3": 0.5337, "sil_iou": 0.8, "in_mask": 0.9843}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "paper-clip", "gates": "16/16"}

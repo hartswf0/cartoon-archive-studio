@@ -1,0 +1,47 @@
+{
+  "category": "star",
+  "shot_id": "star",
+  "body_plan": "Regime VIII: Celestial & Geometric",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of star; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of star; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of star over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of star with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of star (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_e5134de2",
+    "source_id": "05_e5134de2",
+    "source_slug": "star",
+    "source_title": "Moving Image Archive // Star",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/star/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/star/videos/05_e5134de2-3192-50c5-a9bd-c4c614992e8f.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5722044912107520",
+    "n_strokes": 9,
+    "country": "MY",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (MY, 9 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

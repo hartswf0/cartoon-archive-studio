@@ -1,0 +1,47 @@
+{
+  "category": "squiggle",
+  "shot_id": "squiggle",
+  "body_plan": "Regime VIII: Geometric & Graphic",
+  "interval": [
+    0.0,
+    3.6
+  ],
+  "key_times": [
+    0.0,
+    1.12,
+    2.36,
+    3.6
+  ],
+  "key_notes": [
+    "Key 1 (t=0.0s): Initial archival pose of squiggle; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=1.12s): Mid-sequence articulation of squiggle; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=2.36s): Peak dynamic extension of squiggle over 7-plane multiplane environment.",
+    "Key 4 (t=3.6s): Follow-through and settle of squiggle with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of squiggle (0.0s..3.6s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_538ed543",
+    "source_id": "01_538ed543",
+    "source_slug": "squiggle",
+    "source_title": "Moving Image Archive // Squiggle",
+    "source_year": 1956,
+    "start_seconds": 0.0,
+    "end_seconds": 3.6,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/squiggle/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/squiggle/videos/01_538ed543-122f-5124-a133-27eb4a34696b.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6569366197895168",
+    "n_strokes": 6,
+    "country": "GB",
+    "qd_index": 7,
+    "why": "Selected Quick, Draw! human doodle #7 (GB, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

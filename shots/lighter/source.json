@@ -1,0 +1,47 @@
+{
+  "category": "lighter",
+  "shot_id": "lighter",
+  "body_plan": "Regime IV: Ignition Mechanism",
+  "interval": [
+    5.5,
+    9.1
+  ],
+  "key_times": [
+    5.5,
+    6.62,
+    7.86,
+    9.1
+  ],
+  "key_notes": [
+    "Key 1 (t=5.5s): Initial archival pose of lighter; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.62s): Mid-sequence articulation of lighter; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.86s): Peak dynamic extension of lighter over 7-plane multiplane environment.",
+    "Key 4 (t=9.1s): Follow-through and settle of lighter with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of lighter (5.5s..9.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "06_269aa120",
+    "source_id": "06_269aa120",
+    "source_slug": "lighter",
+    "source_title": "Moving Image Archive // Lighter",
+    "source_year": 1956,
+    "start_seconds": 5.5,
+    "end_seconds": 9.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/lighter/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/lighter/videos/06_269aa120-4ef7-5071-bddb-c861d90c104c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5932528256942080",
+    "n_strokes": 7,
+    "country": "SA",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (SA, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

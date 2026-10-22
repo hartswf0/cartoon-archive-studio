@@ -1,0 +1,47 @@
+{
+  "category": "cooler",
+  "shot_id": "cooler",
+  "body_plan": "Regime VII: Outdoor & Picnic",
+  "interval": [
+    3.15,
+    6.75
+  ],
+  "key_times": [
+    3.15,
+    4.28,
+    5.51,
+    6.75
+  ],
+  "key_notes": [
+    "Key 1 (t=3.15s): Initial archival pose of cooler; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.28s): Mid-sequence articulation of cooler; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.51s): Peak dynamic extension of cooler over 7-plane multiplane environment.",
+    "Key 4 (t=6.75s): Follow-through and settle of cooler with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of cooler (3.15s..6.75s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_d9409818",
+    "source_id": "03_d9409818",
+    "source_slug": "cooler",
+    "source_title": "Moving Image Archive // Cooler",
+    "source_year": 1956,
+    "start_seconds": 3.15,
+    "end_seconds": 6.75,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/cooler/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/cooler/videos/03_d9409818-274e-56a0-b691-2fca0e29624c.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4574546122244096",
+    "n_strokes": 8,
+    "country": "SE",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (SE, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

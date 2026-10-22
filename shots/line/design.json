@@ -1,0 +1,61 @@
+{
+  "category": "line",
+  "qd_index": 4,
+  "flip_x": false,
+  "key_id": "4938727451262976",
+  "country": "US",
+  "n_strokes": 3,
+  "why": "Selected Quick, Draw! human doodle #4 (US, 3 strokes) matched by aspect ratio & structural contour compatibility.",
+  "strokes": [
+    [
+      [
+        48,
+        113,
+        212,
+        218
+      ],
+      [
+        0,
+        74,
+        208,
+        212
+      ]
+    ],
+    [
+      [
+        216,
+        109,
+        21,
+        185
+      ],
+      [
+        70,
+        117,
+        147,
+        57
+      ]
+    ],
+    [
+      [
+        183,
+        86,
+        14,
+        1,
+        13,
+        161,
+        224,
+        255
+      ],
+      [
+        60,
+        119,
+        166,
+        179,
+        177,
+        120,
+        87,
+        61
+      ]
+    ]
+  ]
+}

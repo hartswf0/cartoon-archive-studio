@@ -1,0 +1,14 @@
+{
+  "shot": "circle",
+  "category": "circle",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9461,
+  "mean_reward_ep0": 0.1536,
+  "mean_reward_ep1": 0.6641,
+  "mean_reward_ep2": 0.7696,
+  "mean_reward_ep3": 0.7916,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.6934,
+  "mean_stroke_precision_ep3": 0.9811,
+  "reward_delta": 0.638
+}

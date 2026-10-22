@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "octagon", "clip": "03_370f909a", "interval": [0.3, 3.9]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "octagon", "mean_sam_iou": 0.9008}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "octagon", "key_id": "6025341762011136", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "octagon", "ep0": 0.3195, "ep3": 0.6302, "sil_iou": 0.8017, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "octagon", "gates": "16/16"}

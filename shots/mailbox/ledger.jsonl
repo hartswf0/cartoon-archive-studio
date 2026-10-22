@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "mailbox", "clip": "04_5267789e", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "mailbox", "mean_sam_iou": 0.9439}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "mailbox", "key_id": "4915254213476352", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "mailbox", "ep0": 0.3632, "ep3": 0.6873, "sil_iou": 0.8, "in_mask": 0.9628}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "mailbox", "gates": "16/16"}

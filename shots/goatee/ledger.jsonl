@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "goatee", "clip": "04_fc411c26", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "goatee", "mean_sam_iou": 0.9621}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "goatee", "key_id": "5082473283190784", "country": "NZ"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "goatee", "ep0": 0.4966, "ep3": 0.7185, "sil_iou": 0.8, "in_mask": 0.9645}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "goatee", "gates": "16/16"}

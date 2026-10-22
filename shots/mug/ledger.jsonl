@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "mug", "clip": "01_2ead7f30", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "mug", "mean_sam_iou": 0.9766}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "mug", "key_id": "6035888846929920", "country": "DE"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "mug", "ep0": 0.4573, "ep3": 0.7418, "sil_iou": 0.8304, "in_mask": 0.9665}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "mug", "gates": "16/16"}

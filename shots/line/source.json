@@ -1,0 +1,47 @@
+{
+  "category": "line",
+  "shot_id": "line",
+  "body_plan": "Regime VIII: Geometric & Graphic",
+  "interval": [
+    5.6,
+    9.2
+  ],
+  "key_times": [
+    5.6,
+    6.72,
+    7.96,
+    9.2
+  ],
+  "key_notes": [
+    "Key 1 (t=5.6s): Initial archival pose of line; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.72s): Mid-sequence articulation of line; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.96s): Peak dynamic extension of line over 7-plane multiplane environment.",
+    "Key 4 (t=9.2s): Follow-through and settle of line with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of line (5.6s..9.2s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_1e9ad87d",
+    "source_id": "03_1e9ad87d",
+    "source_slug": "line",
+    "source_title": "Moving Image Archive // Line",
+    "source_year": 1956,
+    "start_seconds": 5.6,
+    "end_seconds": 9.2,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/line/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/line/videos/03_1e9ad87d-9fb7-5d8f-a605-ce1e332103ed.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4938727451262976",
+    "n_strokes": 3,
+    "country": "US",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (US, 3 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

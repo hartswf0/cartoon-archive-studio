@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "zigzag", "clip": "04_f15ccb70", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "zigzag", "mean_sam_iou": 0.9428}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "zigzag", "key_id": "6230124884131840", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "zigzag", "ep0": 0.4506, "ep3": 0.6924, "sil_iou": 0.8044, "in_mask": 0.9622}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "zigzag", "gates": "16/16"}

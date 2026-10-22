@@ -1,0 +1,14 @@
+{
+  "shot": "basket",
+  "category": "basket",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9516,
+  "mean_reward_ep0": 0.1075,
+  "mean_reward_ep1": 0.5408,
+  "mean_reward_ep2": 0.6651,
+  "mean_reward_ep3": 0.6871,
+  "mean_sil_iou_ep3": 0.8,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9542,
+  "reward_delta": 0.5797
+}

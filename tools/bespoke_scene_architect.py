@@ -695,18 +695,7 @@ def add_procedural_theme_artwork(slug: str, theme: str, planes: dict, cels: dict
             add_stroke(planes, "mid", [[tx, y_floor], [0.5 * W + (tx - 0.5 * W) * 1.35, H - 6]], smooth=0)
 
     elif theme == "wood_paneled_salon":
-        # Intimate chamber recital room with tall arched French mullion windows & wainscoting
-        y_floor = 370.0
-        y_wain = 285.0
-        add_stroke(planes, "mid", [[12, y_wain], [W - 12, y_wain]], smooth=0)
-        add_stroke(planes, "mid", [[12, y_floor], [W - 12, y_floor]], smooth=0)
-        for wx0, wx1 in [(28, 102), (W - 102, W - 28)]:
-            wmx = 0.5 * (wx0 + wx1)
-            arch_w = [[wx0, y_wain - 12], [wx0, 95], [wmx, 62], [wx1, 95], [wx1, y_wain - 12], [wx0, y_wain - 12]]
-            add_cel(cels, "far", arch_w[:-1])
-            add_stroke(planes, "far", arch_w, smooth=1)
-            add_stroke(planes, "far", [[wmx, 62], [wmx, y_wain - 12]], smooth=0)
-            add_stroke(planes, "far", [[wx0, 165], [wx1, 165]], smooth=0)
+        draw_unique_shot_world_v9(slug, theme, planes, cels, y_hor, subject_box)
 
     elif theme == "symphony_acoustic_shell":
         # Concentric symphony hall acoustic shell arches & tiered stage risers
@@ -727,138 +716,33 @@ def add_procedural_theme_artwork(slug: str, theme: str, planes: dict, cels: dict
             add_rect(planes, "far", bx, by, bx + 28, by + 12, cels=cels)
         add_stroke(planes, "mid", [[12, y_floor], [W - 12, y_floor]], smooth=0)
 
-    elif theme == "river_gorge_harbor":
-        add_wavy_line(planes, "far", 8, W - 8, y_hor + 35, amp=3.5, freq=2.0)
-        for wy in [y_hor + 75, H - 32]:
-            add_wavy_line(planes, "fore", 14, W - 14, wy, amp=4.0, freq=3.5)
-
-    elif theme == "lakeside_forest_highlands":
-        add_building_facade(planes, cels, "mid", 88, y_hor - 42, 185, y_hor + 18, n_cols=2, n_rows=1, roof_type="crenellated")
-        add_stroke(planes, "mid", [[8, y_hor + 20], [W - 8, y_hor + 20]], smooth=0)
-        for wy in [y_hor + 55, y_hor + 95, H - 30]:
-            add_wavy_line(planes, "secondary", 16, W - 16, wy, amp=3.5, freq=3.5)
-
-    elif theme == "village_green_elms":
-        add_wavy_line(planes, "far", 8, W - 8, y_hor + 25, amp=4.0, freq=1.5)
-        add_stroke(planes, "fore", [[12, H - 24], [W - 12, H - 24]], smooth=0)
-
-    elif theme == "rural_homestead_silo":
-        add_building_facade(planes, cels, "far", 435, 145, 535, 285, n_cols=2, n_rows=2, roof_type="gable")
-        add_wavy_line(planes, "mid", 8, W - 8, 292, amp=3.5, freq=1.5)
-
-    elif theme == "storm_plain_telegraph":
-        for wy in [95, 165, 235]:
-            add_wavy_line(planes, "mid", 18, 185, wy, amp=6.0, freq=2.0)
-            add_wavy_line(planes, "mid", W - 185, W - 18, wy + 12, amp=6.0, freq=2.0)
-        add_stroke(planes, "mid", [[465, 395], [488, 235]], smooth=0)
-        add_stroke(planes, "mid", [[468, 255], [505, 250]], smooth=0)
-
-    elif theme == "soundstage_floodlights":
-        # Overhead soundstage lighting truss grid & studio floor marks
-        add_rect(planes, "far", 24, 18, W - 24, 34, cels=cels)
-        for lx in range(40, W - 40, 48):
-            add_stroke(planes, "far", [[lx, 18], [lx + 24, 34]], smooth=0)
-        add_stroke(planes, "mid", [[12, 372], [W - 12, 372]], smooth=0)
-
-    elif theme == "botanical_conservatory":
-        arch = [[24 + (W - 48) * (i / 16.0), 95 - 72 * math.sin(math.pi * i / 16.0)] for i in range(17)]
-        add_stroke(planes, "far", arch, smooth=1)
-        for i in [0, 3, 13, 16]:
-            px, py = arch[i]
-            add_stroke(planes, "far", [[px, py], [px, H - 24]], smooth=0)
-        add_stroke(planes, "mid", [[16, H - 55], [W - 16, H - 55]], smooth=0)
-
-    elif theme in ("kitchen_counter_hearth", "bakery_display_table", "dining_table_salon"):
-        # Full-frame kitchen/bakery/dining room: upper crown molding, tiled backsplash/wainscot, full-width counter & perspective tabletop grain
-        y_back = max(145.0, min(225.0, y_hor - 18.0))
-        y_apron = 368.0
-        add_stroke(planes, "far", [[10, 22], [W - 10, 22]], smooth=0)
-        add_stroke(planes, "far", [[10, 28], [W - 10, 28]], smooth=0)
-        # Left & right framed cabinet/window alcoves on far plane
-        for wx0, wx1 in [(22, 118), (W - 118, W - 22)]:
-            add_rect(planes, "far", wx0, 48, wx1, y_back - 10, cels=cels)
-            wmx = 0.5 * (wx0 + wx1)
-            add_stroke(planes, "far", [[wmx, 48], [wmx, y_back - 10]], smooth=0)
-            add_stroke(planes, "far", [[wx0, 0.5 * (48 + y_back - 10)], [wx1, 0.5 * (48 + y_back - 10)]], smooth=0)
-        # Backsplash / chair-rail courses across full width
-        add_stroke(planes, "far", [[10, y_back], [W - 10, y_back]], smooth=0)
-        add_stroke(planes, "mid", [[10, y_back + 42], [W - 10, y_back + 42]], smooth=0)
-        # Countertop / tabletop apron & perspective wood-grain planks across full foreground
-        add_cel(cels, "fore", [[8, y_apron], [W - 8, y_apron], [W - 8, H - 8], [8, H - 8]])
-        add_stroke(planes, "mid", [[8, y_apron], [W - 8, y_apron]], smooth=0)
-        add_stroke(planes, "fore", [[8, y_apron + 8], [W - 8, y_apron + 8]], smooth=0)
-        for k in range(1, 8):
-            tx = k * (W / 8.0)
-            bx = 0.5 * W + (tx - 0.5 * W) * 1.38
-            add_stroke(planes, "fore", [[tx, y_apron + 8], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
-
-    elif theme in ("cozy_living_room", "atelier_studio_desk", "office_workstation"):
-        # Full-frame interior salon/studio/office: crown molding, tall mullioned windows, wainscot panels, and perspective floorboards/desk
-        y_wain = max(210.0, min(268.0, y_hor + 22.0))
-        y_floor = 366.0
-        add_stroke(planes, "far", [[10, 20], [W - 10, 20]], smooth=0)
-        for wx0, wx1 in [(24, 112), (W - 112, W - 24)]:
-            wmx = 0.5 * (wx0 + wx1)
-            arch_w = [[wx0, y_wain - 14], [wx0, 74], [wmx, 48], [wx1, 74], [wx1, y_wain - 14], [wx0, y_wain - 14]]
-            add_cel(cels, "far", arch_w[:-1])
-            add_stroke(planes, "far", arch_w, smooth=1)
-            add_stroke(planes, "far", [[wmx, 48], [wmx, y_wain - 14]], smooth=0)
-            add_stroke(planes, "far", [[wx0, 132], [wx1, 132]], smooth=0)
-        add_stroke(planes, "mid", [[10, y_wain], [W - 10, y_wain]], smooth=0)
-        # Wainscot recessed wall panels on left & right flanks
-        for px0, px1 in [(22, 132), (W - 132, W - 22)]:
-            add_rect(planes, "mid", px0, y_wain + 12, px1, y_floor - 12, cels=cels)
-        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
-        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
-        for k in range(1, 8):
-            tx = k * (W / 8.0)
-            bx = 0.5 * W + (tx - 0.5 * W) * 1.35
-            add_stroke(planes, "fore", [[tx, y_floor], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
-
-    elif theme in ("tiled_bath_sanctuary", "medical_clinic_suite"):
-        # Full-frame ceramic tile courses, arched vanity mirror / clinical cabinet, and perspective floor tile grid
-        y_dado = max(195.0, min(255.0, y_hor + 12.0))
-        y_floor = 368.0
-        add_stroke(planes, "far", [[10, 22], [W - 10, 22]], smooth=0)
-        for wx0, wx1 in [(28, 114), (W - 114, W - 28)]:
-            add_rect(planes, "far", wx0, 56, wx1, y_dado - 14, cels=cels)
-            add_rect(planes, "far", wx0 + 6, 62, wx1 - 6, y_dado - 20)
-        add_stroke(planes, "mid", [[10, y_dado], [W - 10, y_dado]], smooth=0)
-        add_stroke(planes, "mid", [[10, y_dado + 8], [W - 10, y_dado + 8]], smooth=0)
-        # Horizontal tile courses
-        for ty in [y_dado + 42, y_dado + 82, y_floor, y_floor + 36, y_floor + 72]:
-            pid_t = "mid" if ty < y_floor else "fore"
-            if ty <= H - 12:
-                add_stroke(planes, pid_t, [[10, ty], [W - 10, ty]], smooth=0)
-        for k in range(1, 8):
-            tx = k * (W / 8.0)
-            bx = 0.5 * W + (tx - 0.5 * W) * 1.35
-            add_stroke(planes, "fore", [[tx, y_floor], [np.clip(bx, 10, W - 10), H - 8]], smooth=0)
-
-    elif theme in ("orchard_grove_trellis", "garden_picket_meadow", "savanna_acacia", "riverbank_forest", "alpine_crag_pines", "night_forest_Clearing", "desert_mesa_telegraph"):
-        # Full-frame outdoor natural landscape: twin horizon ridges, left & right framing tree trunks/fences, and foreground meadow/path
-        ridge_far = [[8, y_hor - 18]]
-        for i in range(1, 16):
-            rx = 8 + i * ((W - 16) / 16.0)
-            ry = (y_hor - 18) - 22.0 * abs(math.sin(i * 0.65)) - 8.0 * math.cos(i * 0.4)
-            ridge_far.append([rx, ry])
-        ridge_far.append([W - 8, y_hor - 18])
-        add_cel(cels, "far", ridge_far + [[W - 8, y_hor + 18], [8, y_hor + 18]])
-        add_stroke(planes, "far", ridge_far, smooth=1)
-        add_wavy_line(planes, "mid", 8, W - 8, y_hor + 24, amp=3.5, freq=1.5, phase=0.5)
-        if theme in ("garden_picket_meadow", "orchard_grove_trellis"):
-            add_wooden_fence(planes, cels, "mid", 14, min(sx0 - 10, 158), y_hor + 14, y_hor + 84, n_posts=4, n_rails=3)
-            add_wooden_fence(planes, cels, "mid", max(sx1 + 10, 482), W - 14, y_hor + 14, y_hor + 84, n_posts=4, n_rails=3)
-        # Clean foreground meadow/path apron line
-        add_wavy_line(planes, "fore", 10, W - 10, 382, amp=2.5, freq=2.0, phase=0.3)
-        add_wavy_line(planes, "fore", 10, W - 10, H - 18, amp=2.0, freq=2.0, phase=1.1)
-
-    elif theme in ("sandy_beach_surf", "storm_sky_panorama"):
-        add_wavy_line(planes, "sky", 14, W - 14, 72, amp=4.0, freq=2.0, phase=0.4)
-        add_wavy_line(planes, "far", 8, W - 8, y_hor - 14, amp=3.5, freq=1.8)
-        for k, wy in enumerate([y_hor + 28, y_hor + 84, 382, H - 20]):
-            pid_w = "mid" if k == 0 else ("secondary" if k == 1 else "fore")
-            add_wavy_line(planes, pid_w, 10, W - 10, wy, amp=3.8 + k * 0.6, freq=2.5, phase=k * 0.9)
+    elif theme in (
+        "river_gorge_harbor",
+        "lakeside_forest_highlands",
+        "village_green_elms",
+        "rural_homestead_silo",
+        "storm_plain_telegraph",
+        "soundstage_floodlights",
+        "botanical_conservatory",
+        "kitchen_counter_hearth",
+        "bakery_display_table",
+        "dining_table_salon",
+        "cozy_living_room",
+        "atelier_studio_desk",
+        "office_workstation",
+        "tiled_bath_sanctuary",
+        "medical_clinic_suite",
+        "orchard_grove_trellis",
+        "garden_picket_meadow",
+        "savanna_acacia",
+        "riverbank_forest",
+        "alpine_crag_pines",
+        "night_forest_Clearing",
+        "desert_mesa_telegraph",
+        "sandy_beach_surf",
+        "storm_sky_panorama",
+    ):
+        draw_unique_shot_world_v9(slug, theme, planes, cels, y_hor, subject_box)
 
     # UNIVERSAL FULL-FRAME STAGE COMPLETION (Clean, non-overlapping framing):
     if len(planes["far"]) < 2:
@@ -868,6 +752,847 @@ def add_procedural_theme_artwork(slug: str, theme: str, planes: dict, cels: dict
     if len(planes["fore"]) < 2:
         add_wavy_line(planes, "fore", 10, W - 10, 382.0, amp=2.0, freq=2.0, phase=0.4)
         add_wavy_line(planes, "fore", 12, W - 12, H - 18.0, amp=1.8, freq=2.0, phase=1.2)
+
+
+INDOOR_V9_THEMES = {
+    "wood_paneled_salon",
+    "concert_hall_proscenium",
+    "symphony_acoustic_shell",
+    "jazz_club_arch",
+    "soundstage_floodlights",
+    "botanical_conservatory",
+    "kitchen_counter_hearth",
+    "bakery_display_table",
+    "dining_table_salon",
+    "cozy_living_room",
+    "atelier_studio_desk",
+    "office_workstation",
+    "tiled_bath_sanctuary",
+    "medical_clinic_suite",
+}
+
+INDOOR_SURFACE_POOL = [0, 1, 2, 3, 5, 6, 8, 14]
+OUTDOOR_SURFACE_POOL = [4, 7, 9, 10, 11, 12, 13, 15]
+
+
+def _shot_unique_indices_v9(slug: str, theme: str) -> tuple:
+    """
+    Computes a collision-free `(rank, class_rank, arch_style, surf_style, sky_style, topo_id)`
+    tuple for `slug` so no two shots share the same background blueprint or floor pattern,
+    and indoor rooms strictly use indoor floor/counter patterns while outdoor landscapes
+    strictly use outdoor ground/water/path patterns.
+    """
+    keys = list(SHOT_SCENE_RECIPES.keys())
+    is_indoor = theme in INDOOR_V9_THEMES
+    if slug in keys:
+        rank = keys.index(slug)
+        same_class = [k for k in keys if (SHOT_SCENE_RECIPES[k].get("theme") in INDOOR_V9_THEMES) == is_indoor]
+        class_rank = same_class.index(slug) if slug in same_class else rank
+    else:
+        rank = abs(hash(slug)) % 997
+        class_rank = rank
+
+    # Coprime stride permutation guarantees all 18 architectures and 8 class-matched surfaces are visited before any repeat
+    arch_style = (class_rank * 7 + (class_rank // 18) * 5) % 18
+    surf_pool = INDOOR_SURFACE_POOL if is_indoor else OUTDOOR_SURFACE_POOL
+    surf_style = surf_pool[(class_rank * 3 + (class_rank // 8) * 5) % len(surf_pool)]
+    sky_style = (rank * 5 + 2) % 12
+    topo_id = (rank * 7 + 3) % 12
+    return rank, class_rank, arch_style, surf_style, sky_style, topo_id
+
+
+def draw_unique_shot_world_v9(
+    slug: str,
+    theme: str,
+    planes: dict,
+    cels: dict,
+    y_hor: float,
+    subject_box: tuple,
+):
+    """
+    SCION-UniqueWorld-v9: Synthesizes a genuinely one-of-a-kind full-frame multiplane background
+    for each shot by combining:
+      - 18 distinct Indoor Architectural Blueprints OR 18 distinct Outdoor Landscape Blueprints
+      - 16 distinct Foreground Surface / Floor / Ground Blueprints (never repeating radial floorboards)
+      - 12 distinct Upper Sky / Ceiling Framing Accents
+      - Continuous per-shot vanishing point, corner offset, and asymmetry parameters
+    """
+    rank, class_rank, arch_style, surf_style, sky_style, _ = _shot_unique_indices_v9(slug, theme)
+    is_indoor = theme in INDOOR_V9_THEMES
+    sx0, sy0, sx1, sy1 = subject_box
+    asym = -1.0 if (class_rank % 2 == 0) else 1.0
+    shift_x = float(((rank * 37) % 76) - 38)
+    y_mid_line = float(np.clip(y_hor + ((rank * 19) % 34 - 17), 152.0, 265.0))
+    y_floor = float(np.clip(364.0 + ((rank * 13) % 24 - 12), 348.0, 382.0))
+
+    # --- 1. UPPER SKY / CEILING FRAMING ACCENT (12 variants) ---
+    if is_indoor:
+        if sky_style == 0:
+            # Stepped crown cornice molding
+            add_stroke(planes, "far", [[10, 18], [W - 10, 18]], smooth=0)
+            add_stroke(planes, "far", [[18, 25], [W - 18, 25]], smooth=0)
+        elif sky_style == 1:
+            # Exposed ceiling joists in perspective
+            add_stroke(planes, "far", [[10, 26], [W - 10, 26]], smooth=0)
+            for jx in range(55, W - 45, 76):
+                add_stroke(planes, "far", [[jx, 26], [jx + (jx - 320) * 0.18, 6]], smooth=0)
+        elif sky_style == 2:
+            # Shallow vaulted ceiling arc
+            vault = [[12 + (W - 24) * (i / 16.0), 42 - 28 * math.sin(math.pi * i / 16.0)] for i in range(17)]
+            add_stroke(planes, "far", vault, smooth=1)
+        elif sky_style == 3:
+            # Pendant cord & geometric shade off-center
+            px_l = 165.0 if asym < 0 else (W - 165.0)
+            add_stroke(planes, "sky", [[px_l, 6], [px_l, 48]], smooth=0)
+            shade = [[px_l - 28, 68], [px_l - 12, 48], [px_l + 12, 48], [px_l + 28, 68], [px_l - 28, 68]]
+            add_cel(cels, "sky", shade[:-1])
+            add_stroke(planes, "sky", shade, smooth=0)
+        elif sky_style == 4:
+            # Coffered ceiling beam grid
+            add_rect(planes, "far", 16, 10, W - 16, 32, cels=cels)
+            for bx in [160, 320, 480]:
+                add_stroke(planes, "far", [[bx, 10], [bx, 32]], smooth=0)
+        elif sky_style == 5:
+            # Diagonal attic collar tie beam
+            add_stroke(planes, "far", [[14, 58], [320 + shift_x, 12], [W - 14, 58]], smooth=0)
+            add_stroke(planes, "far", [[110, 36], [W - 110, 36]], smooth=0)
+        elif sky_style == 6:
+            # Overhead studio pipe batten with 3 clamped spot cans
+            add_stroke(planes, "sky", [[20, 22], [W - 20, 22]], smooth=0)
+            for lx in [115, 320 + int(shift_x), W - 115]:
+                add_rect(planes, "sky", lx - 10, 22, lx + 10, 40, cels=cels)
+        elif sky_style == 7:
+            # Scalloped fabric valance border across top
+            for i in range(8):
+                vx0 = 12 + i * ((W - 24) / 8.0)
+                vx1 = 12 + (i + 1) * ((W - 24) / 8.0)
+                add_stroke(planes, "sky", [[vx0, 10], [0.5 * (vx0 + vx1), 34], [vx1, 10]], smooth=2)
+        elif sky_style == 8:
+            # Clerestory transom window strip near ceiling
+            add_rect(planes, "far", 42, 12, W - 42, 40, cels=cels)
+            for tx in range(120, W - 80, 95):
+                add_stroke(planes, "far", [[tx, 12], [tx, 40]], smooth=0)
+        elif sky_style == 9:
+            # Curved corner coving lines on left and right ceiling margins
+            add_stroke(planes, "far", [[12, 68], [38, 22], [W - 38, 22], [W - 12, 68]], smooth=1)
+        elif sky_style == 10:
+            # Hanging botanical vine / garland festoon
+            add_stroke(planes, "sky", [[24, 14], [175, 48], [320, 18]], smooth=2)
+            add_stroke(planes, "sky", [[320, 18], [465, 48], [W - 24, 14]], smooth=2)
+        else:
+            # Industrial skylight truss chords
+            add_stroke(planes, "far", [[14, 34], [W - 14, 34]], smooth=0)
+            for kx in range(34, W - 54, 68):
+                add_stroke(planes, "far", [[kx, 10], [kx + 34, 34], [kx + 68, 10]], smooth=0)
+    else:
+        # Outdoor upper sky accents (12 distinct natural sky configurations)
+        if sky_style == 0:
+            # High cirrus wind wisps on left & right
+            add_wavy_line(planes, "sky", 24, 210, 38, amp=3.0, freq=1.5, phase=0.2)
+            add_wavy_line(planes, "sky", W - 220, W - 24, 52, amp=3.0, freq=1.5, phase=1.1)
+        elif sky_style == 1:
+            # Off-center radiant sun disc & 6 short rays
+            scx = 115.0 if asym < 0 else (W - 115.0)
+            scy = 56.0
+            sun_ring = [[scx + 22 * math.cos(math.radians(a)), scy + 22 * math.sin(math.radians(a))] for a in range(0, 361, 30)]
+            add_cel(cels, "sky", sun_ring[:-1])
+            add_stroke(planes, "sky", sun_ring, smooth=1)
+            for a in range(0, 360, 45):
+                r_rad = math.radians(a)
+                add_stroke(planes, "sky", [[scx + 28 * math.cos(r_rad), scy + 28 * math.sin(r_rad)], [scx + 38 * math.cos(r_rad), scy + 38 * math.sin(r_rad)]], smooth=0)
+        elif sky_style == 2:
+            # Layered stratocumulus horizon band
+            add_wavy_line(planes, "sky", 32, W - 32, 64, amp=4.5, freq=2.5, phase=0.6)
+            add_stroke(planes, "sky", [[48, 72], [W - 48, 72]], smooth=0)
+        elif sky_style == 3:
+            # V-formation of 5 distant migrating bird chevrons
+            bx0 = 155.0 if asym > 0 else (W - 235.0)
+            for bi in range(5):
+                px_b, py_b = bx0 + bi * 22.0, 42.0 + abs(bi - 2) * 8.0
+                add_stroke(planes, "sky", [[px_b - 7, py_b + 4], [px_b, py_b], [px_b + 7, py_b + 4]], smooth=1)
+        elif sky_style == 4:
+            # Overhanging leafy tree canopy bough from one top corner
+            cx_b = 12.0 if asym < 0 else (W - 12.0)
+            dir_b = 1.0 if asym < 0 else -1.0
+            add_stroke(planes, "sky", [[cx_b, 14], [cx_b + dir_b * 95, 28], [cx_b + dir_b * 165, 56]], smooth=2)
+            add_wavy_line(planes, "sky", min(cx_b, cx_b + dir_b * 175), max(cx_b, cx_b + dir_b * 175), 62, amp=6.5, freq=3.0)
+        elif sky_style == 5:
+            #Sagging overhead rural utility wire across upper sky
+            add_stroke(planes, "sky", [[10, 26], [320 + shift_x, 58], [W - 10, 30]], smooth=2)
+            add_stroke(planes, "sky", [[10, 38], [320 + shift_x, 70], [W - 10, 42]], smooth=2)
+        elif sky_style == 6:
+            # Crescent moon & 4 –point twinkle stars
+            mcx = 515.0 if asym < 0 else 125.0
+            mcy = 52.0
+            outer_m = [[mcx + 20 * math.cos(math.radians(a)), mcy + 20 * math.sin(math.radians(a))] for a in range(-60, 241, 25)]
+            inner_m = [[mcx + 8 + 16 * math.cos(math.radians(a)), mcy - 4 + 16 * math.sin(math.radians(a))] for a in range(240, -61, -25)]
+            add_cel(cels, "sky", outer_m + inner_m)
+            add_stroke(planes, "sky", outer_m + inner_m + [outer_m[0]], smooth=1)
+        elif sky_style == 7:
+            # Crepuscular diagonal sunbeams from upper flank
+            ox = 85.0 if asym < 0 else (W - 85.0)
+            for k in range(3):
+                tx = ox + (1.0 if asym < 0 else -1.0) * (90 + k * 75)
+                add_stroke(planes, "sky", [[ox, 14], [tx, 96]], smooth=0)
+        elif sky_style == 8:
+            # Two billowing cumulus domes on opposite sides
+            for ccx, ccy, rw in [(110.0, 62.0, 52.0), (W - 115.0, 56.0, 58.0)]:
+                dome = [[ccx - rw, ccy], [ccx - 0.5 * rw, ccy - 24], [ccx, ccy - 32], [ccx + 0.5 * rw, ccy - 22], [ccx + rw, ccy], [ccx - rw, ccy]]
+                add_cel(cels, "sky", dome[:-1])
+                add_stroke(planes, "sky", dome, smooth=1)
+        elif sky_style == 9:
+            # Gentle atmospheric breeze contour arcs
+            add_stroke(planes, "sky", [[45, 48], [145, 34], [245, 52]], smooth=2)
+            add_stroke(planes, "sky", [[W - 245, 44], [W - 145, 30], [W - 45, 48]], smooth=2)
+        elif sky_style == 10:
+            # Pennant bunting line or festival wire at top corner
+            x0_p = 12.0 if asym < 0 else (W - 195.0)
+            x1_p = 195.0 if asym < 0 else (W - 12.0)
+            add_stroke(planes, "sky", [[x0_p, 18], [0.5 * (x0_p + x1_p), 42], [x1_p, 22]], smooth=1)
+            for i in range(4):
+                px_f = x0_p + (i + 0.5) * ((x1_p - x0_p) / 4.0)
+                add_stroke(planes, "sky", [[px_f - 8, 30], [px_f, 48], [px_f + 8, 30]], smooth=0)
+        else:
+            # Sweeping upper rainbow / atmospheric halo arc
+            arc_h = [[65 + (W - 130) * (i / 16.0), 78 - 54 * math.sin(math.pi * i / 16.0)] for i in range(17)]
+            add_stroke(planes, "sky", arc_h, smooth=1)
+
+    # --- 2. MAIN ARCHITECTURAL / LANDSCAPE STAGE BLUEPRINT (18 Indoor + 18 Outdoor = 36 unique blueprints) ---
+    if is_indoor:
+        if arch_style == 0:
+            # 0: Asymmetric Left-Corner Room Cutaway (off-center corner vertical + angled left casement window + open right wall)
+            xc = 185.0 + 0.4 * shift_x
+            add_stroke(planes, "far", [[xc, 26], [xc, y_floor]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor + 24], [xc, y_floor], [W - 10, y_floor + 14]], smooth=0)
+            add_stroke(planes, "far", [[10, 48], [xc, 26], [W - 10, 42]], smooth=0)
+            # Angled perspective window on left wall
+            w_poly = [[32, 82], [142, 68], [142, 215], [32, 232], [32, 82]]
+            add_cel(cels, "far", w_poly[:-1])
+            add_stroke(planes, "far", w_poly, smooth=0)
+            add_stroke(planes, "far", [[87, 75], [87, 223]], smooth=0)
+            add_stroke(planes, "mid", [[xc, y_mid_line], [W - 12, y_mid_line + 10]], smooth=0)
+
+        elif arch_style == 1:
+            # 1: Asymmetric Right-Corner Room Cutaway (corner post on right + right gallery alcove + left chair rail)
+            xc = W - 185.0 + 0.4 * shift_x
+            add_stroke(planes, "far", [[xc, 26], [xc, y_floor]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor + 14], [xc, y_floor], [W - 10, y_floor + 26]], smooth=0)
+            add_stroke(planes, "mid", [[12, y_mid_line + 8], [xc, y_mid_line]], smooth=0)
+            # Right wall recessed shelving niche
+            niche = [[xc + 24, 74], [W - 26, 88], [W - 26, 245], [xc + 24, 230], [xc + 24, 74]]
+            add_cel(cels, "far", niche[:-1])
+            add_stroke(planes, "far", niche, smooth=0)
+            add_stroke(planes, "far", [[xc + 24, 152], [W - 26, 166]], smooth=0)
+
+        elif arch_style == 2:
+            # 2: Brick Chimney Breast & Arched Hearth Fireplace on Flank
+            fx0 = 32.0 if asym < 0 else (W - 182.0)
+            fx1 = fx0 + 150.0
+            fmx = 0.5 * (fx0 + fx1)
+            add_rect(planes, "far", fx0, 24, fx1, y_floor, cels=cels)
+            add_rect(planes, "mid", fx0 - 10, y_mid_line - 12, fx1 + 10, y_mid_line + 6, cels=cels)
+            hearth = [[fx0 + 22, y_floor], [fx0 + 22, y_mid_line + 38], [fmx, y_mid_line + 18], [fx1 - 22, y_mid_line + 38], [fx1 - 22, y_floor]]
+            add_stroke(planes, "mid", hearth, smooth=1)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 3:
+            # 3: Wall-to-Wall Apothecary / Library Shelving Tiers
+            y_dado = y_mid_line + 28.0
+            for sy in [68.0, 118.0, 168.0, y_dado]:
+                add_stroke(planes, "far", [[18, sy], [W - 18, sy]], smooth=0)
+            for vx in [18, 128, 238, 402, 512, W - 18]:
+                add_stroke(planes, "far", [[vx, 68.0], [vx, y_dado]], smooth=0)
+            # Book spine clusters on shelves
+            for bx in [32, 52, 420, 442, 528]:
+                add_rect(planes, "far", bx, 82, bx + 14, 118, cels=cels)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 4:
+            # 4: Sloped Attic Gable Rafters & Round Dormer Oculus Window
+            gx_peak = 320.0 + shift_x
+            add_stroke(planes, "far", [[10, 185], [gx_peak, 18], [W - 10, 185]], smooth=0)
+            add_stroke(planes, "far", [[10, 198], [gx_peak, 32], [W - 10, 198]], smooth=0)
+            # Circular dormer oculus window on one flank
+            ocx = 115.0 if asym < 0 else (W - 115.0)
+            ocy = 148.0
+            oc_ring = [[ocx + 38 * math.cos(math.radians(a)), ocy + 38 * math.sin(math.radians(a))] for a in range(0, 361, 20)]
+            add_cel(cels, "far", oc_ring[:-1])
+            add_stroke(planes, "far", oc_ring, smooth=1)
+            add_stroke(planes, "far", [[ocx - 38, ocy], [ocx + 38, ocy]], smooth=0)
+            add_stroke(planes, "far", [[ocx, ocy - 38], [ocx, ocy + 38]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 5:
+            # 5: Vaulted Botanical / Gothic Pointed Arches & Slender Pilasters
+            for ax0, ax1 in [(24, 195), (222, 418), (445, W - 24)]:
+                amx = 0.5 * (ax0 + ax1)
+                arch_p = [[ax0, y_mid_line + 40], [ax0, 95], [amx, 34], [ax1, 95], [ax1, y_mid_line + 40]]
+                add_stroke(planes, "far", arch_p, smooth=1)
+            add_stroke(planes, "mid", [[10, y_mid_line + 40], [W - 10, y_mid_line + 40]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 6:
+            # 6: Parisian Patisserie / Bistro Scalloped Canopy & Chalkboard Menu Frame
+            y_canopy = 112.0
+            add_cel(cels, "far", [[16, 22], [W - 16, 22], [W - 6, y_canopy], [6, y_canopy]])
+            add_stroke(planes, "far", [[16, 22], [W - 16, 22], [W - 6, y_canopy], [6, y_canopy], [16, 22]], smooth=0)
+            for sx in range(66, W - 40, 64):
+                add_stroke(planes, "far", [[sx, 22], [sx + (sx - 320) * 0.06, y_canopy]], smooth=0)
+            # Menu chalkboard on flank
+            mx0 = 34.0 if asym > 0 else (W - 144.0)
+            add_rect(planes, "mid", mx0, 138, mx0 + 110, 255, cels=cels)
+            add_rect(planes, "mid", mx0 + 8, 146, mx0 + 102, 247)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 7:
+            # 7: Flared Culinary Range Hood Flue & Staggered Subway-Tile Backsplash
+            hx_c = 155.0 if asym < 0 else (W - 155.0)
+            hood = [[hx_c - 28, 20], [hx_c + 28, 20], [hx_c + 78, 128], [hx_c - 78, 128], [hx_c - 28, 20]]
+            add_cel(cels, "far", hood[:-1])
+            add_stroke(planes, "far", hood, smooth=0)
+            add_stroke(planes, "far", [[hx_c - 78, 114], [hx_c + 78, 114]], smooth=0)
+            # Subway tile courses in mid-wall band
+            for r_i, ty in enumerate([y_mid_line - 24, y_mid_line, y_mid_line + 24, y_mid_line + 48]):
+                add_stroke(planes, "far", [[14, ty], [W - 14, ty]], smooth=0)
+                offset_x = (r_i % 2) * 32
+                for jx in range(38 + offset_x, W - 38, 64):
+                    if jx < 185 or jx > W - 185:
+                        add_stroke(planes, "far", [[jx, ty], [jx, ty + 24]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 8:
+            # 8: Grand Diagonal Staircase & Upper Balustrade Gallery
+            if asym < 0:
+                s_pts = [[14, y_floor], [14, 152], [215, 152], [355, y_floor], [14, y_floor]]
+                add_cel(cels, "far", s_pts[:-1])
+                add_stroke(planes, "far", [[14, 152], [215, 152], [355, y_floor]], smooth=0)
+                add_stroke(planes, "far", [[14, 108], [215, 108], [355, y_floor - 44]], smooth=0)
+                for bx in range(34, 210, 28):
+                    add_stroke(planes, "far", [[bx, 108], [bx, 152]], smooth=0)
+            else:
+                s_pts = [[W - 14, y_floor], [W - 14, 152], [W - 215, 152], [W - 355, y_floor], [W - 14, y_floor]]
+                add_cel(cels, "far", s_pts[:-1])
+                add_stroke(planes, "far", [[W - 14, 152], [W - 215, 152], [W - 355, y_floor]], smooth=0)
+                add_stroke(planes, "far", [[W - 14, 108], [W - 215, 108], [W - 355, y_floor - 44]], smooth=0)
+                for bx in range(W - 210, W - 30, 28):
+                    add_stroke(planes, "far", [[bx, 108], [bx, 152]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 9:
+            # 9: Panoramic Three-Facet Bay Window Alcove & Window Seat
+            add_stroke(planes, "far", [[28, y_floor], [96, y_floor - 28], [W - 96, y_floor - 28], [W - 28, y_floor]], smooth=0)
+            # Left angled sash, center picture window, right angled sash
+            w_left = [[36, 78], [88, 62], [88, 228], [36, 246], [36, 78]]
+            w_right = [[W - 88, 62], [W - 36, 78], [W - 36, 246], [W - 88, 228], [W - 88, 62]]
+            add_cel(cels, "far", w_left[:-1])
+            add_cel(cels, "far", w_right[:-1])
+            add_stroke(planes, "far", w_left, smooth=0)
+            add_stroke(planes, "far", w_right, smooth=0)
+            add_rect(planes, "far", 104, 62, W - 104, 112, cels=cels)
+
+        elif arch_style == 10:
+            # 10: Classical Fluted Pilasters & Coffered Architrave Beam
+            add_rect(planes, "far", 16, 28, W - 16, 54, cels=cels)
+            for px0 in [36.0, W - 84.0]:
+                add_rect(planes, "far", px0, 54, px0 + 48, y_floor, cels=cels)
+                add_rect(planes, "far", px0 - 6, 54, px0 + 54, 68)
+                add_rect(planes, "mid", px0 - 6, y_floor - 16, px0 + 54, y_floor)
+                for fx in [px0 + 14, px0 + 24, px0 + 34]:
+                    add_stroke(planes, "far", [[fx, 68], [fx, y_floor - 16]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 11:
+            # 11: Shoji Kumiko Lattice Screen & Engawa Timber Lintel
+            add_stroke(planes, "far", [[12, 48], [W - 12, 48]], smooth=0)
+            add_stroke(planes, "far", [[12, 56], [W - 12, 56]], smooth=0)
+            for sx0, sx1 in [(22, 168), (W - 168, W - 22)]:
+                add_rect(planes, "far", sx0, 56, sx1, y_floor, cels=cels)
+                for gy in range(96, int(y_floor) - 20, 44):
+                    add_stroke(planes, "far", [[sx0, gy], [sx1, gy]], smooth=0)
+                for gx in [sx0 + 48, sx0 + 96]:
+                    add_stroke(planes, "far", [[gx, 56], [gx, y_floor]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 12:
+            # 12: Nautical Ship Cabin Bulkhead Knees & Twin Brass Portholes
+            add_stroke(planes, "far", [[14, y_floor], [46, 32], [W - 46, 32], [W - 14, y_floor]], smooth=0)
+            for pcx in [112.0, W - 112.0]:
+                pcy = 148.0
+                for rad in [38.0, 30.0]:
+                    ring = [[pcx + rad * math.cos(math.radians(a)), pcy + rad * math.sin(math.radians(a))] for a in range(0, 361, 20)]
+                    if rad == 38.0:
+                        add_cel(cels, "far", ring[:-1])
+                    add_stroke(planes, "far", ring, smooth=1)
+            add_stroke(planes, "mid", [[22, y_mid_line + 34], [W - 22, y_mid_line + 34]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 13:
+            # 13: Salon Picture Rail with Suspended Gallery Frames & Wainscot Dado
+            add_stroke(planes, "far", [[12, 44], [W - 12, 44]], smooth=0)
+            for fcx, fw, fh in [(98.0, 74.0, 58.0), (W - 102.0, 68.0, 64.0)]:
+                fcy = 128.0
+                add_stroke(planes, "far", [[fcx - 18, 99], [fcx, 44], [fcx + 18, 99]], smooth=0)
+                add_rect(planes, "far", fcx - 0.5 * fw, fcy - 0.5 * fh, fcx + 0.5 * fw, fcy + 0.5 * fh, cels=cels)
+                add_rect(planes, "far", fcx - 0.5 * fw + 6, fcy - 0.5 * fh + 6, fcx + 0.5 * fw - 6, fcy + 0.5 * fh - 6)
+            add_stroke(planes, "mid", [[12, y_mid_line + 36], [W - 12, y_mid_line + 36]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 14:
+            # 14: Split-Level Mezzanine Balcony Deck & Wrought-Iron Railing
+            mx_end = 265.0 if asym < 0 else (W - 265.0)
+            mx_start = 12.0 if asym < 0 else (W - 12.0)
+            x_lo, x_hi = min(mx_start, mx_end), max(mx_start, mx_end)
+            add_rect(planes, "far", x_lo, 148, x_hi, 166, cels=cels)
+            add_stroke(planes, "far", [[x_lo, 104], [x_hi, 104]], smooth=0)
+            for rx in range(int(x_lo) + 18, int(x_hi) - 10, 26):
+                add_stroke(planes, "far", [[rx, 104], [rx, 148]], smooth=0)
+            add_rect(planes, "mid", mx_end - 10, 166, mx_end + 10, y_floor, cels=cels)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 15:
+            # 15: Atelier / Lecture Slate Board & Pull-Down Wall Chart
+            bx0 = 38.0 if asym < 0 else (W - 218.0)
+            add_rect(planes, "far", bx0, 68, bx0 + 180, 198, cels=cels)
+            add_rect(planes, "far", bx0 - 6, 198, bx0 + 186, 206, cels=cels)
+            # Pull-down roller map on opposite flank
+            cx_m = (W - 105.0) if asym < 0 else 105.0
+            add_rect(planes, "far", cx_m - 48, 56, cx_m + 48, 66, cels=cels)
+            add_rect(planes, "far", cx_m - 42, 66, cx_m + 42, 168, cels=cels)
+            add_stroke(planes, "far", [[cx_m, 168], [cx_m, 184]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        elif arch_style == 16:
+            # 16: Observatory / Conservatory Ribbed Dome & Horizon Gallery
+            dome_base = y_mid_line + 18.0
+            dome_arc = [[16 + (W - 32) * (i / 20.0), dome_base - 155.0 * math.sin(math.pi * i / 20.0)] for i in range(21)]
+            add_stroke(planes, "far", dome_arc, smooth=1)
+            for rib_f in [0.22, 0.38, 0.62, 0.78]:
+                rx_b = 16 + (W - 32) * rib_f
+                add_stroke(planes, "far", [[rx_b, dome_base], [0.5 * (rx_b + 320), dome_base - 95], [320, dome_base - 155.0]], smooth=2)
+            add_stroke(planes, "mid", [[12, dome_base], [W - 12, dome_base]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+        else:
+            # 17: Theatre / Salon Swagged Curtain Wings & Footlight Apron
+            for side_x, sign in [(12.0, 1.0), (float(W - 12), -1.0)]:
+                swag = [[side_x, 22], [side_x + sign * 92, 22], [side_x + sign * 64, 165], [side_x + sign * 28, 220], [side_x + sign * 48, y_floor], [side_x, y_floor]]
+                add_cel(cels, "far", swag)
+                add_stroke(planes, "far", swag + [[side_x, 22]], smooth=1)
+            add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+
+    else:
+        # --- 18 DISTINCT OUTDOOR LANDSCAPE BLUEPRINTS ---
+        if arch_style == 0:
+            # 0: Asymmetric Single Alpine Horn Peak & Low Valley Saddle
+            px_peak = 135.0 if asym < 0 else (W - 135.0)
+            px_sad = (W - 165.0) if asym < 0 else 165.0
+            mt = [[8, y_hor + 12], [px_peak - 65, y_hor - 38], [px_peak, y_hor - 105], [px_peak + 75, y_hor - 24], [px_sad, y_hor + 8], [W - 8, y_hor - 28]]
+            add_cel(cels, "far", mt + [[W - 8, y_hor + 24], [8, y_hor + 24]])
+            add_stroke(planes, "far", mt, smooth=1)
+            # Ridge line descending from horn peak
+            add_stroke(planes, "far", [[px_peak, y_hor - 105], [px_peak + 18, y_hor - 52], [px_peak - 8, y_hor + 10]], smooth=1)
+
+        elif arch_style == 1:
+            # 1: Stepped Desert Mesas & Flat-Topped Canyon Buttes
+            m1_x = 34.0 if asym < 0 else (W - 210.0)
+            m2_x = (W - 175.0) if asym < 0 else 48.0
+            mesa1 = [[m1_x, y_hor + 16], [m1_x + 22, y_hor - 64], [m1_x + 142, y_hor - 64], [m1_x + 168, y_hor + 16]]
+            mesa2 = [[m2_x, y_hor + 16], [m2_x + 16, y_hor - 42], [m2_x + 104, y_hor - 42], [m2_x + 122, y_hor + 16]]
+            add_cel(cels, "far", mesa1)
+            add_cel(cels, "far", mesa2)
+            add_stroke(planes, "far", mesa1, smooth=0)
+            add_stroke(planes, "far", mesa2, smooth=0)
+            add_stroke(planes, "mid", [[8, y_hor + 16], [W - 8, y_hor + 16]], smooth=0)
+
+        elif arch_style == 2:
+            # 2: Meandering S-Curve River Valley & Headland Bluffs
+            vx = 320.0 + shift_x
+            add_stroke(planes, "far", [[8, y_hor - 16], [vx - 45, y_hor + 6], [vx + 45, y_hor + 6], [W - 8, y_hor - 22]], smooth=1)
+            # S-curve riverbanks widening toward foreground
+            bank_l = [[vx - 18, y_hor + 6], [vx - 85, y_hor + 58], [vx - 35, y_hor + 115], [45, y_floor + 12]]
+            bank_r = [[vx + 18, y_hor + 6], [vx + 65, y_hor + 58], [vx + 125, y_hor + 115], [W - 35, y_floor + 12]]
+            add_stroke(planes, "mid", bank_l, smooth=2)
+            add_stroke(planes, "mid", bank_r, smooth=2)
+
+        elif arch_style == 3:
+            # 3: Multi-Arch Stone Viaduct / Aqueduct Spanning the Valley
+            vy_top = y_hor - 28.0
+            vy_bot = y_hor + 36.0
+            add_stroke(planes, "far", [[12, vy_top], [W - 12, vy_top]], smooth=0)
+            add_stroke(planes, "far", [[12, vy_top + 8], [W - 12, vy_top + 8]], smooth=0)
+            for i in range(6):
+                ax0 = 24 + i * ((W - 48) / 6.0)
+                ax1 = 24 + (i + 1) * ((W - 48) / 6.0)
+                amx = 0.5 * (ax0 + ax1)
+                arch_v = [[ax0 + 6, vy_bot], [ax0 + 6, vy_top + 28], [amx, vy_top + 14], [ax1 - 6, vy_top + 28], [ax1 - 6, vy_bot]]
+                add_stroke(planes, "far", arch_v, smooth=1)
+
+        elif arch_style == 4:
+            # 4: Terraced Hillside Vineyard / Orchard Contours
+            for k in range(3):
+                ty = y_hor - 18.0 + k * 28.0
+                if asym < 0:
+                    pts_t = [[10, ty - 22], [240 + k * 45, ty], [W - 10, ty + 18]]
+                else:
+                    pts_t = [[10, ty + 18], [W - 240 - k * 45, ty], [W - 10, ty - 22]]
+                add_stroke(planes, "far" if k == 0 else "mid", pts_t, smooth=2)
+
+        elif arch_style == 5:
+            # 5: Steep Coastal Headland Bluff & Distant Lighthouse Promontory
+            if asym < 0:
+                bluff = [[8, y_hor - 82], [165, y_hor - 64], [235, y_hor + 22], [8, y_hor + 22]]
+            else:
+                bluff = [[W - 8, y_hor - 82], [W - 165, y_hor - 64], [W - 235, y_hor + 22], [W - 8, y_hor + 22]]
+            add_cel(cels, "far", bluff)
+            add_stroke(planes, "far", bluff + [bluff[0]], smooth=1)
+            add_stroke(planes, "far", [[8, y_hor + 22], [W - 8, y_hor + 22]], smooth=0)
+            add_wavy_line(planes, "mid", 16, W - 16, y_hor + 58, amp=3.0, freq=2.5)
+
+        elif arch_style == 6:
+            # 6: Catenary Suspension Bridge Towers & Parabolic Cables
+            t1x, t2x = 128.0, W - 128.0
+            y_deck = y_hor + 18.0
+            for tx in [t1x, t2x]:
+                add_rect(planes, "far", tx - 10, y_hor - 78, tx + 10, y_deck + 28, cels=cels)
+            cable_c = [[t1x, y_hor - 74], [320, y_deck - 6], [t2x, y_hor - 74]]
+            add_stroke(planes, "far", [[10, y_deck], [t1x, y_hor - 74]], smooth=1)
+            add_stroke(planes, "far", cable_c, smooth=2)
+            add_stroke(planes, "far", [[t2x, y_hor - 74], [W - 10, y_deck]], smooth=1)
+            add_stroke(planes, "far", [[10, y_deck], [W - 10, y_deck]], smooth=0)
+
+        elif arch_style == 7:
+            # 7: Cathedral Woodland Clearing with Framing Gnarled Tree Trunks
+            for side_x, sign in [(10.0, 1.0), (float(W - 10), -1.0)]:
+                trunk = [
+                    [side_x, y_floor],
+                    [side_x + sign * 54, y_floor],
+                    [side_x + sign * 34, 185],
+                    [side_x + sign * 78, 72],
+                    [side_x, 42],
+                ]
+                add_cel(cels, "mid", trunk)
+                add_stroke(planes, "mid", trunk, smooth=1)
+            add_wavy_line(planes, "far", 68, W - 68, y_hor + 12, amp=4.5, freq=1.8)
+
+        elif arch_style == 8:
+            # 8: Converging Country Lane & Split-Rail Timber Fence
+            vx = 320.0 + shift_x
+            add_wavy_line(planes, "far", 8, W - 8, y_hor, amp=4.0, freq=1.4)
+            add_stroke(planes, "mid", [[vx - 26, y_hor], [58, y_floor]], smooth=1)
+            add_stroke(planes, "mid", [[vx + 26, y_hor], [W - 58, y_floor]], smooth=1)
+            add_wooden_fence(planes, cels, "mid", 14, 148, y_hor + 24, y_hor + 82, n_posts=4, n_rails=2)
+            add_wooden_fence(planes, cels, "mid", W - 148, W - 14, y_hor + 24, y_hor + 82, n_posts=4, n_rails=2)
+
+        elif arch_style == 9:
+            # 9: Harbor Wharf Timber Pilings & Waterfront Quay Wall
+            y_quay = y_hor + 28.0
+            add_stroke(planes, "far", [[8, y_hor - 14], [W - 8, y_hor - 14]], smooth=0)
+            add_stroke(planes, "mid", [[10, y_quay], [W - 10, y_quay]], smooth=0)
+            for px in [38, 86, 134, W - 134, W - 86, W - 38]:
+                add_rect(planes, "mid", px - 7, y_quay - 38, px + 7, y_quay + 36, cels=cels)
+
+        elif arch_style == 10:
+            # 10: Village Rooftops, Gable Chimneys & Pointed Church Steeple Skyline
+            sx_steeple = 112.0 if asym < 0 else (W - 138.0)
+            steeple = [[sx_steeple, y_hor + 16], [sx_steeple, y_hor - 38], [sx_steeple + 16, y_hor - 96], [sx_steeple + 32, y_hor - 38], [sx_steeple + 32, y_hor + 16]]
+            add_cel(cels, "far", steeple)
+            add_stroke(planes, "far", steeple, smooth=0)
+            gx0 = (W - 185.0) if asym < 0 else 42.0
+            add_building_facade(planes, cels, "far", gx0, y_hor - 34, gx0 + 115, y_hor + 16, n_cols=2, n_rows=1, roof_type="gable")
+            add_stroke(planes, "mid", [[8, y_hor + 16], [W - 8, y_hor + 16]], smooth=0)
+
+        elif arch_style == 11:
+            # 11: Railyard Signal Gantry Bridge & Receding Telegraph Poles
+            add_stroke(planes, "far", [[8, y_hor + 8], [W - 8, y_hor + 8]], smooth=0)
+            for px, ph in [(56.0, 96.0), (132.0, 68.0), (W - 132.0, 68.0), (W - 56.0, 96.0)]:
+                add_stroke(planes, "mid", [[px, y_hor + 24], [px, y_hor + 24 - ph]], smooth=0)
+                add_stroke(planes, "mid", [[px - 18, y_hor + 36 - ph], [px + 18, y_hor + 36 - ph]], smooth=0)
+
+        elif arch_style == 12:
+            # 12: Sweeping Amphitheatre / Stadium Bowl Tiers
+            for k in range(3):
+                ry = y_hor - 14.0 + k * 22.0
+                bowl = [[12 + (W - 24) * (i / 16.0), ry + 26.0 * math.sin(math.pi * i / 16.0)] for i in range(17)]
+                add_stroke(planes, "far" if k < 2 else "mid", bowl, smooth=1)
+
+        elif arch_style == 13:
+            # 13: Tropical Lagoon Atoll Sandbar & Leaning Margin Palm Trunks
+            atoll = [[32, y_hor + 12], [115, y_hor - 14], [245, y_hor + 12], [32, y_hor + 12]]
+            add_cel(cels, "far", atoll[:-1])
+            add_stroke(planes, "far", atoll, smooth=1)
+            add_stroke(planes, "far", [[8, y_hor + 12], [W - 8, y_hor + 12]], smooth=0)
+            px_p = 18.0 if asym > 0 else (W - 18.0)
+            dir_p = 1.0 if asym > 0 else -1.0
+            add_stroke(planes, "mid", [[px_p, y_floor], [px_p + dir_p * 34, 210], [px_p + dir_p * 78, 96]], smooth=2)
+
+        elif arch_style == 14:
+            # 14: Jagged Boreal Sawtooth Pine Treeline Silhouette
+            saw = [[10, y_hor + 18]]
+            for i in range(18):
+                tx = 18 + i * ((W - 36) / 18.0)
+                ty = (y_hor - 32.0 - (i % 3) * 14.0) if (i % 2 == 0) else (y_hor + 8.0)
+                saw.append([tx, ty])
+            saw.append([W - 10, y_hor + 18])
+            add_cel(cels, "far", saw)
+            add_stroke(planes, "far", saw, smooth=0)
+
+        elif arch_style == 15:
+            # 15: Twin Interlocking Valley Ridges (No Sine Wave!)
+            r_left = [[8, y_hor - 48], [185, y_hor - 22], [395, y_hor + 18], [8, y_hor + 18]]
+            r_right = [[245, y_hor + 24], [445, y_hor - 34], [W - 8, y_hor - 56], [W - 8, y_hor + 24]]
+            add_cel(cels, "far", r_left)
+            add_cel(cels, "far", r_right)
+            add_stroke(planes, "far", r_left[:3], smooth=1)
+            add_stroke(planes, "far", r_right[:3], smooth=1)
+
+        elif arch_style == 16:
+            # 16: Stepped Canyon Gorge Walls & Central Tiered Cascade
+            g_left = [[8, 65], [148, 82], [178, y_hor + 28], [8, y_hor + 28]]
+            g_right = [[W - 8, 65], [W - 148, 82], [W - 178, y_hor + 28], [W - 8, y_hor + 28]]
+            add_cel(cels, "far", g_left)
+            add_cel(cels, "far", g_right)
+            add_stroke(planes, "far", g_left[:3], smooth=0)
+            add_stroke(planes, "far", g_right[:3], smooth=0)
+            add_wavy_line(planes, "mid", 165, W - 165, y_hor + 28, amp=4.0, freq=3.0)
+
+        else:
+            # 17: Rolling Pastoral Patchwork Hills & Stone Hedgerow Walls
+            h1 = [[8, y_hor + 14], [160, y_hor - 28], [355, y_hor + 14]]
+            h2 = [[265, y_hor + 18], [465, y_hor - 24], [W - 8, y_hor + 18]]
+            add_stroke(planes, "far", h1, smooth=2)
+            add_stroke(planes, "far", h2, smooth=2)
+            add_stroke(planes, "mid", [[42, y_hor + 42], [245, y_hor + 12]], smooth=1)
+            add_stroke(planes, "mid", [[W - 245, y_hor + 16], [W - 42, y_hor + 48]], smooth=1)
+
+    # --- 3. FOREGROUND SURFACE / FLOOR / GROUND PATTERN (16 distinct blueprints, zero radial repetition!) ---
+    if surf_style == 0:
+        # 0: Herringbone Parquet Wood Blocks
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
+        for row_y in [y_floor + 24, y_floor + 64]:
+            if row_y < H - 14:
+                zig = []
+                for i in range(11):
+                    zx = 18 + i * ((W - 36) / 10.0)
+                    zy = row_y - 12 if (i % 2 == 0) else row_y + 12
+                    zig.append([zx, zy])
+                add_stroke(planes, "fore", zig, smooth=0)
+
+    elif surf_style == 1:
+        # 1: Diamond Perspective Checkerboard Tiles
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
+        for k in range(5):
+            x_start = 55 + k * 125
+            add_stroke(planes, "fore", [[x_start, y_floor], [np.clip(x_start - 135, 10, W - 10), H - 8]], smooth=0)
+            add_stroke(planes, "fore", [[x_start, y_floor], [np.clip(x_start + 135, 10, W - 10), H - 8]], smooth=0)
+
+    elif surf_style == 2:
+        # 2: Woven Oval Braided Rug with Fringe Tassels
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
+        rcx, rcy = 320.0 + 0.5 * shift_x, 0.5 * (y_floor + H - 6)
+        for rx_r, ry_r in [(225.0, 36.0), (175.0, 24.0)]:
+            oval = [[rcx + rx_r * math.cos(math.radians(a)), rcy + ry_r * math.sin(math.radians(a))] for a in range(0, 361, 18)]
+            add_stroke(planes, "fore", oval, smooth=1)
+        for fy in [-14, 0, 14]:
+            add_stroke(planes, "fore", [[rcx - 242, rcy + fy], [rcx - 225, rcy + fy]], smooth=0)
+            add_stroke(planes, "fore", [[rcx + 225, rcy + fy], [rcx + 242, rcy + fy]], smooth=0)
+
+    elif surf_style == 3:
+        # 3: Staggered Running-Bond Flagstone Terrace
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        for r_i, sy in enumerate([y_floor, y_floor + 34, y_floor + 72]):
+            if sy < H - 10:
+                add_stroke(planes, "fore", [[10, sy], [W - 10, sy]], smooth=0)
+                off = (r_i % 2) * 55
+                for jx in range(65 + off, W - 55, 110):
+                    add_stroke(planes, "fore", [[jx, sy], [jx, min(H - 8.0, sy + 34.0)]], smooth=0)
+
+    elif surf_style == 4:
+        # 4: Winding S-Curve Stepping-Stone Garden Path
+        add_wavy_line(planes, "fore", 10, W - 10, y_floor + 8, amp=3.0, freq=1.8)
+        for k, (scx, scy, srw, srh) in enumerate([
+            (225.0 + shift_x, y_floor + 24.0, 34.0, 11.0),
+            (310.0 + shift_x, y_floor + 52.0, 42.0, 13.0),
+            (395.0 + shift_x, y_floor + 82.0, 48.0, 15.0),
+        ]):
+            if scy + srh < H - 6:
+                stone = [[scx + srw * math.cos(math.radians(a)), scy + srh * math.sin(math.radians(a))] for a in range(0, 361, 30)]
+                add_cel(cels, "fore", stone[:-1])
+                add_stroke(planes, "fore", stone, smooth=1)
+
+    elif surf_style == 5:
+        # 5: Horizontal Bolted Veranda / Pier Timber Planks
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        for py in [y_floor, y_floor + 28, y_floor + 58, y_floor + 90]:
+            if py < H - 8:
+                add_stroke(planes, "fore", [[10, py], [W - 10, py]], smooth=0)
+        for bx in [95, 245, 395, 545]:
+            add_stroke(planes, "fore", [[bx, y_floor], [bx, H - 8]], smooth=0)
+
+    elif surf_style == 6:
+        # 6: Kitchen / Atelier Countertop Apron with 3 Recessed Drawer Fronts & Knobs
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "mid", [[8, y_floor], [W - 8, y_floor]], smooth=0)
+        add_stroke(planes, "fore", [[8, y_floor + 12], [W - 8, y_floor + 12]], smooth=0)
+        for dx0, dx1 in [(36, 204), (236, 404), (436, 604)]:
+            add_rect(planes, "fore", dx0, y_floor + 24, dx1, H - 14)
+            kmx, kmy = 0.5 * (dx0 + dx1), 0.5 * (y_floor + 24 + H - 14)
+            add_rect(planes, "fore", kmx - 10, kmy - 4, kmx + 10, kmy + 4)
+
+    elif surf_style == 7:
+        # 7: Arched Fan Cobblestone Piazza Courses
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        for r_c in [y_floor + 10, y_floor + 42, y_floor + 76]:
+            arc_c = [[14 + (W - 28) * (i / 16.0), r_c - 18.0 * math.sin(math.pi * i / 16.0)] for i in range(17)]
+            add_stroke(planes, "fore", arc_c, smooth=1)
+
+    elif surf_style == 8:
+        # 8: Ascending Foreground Stair Treads with Overhang Nosing
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        for sy in [y_floor, y_floor + 32, y_floor + 66]:
+            if sy + 7 < H - 6:
+                add_stroke(planes, "fore", [[12, sy], [W - 12, sy]], smooth=0)
+                add_stroke(planes, "fore", [[18, sy + 7], [W - 18, sy + 7]], smooth=0)
+
+    elif surf_style == 9:
+        # 9: Rippling Brook Bank with Rounded River Boulders
+        add_wavy_line(planes, "fore", 10, W - 10, y_floor + 8, amp=4.5, freq=2.2, phase=0.4)
+        add_wavy_line(planes, "fore", 18, W - 18, y_floor + 48, amp=3.5, freq=3.0, phase=1.2)
+        for bcx, bcy, brw, brh in [(82.0, H - 34.0, 32.0, 18.0), (W - 92.0, H - 30.0, 36.0, 20.0)]:
+            boulder = [[bcx - brw, bcy + brh], [bcx - 0.7 * brw, bcy - brh], [bcx + 0.6 * brw, bcy - 0.8 * brh], [bcx + brw, bcy + brh], [bcx - brw, bcy + brh]]
+            add_cel(cels, "fore", boulder[:-1])
+            add_stroke(planes, "fore", boulder, smooth=1)
+
+    elif surf_style == 10:
+        # 10: Converging Railway Ballast & Timber Sleepers
+        add_stroke(planes, "fore", [[42, y_floor + 14], [W - 42, y_floor + 14]], smooth=0)
+        add_stroke(planes, "fore", [[18, H - 22], [W - 18, H - 22]], smooth=0)
+        for tx in range(52, W - 42, 58):
+            bx = 320 + (tx - 320) * 1.18
+            add_stroke(planes, "fore", [[tx - 8, y_floor + 8], [bx - 10, H - 14], [bx + 10, H - 14], [tx + 8, y_floor + 8]], smooth=0)
+
+    elif surf_style == 11:
+        # 11: Carved Stone Balustrade Parapet along Bottom Margin
+        y_rail = y_floor + 14.0
+        add_cel(cels, "fore", [[10, y_rail], [W - 10, y_rail], [W - 10, H - 8], [10, H - 8]])
+        add_rect(planes, "fore", 10, y_rail, W - 10, y_rail + 14)
+        add_stroke(planes, "fore", [[10, H - 14], [W - 10, H - 14]], smooth=0)
+        for bx in range(44, W - 36, 56):
+            add_rect(planes, "fore", bx - 8, y_rail + 14, bx + 8, H - 14)
+
+    elif surf_style == 12:
+        # 12: Scalloped Shoreline Surf Foam & Tidepool Rings
+        for wy, ph in [(y_floor + 10, 0.2), (y_floor + 44, 1.4), (H - 22, 2.5)]:
+            add_wavy_line(planes, "fore", 12, W - 12, wy, amp=5.0, freq=3.5, phase=ph)
+
+    elif surf_style == 13:
+        # 13: Diagonal Plowed Earth Furrows Sweeping Across Field
+        add_stroke(planes, "mid", [[10, y_floor], [W - 10, y_floor]], smooth=0)
+        for k in range(6):
+            fx0 = 18 + k * 105
+            fx1 = fx0 + (145 if asym < 0 else -145)
+            add_stroke(planes, "fore", [[np.clip(fx0, 12, W - 12), y_floor + 6], [np.clip(fx1, 12, W - 12), H - 10]], smooth=1)
+
+    elif surf_style == 14:
+        # 14: Studio / Court Chalk Baseline & Center Arc Markings
+        add_cel(cels, "fore", [[8, y_floor], [W - 8, y_floor], [W - 8, H - 8], [8, H - 8]])
+        add_stroke(planes, "fore", [[24, y_floor + 16], [W - 24, y_floor + 16]], smooth=0)
+        add_stroke(planes, "fore", [[24, y_floor + 16], [12, H - 12]], smooth=0)
+        add_stroke(planes, "fore", [[W - 24, y_floor + 16], [W - 12, H - 12]], smooth=0)
+        arc_ct = [[320 + 85 * math.cos(math.radians(a)), (H - 10) - 34 * math.sin(math.radians(a))] for a in range(0, 181, 15)]
+        add_stroke(planes, "fore", arc_ct, smooth=1)
+
+    else:
+        # 15: Organic Woodland Roots, Mossy Hummocks & Grass Tufts
+        add_wavy_line(planes, "fore", 10, W - 10, y_floor + 12, amp=5.5, freq=1.5, phase=0.5)
+        for gx, gy in [(68, H - 24), (195, H - 36), (445, H - 32), (W - 68, H - 22)]:
+            add_stroke(planes, "fore", [[gx - 8, gy], [gx - 12, gy - 16]], smooth=0)
+            add_stroke(planes, "fore", [[gx, gy], [gx, gy - 20]], smooth=0)
+            add_stroke(planes, "fore", [[gx + 8, gy], [gx + 12, gy - 16]], smooth=0)
+
+
+def diversify_shot_prop_positions(
+    slug: str,
+    theme: str,
+    raw_prop_specs: list,
+    y_hor: float,
+    subject_box: tuple,
+    secondary_boxes: list,
+) -> list:
+    """
+    Replaces repeated grid coordinates in `raw_prop_specs` with 12 distinct asymmetric
+    compositional topologies + per-shot continuous offsets + Quick, Draw! exemplar rotation
+    so no two shots place their props in the same layout!
+    """
+    rank, class_rank, _, _, _, topo_id = _shot_unique_indices_v9(slug, theme)
+    sx0, sy0, sx1, sy1 = subject_box
+    left_mid = max(56.0, min(132.0, 0.5 * sx0))
+    right_mid = min(W - 56.0, max(W - 132.0, 0.5 * (sx1 + W)))
+
+    # 12 distinct 10-slot stage topologies: list of 10 `(cx, cy, scale_mult)` targets
+    # Ordered by the 5 planes: 2 sky, 2 far, 2 mid, 2 secondary, 2 fore
+    topologies = [
+        # 0: Left-weighted diorama + high-right distant counterpoint
+        [(78, 52, 0.95), (535, 48, 1.08), (68, y_hor - 24, 1.05), (558, y_hor - 36, 0.92), (74, y_hor + 36, 1.08), (154, y_hor + 52, 0.94), (96, 326, 1.04), (538, 312, 0.96), (82, 424, 1.06), (485, 432, 0.92)],
+        # 1: Right-weighted diorama + low-left foreground counterpoint
+        [(105, 48, 1.06), (562, 54, 0.94), (82, y_hor - 36, 0.92), (572, y_hor - 22, 1.06), (486, y_hor + 48, 0.94), (566, y_hor + 34, 1.08), (102, 314, 0.96), (544, 328, 1.04), (155, 432, 0.92), (558, 422, 1.06)],
+        # 2: Diagonal rising cascade (bottom-left to top-right)
+        [(142, 68, 0.94), (548, 42, 1.06), (92, y_hor - 12, 1.04), (518, y_hor - 38, 0.96), (72, y_hor + 58, 1.06), (556, y_hor + 22, 0.94), (88, 342, 1.05), (512, 298, 0.95), (76, 434, 1.08), (568, 404, 0.92)],
+        # 3: Diagonal falling cascade (top-left to bottom-right)
+        [(92, 42, 1.06), (498, 68, 0.94), (122, y_hor - 38, 0.96), (548, y_hor - 12, 1.04), (84, y_hor + 22, 0.94), (568, y_hor + 58, 1.06), (128, 298, 0.95), (552, 342, 1.05), (72, 404, 0.92), (564, 434, 1.08)],
+        # 4: Wide panoramic horizon band + corner foreground anchors
+        [(68, 54, 0.96), (572, 54, 0.96), (64, y_hor - 28, 0.95), (168, y_hor - 34, 0.88), (472, y_hor + 24, 0.88), (576, y_hor + 30, 0.96), (82, 318, 1.02), (558, 318, 1.02), (66, 428, 1.08), (574, 428, 1.08)],
+        # 5: Deep foreground framing arch + high central sky
+        [(175, 46, 0.92), (465, 46, 0.92), (88, y_hor - 32, 0.98), (552, y_hor - 32, 0.98), (68, y_hor + 44, 1.04), (572, y_hor + 44, 1.04), (78, 334, 1.08), (562, 334, 1.08), (112, 426, 1.04), (528, 426, 1.04)],
+        # 6: Split-level mezzanine (upper-left gallery + lower-right floor)
+        [(82, 48, 1.04), (215, 56, 0.88), (74, y_hor - 34, 1.02), (548, y_hor - 18, 0.96), (86, y_hor + 24, 0.94), (554, y_hor + 54, 1.06), (124, 308, 0.92), (532, 336, 1.06), (96, 418, 0.96), (546, 430, 1.04)],
+        # 7: Staggered Z-depth slalom
+        [(118, 52, 0.98), (522, 62, 0.98), (72, y_hor - 26, 1.04), (496, y_hor - 34, 0.92), (136, y_hor + 46, 0.92), (568, y_hor + 32, 1.04), (76, 328, 1.04), (508, 314, 0.94), (132, 428, 0.96), (562, 418, 1.04)],
+        # 8: Tabletop / foreground still-life spread across lower third
+        [(96, 56, 0.92), (544, 56, 0.92), (84, y_hor - 28, 0.94), (556, y_hor - 28, 0.94), (76, y_hor + 48, 1.02), (564, y_hor + 48, 1.02), (92, 332, 1.06), (548, 332, 1.06), (148, 430, 1.02), (492, 430, 1.02)],
+        # 9: High clerestory / canopy focus + asymmetric floor
+        [(84, 48, 1.08), (556, 48, 1.08), (112, y_hor - 36, 1.04), (528, y_hor - 36, 1.04), (72, y_hor + 38, 0.96), (568, y_hor + 52, 0.96), (104, 322, 0.98), (536, 332, 0.98), (78, 426, 1.02), (552, 416, 0.94)],
+        # 10: Off-center L-frame (left wall vertical column + bottom shelf)
+        [(76, 48, 1.02), (548, 58, 0.92), (72, y_hor - 30, 1.04), (556, y_hor - 24, 0.94), (78, y_hor + 36, 1.04), (552, y_hor + 46, 0.94), (86, 322, 1.04), (524, 334, 0.96), (118, 428, 1.04), (548, 428, 1.02)],
+        # 11: Reverse J-frame (right wall vertical column + bottom-left hearth cluster)
+        [(92, 58, 0.92), (564, 48, 1.02), (84, y_hor - 24, 0.94), (568, y_hor - 30, 1.04), (88, y_hor + 46, 0.94), (562, y_hor + 36, 1.04), (116, 334, 0.96), (554, 322, 1.04), (92, 428, 1.02), (522, 428, 1.04)],
+    ]
+    chosen_topo = topologies[topo_id]
+    sec_idx = 0
+    out_specs = []
+    for p_i, item in enumerate(raw_prop_specs):
+        slot = chosen_topo[p_i % len(chosen_topo)]
+        jx = float(((rank * 17 + p_i * 31) % 28) - 14)
+        jy = float(((rank * 23 + p_i * 19) % 20) - 10)
+        cx_new = float(np.clip(slot[0] + jx, 48.0, W - 48.0))
+        cy_new = float(np.clip(slot[1] + jy, 38.0, H - 36.0))
+        sc_m = float(slot[2])
+
+        # Gently anchor secondary props toward real archival secondary regions when on the same side
+        if item["plane"] == "secondary" and sec_idx < len(secondary_boxes):
+            sbx, sby, _, _ = secondary_boxes[sec_idx]
+            sec_idx += 1
+            if (cx_new < 320 and sbx < 320) or (cx_new >= 320 and sbx >= 320):
+                cx_new = 0.68 * cx_new + 0.32 * sbx
+                cy_new = float(np.clip(0.72 * cy_new + 0.28 * sby, y_hor + 20.0, 362.0))
+
+        # Rotate Quick, Draw! exemplar index per shot so identical prop categories draw distinct exemplars
+        new_idx = (int(item["idx"]) + class_rank * 3 + p_i * 5) % 16
+        new_flip = bool(item["flip"]) ^ ((class_rank + p_i) % 3 == 1)
+        out_specs.append({
+            "plane": item["plane"],
+            "cat": item["cat"],
+            "idx": new_idx,
+            "cx": cx_new,
+            "cy": cy_new,
+            "w": round(float(item["w"]) * sc_m, 1),
+            "h": round(float(item["h"]) * sc_m, 1),
+            "flip": new_flip,
+        })
+    return out_specs
+
 
 
 def clip_stroke_list_outside_mask(stroke_list: list, occ_mask: np.ndarray) -> list:
@@ -1237,30 +1962,24 @@ def build_bespoke_50_scene(
     draft_planes_640 = {pid: [list(s) for s in planes_640[pid]] for pid in plane_order}
 
     # 3. Gather raw prop specs (8–10 semantic Quick, Draw! doodles across all 5 depth planes)
-    #    and gently anchor `secondary` props toward the real archival secondary regions!
+    #    and diversify into 12 asymmetric stage topologies + secondary archival region anchoring!
     raw_prop_specs = []
-    sec_idx = 0
     for pid in plane_order:
         for item in recipe.get(pid, []):
-            cx_p, cy_p = float(item[2]), float(item[3])
-            if pid == "secondary" and sec_idx < len(secondary_boxes):
-                sbx, sby, _, _ = secondary_boxes[sec_idx]
-                sec_idx += 1
-                # Pull 35% toward the detected secondary archival object if on the same flank
-                if (cx_p < 320 and sbx < 320) or (cx_p >= 320 and sbx >= 320):
-                    cx_p = 0.65 * cx_p + 0.35 * sbx
-                    cy_p = float(np.clip(0.70 * cy_p + 0.30 * sby, y_hor + 18.0, 365.0))
             raw_prop_specs.append({
                 "plane": pid,
                 "cat": item[0].strip(),
                 "idx": int(item[1]),
-                "cx": cx_p,
-                "cy": cy_p,
+                "cx": float(item[2]),
+                "cy": float(item[3]),
                 "w": float(item[4]),
                 "h": float(item[5]),
                 "flip": bool(item[6]) if len(item) > 6 else False,
             })
 
+    raw_prop_specs = diversify_shot_prop_positions(
+        slug, recipe["theme"], raw_prop_specs, y_hor, subject_box, secondary_boxes
+    )
     relaxed_props, collision_boxes, n_issues = relax_prop_layout(raw_prop_specs, subject_box, arch_cels_640=cels_640)
 
     # 4. Instantiate relaxed props, clip all architectural/stage lines outside EVERY prop cel first,

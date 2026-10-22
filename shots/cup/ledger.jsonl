@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "cup", "clip": "04_2ead7f30", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "cup", "mean_sam_iou": 0.9769}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "cup", "key_id": "6563611591835648", "country": "MX"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "cup", "ep0": 0.4852, "ep3": 0.7341, "sil_iou": 0.8523, "in_mask": 0.9706}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "cup", "gates": "16/16"}

@@ -1,0 +1,14 @@
+{
+  "shot": "onion",
+  "category": "onion",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9652,
+  "mean_reward_ep0": 0.286,
+  "mean_reward_ep1": 0.609,
+  "mean_reward_ep2": 0.7203,
+  "mean_reward_ep3": 0.7423,
+  "mean_sil_iou_ep3": 0.8017,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9761,
+  "reward_delta": 0.4562
+}

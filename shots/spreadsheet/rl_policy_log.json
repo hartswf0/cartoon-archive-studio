@@ -1,0 +1,14 @@
+{
+  "shot": "spreadsheet",
+  "category": "spreadsheet",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9781,
+  "mean_reward_ep0": 0.4968,
+  "mean_reward_ep1": 0.7329,
+  "mean_reward_ep2": 0.8005,
+  "mean_reward_ep3": 0.8225,
+  "mean_sil_iou_ep3": 0.8714,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9648,
+  "reward_delta": 0.3257
+}

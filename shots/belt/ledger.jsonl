@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "belt", "clip": "03_d047ad40", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "belt", "mean_sam_iou": 0.865}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "belt", "key_id": "5842832214458368", "country": "RU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "belt", "ep0": 0.1859, "ep3": 0.8396, "sil_iou": 0.8197, "in_mask": 0.9863}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "belt", "gates": "16/16"}

@@ -1,0 +1,47 @@
+{
+  "category": "power_outlet",
+  "shot_id": "power-outlet",
+  "body_plan": "Regime V: Electrical & Utility",
+  "interval": [
+    3.08,
+    6.68
+  ],
+  "key_times": [
+    3.08,
+    4.21,
+    5.44,
+    6.68
+  ],
+  "key_notes": [
+    "Key 1 (t=3.08s): Initial archival pose of power-outlet; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.21s): Mid-sequence articulation of power-outlet; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.44s): Peak dynamic extension of power-outlet over 7-plane multiplane environment.",
+    "Key 4 (t=6.68s): Follow-through and settle of power-outlet with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of power-outlet (3.08s..6.68s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_9d580700",
+    "source_id": "05_9d580700",
+    "source_slug": "power-outlet",
+    "source_title": "Moving Image Archive // Power Outlet",
+    "source_year": 1956,
+    "start_seconds": 3.08,
+    "end_seconds": 6.68,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/power-outlet/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/power_outlet/videos/05_9d580700-d327-50ba-aec2-58681a3e7eb0.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6022722335277056",
+    "n_strokes": 6,
+    "country": "GB",
+    "qd_index": 11,
+    "why": "Selected Quick, Draw! human doodle #11 (GB, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

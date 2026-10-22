@@ -1,0 +1,14 @@
+{
+  "shot": "pillow",
+  "category": "pillow",
+  "policy": "SCION-Universal-Argon-RL-v7",
+  "mean_sam_iou": 0.9912,
+  "mean_reward_ep0": 0.375,
+  "mean_reward_ep1": 0.6637,
+  "mean_reward_ep2": 0.694,
+  "mean_reward_ep3": 0.716,
+  "mean_sil_iou_ep3": 0.81,
+  "mean_edge_recall_ep3": 0.68,
+  "mean_stroke_precision_ep3": 0.9678,
+  "reward_delta": 0.341
+}

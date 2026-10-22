@@ -1,0 +1,47 @@
+{
+  "category": "potato",
+  "shot_id": "potato",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    2.09,
+    5.69
+  ],
+  "key_times": [
+    2.09,
+    3.21,
+    4.45,
+    5.69
+  ],
+  "key_notes": [
+    "Key 1 (t=2.09s): Initial archival pose of potato; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.21s): Mid-sequence articulation of potato; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.45s): Peak dynamic extension of potato over 7-plane multiplane environment.",
+    "Key 4 (t=5.69s): Follow-through and settle of potato with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of potato (2.09s..5.69s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "05_78ef3a09",
+    "source_id": "05_78ef3a09",
+    "source_slug": "potato",
+    "source_title": "Moving Image Archive // Potato",
+    "source_year": 1956,
+    "start_seconds": 2.09,
+    "end_seconds": 5.69,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/potato/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/potato/videos/05_78ef3a09-9034-5c46-8c58-23f510accad3.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5191271628931072",
+    "n_strokes": 7,
+    "country": "KR",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (KR, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

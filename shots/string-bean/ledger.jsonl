@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "string-bean", "clip": "03_2132acb3", "interval": [2.37, 5.97]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "string-bean", "mean_sam_iou": 0.8796}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "string-bean", "key_id": "4870826903994368", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "string-bean", "ep0": 0.4062, "ep3": 0.398, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "string-bean", "gates": "16/16"}

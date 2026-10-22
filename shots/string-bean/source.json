@@ -1,0 +1,47 @@
+{
+  "category": "string_bean",
+  "shot_id": "string-bean",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    2.37,
+    5.97
+  ],
+  "key_times": [
+    2.37,
+    3.5,
+    4.73,
+    5.97
+  ],
+  "key_notes": [
+    "Key 1 (t=2.37s): Initial archival pose of string-bean; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.5s): Mid-sequence articulation of string-bean; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.73s): Peak dynamic extension of string-bean over 7-plane multiplane environment.",
+    "Key 4 (t=5.97s): Follow-through and settle of string-bean with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of string-bean (2.37s..5.97s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_2132acb3",
+    "source_id": "03_2132acb3",
+    "source_slug": "string-bean",
+    "source_title": "Moving Image Archive // String Bean",
+    "source_year": 1956,
+    "start_seconds": 2.37,
+    "end_seconds": 5.97,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/string-bean/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/string_bean/videos/03_2132acb3-45b8-5cac-b6e9-1e4933b8d954.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4870826903994368",
+    "n_strokes": 6,
+    "country": "US",
+    "qd_index": 1,
+    "why": "Selected Quick, Draw! human doodle #1 (US, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

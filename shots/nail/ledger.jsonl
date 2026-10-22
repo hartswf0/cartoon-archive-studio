@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "nail", "clip": "02_820fe2ab", "interval": [1.73, 5.33]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "nail", "mean_sam_iou": 0.9089}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "nail", "key_id": "5965176903827456", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "nail", "ep0": 0.0503, "ep3": 0.6458, "sil_iou": 0.8, "in_mask": 0.9835}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "nail", "gates": "16/16"}

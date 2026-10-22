@@ -1,0 +1,47 @@
+{
+  "category": "carrot",
+  "shot_id": "carrot",
+  "body_plan": "Regime VIII: Botanical Harvest",
+  "interval": [
+    3.48,
+    7.08
+  ],
+  "key_times": [
+    3.48,
+    4.61,
+    5.84,
+    7.08
+  ],
+  "key_notes": [
+    "Key 1 (t=3.48s): Initial archival pose of carrot; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=4.61s): Mid-sequence articulation of carrot; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=5.84s): Peak dynamic extension of carrot over 7-plane multiplane environment.",
+    "Key 4 (t=7.08s): Follow-through and settle of carrot with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of carrot (3.48s..7.08s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "01_a398123f",
+    "source_id": "01_a398123f",
+    "source_slug": "carrot",
+    "source_title": "Moving Image Archive // Carrot",
+    "source_year": 1956,
+    "start_seconds": 3.48,
+    "end_seconds": 7.08,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/carrot/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/carrot/videos/01_a398123f-736e-5a52-b7da-494e02122e23.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6546647599284224",
+    "n_strokes": 8,
+    "country": "BH",
+    "qd_index": 4,
+    "why": "Selected Quick, Draw! human doodle #4 (BH, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

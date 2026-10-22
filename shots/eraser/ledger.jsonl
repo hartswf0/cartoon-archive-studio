@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "eraser", "clip": "04_73b5ddb6", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "eraser", "mean_sam_iou": 0.956}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "eraser", "key_id": "5392763262599168", "country": "CH"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "eraser", "ep0": 0.2974, "ep3": 0.5568, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "eraser", "gates": "16/16"}

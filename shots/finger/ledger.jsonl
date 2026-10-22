@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "finger", "clip": "04_0fa5a1b6", "interval": [7.5, 11.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "finger", "mean_sam_iou": 0.9468}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "finger", "key_id": "5626822668582912", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "finger", "ep0": 0.2474, "ep3": 0.5879, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "finger", "gates": "16/16"}

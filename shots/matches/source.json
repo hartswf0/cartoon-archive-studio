@@ -1,0 +1,47 @@
+{
+  "category": "matches",
+  "shot_id": "matches",
+  "body_plan": "Regime IV: Ignition Mechanism",
+  "interval": [
+    1.2,
+    4.8
+  ],
+  "key_times": [
+    1.2,
+    2.33,
+    3.56,
+    4.8
+  ],
+  "key_notes": [
+    "Key 1 (t=1.2s): Initial archival pose of matches; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.33s): Mid-sequence articulation of matches; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.56s): Peak dynamic extension of matches over 7-plane multiplane environment.",
+    "Key 4 (t=4.8s): Follow-through and settle of matches with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of matches (1.2s..4.8s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_f560d3d9",
+    "source_id": "03_f560d3d9",
+    "source_slug": "matches",
+    "source_title": "Moving Image Archive // Matches",
+    "source_year": 1956,
+    "start_seconds": 1.2,
+    "end_seconds": 4.8,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/matches/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/matches/videos/03_f560d3d9-543c-52fb-8012-90db88af4e49.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4689915252047872",
+    "n_strokes": 7,
+    "country": "BE",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (BE, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

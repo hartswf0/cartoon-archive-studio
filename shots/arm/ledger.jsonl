@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "arm", "clip": "03_000f3579", "interval": [5.86, 9.46]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "arm", "mean_sam_iou": 0.957}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "arm", "key_id": "5581171259867136", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "arm", "ep0": 0.308, "ep3": 0.6159, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "arm", "gates": "16/16"}

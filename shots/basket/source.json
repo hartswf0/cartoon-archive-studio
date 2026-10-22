@@ -1,0 +1,47 @@
+{
+  "category": "basket",
+  "shot_id": "basket",
+  "body_plan": "Regime VI: Woven Vessel & Harvest",
+  "interval": [
+    5.5,
+    9.1
+  ],
+  "key_times": [
+    5.5,
+    6.62,
+    7.86,
+    9.1
+  ],
+  "key_notes": [
+    "Key 1 (t=5.5s): Initial archival pose of basket; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=6.62s): Mid-sequence articulation of basket; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=7.86s): Peak dynamic extension of basket over 7-plane multiplane environment.",
+    "Key 4 (t=9.1s): Follow-through and settle of basket with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of basket (5.5s..9.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_98b880c2",
+    "source_id": "02_98b880c2",
+    "source_slug": "basket",
+    "source_title": "Moving Image Archive // Basket",
+    "source_year": 1956,
+    "start_seconds": 5.5,
+    "end_seconds": 9.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/basket/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/basket/videos/02_98b880c2-76fd-547d-8683-4b085f2932da.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "4834579057737728",
+    "n_strokes": 7,
+    "country": "SI",
+    "qd_index": 3,
+    "why": "Selected Quick, Draw! human doodle #3 (SI, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

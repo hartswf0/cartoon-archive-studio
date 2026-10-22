@@ -1,0 +1,47 @@
+{
+  "category": "sweater",
+  "shot_id": "sweater",
+  "body_plan": "Regime VII: Apparel & Haberdashery",
+  "interval": [
+    1.37,
+    4.97
+  ],
+  "key_times": [
+    1.37,
+    2.5,
+    3.73,
+    4.97
+  ],
+  "key_notes": [
+    "Key 1 (t=1.37s): Initial archival pose of sweater; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=2.5s): Mid-sequence articulation of sweater; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=3.73s): Peak dynamic extension of sweater over 7-plane multiplane environment.",
+    "Key 4 (t=4.97s): Follow-through and settle of sweater with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of sweater (1.37s..4.97s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "04_877dcdd4",
+    "source_id": "04_877dcdd4",
+    "source_slug": "sweater",
+    "source_title": "Moving Image Archive // Sweater",
+    "source_year": 1956,
+    "start_seconds": 1.37,
+    "end_seconds": 4.97,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/sweater/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/sweater/videos/04_877dcdd4-e52a-50d9-8e29-4d1e6c6f1978.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6333711589048320",
+    "n_strokes": 8,
+    "country": "TH",
+    "qd_index": 2,
+    "why": "Selected Quick, Draw! human doodle #2 (TH, 8 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

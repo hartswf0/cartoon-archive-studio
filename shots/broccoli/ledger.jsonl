@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "broccoli", "clip": "05_9b00d8b4", "interval": [5.05, 8.65]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "broccoli", "mean_sam_iou": 0.9418}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "broccoli", "key_id": "6412648478408704", "country": "IT"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "broccoli", "ep0": 0.2421, "ep3": 0.7608, "sil_iou": 0.8, "in_mask": 0.96}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "broccoli", "gates": "16/16"}

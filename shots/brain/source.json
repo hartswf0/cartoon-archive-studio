@@ -1,0 +1,47 @@
+{
+  "category": "brain",
+  "shot_id": "brain",
+  "body_plan": "Regime V: Medical & Anatomical",
+  "interval": [
+    1.96,
+    5.56
+  ],
+  "key_times": [
+    1.96,
+    3.08,
+    4.32,
+    5.56
+  ],
+  "key_notes": [
+    "Key 1 (t=1.96s): Initial archival pose of brain; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=3.08s): Mid-sequence articulation of brain; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=4.32s): Peak dynamic extension of brain over 7-plane multiplane environment.",
+    "Key 4 (t=5.56s): Follow-through and settle of brain with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of brain (1.96s..5.56s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "02_af0112e9",
+    "source_id": "02_af0112e9",
+    "source_slug": "brain",
+    "source_title": "Moving Image Archive // Brain",
+    "source_year": 1956,
+    "start_seconds": 1.96,
+    "end_seconds": 5.56,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/brain/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/brain/videos/02_af0112e9-727a-584e-b446-f0492f62637d.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "6738030637350912",
+    "n_strokes": 7,
+    "country": "US",
+    "qd_index": 10,
+    "why": "Selected Quick, Draw! human doodle #10 (US, 7 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

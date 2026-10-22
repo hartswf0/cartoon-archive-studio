@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "shorts", "clip": "01_664fca25", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "shorts", "mean_sam_iou": 0.9487}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "shorts", "key_id": "6159993281708032", "country": "AU"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "shorts", "ep0": 0.5062, "ep3": 0.7178, "sil_iou": 0.8217, "in_mask": 0.9636}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "shorts", "gates": "16/16"}

@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "spoon", "clip": "04_9b1aae42", "interval": [3.71, 7.31]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "spoon", "mean_sam_iou": 0.9284}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "spoon", "key_id": "6572035096444928", "country": "GB"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "spoon", "ep0": 0.2795, "ep3": 0.6085, "sil_iou": 0.8, "in_mask": 0.9843}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "spoon", "gates": "16/16"}

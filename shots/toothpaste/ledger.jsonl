@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "toothpaste", "clip": "03_8aa53404", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "toothpaste", "mean_sam_iou": 0.9576}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "toothpaste", "key_id": "5689171437944832", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "toothpaste", "ep0": 0.3076, "ep3": 0.5769, "sil_iou": 0.8, "in_mask": 0.9539}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "toothpaste", "gates": "16/16"}

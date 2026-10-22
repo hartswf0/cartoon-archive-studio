@@ -1,0 +1,47 @@
+{
+  "category": "belt",
+  "shot_id": "belt",
+  "body_plan": "Regime VII: Apparel & Haberdashery",
+  "interval": [
+    7.5,
+    11.1
+  ],
+  "key_times": [
+    7.5,
+    8.62,
+    9.86,
+    11.1
+  ],
+  "key_notes": [
+    "Key 1 (t=7.5s): Initial archival pose of belt; Quick, Draw! + Rotoscope centerline established.",
+    "Key 2 (t=8.62s): Mid-sequence articulation of belt; 2x2 smooth cage tracks primary motion.",
+    "Key 3 (t=9.86s): Peak dynamic extension of belt over 7-plane multiplane environment.",
+    "Key 4 (t=11.1s): Follow-through and settle of belt with watertight SAM cel backing."
+  ],
+  "why_continuous": "Continuous 3.6s archival shot of belt (7.5s..11.1s) selected by edge clarity and temporal coherence.",
+  "source": {
+    "clip_id": "03_d047ad40",
+    "source_id": "03_d047ad40",
+    "source_slug": "belt",
+    "source_title": "Moving Image Archive // Belt",
+    "source_year": 1956,
+    "start_seconds": 7.5,
+    "end_seconds": 11.1,
+    "duration_seconds": 3.6,
+    "color_mode": "color",
+    "aspect_ratio": "4:3",
+    "source_page_url": "https://www.movingimagearchive.com/",
+    "shot_page_url": "https://www.movingimagearchive.com/",
+    "video_url": "shots/belt/comparison.mp4",
+    "local_video_path": "moving_image_archive_dataset/by_term/belt/videos/03_d047ad40-63f2-5075-8e03-a50b89464070.mp4",
+    "rights_statement": "Moving Image Archive / Public Domain & Archival Research Corpus"
+  },
+  "design_selection": {
+    "key_id": "5842832214458368",
+    "n_strokes": 6,
+    "country": "RU",
+    "qd_index": 8,
+    "why": "Selected Quick, Draw! human doodle #8 (RU, 6 strokes) matched by aspect ratio & structural contour compatibility.",
+    "method": "SCION + Zero-Shot Quick, Draw! Prototype Matcher (top-25 recognized human drawings)"
+  }
+}

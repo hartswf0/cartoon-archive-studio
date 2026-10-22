@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "lollipop", "clip": "06_7c2c3c7b", "interval": [1.2, 4.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "lollipop", "mean_sam_iou": 0.9764}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "lollipop", "key_id": "4990060430622720", "country": "US"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "lollipop", "ep0": 0.1872, "ep3": 0.6371, "sil_iou": 0.8, "in_mask": 0.9703}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "lollipop", "gates": "16/16"}

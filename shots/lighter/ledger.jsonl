@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "lighter", "clip": "06_269aa120", "interval": [5.5, 9.1]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "lighter", "mean_sam_iou": 0.9495}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "lighter", "key_id": "5932528256942080", "country": "SA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "lighter", "ep0": 0.4352, "ep3": 0.6585, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "lighter", "gates": "16/16"}

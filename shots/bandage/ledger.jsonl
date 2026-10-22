@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "bandage", "clip": "03_64b10387", "interval": [1.24, 4.84]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "bandage", "mean_sam_iou": 0.8875}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "bandage", "key_id": "5599995782758400", "country": "PH"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "bandage", "ep0": 0.209, "ep3": 0.5477, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "bandage", "gates": "16/16"}

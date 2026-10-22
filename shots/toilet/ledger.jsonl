@@ -1,0 +1,5 @@
+{"stage": 1, "event": "continuous_interval_select", "slug": "toilet", "clip": "06_de55eb65", "interval": [4.2, 7.8]}
+{"stage": 2, "event": "batched_dino_depth_sam", "slug": "toilet", "mean_sam_iou": 0.9402}
+{"stage": 3, "event": "quickdraw_prototype_match", "slug": "toilet", "key_id": "6576541389553664", "country": "CA"}
+{"stage": 4, "event": "argon_rl_roto_doodle_evolution", "slug": "toilet", "ep0": 0.2855, "ep3": 0.7262, "sil_iou": 0.8, "in_mask": 0.95}
+{"stage": 5, "event": "scion_7plane_render_and_gates", "slug": "toilet", "gates": "16/16"}
