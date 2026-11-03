@@ -3,27 +3,16 @@
 tools/behind_the_scenes_studio_engine.py
 ========================================
 Generates the Behind-the-Scenes Multiplane Animation Studio Documentary Film +
-18 Bespoke Studio Process Films ("make for each"):
-  - Part I (10 Virtual Agent Office & Kanban Worktree Architectures):
-      01. AgentSystemLabs/agent-office (3D Multiplayer Office + Multi-Floor Repo Worktrees + MCP Hire/Dismiss)
-      02. bill10/agent-007 (Pixel Office + Billion Manager Agent + To-Do -> In-Progress -> Review Kanban Worktrees)
-      03. W17ant/Claude-Office (Isometric Pixel Office + Specialist Debugger/Reviewer/Frontend Routing + Token/Payroll Meters)
-      04. KalebKE/PixelOffice (Event-Driven 2D Office: Walk to Whiteboards in Plan Mode & Celebrate Passing 16/16 Gates)
-      05. pixel-agents-hq/pixel-agents (Canvas 2D Pathfinding & State-Machine Transcript Watcher for Claude/Codex/Gemini)
-      06. khanh020905/my-office (3D Office: Walk to Archive Library When Reading Footage & Type at Multiplane Desks)
-      07. proactive-agent/workbench (Kanban + Worktrees + AI Semantic Merge & Multi-Account Rate-Limit Swapping)
-      08. langwatch/kanban-code (Native Kanban + Worktree + tmux Terminal + Pushover Mobile Review Alerts)
-      09. BloopAI/vibe-kanban (10-Agent Multi-Harness Kanban with Inline Diff Comments & Live Multiplane Previews)
-      10. NikiforovAll/claude-code-kanban (Localhost:3541 Hook-Driven Kanban + 55-Min Prompt-Cache Auto-Compaction)
-  - Part II (8 AI Video-Editing & Motion-Director Skills):
-      11. alchaincyf/huashu-motion (Beat-Synced Launch Film, Animated Data Charts & Timeline Review Studio)
-      12. rossark0/rossark-motion-skill (60 FPS Single-Scene-Clock SVG Mascot & Character Arcs via MOTION.md)
-      13. talsiach/take-one (Strategist -> Creative Director -> Storyboard -> Independent Critic Multi-Pass Film)
-      14. NiazMorshed2007/reanimate (Frame-by-Frame Reverse-Engineering & Iterative Pixel-Diff Matching Loop)
-      15. shreyaskarnik/argo (Playwright Browser Recording with Cursor Highlights, Callout Overlays & Voiceover Sync)
-      16. vincentsch/explainroo (Narrated Explainer Walkthrough with Kokoro TTS, Whisper Word-Level Subtitles & Thumbnails)
-      17. win4r/video-director (Pre-Build check_timeline.py Validation + Post-Render qa_video.py Text/Flash/Loudness QA)
-      18. Leonxlnx/earshot (CPU Audio Perception + 252-Sound SFX Bank Synced to Spatiotemporal Worm Jerk Spikes)
+18 Bespoke Hand-Drawn Animation Studio Soundstage Films ("make for each"):
+  - Part I (10 Virtual Agent Office & Kanban Worktree Studio Soundstages)
+  - Part II (8 AI Video-Editing & Motion-Director Studio Soundstages)
+
+Every film is staged inside our 5 hand-painted architectural Animation Studio Soundstages:
+  1. studio_bg_1_multifloor_soundstage.jpg (7-Level Multiplane Camera Tower + 3-Floor Cutaway Studio)
+  2. studio_bg_2_drafting_bullpen.jpg      (Isometric Animator Bullpen & Storyboard Wall)
+  3. studio_bg_3_foley_screening_stage.jpg (Foley Soundstage Pit, Mixing Console & Dailies Screening Theatre)
+  4. studio_bg_4_clocktower_optical_lab.jpg(Brass Twin-Reel Optical Printer, Clockwork & 3D Worm Glass Prism)
+  5. studio_bg_5_bullpen_unoccupied.jpg    (4 Glowing Lightbox Tables & Bouleau 14-Line Armature Corkboard)
 """
 
 import json
@@ -48,14 +37,14 @@ BTS_DIR.mkdir(parents=True, exist_ok=True)
 PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Named Studio Agents (with persistent souls, colors, and roles)
+# Named Studio Crew (with expressive studio attire, props, and colors in BGR)
 STUDIO_AGENTS = [
-    {"name": "Maestro", "role": "Orchestrator & Kanban Lead", "color": (45, 95, 225), "hat": "crown"},
-    {"name": "Auditor (Codex)", "role": "Cross-Model 16-Gate & CLIP Critic", "color": (55, 165, 95), "hat": "visor"},
-    {"name": "3D Office Eng", "role": "Multiplane & Spatiotemporal Worm Architect", "color": (205, 115, 45), "hat": "hardhat"},
-    {"name": "Look-Lane Artist", "role": "4-Key Quick, Draw! Rotoscope Animator", "color": (165, 75, 195), "hat": "beret"},
-    {"name": "Earshot Foley", "role": "252-SFX Jerk-Spike Audio Syncer", "color": (40, 175, 215), "hat": "headphones"},
-    {"name": "Merge Guard", "role": "FIFO Worktree Queue & 55m Cache Compactor", "color": (95, 95, 105), "hat": "cap"},
+    {"name": "Maestro", "role": "Studio Director & Kanban Lead", "color": (42, 78, 185), "hat": "beret", "prop": "megaphone"},
+    {"name": "Auditor (Codex)", "role": "16-Gate & CLIP Dailies Critic", "color": (55, 135, 75), "hat": "visor", "prop": "loupe"},
+    {"name": "Camera Op", "role": "7-Plane Multiplane Rig Operator", "color": (165, 95, 38), "hat": "cap", "prop": "reel"},
+    {"name": "Lead Animator", "role": "4-Key Rotoscope & Cel Inker", "color": (135, 62, 158), "hat": "beret", "prop": "brush"},
+    {"name": "Earshot Foley", "role": "252-SFX Jerk-Spike Sound Artist", "color": (38, 138, 178), "hat": "headphones", "prop": "clapper"},
+    {"name": "Merge Archivist", "role": "Steenbeck Vault & Worktree Keeper", "color": (75, 82, 95), "hat": "visor", "prop": "reel"},
 ]
 
 AGENT_OFFICE_SPECS = [
@@ -63,131 +52,151 @@ AGENT_OFFICE_SPECS = [
         "id": "office-01-agent-office",
         "num": 1,
         "group": "office",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "STAGE A // 7-PLANE CAMERA TOWER & 3-FLOOR SOUNDSTAGE",
         "repo": "AgentSystemLabs/agent-office",
         "url": "https://github.com/AgentSystemLabs/agent-office",
-        "category": "3D Office + Worktrees (Closest Kohnny Match)",
+        "category": "3D Multi-Floor Studio + Worktrees (Closest Kohnny Match)",
         "install": "curl -fsSL https://raw.githubusercontent.com/AgentSystemLabs/agent-office/main/install.sh | bash",
-        "title": "3D Multi-Floor Studio & Worktree Desks",
+        "title": "3D Multi-Floor Soundstage & Worktree Lightboxes",
         "featured_shot": "giraffe-walks-past",
-        "blurb": "Full 3D multiplayer studio where each repo batch is a building floor; Maestro hires Claude Code & Codex animators at isolated Git worktree desks via the agent-office MCP server while corkboard PR queues track all 346 shots.",
-        "stages": ["Floor 1: Archive Survey", "Desk Worktree: 4-Key Draw", "Corkboard PR: 16/16 Audit", "Coffee Lounge & MCP Hire"],
+        "blurb": "Full 3D multi-floor animation soundstage where the towering 7-level Multiplane Camera Rig stands beside three cutaway floors: the Steenbeck 35mm Archive Vault, the 4-Desk Animator Bullpen, and the Storyboard & Espresso Lounge.",
+        "stages": ["Vault: 35mm Archive Scan", "Bullpen: 4-Key Lightbox", "Tower: 7-Plane Exposure", "Lounge: Corkboard PR Merge"],
     },
     {
         "id": "office-02-agent-007",
         "num": 2,
         "group": "office",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "STAGE B // ISOMETRIC ANIMATOR BULLPEN & STORYBOARD WALL",
         "repo": "bill10/agent-007",
         "url": "https://github.com/bill10/agent-007",
-        "category": "Kanban Worktrees + Pixel Office + Manager Agent",
+        "category": "Kanban Worktrees + Animator Bullpen + Manager Director",
         "install": "git clone https://github.com/bill10/agent-007",
-        "title": "Billion Manager Agent & Kanban Worktrees",
+        "title": "Director Billion & 4-Desk Worktree Bullpen",
         "featured_shot": "train",
-        "blurb": "Combines a pixel animation studio, web terminals, and a To-Do -> In-Progress -> Review Kanban board where Billion (the always-on Manager Agent) spawns a Git worktree per shot, audits diffs, and merges PRs.",
-        "stages": ["Billion Plans Lot Card", "Spawn git worktree shots/train", "Review 7-Plane Diff", "Auto-Merge to main"],
+        "blurb": "Inside the sunlit isometric bullpen, Director Billion assigns each shot card from the back storyboard corkboard to an isolated wooden drafting desk where glowing circular lightboxes trace the 4 keyframes in onion-skin pencil.",
+        "stages": ["Corkboard: Pin Shot Card", "Lightbox: Spawn Worktree", "Projector: Audit 7-Plane", "Steenbeck: Splice to Main"],
     },
     {
         "id": "office-03-claude-office",
         "num": 3,
         "group": "office",
+        "studio_wing": "bg2_occupied",
+        "wing_name": "STAGE B2 // SPECIALIST INK & PAINT DRAFTING BULLPEN",
         "repo": "W17ant/Claude-Office",
         "url": "https://github.com/W17ant/Claude-Office",
-        "category": "Isometric Pixel Office + Task Board",
+        "category": "Isometric Studio + Specialist Routing + Footage Meters",
         "install": "git clone https://github.com/W17ant/Claude-Office.git && cd Claude-Office && npm i && npm run install-hooks",
-        "title": "Isometric Studio, Specialist Routing & Token Meters",
+        "title": "Specialist Animator Routing & Cel Footage Meters",
         "featured_shot": "lighthouse",
-        "blurb": "Real-time isometric studio driven by hooks + WebSocket events with a live task whiteboard, specialist routing (SAM Debugger, CLIP Reviewer, Multiplane Frontend), permission-approval cards, and token/payroll meters.",
-        "stages": ["Hook Event: PreToolUse", "Route to SAM/CLIP Specialist", "Approve Gouache Cel Card", "Payroll & Token Meter Sync"],
+        "blurb": "Four seated specialist animators (SAM Silhouette Tracer, CLIP Critic, Multiplane Compositor, Gouache Background Painter) work under brass gooseneck lamps while hook events route cel sheets between their glowing lightboxes.",
+        "stages": ["Hook: PreToolUse Slate", "Route to Cel Specialist", "Approve Gouache Keyframe", "Footage & Token Reel Sync"],
     },
     {
         "id": "office-04-pixel-office",
         "num": 4,
         "group": "office",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "STAGE B3 // STORYBOARD ARMATURE WALL & CELEBRATION STAGE",
         "repo": "KalebKE/PixelOffice",
         "url": "https://github.com/KalebKE/PixelOffice",
-        "category": "2D Pixel Office (Claude Code + Codex)",
+        "category": "2D Studio (Claude Code + Codex Storyboard Critique)",
         "install": "git clone https://github.com/KalebKE/PixelOffice && cd PixelOffice && python3 hooks/manage_hooks.py install && ./start.sh",
-        "title": "Whiteboard Plan Mode & 16-Gate Celebration",
+        "title": "Bouleau Storyboard Pitch & 16-Gate Wrap Party",
         "featured_shot": "guitar",
-        "blurb": "Event-driven desktop pixel studio supporting both Claude Code and Codex hooks: animators walk to the whiteboard during Stage 2–4 planning, code at multiplane desks, and throw confetti when all 16/16 gates pass.",
-        "stages": ["Walk to Whiteboard (Plan Mode)", "Code 4-Cycle BG Redraw at Desk", "Run 16-Gate Test Battery", "Studio Celebration & Lounge"],
+        "blurb": "Animators gather at the Golden Armature corkboard wall during Stage 2-4 storyboarding, return to their tilted wooden lightboxes to ink 4-cycle backgrounds, and celebrate when all 16/16 studio gates pass.",
+        "stages": ["Pitch at Storyboard Wall", "Ink 4-Cycle BG at Lightbox", "Screen 16-Gate Dailies", "Studio Wrap Celebration"],
     },
     {
         "id": "office-05-pixel-agents",
         "num": 5,
         "group": "office",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "STAGE A2 // SPIRAL STAIRCASE & TRANSCRIPT STATE FLOOR",
         "repo": "pixel-agents-hq/pixel-agents",
         "url": "https://github.com/pixel-agents-hq/pixel-agents",
-        "category": "Canvas 2D Pixel Office",
+        "category": "A* Studio Floor Pathfinding & Transcript Watcher",
         "install": "git clone https://github.com/pixel-agents-hq/pixel-agents",
-        "title": "A* Pathfinding & Transcript State Machine",
+        "title": "Studio Floor Pathfinding & Live X-Sheet State Machine",
         "featured_shot": "tractor",
-        "blurb": "Lightweight Canvas 2D virtual studio with A* grid pathfinding and character state machines that watches Claude Code, Codex, and Gemini JSONL transcripts live without modifying the underlying CLI.",
-        "stages": ["Tail transcript.jsonl", "FSM State: READING_ARCHIVE", "A* Path to Multiplane Camera", "FSM State: RENDERING_MP4"],
+        "blurb": "Watches live JSONL production transcripts and drives animators up and down the iron spiral staircase between the Steenbeck Archive Vault, the 2nd-floor Lightbox Desks, and the 7-Level Multiplane Camera Tower.",
+        "stages": ["Tail X-Sheet Transcript", "State: ARCHIVE_STEENBECK", "Climb Spiral Stair to Rig", "State: SHOOTING_7_PLANE"],
     },
     {
         "id": "office-06-my-office",
         "num": 6,
         "group": "office",
+        "studio_wing": "bg4_optical",
+        "wing_name": "STAGE D // 35MM ARCHIVE VAULT & OPTICAL PRINTER BENCH",
         "repo": "khanh020905/my-office",
         "url": "https://github.com/khanh020905/my-office",
-        "category": "3D Claude Code Office",
+        "category": "3D Archive Film Vault & Rotoscope Bench",
         "install": "git clone https://github.com/khanh020905/my-office",
-        "title": "3D Archive Library Walk & Multiplane Desk Typing",
+        "title": "35mm Film Canister Vault & Rotoscope Lightbox Walk",
         "featured_shot": "speedboat",
-        "blurb": "3D studio visualization where each active session spawns a 3D animator character that walks to the Moving Image Archive bookshelves when reading source footage and types at its multiplane desk when editing shot.json.",
-        "stages": ["Spawn 3D Animator Avatar", "Walk to Archive Library Shelf", "Read Quick, Draw! NDJSON", "Type shot.json at Desk"],
+        "blurb": "Whenever an agent reads archival Quick, Draw! strokes, the animator walks to the 35mm film canister shelves, threads the reel onto the brass twin-reel rotoscope bench, and traces the multiplane cel layers.",
+        "stages": ["Pull 35mm Canister Reel", "Thread Twin-Reel Rotoscope", "Trace Quick, Draw! Strokes", "Expose Multiplane Cel"],
     },
     {
         "id": "office-07-workbench",
         "num": 7,
         "group": "office",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "STAGE A3 // MULTI-FLOOR WORKTREE SPLICING & VAULT",
         "repo": "proactive-agent/workbench",
         "url": "https://github.com/proactive-agent/workbench",
-        "category": "Kanban + Worktrees + Semantic Merge",
+        "category": "Kanban + Worktrees + AI Semantic Film Splicing",
         "install": "git clone https://github.com/proactive-agent/workbench",
-        "title": "Per-Task Worktree Isolation & AI Semantic Merge",
+        "title": "Per-Shot Worktree Isolation & Steenbeck Semantic Splice",
         "featured_shot": "bicycle",
-        "blurb": "Desktop workbench featuring a Kanban board, per-shot Git worktree isolation, AI-powered semantic merge across concurrent batch branches, conflict detection on cartoon_archive_data.js, and automatic rate-limit swapping.",
-        "stages": ["Isolate Batch Worktrees", "Triage Model & Account Pool", "Detect AST/JSON Overlap", "AI Semantic Merge to Main"],
+        "blurb": "Isolates concurrent animation batches on separate studio floors, swaps model harnesses when rate-limited, and splices completed 7-plane film strips together on the ground-floor Steenbeck flatbed editor.",
+        "stages": ["Isolate Floor Worktrees", "Swap Animator Crew Pool", "Check Cel Layer Overlap", "Steenbeck Semantic Splice"],
     },
     {
         "id": "office-08-kanban-code",
         "num": 8,
         "group": "office",
+        "studio_wing": "bg3_screening",
+        "wing_name": "STAGE C // DAILIES SCREENING ROOM & DIRECTOR ALERTS",
         "repo": "langwatch/kanban-code",
         "url": "https://github.com/langwatch/kanban-code",
-        "category": "Kanban + Worktrees + Mobile Alerts",
+        "category": "Dailies Screening Theatre + Mobile Director Review",
         "install": "git clone https://github.com/langwatch/kanban-code",
-        "title": "Native Worktree + tmux + Pushover Mobile Review",
+        "title": "35mm Dailies Screening Theatre & Mobile Director Sign-Off",
         "featured_shot": "carrot",
-        "blurb": "Native macOS studio linking each Kanban shot card to a dedicated Git worktree, live tmux terminal, and GitHub PR, firing a Pushover notification to your phone whenever a batch contact sheet is ready for visual review.",
-        "stages": ["Card Linked to tmux + Worktree", "Render 4-Pass BG Redraw Sheet", "Fire Pushover Phone Alert", "1-Tap Mobile PR Approval"],
+        "blurb": "Links every shot's worktree to the Dailies Screening Theatre where the 35mm projector beams the 4-pass background redraw sheet onto the big screen and alerts the Director's phone for 1-tap approval.",
+        "stages": ["Thread Worktree Dailies", "Project 4-Pass BG Sheet", "Ring Screening Bell Alert", "Director Chair Sign-Off"],
     },
     {
         "id": "office-09-vibe-kanban",
         "num": 9,
         "group": "office",
+        "studio_wing": "bg2_occupied",
+        "wing_name": "STAGE B4 // 10-HARNESS ANIMATOR BULLPEN & CEL DIFFS",
         "repo": "BloopAI/vibe-kanban",
         "url": "https://github.com/BloopAI/vibe-kanban",
-        "category": "Multi-Agent Kanban + Worktrees",
+        "category": "Multi-Harness Animator Bullpen + Live Stage Preview",
         "install": "npx vibe-kanban",
-        "title": "10-Harness Kanban + Inline Diff & Live Stage Preview",
+        "title": "10-Harness Bullpen + Grease-Pencil Cel Diffs & Live Stage",
         "featured_shot": "sandwich",
-        "blurb": "Web-based Kanban orchestrating 10+ coding harnesses (Claude Code, Codex, Gemini CLI, OpenCode) with per-card Git worktrees, inline diff comments on bespoke_scene_architect.py, and built-in live multiplane previews.",
-        "stages": ["Dispatch 10 Parallel Agents", "Preview Live HTML5 Multiplane", "Inline Diff Comment on Cels", "FIFO Merge Queue"],
+        "blurb": "Orchestrates 10+ coding harnesses across the drafting bullpen with grease-pencil diff notes written directly on the lightbox glass and live multiplane parallax previews projected on the studio wall.",
+        "stages": ["Brief 10 Bullpen Animators", "Project Live 7-Plane Stage", "Grease-Pencil Cel Critique", "FIFO Film Reel Splice"],
     },
     {
         "id": "office-10-claude-code-kanban",
         "num": 10,
         "group": "office",
+        "studio_wing": "bg4_optical",
+        "wing_name": "STAGE D2 // CLOCKTOWER 55-MIN CACHE COMPACTOR ATELIER",
         "repo": "NikiforovAll/claude-code-kanban",
         "url": "https://github.com/NikiforovAll/claude-code-kanban",
-        "category": "Local Kanban + Cost/Context & 55m Cache Compactor",
+        "category": "Clocktower Atelier + 55-Min Cache Compactor",
         "install": "npm install -g claude-code-kanban && claude-code-kanban --install && claude-code-kanban --open",
-        "title": "Localhost:3541 Hook Board & 55-Min Cache Compaction",
+        "title": "Brass Clocktower 55-Min Compactor & Before/After Lightbox",
         "featured_shot": "star",
-        "blurb": "Standalone browser Kanban board (localhost:3541) that installs hooks to track live agent activity, preview HTML before/after mockups in Planning, and auto-compact with handoff notes at 55 minutes before the 1-hour prompt cache expires.",
-        "stages": ["Planning: HTML Before/After", "Doing: 7-Plane Multiplane Code", "55-Min Prompt Cache Compactor", "Handoff Notes -> FIFO Merge"],
+        "blurb": "Under the giant brass studio clockwork, animators compare Before/After cel mockups on the optical printer lightbox while the 55-minute pendulum chime auto-compacts session handoff notes before cache expiry.",
+        "stages": ["Lightbox: Before/After Cel", "Optical Bench: 7-Plane Rig", "55-Min Clocktower Chime", "Pneumatic Tube Handoff"],
     },
 ]
 
@@ -196,149 +205,172 @@ VIDEO_SKILL_SPECS = [
         "id": "skill-01-huashu-motion",
         "num": 11,
         "group": "skill",
+        "studio_wing": "bg3_screening",
+        "wing_name": "STAGE C1 // PREMIERE SCREENING THEATRE & BEAT CONSOLE",
         "timestamp": "00:46",
         "repo": "alchaincyf/huashu-motion",
         "url": "https://github.com/alchaincyf/huashu-motion",
-        "category": "Beat-Synced Launch Films & Timeline Review Studio",
+        "category": "Beat-Synced Premiere Films & Dailies Screening Studio",
         "install": "npx skills add alchaincyf/huashu-motion",
-        "title": "Beat-Synced Studio Launch Film & Animated Data Charts",
+        "title": "Beat-Synced Studio Premiere Film & Screening Console",
         "featured_shot": "giraffe-walks-past",
-        "blurb": "Open-source alternative to Claude Motion that builds beat-synced launch films, animated CLIP & 16-gate data charts, and captioned showcase reels inside a browser-based timeline review studio.",
-        "stages": ["Extract Audio Beat Grid", "Animate 346-Shot Data Chart", "Sync Captions to Beat Cuts", "Timeline Review Studio Export"],
+        "blurb": "Inside the Dailies Screening Theatre, the 35mm projector and analog mixing console cut between our 346 multiplane shots right on the musical downbeat while projecting live CLIP & 16-gate studio charts.",
+        "stages": ["Console: Lock Beat Grid", "Projector: 346-Shot Chart", "Screen: Beat-Synced Cuts", "Premiere Reel Master Out"],
     },
     {
         "id": "skill-02-rossark-motion-skill",
         "num": 12,
         "group": "skill",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "STAGE B5 // 60 FPS ARC-TRACING LIGHTBOX & CLOCKWORK",
         "timestamp": "03:51",
         "repo": "rossark0/rossark-motion-skill",
         "url": "https://github.com/rossark0/rossark-motion-skill",
-        "category": "60 FPS Single-Scene-Clock SVG Character Animation",
+        "category": "60 FPS Single-Scene-Clock SVG Character Arcs",
         "install": "npx skills@latest add rossark0/rossark-motion-skill",
-        "title": "60 FPS Single-Scene-Clock SVG Arcs via MOTION.md",
+        "title": "60 FPS Single-Scene-Clock SVG Arcs on the Lightbox",
         "featured_shot": "bicycle",
-        "blurb": "Animates traced Quick, Draw! SVG strokes, mascots, and multiplane props at 60 FPS using a single deterministic scene clock tau and a declarative MOTION.md choreography ruleset with natural curvature kappa(tau).",
-        "stages": ["Parse MOTION.md Ruleset", "Bind Single Scene Clock tau", "Evaluate Cubic Bezier Arcs", "60 FPS Deterministic SVG Render"],
+        "blurb": "On the tilted wooden lightbox disc, the Lead Animator traces Quick, Draw! SVG strokes along smooth cubic Bezier motion arcs driven by a single deterministic scene clock tau and MOTION.md choreography rules.",
+        "stages": ["Pin MOTION.md to Peg Bar", "Lock Single Clock tau", "Trace Cubic Bezier Arcs", "60 FPS Cel Exposure"],
     },
     {
         "id": "skill-03-take-one",
         "num": 13,
         "group": "skill",
+        "studio_wing": "bg2_occupied",
+        "wing_name": "STAGE B6 // 4-DESK STORY ROOM (STRATEGIST TO CRITIC)",
         "timestamp": "05:03",
         "repo": "talsiach/take-one",
         "url": "https://github.com/talsiach/take-one",
         "category": "Strategist -> Creative Director -> Storyboard -> Critic",
         "install": "git clone https://github.com/talsiach/take-one ~/.claude/skills/take-one",
-        "title": "4-Role Creative Director & Independent Critic Pipeline",
+        "title": "4-Desk Story Bullpen: Strategist, Director, Boarder & Critic",
         "featured_shot": "lighthouse",
-        "blurb": "Turns a single-line archive prompt into a story-driven multiplane film using four sequential passes: Strategist (thesis), Creative Director (Bouleau 14-line staging), Storyboarder (4 keys), and Independent Reviewer.",
-        "stages": ["Pass 1: Strategist Thesis", "Pass 2: Creative Director", "Pass 3: 4-Key Storyboard", "Pass 4: Blind Critic Audit"],
+        "blurb": "Each of the 4 wooden drafting desks in our bullpen houses one role: Desk 1 writes the visual thesis, Desk 2 locks Bouleau's 14-line armature, Desk 3 inks the 4 keyframes, and Desk 4 runs blind dailies critique.",
+        "stages": ["Desk 1: Visual Thesis", "Desk 2: 14-Line Armature", "Desk 3: 4-Key Cel Inking", "Desk 4: Blind Critic Pass"],
     },
     {
         "id": "skill-04-reanimate",
         "num": 14,
         "group": "skill",
+        "studio_wing": "bg4_optical",
+        "wing_name": "STAGE D3 // TWIN-REEL ROTOSCOPE & OPTICAL DIFF BENCH",
         "timestamp": "06:55",
         "repo": "NiazMorshed2007/reanimate",
         "url": "https://github.com/NiazMorshed2007/reanimate",
-        "category": "Frame-by-Frame Reverse Engineering & Iterative Diff Match",
+        "category": "Twin-Reel Rotoscope Reverse-Engineering & IoU Match",
         "install": "npx skills add NiazMorshed2007/reanimate -g",
-        "title": "Frame-by-Frame Archive Reverse-Engineering Loop",
+        "title": "Twin-Reel Optical Printer & Onion-Skin Silhouette Match",
         "featured_shot": "train",
-        "blurb": "Extracts every frame of an archival MP4 or reference animation, measures pixel/silhouette IoU and optical flow frame by frame, and iteratively refines the multiplane code until the recreated animation matches the original.",
-        "stages": ["Decompose 33 Archival Frames", "Measure Silhouette & Flow Diff", "Iterative Pose Refinement", "Converge to IoU >= 0.89"],
+        "blurb": "Threads the archival 35mm reference reel and our new 7-plane cartoon reel through the brass twin-reel optical printer, superimposing both frames on the glowing rotoscope glass until silhouette IoU >= 0.89.",
+        "stages": ["Thread 33 Archival Frames", "Superimpose on Rotoscope", "Refine Keyframe Pose Arc", "Lock Silhouette IoU >= 0.89"],
     },
     {
         "id": "skill-05-argo",
         "num": 15,
         "group": "skill",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "STAGE A4 // 7-LEVEL MULTIPLANE RIG & SPOTLIGHT CALLOUTS",
         "timestamp": "09:02",
         "repo": "shreyaskarnik/argo",
         "url": "https://github.com/shreyaskarnik/argo",
-        "category": "Playwright Web Studio Recording + Callout Overlays",
+        "category": "Multiplane Camera Rig Walkthrough & Spotlight Callouts",
         "install": "npm i -D @argo-video/cli",
-        "title": "Playwright Multiplane Projector Walkthrough & Callouts",
+        "title": "7-Level Multiplane Camera Rig Tour & Plane Callouts",
         "featured_shot": "guitar",
-        "blurb": "Drives our interactive Multiplane Projector and 3D Spatiotemporal Worm Studio in Playwright, recording smooth cursor highlights, zoom callout overlays on the 7 depth planes, and scene-synced voiceover.",
-        "stages": ["Launch Playwright Studio", "Highlight 7-Plane Toggles", "Render Zoom Callout Overlay", "Sync Scene to Voiceover Track"],
+        "blurb": "Guides the studio camera down all 7 glass platens of the towering Multiplane Camera Rig—spotlighting the Sky Backdrop (P6), Midground Scenery (P3), Hero Character Cel (P2), and Foreground Repoussoir (P0).",
+        "stages": ["Rig Top: Camera Lens Check", "Spotlight Planes P6..P3", "Zoom Callout on Hero P2", "Sync Exposure to Narration"],
     },
     {
         "id": "skill-06-explainroo",
         "num": 16,
         "group": "skill",
+        "studio_wing": "bg3_screening",
+        "wing_name": "STAGE C2 // VOICEOVER BOOTH & SUBTITLE SCREENING STAGE",
         "timestamp": "09:50",
         "repo": "vincentsch/explainroo",
         "url": "https://github.com/vincentsch/explainroo",
-        "category": "Kokoro TTS Narrated Explainer + Whisper Word Timing",
+        "category": "Voiceover Recording Booth + Word-Timed Screening Titles",
         "install": "git clone https://github.com/vincentsch/explainroo.git",
-        "title": "Narrated Behind-the-Scenes Explainer & Word Subtitles",
+        "title": "Voiceover Boom Booth & Word-Timed Screening Cards",
         "featured_shot": "diamond",
-        "blurb": "Generates narrated behind-the-scenes explainer videos of our 13-stage Look + Motion Join pipeline with local TTS voiceover, Whisper word-level subtitle karaoke timing, and automatic chapter thumbnails.",
-        "stages": ["Script 13-Stage Narration", "Synthesize Local Voiceover", "Whisper Word-Level Alignment", "Burn Karaoke Subtitles & Thumb"],
+        "blurb": "Records warm studio narration under the hanging condenser boom mic on the left soundstage while burning word-accurate title cards onto the 35mm dailies projection screen on the right.",
+        "stages": ["Script 13-Stage Studio Tour", "Record at Condenser Mic", "Align Whisper Word Cues", "Project Title Cards on Screen"],
     },
     {
         "id": "skill-07-video-director",
         "num": 17,
         "group": "skill",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "STAGE A5 // X-SHEET CONTINUITY & STEENBECK QA LAB",
         "timestamp": "11:20",
         "repo": "win4r/video-director",
         "url": "https://github.com/win4r/video-director",
-        "category": "Pre-Build check_timeline.py + Post-Render qa_video.py",
+        "category": "Pre-Shoot X-Sheet Check + Steenbeck Post-Render QA",
         "install": "git clone https://github.com/win4r/video-director.git && cp -R video-director/video-director ~/.claude/skills/",
-        "title": "Pre-Build Timeline Validation & Post-Render Video QA",
+        "title": "Pre-Shoot X-Sheet Check & Steenbeck Loupe QA",
         "featured_shot": "carrot",
-        "blurb": "Directs code-rendered multiplane videos with pre-build timeline validation (check_timeline.py verifying X-sheet frame continuity) and post-render QA (qa_video.py checking text legibility, zero flash frames, and LUFS loudness).",
-        "stages": ["Run check_timeline.py", "Render 7-Plane Canvas to MP4", "Run qa_video.py (Text/Flash)", "Verify Audio Loudness & Export"],
+        "blurb": "Before shooting on the 7-level Multiplane Tower, the Director validates the exposure X-sheet (`check_timeline.py`), then inspects the developed film on the ground-floor Steenbeck (`qa_video.py`) for flash frames and loudness.",
+        "stages": ["Audit Exposure X-Sheet", "Shoot 7-Plane Multiplane", "Inspect Steenbeck Loupe", "Certify LUFS & Print Master"],
     },
     {
         "id": "skill-08-earshot",
         "num": 18,
         "group": "skill",
+        "studio_wing": "bg3_screening",
+        "wing_name": "STAGE C3 // FOLEY PIT (WOOD/GRAVEL/WATER) & JERK SYNC",
         "timestamp": "12:57",
         "repo": "Leonxlnx/earshot",
         "url": "https://github.com/Leonxlnx/earshot",
-        "category": "CPU Audio Perception + 252-SFX Bank Synced to Jerk Spikes",
+        "category": "Foley Pit + 252-SFX Bank Synced to Worm Jerk Spikes",
         "install": "git clone https://github.com/Leonxlnx/earshot.git",
-        "title": "CPU Audio Perception & 252-SFX Synced to Worm Jerk ||c'''(tau)||",
+        "title": "Live Foley Pit & 252-SFX Synced to Worm Jerk ||c'''(tau)||",
         "featured_shot": "zigzag",
-        "blurb": "Gives our studio agents local CPU audio perception and a 252-sound SFX bank to place footsteps, brush swishes, and impacts at the exact timestamps where the 3D Spatiotemporal Worm's Kinetic Jerk ||c'''(tau)|| spikes.",
-        "stages": ["Compute 3D Worm Jerk ||c'''||", "Detect Top-3 Jerk Spike Frames", "Retrieve SFX from 252-Bank", "CPU Audio Critique & Mix"],
+        "blurb": "Whenever the 3D Spatiotemporal Worm's Kinetic Jerk ||c'''(tau)|| spikes on the screening room monitor, the red ON AIR lamp flashes and our Foley Artist strikes wood, gravel, or water in the floor Foley pit under the boom mic!",
+        "stages": ["Track 3D Worm Jerk ||c'''||", "Flash ON AIR at Jerk Peak", "Strike Foley Pit Props", "Mix Console VU & Master"],
     },
 ]
 
+# Cache for loaded painted studio backgrounds and worm trajectories
+_STUDIO_BG_CACHE = {}
+_WORM_DATA_CACHE = None
 
-def draw_agent_avatar(canvas, x, y, agent, frame_idx=0, state="walk", scale=1.0):
-    """Draws an expressive hand-drawn + isometric studio agent character with hat, speech/thought indicator, and legs."""
-    col = agent["color"]
-    bob = int(round(math.sin(frame_idx * 0.55 + x * 0.03) * 3.0 * scale)) if state == "walk" else 0
-    cy = y + bob
-    r_head = int(round(11 * scale))
-    # Shadow on floor
-    cv2.ellipse(canvas, (x, y + int(24 * scale)), (int(12 * scale), int(5 * scale)), 0, 0, 360, (190, 182, 168), -1, cv2.LINE_AA)
-    # Legs (scissoring when walking)
-    stride = int(round(math.sin(frame_idx * 0.65 + y * 0.05) * 7.0 * scale)) if state == "walk" else 0
-    cv2.line(canvas, (x - int(4 * scale), cy + int(10 * scale)), (x - int(4 * scale) - stride, y + int(23 * scale)), (25, 25, 25), 2, cv2.LINE_AA)
-    cv2.line(canvas, (x + int(4 * scale), cy + int(10 * scale)), (x + int(4 * scale) + stride, y + int(23 * scale)), (25, 25, 25), 2, cv2.LINE_AA)
-    # Torso coat
-    pts_body = np.array([
-        [x - int(9 * scale), cy - int(2 * scale)],
-        [x + int(9 * scale), cy - int(2 * scale)],
-        [x + int(11 * scale), cy + int(12 * scale)],
-        [x - int(11 * scale), cy + int(12 * scale)],
-    ], dtype=np.int32)
-    cv2.fillPoly(canvas, [pts_body], col, cv2.LINE_AA)
-    cv2.polylines(canvas, [pts_body], True, (20, 20, 20), 2, cv2.LINE_AA)
-    # Head
-    cv2.circle(canvas, (x, cy - int(12 * scale)), r_head, (238, 246, 252), -1, cv2.LINE_AA)
-    cv2.circle(canvas, (x, cy - int(12 * scale)), r_head, (20, 20, 20), 2, cv2.LINE_AA)
-    # Eyes
-    cv2.circle(canvas, (x - int(3 * scale), cy - int(13 * scale)), max(1, int(2 * scale)), (20, 20, 20), -1, cv2.LINE_AA)
-    cv2.circle(canvas, (x + int(4 * scale), cy - int(13 * scale)), max(1, int(2 * scale)), (20, 20, 20), -1, cv2.LINE_AA)
-    # Hat badge
-    cv2.rectangle(canvas, (x - int(10 * scale), cy - int(24 * scale)), (x + int(10 * scale), cy - int(19 * scale)), col, -1)
-    cv2.rectangle(canvas, (x - int(10 * scale), cy - int(24 * scale)), (x + int(10 * scale), cy - int(19 * scale)), (20, 20, 20), 1)
-    # Name tag
-    cv2.putText(canvas, agent["name"], (x - int(22 * scale), cy - int(28 * scale)), cv2.FONT_HERSHEY_SIMPLEX, 0.34 * scale, (20, 20, 20), 1, cv2.LINE_AA)
+
+def get_studio_bg(wing_key: str) -> np.ndarray:
+    """Loads and caches the 5 hand-painted architectural Animation Studio plates."""
+    if not _STUDIO_BG_CACHE:
+        mapping = {
+            "bg1_multifloor": BTS_DIR / "studio_bg_1_multifloor_soundstage.jpg",
+            "bg2_occupied": BTS_DIR / "studio_bg_2_drafting_bullpen.jpg",
+            "bg3_screening": BTS_DIR / "studio_bg_3_foley_screening_stage.jpg",
+            "bg4_optical": BTS_DIR / "studio_bg_4_clocktower_optical_lab.jpg",
+            "bg5_bullpen": BTS_DIR / "studio_bg_5_bullpen_unoccupied.jpg",
+        }
+        for k, p in mapping.items():
+            if p.exists():
+                img = cv2.imread(str(p))
+                if img is not None:
+                    # Resize to slightly larger than 640x360 (704x396) so we can pan/dolly smoothly!
+                    _STUDIO_BG_CACHE[k] = cv2.resize(img, (704, 396), interpolation=cv2.INTER_AREA)
+            if k not in _STUDIO_BG_CACHE:
+                _STUDIO_BG_CACHE[k] = np.full((396, 704, 3), (225, 238, 246), dtype=np.uint8)
+    return _STUDIO_BG_CACHE.get(wing_key, _STUDIO_BG_CACHE["bg1_multifloor"])
+
+
+def get_worm_record(slug: str) -> dict:
+    """Loads the 3D Spatiotemporal Worm record for `slug` from data/spatiotemporal_worms_346.json."""
+    global _WORM_DATA_CACHE
+    if _WORM_DATA_CACHE is None:
+        wpath = DATA_DIR / "spatiotemporal_worms_346.json"
+        if wpath.exists():
+            try:
+                raw = json.loads(wpath.read_text())
+                _WORM_DATA_CACHE = {s["slug"]: s for s in raw.get("shots", [])}
+            except Exception:
+                _WORM_DATA_CACHE = {}
+        else:
+            _WORM_DATA_CACHE = {}
+    return _WORM_DATA_CACHE.get(slug, {})
 
 
 def load_shot_pair(slug: str, frame_idx: int):
@@ -356,26 +388,232 @@ def load_shot_pair(slug: str, frame_idx: int):
     return f, f
 
 
-def generate_foley_wav(wav_path: Path, n_frames: int, fps: int = 8, seed: int = 1):
-    """Generates a beat-synced + Earshot Foley WAV soundtrack for a studio film."""
+def load_shot_keyframe_strip(slug: str):
+    """Loads the 4-keyframe sheet or design.png for `slug` so we can project it on the animator's lightbox."""
+    for name in ["selected-keys.png", "design.png", "stage_3_keyframes.png"]:
+        p = SHOTS_DIR / slug / name
+        if p.exists():
+            img = cv2.imread(str(p))
+            if img is not None:
+                return img
+    return None
+
+
+def draw_wood_frame(canvas, x0, y0, x1, y1, title="", brass_trim=True):
+    """Draws a warm hand-inked mahogany wood & brushed brass studio frame (never a flat tech box)."""
+    # Drop shadow
+    overlay = canvas.copy()
+    cv2.rectangle(overlay, (x0 + 4, y0 + 4), (x1 + 4, y1 + 4), (18, 22, 28), -1)
+    cv2.addWeighted(overlay, 0.35, canvas, 0.65, 0, canvas)
+    # Outer mahogany frame
+    cv2.rectangle(canvas, (x0, y0), (x1, y1), (36, 52, 78), -1)
+    cv2.rectangle(canvas, (x0, y0), (x1, y1), (18, 22, 28), 2, cv2.LINE_AA)
+    if brass_trim:
+        cv2.rectangle(canvas, (x0 + 3, y0 + 3), (x1 - 3, y1 - 3), (75, 168, 218), 1, cv2.LINE_AA)
+        # Corner brass rivets
+        for rx, ry in [(x0 + 6, y0 + 6), (x1 - 6, y0 + 6), (x0 + 6, y1 - 6), (x1 - 6, y1 - 6)]:
+            cv2.circle(canvas, (rx, ry), 2, (95, 195, 240), -1, cv2.LINE_AA)
+    if title:
+        cv2.rectangle(canvas, (x0 + 4, y0 + 4), (x1 - 4, y0 + 20), (26, 36, 52), -1)
+        cv2.putText(canvas, title, (x0 + 9, y0 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.33, (195, 232, 252), 1, cv2.LINE_AA)
+
+
+def draw_animator_lightbox_disc(canvas, cx, cy, radius, slug, f_idx, label="LIGHTBOX"):
+    """Draws a glowing circular frosted-glass animator lightbox disc with brass peg bar & live onion-skin keyframe."""
+    # Warm wooden tilted desk rim around the disc
+    cv2.circle(canvas, (cx, cy), radius + 6, (58, 96, 142), -1, cv2.LINE_AA)
+    cv2.circle(canvas, (cx, cy), radius + 6, (22, 28, 36), 2, cv2.LINE_AA)
+    # Frosted backlit glass glow (#FFF9E6)
+    cv2.circle(canvas, (cx, cy), radius, (226, 248, 255), -1, cv2.LINE_AA)
+
+    # Project actual keyframe drawing onto the circular lightbox in onion-skin ink!
+    kf_img = load_shot_keyframe_strip(slug)
+    if kf_img is not None:
+        kh, kw = kf_img.shape[:2]
+        # Crop one of the 4 keyframes based on f_idx
+        k_idx = (f_idx // 4) % 4
+        if kw >= kh * 2:
+            cw = kw // 4
+            crop = kf_img[:, k_idx * cw:(k_idx + 1) * cw]
+        else:
+            crop = kf_img
+        d = radius * 2 - 8
+        if d > 12 and crop.size > 0:
+            thumb = cv2.resize(crop, (d, d), interpolation=cv2.INTER_AREA)
+            # Blend inside circular mask
+            y0, x0 = cy - d // 2, cx - d // 2
+            roi = canvas[max(0, y0):min(canvas.shape[0], y0 + d), max(0, x0):min(canvas.shape[1], x0 + d)]
+            if roi.shape[:2] == (d, d):
+                mask = np.zeros((d, d), dtype=np.uint8)
+                cv2.circle(mask, (d // 2, d // 2), d // 2 - 2, 255, -1)
+                blended = cv2.addWeighted(roi, 0.25, thumb, 0.75, 0)
+                roi[mask > 0] = blended[mask > 0]
+
+    cv2.circle(canvas, (cx, cy), radius, (45, 85, 125), 1, cv2.LINE_AA)
+    # Brass registration peg bar at top of lightbox disc
+    cv2.rectangle(canvas, (cx - int(radius * 0.65), cy - radius - 3), (cx + int(radius * 0.65), cy - radius + 4), (72, 168, 218), -1)
+    cv2.rectangle(canvas, (cx - int(radius * 0.65), cy - radius - 3), (cx + int(radius * 0.65), cy - radius + 4), (22, 28, 36), 1)
+    for px in [-int(radius * 0.4), 0, int(radius * 0.4)]:
+        cv2.circle(canvas, (cx + px, cy - radius + 1), 2, (25, 25, 25), -1)
+
+    # Animated dip-pen nib & hand sketching across the lightbox
+    pen_x = cx + int(round(math.cos(f_idx * 0.45) * (radius * 0.42)))
+    pen_y = cy + int(round(math.sin(f_idx * 0.65) * (radius * 0.35)))
+    cv2.line(canvas, (pen_x, pen_y), (pen_x + 18, pen_y - 16), (25, 35, 145), 3, cv2.LINE_AA)
+    cv2.circle(canvas, (pen_x, pen_y), 2, (20, 20, 20), -1, cv2.LINE_AA)
+
+    if label:
+        cv2.rectangle(canvas, (cx - radius, cy + radius - 11), (cx + radius, cy + radius + 3), (28, 36, 48), -1)
+        cv2.putText(canvas, label, (cx - radius + 4, cy + radius - 1), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (215, 240, 255), 1, cv2.LINE_AA)
+
+
+def draw_studio_crew_member(canvas, x, y, agent, frame_idx=0, scale=0.95, bubble_text=""):
+    """Draws an expressive hand-drawn studio animator/director with beret/visor, coat, legs, prop, and speech bubble."""
+    col = agent["color"]
+    bob = int(round(math.sin(frame_idx * 0.55 + x * 0.04) * 2.5 * scale))
+    cy = y + bob
+    r_head = int(round(10 * scale))
+
+    # Warm floor shadow
+    overlay = canvas.copy()
+    cv2.ellipse(overlay, (x, y + int(24 * scale)), (int(13 * scale), int(5 * scale)), 0, 0, 360, (25, 32, 42), -1, cv2.LINE_AA)
+    cv2.addWeighted(overlay, 0.38, canvas, 0.62, 0, canvas)
+
+    # Walking legs
+    stride = int(round(math.sin(frame_idx * 0.65 + y * 0.05) * 6.5 * scale))
+    cv2.line(canvas, (x - int(4 * scale), cy + int(10 * scale)), (x - int(4 * scale) - stride, y + int(23 * scale)), (22, 26, 32), 2, cv2.LINE_AA)
+    cv2.line(canvas, (x + int(4 * scale), cy + int(10 * scale)), (x + int(4 * scale) + stride, y + int(23 * scale)), (22, 26, 32), 2, cv2.LINE_AA)
+
+    # Studio smock / apron torso
+    pts_body = np.array([
+        [x - int(9 * scale), cy - int(2 * scale)],
+        [x + int(9 * scale), cy - int(2 * scale)],
+        [x + int(11 * scale), cy + int(12 * scale)],
+        [x - int(11 * scale), cy + int(12 * scale)],
+    ], dtype=np.int32)
+    cv2.fillPoly(canvas, [pts_body], col, cv2.LINE_AA)
+    cv2.polylines(canvas, [pts_body], True, (18, 20, 24), 2, cv2.LINE_AA)
+
+    # White collar / tie detail
+    cv2.line(canvas, (x, cy - int(2 * scale)), (x, cy + int(7 * scale)), (235, 245, 252), 2, cv2.LINE_AA)
+
+    # Animated arm holding studio prop (brush, megaphone, film reel, loupe, clapper)
+    arm_y = cy + int(2 * scale) + int(round(math.sin(frame_idx * 0.7) * 3))
+    cv2.line(canvas, (x + int(8 * scale), cy + int(1 * scale)), (x + int(17 * scale), arm_y), (18, 20, 24), 2, cv2.LINE_AA)
+    prop = agent.get("prop", "brush")
+    px, py = x + int(18 * scale), arm_y
+    if prop == "megaphone":
+        pts_m = np.array([[px, py], [px + 10, py - 5], [px + 10, py + 5]], dtype=np.int32)
+        cv2.fillPoly(canvas, [pts_m], (55, 175, 235), cv2.LINE_AA)
+        cv2.polylines(canvas, [pts_m], True, (18, 20, 24), 1, cv2.LINE_AA)
+    elif prop == "reel":
+        cv2.circle(canvas, (px + 3, py), 6, (180, 190, 200), -1, cv2.LINE_AA)
+        cv2.circle(canvas, (px + 3, py), 6, (20, 20, 20), 1, cv2.LINE_AA)
+        cv2.circle(canvas, (px + 3, py), 2, (40, 40, 40), -1, cv2.LINE_AA)
+    elif prop == "loupe":
+        cv2.circle(canvas, (px + 3, py - 2), 5, (210, 245, 255), -1, cv2.LINE_AA)
+        cv2.circle(canvas, (px + 3, py - 2), 5, (35, 145, 195), 2, cv2.LINE_AA)
+    else:
+        # Paintbrush / pencil with red tip
+        cv2.line(canvas, (px - 2, py + 4), (px + 7, py - 6), (45, 95, 165), 2, cv2.LINE_AA)
+        cv2.circle(canvas, (px + 7, py - 6), 2, (45, 65, 225), -1, cv2.LINE_AA)
+
+    # Head
+    cv2.circle(canvas, (x, cy - int(11 * scale)), r_head, (215, 235, 250), -1, cv2.LINE_AA)
+    cv2.circle(canvas, (x, cy - int(11 * scale)), r_head, (18, 20, 24), 2, cv2.LINE_AA)
+    # Eyes
+    cv2.circle(canvas, (x - int(3 * scale), cy - int(12 * scale)), max(1, int(2 * scale)), (18, 20, 24), -1, cv2.LINE_AA)
+    cv2.circle(canvas, (x + int(4 * scale), cy - int(12 * scale)), max(1, int(2 * scale)), (18, 20, 24), -1, cv2.LINE_AA)
+
+    # Animator Beret / Director Cap
+    cv2.ellipse(canvas, (x, cy - int(20 * scale)), (int(12 * scale), int(5 * scale)), -8, 0, 360, col, -1, cv2.LINE_AA)
+    cv2.ellipse(canvas, (x, cy - int(20 * scale)), (int(12 * scale), int(5 * scale)), -8, 0, 360, (18, 20, 24), 1, cv2.LINE_AA)
+
+    # Nameplate badge under feet
+    name_w = len(agent["name"]) * 5 + 8
+    cv2.rectangle(canvas, (x - name_w // 2, y + int(25 * scale)), (x + name_w // 2, y + int(37 * scale)), (28, 34, 44), -1)
+    cv2.rectangle(canvas, (x - name_w // 2, y + int(25 * scale)), (x + name_w // 2, y + int(37 * scale)), (75, 168, 218), 1)
+    cv2.putText(canvas, agent["name"], (x - name_w // 2 + 4, y + int(34 * scale)), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (235, 245, 255), 1, cv2.LINE_AA)
+
+    # Optional hand-lettered cream comic callout bubble
+    if bubble_text:
+        bw = min(148, max(74, len(bubble_text) * 5 + 12))
+        bx0 = max(6, min(canvas.shape[1] - bw - 6, x - bw // 2))
+        by0 = max(40, cy - int(44 * scale))
+        cv2.rectangle(canvas, (bx0, by0), (bx0 + bw, by0 + 16), (225, 246, 255), -1)
+        cv2.rectangle(canvas, (bx0, by0), (bx0 + bw, by0 + 16), (25, 30, 38), 1, cv2.LINE_AA)
+        cv2.putText(canvas, bubble_text[:26], (bx0 + 4, by0 + 12), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (20, 24, 30), 1, cv2.LINE_AA)
+
+
+def draw_3d_worm_prism_widget(canvas, x0, y0, x1, y1, slug, f_idx, title="3D WORM PRISM"):
+    """Renders the shot's real 3D Spatiotemporal Worm inside an illuminated brass-and-glass studio display case."""
+    # Translucent warm amber glass interior
+    overlay = canvas.copy()
+    cv2.rectangle(overlay, (x0, y0), (x1, y1), (26, 34, 46), -1)
+    cv2.addWeighted(overlay, 0.78, canvas, 0.22, 0, canvas)
+    cv2.rectangle(canvas, (x0, y0), (x1, y1), (78, 175, 228), 2, cv2.LINE_AA)
+    cv2.rectangle(canvas, (x0 + 3, y0 + 3), (x1 - 3, y1 - 3), (48, 95, 135), 1, cv2.LINE_AA)
+
+    # Draw 3D Isometric Prism wireframe + Bouleau Golden Armature diagonals
+    pw, ph = x1 - x0, y1 - y0
+    cv2.line(canvas, (x0 + 8, y0 + 18), (x1 - 8, y1 - 14), (48, 118, 168), 1, cv2.LINE_AA)
+    cv2.line(canvas, (x0 + 8, y1 - 14), (x1 - 8, y0 + 18), (48, 118, 168), 1, cv2.LINE_AA)
+    # Rule of thirds golden filaments
+    for frac in (0.333, 0.667):
+        gx = x0 + int(pw * frac)
+        cv2.line(canvas, (gx, y0 + 16), (gx, y1 - 14), (42, 96, 138), 1, cv2.LINE_AA)
+
+    wrec = get_worm_record(slug)
+    traj = wrec.get("trajectory", [])
+    raw_topo = wrec.get("topology", "helical_corkscrew")
+    topo = raw_topo.get("class", "helical_corkscrew") if isinstance(raw_topo, dict) else str(raw_topo)
+    pts = []
+    for t_i in range(33):
+        tx = x0 + 10 + int(round((t_i / 32.0) * (pw - 20)))
+        if t_i < len(traj):
+            u_val = float(traj[t_i].get("u", 0.5))
+            v_val = float(traj[t_i].get("v", 0.5))
+            ty = y0 + 20 + int(round((0.5 * v_val + 0.5 * (1.0 - u_val)) * (ph - 36)))
+        else:
+            ty = (y0 + y1) // 2 + int(round(math.sin(t_i * 0.35) * (ph * 0.22)))
+        pts.append([tx, max(y0 + 18, min(y1 - 16, ty))])
+
+    pts_arr = np.array(pts, dtype=np.int32)
+    # Outer core-shell glow + inner worm Worldline
+    cv2.polylines(canvas, [pts_arr], False, (55, 155, 245), 4, cv2.LINE_AA)
+    cv2.polylines(canvas, [pts_arr], False, (145, 245, 190), 2, cv2.LINE_AA)
+
+    cur_t = f_idx % 33
+    cx, cy = pts[cur_t]
+    cv2.line(canvas, (cx, y0 + 16), (cx, y1 - 14), (95, 205, 255), 1, cv2.LINE_AA)
+    cv2.circle(canvas, (cx, cy), 5, (45, 75, 245), -1, cv2.LINE_AA)
+    cv2.circle(canvas, (cx, cy), 5, (255, 255, 255), 1, cv2.LINE_AA)
+
+    cv2.putText(canvas, f"{title}: {topo}", (x0 + 6, y0 + 13), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (185, 232, 255), 1, cv2.LINE_AA)
+    cv2.putText(canvas, f"tau={cur_t:02d}/33", (x0 + 6, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (215, 240, 220), 1, cv2.LINE_AA)
+
+
+def generate_foley_wav(wav_path: Path, n_frames: int, fps: int = 10, seed: int = 1):
+    """Generates a warm studio projector hum + melodic marimba & Earshot Foley transients WAV."""
     sr = 22050
     dur = n_frames / float(fps)
     n_samples = int(sr * dur)
     t = np.linspace(0.0, dur, n_samples, endpoint=False)
     rng = np.random.default_rng(seed)
 
-    # Warm studio projector hum + melodic pentatonic marimba/synth arpeggio on every stage beat
     notes = [220.0, 277.18, 329.63, 440.0, 554.37, 659.25]
-    sig = 0.03 * np.sin(2.0 * math.pi * 110.0 * t)
-    for beat_i in range(int(dur * 2)):
-        t0 = beat_i * 0.5
-        mask = (t >= t0) & (t < t0 + 0.42)
+    sig = 0.025 * np.sin(2.0 * math.pi * 110.0 * t)
+    for beat_i in range(int(dur * 2) + 1):
+        t0 = beat_i * 0.45
+        mask = (t >= t0) & (t < t0 + 0.38)
+        if not np.any(mask):
+            continue
         freq = notes[(beat_i + seed) % len(notes)]
         env = np.exp(-6.5 * (t[mask] - t0))
         sig[mask] += 0.18 * env * np.sin(2.0 * math.pi * freq * (t[mask] - t0))
-        # Subtle footstep/typewriter click transient
-        click_mask = (t >= t0) & (t < t0 + 0.035)
-        sig[click_mask] += 0.12 * rng.standard_normal(np.sum(click_mask)) * np.exp(-45.0 * (t[click_mask] - t0))
+        click_mask = (t >= t0) & (t < t0 + 0.03)
+        if np.any(click_mask):
+            sig[click_mask] += 0.12 * rng.standard_normal(np.sum(click_mask)) * np.exp(-45.0 * (t[click_mask] - t0))
 
     sig = np.clip(sig, -0.95, 0.95)
     pcm = (sig * 32767.0).astype(np.int16)
@@ -386,152 +624,212 @@ def generate_foley_wav(wav_path: Path, n_frames: int, fps: int = 8, seed: int = 
         wf.writeframes(pcm.tobytes())
 
 
-def render_studio_film_frame(spec: dict, f_idx: int, total_frames: int = 36):
-    """Renders one 640x360 frame of a Behind-the-Scenes Studio Film for `spec`."""
+def render_studio_film_frame(spec: dict, f_idx: int, total_frames: int = 40):
+    """
+    Renders one 640x360 frame of a Behind-the-Scenes Studio Film inside our hand-painted
+    Animation Studio Soundstages (`studio_bg_1` .. `studio_bg_5`).
+    """
     W, H = 640, 360
-    canvas = np.full((H, W, 3), (227, 239, 246), dtype=np.uint8)  # warm paper BGR (#F6EFE3)
+    wing = spec.get("studio_wing", "bg1_multifloor")
+    bg_large = get_studio_bg(wing)  # 704x396
 
-    # Subtle isometric floor grid
-    for gx in range(0, W, 40):
-        cv2.line(canvas, (gx, 52), (gx, H - 36), (212, 224, 232), 1)
-    for gy in range(52, H - 36, 32):
-        cv2.line(canvas, (0, gy), (W, gy), (212, 224, 232), 1)
+    # Smooth cinematic camera pan across the painted 704x396 studio room over the 40 frames
+    pan_phase = math.sin(2.0 * math.pi * (f_idx / float(total_frames)) + spec["num"] * 0.4)
+    ox = int(round(32 + pan_phase * 24))
+    oy = int(round(18 + math.cos(2.0 * math.pi * (f_idx / float(total_frames))) * 8))
+    canvas = bg_large[oy:oy + H, ox:ox + W].copy()
 
     stage_idx = min(3, int((f_idx / float(total_frames)) * 4))
     stage_progress = (f_idx % (total_frames // 4)) / float(max(1, total_frames // 4 - 1))
 
-    # Top Pegbar Header
-    cv2.rectangle(canvas, (0, 0), (W, 48), (20, 22, 26), -1)
-    tag_col = (55, 155, 240) if spec["group"] == "office" else (95, 195, 115)
-    cv2.rectangle(canvas, (10, 8), (165, 26), tag_col, -1)
-    group_lbl = f"OFFICE #{spec['num']:02d}" if spec["group"] == "office" else f"VIDEO SKILL #{spec['num']-10:02d} ({spec.get('timestamp','')})"
-    cv2.putText(canvas, group_lbl, (16, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (15, 15, 15), 1, cv2.LINE_AA)
-    cv2.putText(canvas, f"{spec['repo']} // {spec['title']}", (174, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (245, 240, 228), 1, cv2.LINE_AA)
-    cv2.putText(canvas, f"CMD: {spec['install'][:78]}", (12, 41), cv2.FONT_HERSHEY_SIMPLEX, 0.33, (175, 210, 235), 1, cv2.LINE_AA)
-
-    # Left Zone (x=12..345): Isometric Virtual Office / Kanban Worktree / Skill Pipeline Floor
-    cv2.rectangle(canvas, (12, 56), (348, 314), (244, 250, 254), -1)
-    cv2.rectangle(canvas, (12, 56), (348, 314), (25, 25, 25), 2)
-
-    # Draw 4 Kanban / Pipeline Stage Columns at top of Left Zone
-    col_w = 80
-    for s_i, st_name in enumerate(spec["stages"]):
-        sx0 = 18 + s_i * 81
-        is_active = (s_i == stage_idx)
-        is_done = (s_i < stage_idx)
-        bg_c = (195, 235, 205) if is_done else ((190, 225, 252) if is_active else (232, 236, 240))
-        cv2.rectangle(canvas, (sx0, 62), (sx0 + col_w - 3, 108), bg_c, -1)
-        cv2.rectangle(canvas, (sx0, 62), (sx0 + col_w - 3, 108), (25, 25, 25), 2 if is_active else 1)
-        cv2.putText(canvas, f"STAGE {s_i+1}", (sx0 + 5, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (30, 30, 30), 1, cv2.LINE_AA)
-        words = st_name.split()
-        line1 = " ".join(words[:2])[:13]
-        line2 = " ".join(words[2:])[:13]
-        cv2.putText(canvas, line1, (sx0 + 4, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (15, 15, 15), 1, cv2.LINE_AA)
-        if line2:
-            cv2.putText(canvas, line2, (sx0 + 4, 102), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (55, 55, 55), 1, cv2.LINE_AA)
-
-    # Draw Studio Desks, Archive Bookshelf, Whiteboard & Coffee Machine on the Isometric Floor
-    # Bookshelf (Archive Library)
-    cv2.rectangle(canvas, (22, 125), (82, 185), (155, 185, 215), -1)
-    cv2.rectangle(canvas, (22, 125), (82, 185), (25, 25, 25), 2)
-    cv2.putText(canvas, "ARCHIVE", (27, 142), cv2.FONT_HERSHEY_SIMPLEX, 0.32, (20, 20, 20), 1, cv2.LINE_AA)
-    cv2.putText(canvas, "345 CATS", (27, 156), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (20, 20, 20), 1, cv2.LINE_AA)
-
-    # Whiteboard (Plan & 14-Line Armature)
-    cv2.rectangle(canvas, (102, 122), (222, 175), (255, 255, 255), -1)
-    cv2.rectangle(canvas, (102, 122), (222, 175), (25, 25, 25), 2)
-    cv2.line(canvas, (102, 122), (222, 175), (180, 215, 240), 1, cv2.LINE_AA)
-    cv2.line(canvas, (102, 175), (222, 122), (180, 215, 240), 1, cv2.LINE_AA)
-    cv2.putText(canvas, "WHITEBOARD // PLAN", (108, 136), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (25, 25, 25), 1, cv2.LINE_AA)
-    cv2.putText(canvas, f"worktree: shots/{spec['featured_shot']}", (108, 152), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (40, 105, 65), 1, cv2.LINE_AA)
-    cv2.putText(canvas, "55m Cache Timer: OK", (108, 166), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (45, 75, 185), 1, cv2.LINE_AA)
-
-    # FIFO Merge & QA Gate Station
-    cv2.rectangle(canvas, (242, 122), (338, 175), (225, 242, 228), -1)
-    cv2.rectangle(canvas, (242, 122), (338, 175), (25, 25, 25), 2)
-    cv2.putText(canvas, "FIFO MERGE", (252, 138), cv2.FONT_HERSHEY_SIMPLEX, 0.34, (20, 75, 40), 1, cv2.LINE_AA)
-    cv2.putText(canvas, "16/16 GATES", (252, 154), cv2.FONT_HERSHEY_SIMPLEX, 0.33, (20, 75, 40), 1, cv2.LINE_AA)
-    cv2.putText(canvas, "CLIP + WORM", (252, 168), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (50, 50, 50), 1, cv2.LINE_AA)
-
-    # Two Worktree Desks in foreground of Left Zone
-    for d_i, (dx, dy, d_lbl) in enumerate([(45, 245, "DESK A: CLAUDE WORKTREE"), (195, 245, "DESK B: CODEX AUDITOR")]):
-        cv2.rectangle(canvas, (dx, dy), (dx + 125, dy + 42), (185, 208, 228), -1)
-        cv2.rectangle(canvas, (dx, dy), (dx + 125, dy + 42), (25, 25, 25), 2)
-        cv2.putText(canvas, d_lbl, (dx + 6, dy + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (20, 20, 20), 1, cv2.LINE_AA)
-
-    # Animate 4 Studio Agents walking between stations according to f_idx
-    waypoints = [
-        (55, 205),   # Archive Library
-        (160, 205),  # Whiteboard
-        (105, 240),  # Desk A
-        (260, 240),  # Desk B / FIFO Merge
-    ]
-    for a_i in range(4):
-        ag = STUDIO_AGENTS[(spec["num"] + a_i) % len(STUDIO_AGENTS)]
-        wp_start = waypoints[(a_i + stage_idx) % 4]
-        wp_end = waypoints[(a_i + stage_idx + 1) % 4]
-        ax = int(round((1.0 - stage_progress) * wp_start[0] + stage_progress * wp_end[0]))
-        ay = int(round((1.0 - stage_progress) * wp_start[1] + stage_progress * wp_end[1]))
-        draw_agent_avatar(canvas, ax, ay, ag, frame_idx=f_idx + a_i * 5, state="walk", scale=0.82)
-
-    # Right Zone (x=358..628): Live Multiplane Stage + Spatiotemporal Worm Prism + Telemetry
+    # Load live archival & 7-plane cartoon frames for the featured shot
     arch_fr, cart_fr = load_shot_pair(spec["featured_shot"], f_idx)
-    arch_thumb = cv2.resize(arch_fr, (128, 96))
-    cart_thumb = cv2.resize(cart_fr, (128, 96))
 
-    cv2.rectangle(canvas, (358, 56), (628, 314), (248, 251, 254), -1)
-    cv2.rectangle(canvas, (358, 56), (628, 314), (25, 25, 25), 2)
-    cv2.putText(
-        canvas, f"LIVE WORKTREE OUTPUT // {spec['featured_shot'].upper()}",
-        (368, 74), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (20, 20, 20), 1, cv2.LINE_AA
-    )
+    # =========================================================================
+    # WING-SPECIFIC ARCHITECTURAL STUDIO EQUIPMENT & ANIMATION
+    # =========================================================================
+    if wing == "bg1_multifloor":
+        # 1. Left: 7-Level Multiplane Camera Tower (x: 85..235, y: 48..315)
+        # Golden camera exposure cone firing down through the 7 glass platens!
+        cone_overlay = canvas.copy()
+        cone_pts = np.array([[162, 54], [98, 305], [226, 305]], dtype=np.int32)
+        cv2.fillPoly(cone_overlay, [cone_pts], (145, 225, 255), cv2.LINE_AA)
+        flash_alpha = 0.24 if (f_idx % 8 < 2) else 0.11
+        cv2.addWeighted(cone_overlay, flash_alpha, canvas, 1.0 - flash_alpha, 0, canvas)
 
-    canvas[82:178, 366:494] = arch_thumb
-    cv2.rectangle(canvas, (366, 82), (494, 178), (25, 25, 25), 1)
-    cv2.putText(canvas, "Archival Source", (370, 94), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (255, 255, 255), 1, cv2.LINE_AA)
+        # Highlight the active glass platen (P6..P0) oscillating in parallax
+        plane_ys = [84, 120, 158, 198, 238, 278]
+        for p_i, py in enumerate(plane_ys):
+            shift_x = int(round(math.sin(f_idx * 0.35 + p_i) * (p_i + 1) * 1.8))
+            col_p = (75, 225, 255) if (p_i == f_idx % 6) else (65, 145, 195)
+            cv2.rectangle(canvas, (104 + shift_x, py - 4), (218 + shift_x, py + 4), col_p, 1, cv2.LINE_AA)
+            cv2.putText(canvas, f"P{6-p_i}", (82, py + 3), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (25, 35, 50), 1, cv2.LINE_AA)
 
-    canvas[82:178, 496:624] = cart_thumb
-    cv2.rectangle(canvas, (496, 82), (624, 178), (25, 25, 25), 1)
-    cv2.putText(canvas, "7-Plane Cartoon", (500, 94), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (20, 80, 40), 1, cv2.LINE_AA)
+        # 2. Top-Right Mezzanine Lounge: Hang the Mahogany Studio Dailies Screen (x: 345..626, y: 44..152)
+        draw_wood_frame(canvas, 345, 44, 626, 154, f"STUDIO DAILIES SCREEN // {spec['featured_shot'].upper()}")
+        arch_sm = cv2.resize(arch_fr, (130, 82))
+        cart_sm = cv2.resize(cart_fr, (130, 82))
+        canvas[66:148, 353:483] = arch_sm
+        canvas[66:148, 489:619] = cart_sm
+        cv2.rectangle(canvas, (353, 66), (483, 148), (40, 55, 75), 1)
+        cv2.rectangle(canvas, (489, 66), (619, 148), (55, 185, 115), 1)
+        cv2.putText(canvas, "35mm ARCHIVE", (358, 78), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (30, 30, 30), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "7-PLANE MASTER", (494, 78), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (20, 85, 45), 1, cv2.LINE_AA)
 
-    # Mini Spatiotemporal Worm & Earshot Jerk / Timeline Meter in bottom-right (y=186..306)
-    cv2.rectangle(canvas, (366, 186), (620, 306), (22, 25, 32), -1)
-    cv2.rectangle(canvas, (366, 186), (620, 306), (70, 80, 100), 1)
-    cv2.putText(
-        canvas, "3D SPATIOTEMPORAL WORM V(u,v,tau) & EARSHOT JERK",
-        (374, 202), cv2.FONT_HERSHEY_SIMPLEX, 0.32, (115, 220, 255), 1, cv2.LINE_AA
-    )
+        # 3. Middle Floor Bullpen: Glowing Lightbox Disc + Walking Crew
+        draw_animator_lightbox_disc(canvas, 405, 202, 24, spec["featured_shot"], f_idx, "KEY TRACE")
+        draw_3d_worm_prism_widget(canvas, 468, 162, 626, 236, spec["featured_shot"], f_idx, "3D WORM")
 
-    # Draw animated worm wave & playhead
-    wave_pts = []
-    for t_i in range(33):
-        wx = 376 + int(round((t_i / 32.0) * 234))
-        wy = 248 + int(round(math.sin(t_i * 0.32 + spec["num"]) * 18.0))
-        wave_pts.append([wx, wy])
-    cv2.polylines(canvas, [np.array(wave_pts, dtype=np.int32)], False, (75, 235, 130), 2, cv2.LINE_AA)
-    cur_t = f_idx % 33
-    px_cur, py_cur = wave_pts[cur_t]
-    cv2.line(canvas, (px_cur, 210), (px_cur, 282), (80, 180, 255), 1, cv2.LINE_AA)
-    cv2.circle(canvas, (px_cur, py_cur), 6, (45, 85, 245), -1, cv2.LINE_AA)
-    cv2.circle(canvas, (px_cur, py_cur), 6, (255, 255, 255), 1, cv2.LINE_AA)
+        # 4. Crew walking across the 3 floors
+        crew_wps = [(160, 290), (295, 210), (365, 208), (445, 290)]
+        for c_i in range(3):
+            ag = STUDIO_AGENTS[(spec["num"] + c_i) % len(STUDIO_AGENTS)]
+            p0 = crew_wps[(c_i + stage_idx) % len(crew_wps)]
+            p1 = crew_wps[(c_i + stage_idx + 1) % len(crew_wps)]
+            cx = int(round((1 - stage_progress) * p0[0] + stage_progress * p1[0]))
+            cy = int(round((1 - stage_progress) * p0[1] + stage_progress * p1[1]))
+            bub = spec["stages"][stage_idx] if c_i == 0 else ""
+            draw_studio_crew_member(canvas, cx, cy, ag, f_idx + c_i * 4, scale=0.85, bubble_text=bub)
 
-    cv2.putText(
-        canvas,
-        f"Active Stage [{stage_idx+1}/4]: {spec['stages'][stage_idx]}",
-        (374, 297), cv2.FONT_HERSHEY_SIMPLEX, 0.33, (235, 240, 220), 1, cv2.LINE_AA
-    )
+    elif wing in ("bg5_bullpen", "bg2_occupied"):
+        # Isometric Animator Bullpen & Storyboard Wall!
+        # 1. Project live onion-skin keyframes onto two foreground wooden lightbox discs
+        draw_animator_lightbox_disc(canvas, 185, 212, 34, spec["featured_shot"], f_idx, "DESK A // K01-K02")
+        draw_animator_lightbox_disc(canvas, 332, 258, 32, spec["featured_shot"], f_idx + 8, "DESK B // K03-K04")
 
-    # Bottom Subtitle / Explainer Bar
-    cv2.rectangle(canvas, (0, H - 36), (W, H), (20, 22, 26), -1)
-    sub_text = spec["blurb"]
-    # Scroll or slice subtitle cleanly across stages
-    chunk_len = 92
-    start_c = min(max(0, len(sub_text) - chunk_len), (stage_idx * 32))
-    sub_slice = sub_text[start_c:start_c + chunk_len]
-    cv2.putText(
-        canvas, f"[{spec['repo']}] {sub_slice}",
-        (14, H - 13), cv2.FONT_HERSHEY_SIMPLEX, 0.39, (245, 238, 215), 1, cv2.LINE_AA
-    )
+        # 2. Mount the Studio Storyboard & Dailies Projection Screen on the right/back wall
+        draw_wood_frame(canvas, 352, 44, 628, 162, f"BULLPEN STORYBOARD & DAILIES // {spec['featured_shot'].upper()}")
+        arch_sm = cv2.resize(arch_fr, (128, 88))
+        cart_sm = cv2.resize(cart_fr, (128, 88))
+        canvas[66:154, 360:488] = arch_sm
+        canvas[66:154, 492:620] = cart_sm
+        cv2.rectangle(canvas, (360, 66), (488, 154), (40, 55, 75), 1)
+        cv2.rectangle(canvas, (492, 66), (620, 154), (55, 185, 115), 1)
+        cv2.putText(canvas, "ARCHIVE REF", (365, 78), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (25, 25, 25), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "7-PLANE CEL", (497, 78), cv2.FONT_HERSHEY_SIMPLEX, 0.29, (20, 85, 45), 1, cv2.LINE_AA)
+
+        # 3. 3D Spatiotemporal Worm & Bouleau Armature Widget in bottom-right
+        draw_3d_worm_prism_widget(canvas, 438, 174, 628, 282, spec["featured_shot"], f_idx, "BOULEAU 14-LINE WORM")
+
+        # 4. Studio Crew walking between the 4 drafting desks & storyboard corkboard
+        crew_wps = [(110, 255), (258, 185), (265, 268), (402, 252)]
+        for c_i in range(3):
+            ag = STUDIO_AGENTS[(spec["num"] + c_i) % len(STUDIO_AGENTS)]
+            p0 = crew_wps[(c_i + stage_idx) % len(crew_wps)]
+            p1 = crew_wps[(c_i + stage_idx + 1) % len(crew_wps)]
+            cx = int(round((1 - stage_progress) * p0[0] + stage_progress * p1[0]))
+            cy = int(round((1 - stage_progress) * p0[1] + stage_progress * p1[1]))
+            bub = spec["stages"][stage_idx] if c_i == 0 else ""
+            draw_studio_crew_member(canvas, cx, cy, ag, f_idx + c_i * 5, scale=0.90, bubble_text=bub)
+
+    elif wing == "bg3_screening":
+        # Left: Foley Recording Stage (Boom Mic, Prop Table, 3-Surface Pit, Console)
+        # Right: Dailies Screening Theatre (35mm Projector Beam, Cinema Screen, Director Chairs)
+        # 1. Volumetric golden 35mm projector beam from projector (370, 128) to the Cinema Screen (x: 418..628, y: 48..196)
+        beam_overlay = canvas.copy()
+        beam_pts = np.array([[372, 126], [420, 52], [420, 192]], dtype=np.int32)
+        cv2.fillPoly(beam_overlay, [beam_pts], (155, 232, 255), cv2.LINE_AA)
+        cv2.addWeighted(beam_overlay, 0.28, canvas, 0.72, 0, canvas)
+
+        # 2. Hang the Grand Dailies Cinema Screen on the right theatre wall (x: 416..628, y: 46..196)
+        draw_wood_frame(canvas, 416, 46, 628, 196, f"SCREENING ROOM THEATRE // {spec['featured_shot'].upper()}")
+        arch_sm = cv2.resize(arch_fr, (96, 72))
+        cart_lg = cv2.resize(cart_fr, (100, 72))
+        canvas[70:142, 424:520] = arch_sm
+        canvas[70:142, 522:622] = cart_lg
+        cv2.rectangle(canvas, (424, 70), (520, 142), (45, 60, 80), 1)
+        cv2.rectangle(canvas, (522, 70), (622, 142), (65, 205, 125), 1)
+        cv2.putText(canvas, "35mm ARCHIVE", (428, 82), cv2.FONT_HERSHEY_SIMPLEX, 0.27, (25, 25, 25), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "7-PLANE FILM", (526, 82), cv2.FONT_HERSHEY_SIMPLEX, 0.27, (20, 80, 40), 1, cv2.LINE_AA)
+        # Earshot Jerk / Audio Waveform inside bottom of Cinema Screen
+        for w_i in range(38):
+            wx = 426 + w_i * 5
+            wh = int(round(abs(math.sin(w_i * 0.45 + f_idx * 0.55)) * 18)) + 3
+            wcol = (55, 85, 245) if wh > 15 else (85, 215, 145)
+            cv2.line(canvas, (wx, 184), (wx, 184 - wh), wcol, 2, cv2.LINE_AA)
+        cv2.putText(canvas, "EARSHOT JERK & AUDIO SYNC", (428, 156), cv2.FONT_HERSHEY_SIMPLEX, 0.28, (200, 235, 255), 1, cv2.LINE_AA)
+
+        # 3. Glowing red "ON AIR // FOLEY SYNC" studio lamp on left soundstage wall
+        is_jerk_peak = (f_idx % 7 < 3)
+        lamp_col = (45, 55, 245) if is_jerk_peak else (45, 45, 110)
+        cv2.rectangle(canvas, (24, 46), (148, 72), (25, 28, 34), -1)
+        cv2.rectangle(canvas, (24, 46), (148, 72), lamp_col, 2)
+        cv2.circle(canvas, (38, 59), 6, lamp_col, -1, cv2.LINE_AA)
+        cv2.putText(canvas, "ON AIR // FOLEY", (50, 63), cv2.FONT_HERSHEY_SIMPLEX, 0.33, (235, 240, 255), 1, cv2.LINE_AA)
+
+        # Acoustic ripple rings over the 3-Surface Foley Pit (wood/gravel/water) when Jerk spikes!
+        pit_centers = [(105, 278), (175, 278), (235, 278)]
+        pc = pit_centers[stage_idx % 3]
+        for r_i in range(1, 3):
+            rad = ((f_idx * 4 + r_i * 10) % 28) + 6
+            cv2.circle(canvas, pc, rad, (65, 195, 255), 1, cv2.LINE_AA)
+
+        # Mini Lightbox on the Foley table + Crew in Foley Pit & Screening Room
+        draw_animator_lightbox_disc(canvas, 68, 198, 25, spec["featured_shot"], f_idx, "CUE SHEET")
+        draw_studio_crew_member(canvas, 172, 238, STUDIO_AGENTS[4], f_idx, scale=0.92, bubble_text=spec["stages"][stage_idx])
+        draw_studio_crew_member(canvas, 335, 262, STUDIO_AGENTS[0], f_idx + 6, scale=0.88, bubble_text="Dailies Cut!")
+
+    else:
+        # Wing D: `bg4_optical` — Brass Twin-Reel Optical Printer, Clockwork & 3D Worm Glass Cube!
+        # 1. Animate spinning spokes on the two giant brass 35mm optical printer reels (78, 102) & (172, 100)
+        for rx, ry in [(78, 102), (172, 100)]:
+            for sp_i in range(4):
+                ang = f_idx * 0.28 + sp_i * (math.pi / 2.0)
+                sx = rx + int(round(math.cos(ang) * 24))
+                sy = ry + int(round(math.sin(ang) * 24))
+                cv2.line(canvas, (rx, ry), (sx, sy), (42, 78, 118), 2, cv2.LINE_AA)
+
+        # 2. Superimpose the live onion-skin Archival + Cartoon comparison inside the bottom-left Rotoscope Lightbox!
+        draw_wood_frame(canvas, 22, 226, 256, 316, f"ROTOSCOPE BENCH // {spec['featured_shot'].upper()}")
+        arch_sm = cv2.resize(arch_fr, (108, 64))
+        cart_sm = cv2.resize(cart_fr, (108, 64))
+        canvas[248:312, 28:136] = arch_sm
+        canvas[248:312, 142:250] = cart_sm
+        cv2.putText(canvas, "ARCHIVE", (32, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.27, (20, 20, 20), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "7-PLANE", (146, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.27, (20, 80, 40), 1, cv2.LINE_AA)
+
+        # 3. Render the live 3D Spatiotemporal Worm inside the Illuminated Glass Prism Cube on the right pedestal!
+        draw_3d_worm_prism_widget(canvas, 442, 136, 568, 256, spec["featured_shot"], f_idx, "OPTICAL WORM CUBE")
+
+        # 4. Studio Crew operating the Optical Printer & Clocktower
+        draw_studio_crew_member(canvas, 305, 258, STUDIO_AGENTS[2], f_idx, scale=0.92, bubble_text=spec["stages"][stage_idx])
+        draw_studio_crew_member(canvas, 402, 264, STUDIO_AGENTS[1], f_idx + 5, scale=0.88, bubble_text="IoU >= 0.89!")
+
+    # =========================================================================
+    # TOP WOODEN CLAPPERBOARD SLATE & STAGE PEG-BAR TABS (y = 0..38)
+    # =========================================================================
+    cv2.rectangle(canvas, (0, 0), (W, 38), (22, 26, 34), -1)
+    cv2.line(canvas, (0, 38), (W, 38), (78, 175, 228), 2)
+    # Diagonal black-and-cream clapperboard stripes on top border (y = 0..6)
+    for cl_x in range(0, W, 28):
+        pts_cl = np.array([[cl_x, 0], [cl_x + 14, 0], [cl_x + 8, 6], [cl_x - 6, 6]], dtype=np.int32)
+        cv2.fillPoly(canvas, [pts_cl], (215, 235, 248), cv2.LINE_AA)
+
+    tag_col = (55, 155, 240) if spec["group"] == "office" else (85, 195, 115)
+    cv2.rectangle(canvas, (8, 10), (132, 32), tag_col, -1)
+    group_lbl = f"STUDIO #{spec['num']:02d}" if spec["group"] == "office" else f"SKILL #{spec['num']-10:02d} ({spec.get('timestamp','')})"
+    cv2.putText(canvas, group_lbl, (13, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.36, (15, 15, 15), 1, cv2.LINE_AA)
+    cv2.putText(canvas, f"{spec['repo']} // {spec['title'][:42]}", (140, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.39, (235, 244, 252), 1, cv2.LINE_AA)
+
+    # =========================================================================
+    # BOTTOM 35MM FILMSTRIP & ANIMATION X-SHEET EXPOSURE BAR (y = 320..360)
+    # =========================================================================
+    cv2.rectangle(canvas, (0, H - 40), (W, H), (20, 24, 30), -1)
+    cv2.line(canvas, (0, H - 40), (W, H - 40), (78, 175, 228), 1)
+    # 35mm film sprocket holes along top & bottom of the X-sheet bar
+    for sp_x in range(8, W, 18):
+        cv2.rectangle(canvas, (sp_x, H - 37), (sp_x + 8, H - 33), (215, 232, 245), -1)
+        cv2.rectangle(canvas, (sp_x, H - 6), (sp_x + 8, H - 2), (215, 232, 245), -1)
+
+    # 4 Brass Stage Tabs along the X-Sheet bar
+    for s_i, st_name in enumerate(spec["stages"]):
+        sx0 = 10 + s_i * 156
+        is_act = (s_i == stage_idx)
+        bg_c = (62, 155, 225) if is_act else ((42, 85, 62) if s_i < stage_idx else (36, 42, 52))
+        txt_c = (15, 18, 22) if is_act else (220, 232, 240)
+        cv2.rectangle(canvas, (sx0, H - 30), (sx0 + 150, H - 10), bg_c, -1)
+        cv2.rectangle(canvas, (sx0, H - 30), (sx0 + 150, H - 10), (95, 185, 235) if is_act else (65, 75, 88), 1)
+        cv2.putText(canvas, f"{s_i+1}. {st_name[:22]}", (sx0 + 5, H - 16), cv2.FONT_HERSHEY_SIMPLEX, 0.31, txt_c, 1, cv2.LINE_AA)
 
     return canvas
 
@@ -539,17 +837,17 @@ def render_studio_film_frame(spec: dict, f_idx: int, total_frames: int = 36):
 def build_single_bts_film(spec: dict):
     """Builds MP4 (with Foley audio), animated GIF, and poster PNG for one Behind-the-Scenes Studio Film."""
     slug = spec["id"]
-    total_frames = 36
-    fps = 8
+    total_frames = 40
+    fps = 10
     frames_bgr = [render_studio_film_frame(spec, f_i, total_frames) for f_i in range(total_frames)]
 
     poster_path = BTS_DIR / f"{slug}_poster.png"
-    cv2.imwrite(str(poster_path), frames_bgr[10])
+    cv2.imwrite(str(poster_path), frames_bgr[12])
 
     gif_path = BTS_DIR / f"{slug}.gif"
     pil_frames = [Image.fromarray(cv2.cvtColor(f, cv2.COLOR_BGR2RGB)) for f in frames_bgr[::2]]
     pil_frames[0].save(
-        str(gif_path), save_all=True, append_images=pil_frames[1:], duration=240, loop=0, optimize=True
+        str(gif_path), save_all=True, append_images=pil_frames[1:], duration=180, loop=0, optimize=True
     )
 
     raw_mp4 = BTS_DIR / f"_{slug}_raw.mp4"
@@ -567,7 +865,7 @@ def build_single_bts_film(spec: dict):
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error",
         "-i", str(raw_mp4), "-i", str(wav_path),
-        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "23",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22",
         "-c:a", "aac", "-b:a", "96k", "-shortest",
         str(final_mp4)
     ], check=False)
@@ -582,7 +880,7 @@ def build_single_bts_film(spec: dict):
         "mp4": f"bts_films/{slug}.mp4",
         "gif": f"bts_films/{slug}.gif",
         "poster": f"bts_films/{slug}_poster.png",
-        "poster_bgr": frames_bgr[10],
+        "poster_bgr": frames_bgr[12],
     }
 
 
@@ -590,9 +888,9 @@ def render_contact_sheet(results, title, subtitle, out_name, cols=2):
     rows = math.ceil(len(results) / cols)
     cw, ch = 640, 360
     header_h = 68
-    canvas = np.full((header_h + rows * ch, cols * cw, 3), (20, 22, 26), dtype=np.uint8)
-    cv2.putText(canvas, title, (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.68, (245, 235, 210), 2, cv2.LINE_AA)
-    cv2.putText(canvas, subtitle, (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (185, 210, 195), 1, cv2.LINE_AA)
+    canvas = np.full((header_h + rows * ch, cols * cw, 3), (20, 24, 30), dtype=np.uint8)
+    cv2.putText(canvas, title, (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.66, (215, 238, 252), 2, cv2.LINE_AA)
+    cv2.putText(canvas, subtitle, (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (175, 215, 195), 1, cv2.LINE_AA)
 
     for idx, r in enumerate(results):
         ri = idx // cols
@@ -600,7 +898,7 @@ def render_contact_sheet(results, title, subtitle, out_name, cols=2):
         x0 = ci * cw
         y0 = header_h + ri * ch
         canvas[y0:y0 + ch, x0:x0 + cw] = r["poster_bgr"]
-        cv2.rectangle(canvas, (x0, y0), (x0 + cw - 1, y0 + ch - 1), (80, 90, 105), 2)
+        cv2.rectangle(canvas, (x0, y0), (x0 + cw - 1, y0 + ch - 1), (75, 165, 215), 2)
 
     out_path = PREVIEW_DIR / out_name
     cv2.imwrite(str(out_path), canvas)
@@ -614,26 +912,32 @@ def main():
     for sp in all_specs:
         res = build_single_bts_film(sp)
         results.append(res)
-        print(f"  Built BTS Studio Film [{sp['num']:02d}/18]: {sp['id']} ({sp['repo']})")
+        print(f"  Built BTS Studio Soundstage Film [{sp['num']:02d}/18]: {sp['id']} ({sp['studio_wing']})")
 
     office_res = [r for r in results if r["group"] == "office"]
     skill_res = [r for r in results if r["group"] == "skill"]
 
     p_off = render_contact_sheet(
         office_res,
-        "BEHIND THE SCENES PART I // 10 VIRTUAL AGENT OFFICE & KANBAN WORKTREE STUDIO FILMS",
-        "Kohnny Architecture + 10 Open-Source Multi-Agent Worktree Studios Building the 346 Quick, Draw! Multiplane Cartoons",
+        "BEHIND THE SCENES PART I // 10 ANIMATION STUDIO & WORKTREE SOUNDSTAGE FILMS",
+        "Hand-Painted Multi-Floor Multiplane Tower, Isometric Animator Bullpen, Foley Stage & Optical Lab (All 346 Cartoons)",
         "bts_10_agent_offices_atlas.png",
         cols=2,
     )
     p_sk = render_contact_sheet(
         skill_res,
-        "BEHIND THE SCENES PART II // 8 AI VIDEO DIRECTOR & MOTION SKILL STUDIO FILMS",
-        "All 8 Video Editing & Motion Skills (huashu-motion, rossark, take-one, reanimate, argo, explainroo, video-director, earshot)",
+        "BEHIND THE SCENES PART II // 8 AI VIDEO DIRECTOR & MOTION SKILL SOUNDSTAGE FILMS",
+        "All 8 Video & Motion Skills Staged Inside the Screening Room, Lightbox Bullpen, Multiplane Tower & Foley Pit",
         "bts_8_video_skills_atlas.png",
         cols=2,
     )
     print("Rendered BTS contact sheets:", p_off.name, p_sk.name)
+
+    # Copy sample animated GIFs to artifact dir for visual inspection
+    for sample_id in ["office-01-agent-office", "office-02-agent-007", "skill-01-huashu-motion", "skill-04-reanimate", "skill-08-earshot"]:
+        src_gif = BTS_DIR / f"{sample_id}.gif"
+        if src_gif.exists():
+            shutil.copy2(src_gif, ARTIFACT_DIR / f"{sample_id}.gif")
 
     # Concatenate all 18 films into the Master Behind-the-Scenes Documentary Film
     concat_txt = BTS_DIR / "_concat_list.txt"
