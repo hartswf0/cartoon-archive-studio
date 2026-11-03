@@ -301,143 +301,41 @@ function renderFilmCards() {
   `).join('');
 }
 
-// Preload the 4 hand-painted studio wing images for the live interactive canvas
+// Preload the 4 Scott McCloud 4-Panel Comic Pages for the interactive reader
 const STUDIO_WINGS = [
-  { name: 'WING A // 7-LEVEL MULTIPLANE CAMERA TOWER & 3-FLOOR STUDIO', src: 'bts_films/studio_bg_1_multifloor_soundstage.jpg', img: new Image() },
-  { name: 'WING B // ISOMETRIC ANIMATOR BULLPEN & STORYBOARD ARMATURE WALL', src: 'bts_films/studio_bg_5_bullpen_unoccupied.jpg', img: new Image() },
-  { name: 'WING C // FOLEY SOUNDSTAGE PIT & 35MM DAILIES SCREENING ROOM', src: 'bts_films/studio_bg_3_foley_screening_stage.jpg', img: new Image() },
-  { name: 'WING D // BRASS TWIN-REEL OPTICAL PRINTER & 3D WORM ATELIER', src: 'bts_films/studio_bg_4_clocktower_optical_lab.jpg', img: new Image() }
+  { name: 'WING A // 7-LEVEL MULTIPLANE RIG (SCOTT McCLOUD 4-PANEL COMIC)', src: 'bts_films/studio_bg_1_multifloor_soundstage.jpg', img: new Image() },
+  { name: 'WING B // ANIMATOR DRAFTING DESK (SCOTT McCLOUD 4-PANEL COMIC)', src: 'bts_films/studio_bg_5_bullpen_unoccupied.jpg', img: new Image() },
+  { name: 'WING C // 35MM FILM PROJECTOR & FOLEY (SCOTT McCLOUD 4-PANEL COMIC)', src: 'bts_films/studio_bg_3_foley_screening_stage.jpg', img: new Image() },
+  { name: 'WING D // 3D TIME-CUBE GALLERY (SCOTT McCLOUD 4-PANEL COMIC)', src: 'bts_films/studio_bg_4_clocktower_optical_lab.jpg', img: new Image() }
 ];
 STUDIO_WINGS.forEach(w => { w.img.src = w.src; });
 
 let activeWingIdx = 0;
 let simTick = 0;
-let flashFrames = 0;
-let simNotice = 'Multiplane Tower exposing 7 gouache planes for #346 giraffe-walks-past -> 16/16 Studio Gates PASS';
-
-const simAgents = [
-  { name: 'Maestro', role: 'Director', color: '#B93829', x: 165, y: 278, tx: 370, ty: 202, bubble: 'Camera Roll!' },
-  { name: 'Lead Animator', role: 'Inker', color: '#8A3E9E', x: 390, y: 202, tx: 485, ty: 202, bubble: 'Tracing K02->K03' },
-  { name: 'Auditor (Codex)', role: 'Critic', color: '#2F7A4C', x: 465, y: 288, tx: 355, ty: 288, bubble: 'CLIP +0.234 PASS' },
-  { name: 'Earshot Foley', role: 'Foley', color: '#247BA0', x: 285, y: 215, tx: 165, ty: 278, bubble: 'Jerk Peak Cue!' }
-];
+let forcedPanelIdx = -1;
 
 function selectStudioWing(idx) {
   activeWingIdx = idx;
+  forcedPanelIdx = -1;
   for (let i = 0; i < 4; i++) {
     const b = document.getElementById('wing-btn-' + i);
     if (b) b.classList.toggle('active', i === idx);
   }
-  simNotice = 'Switched camera to ' + STUDIO_WINGS[idx].name;
 }
 
 function triggerWorktreeSpawn() {
-  flashFrames = 18;
-  simNotice = 'Multiplane Camera Tower flashed exposure across Planes P6..P0 for worktree shots/giraffe-walks-past!';
-  simAgents[0].bubble = 'Expose Plane P2!';
-  simAgents[1].bubble = 'Onion-Skin Lock!';
+  selectStudioWing(1);
+  forcedPanelIdx = 1; // Highlight Panel 2 (The 3-Step Rule)
 }
 function triggerCodexAudit() {
   selectStudioWing(2);
-  simNotice = '35mm Screening Room Projector: Codex Auditor verified 16/16 studio gates + Gap-Corrected CLIP +0.234!';
-  simAgents[2].bubble = '16/16 Gates Green!';
+  forcedPanelIdx = 2; // Highlight Panel 3 (The 4 Keyframes on 35mm Film)
 }
 function triggerCacheCompact() {
   selectStudioWing(3);
-  simNotice = '55:00 Studio Clocktower Chime: Session handoff notes dispatched via brass pneumatic tube!';
-  document.getElementById('cache-timer-badge').textContent = 'Clocktower Cache: Reset 00:01 / 55:00';
-  simAgents[0].bubble = '55m Tube Sent!';
-}
-
-function drawQdCard(ctx, x, y, w, h, fill, shadowOffset = 2) {
-  if (shadowOffset > 0) {
-    ctx.fillStyle = '#161412';
-    ctx.fillRect(x + shadowOffset, y + shadowOffset, w, h);
-  }
-  ctx.fillStyle = fill;
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = '#161412';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
-}
-
-function drawIllustratedCrewMember(ctx, ag, tick) {
-  const boil = Math.floor(tick / 6) % 4;
-  const jitter = (boil - 1.5) * 0.45;
-  const bob = Math.sin(tick * 0.22 + ag.x * 0.05) * 2.5;
-  const stride = Math.sin(tick * 0.28 + ag.y * 0.05) * 5.5;
-  const cx = ag.x, cy = ag.y + bob;
-
-  // Quick, Draw! hatched paper shadow oval
-  ctx.fillStyle = '#DFD3BC';
-  ctx.strokeStyle = '#161412';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.ellipse(cx, ag.y + 22, 13, 4.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-  // Quick, Draw! doodle walking legs + shoes
-  ctx.strokeStyle = '#161412';
-  ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  ctx.moveTo(cx - 4, cy + 9); ctx.lineTo(cx - 4 - stride, ag.y + 21);
-  ctx.lineTo(cx - 9 - stride, ag.y + 21);
-  ctx.moveTo(cx + 4, cy + 9); ctx.lineTo(cx + 4 + stride, ag.y + 21);
-  ctx.lineTo(cx + 9 + stride, ag.y + 21);
-  ctx.stroke();
-
-  // Watertight gouache smock cel + offset ink shadow
-  ctx.fillStyle = '#161412';
-  ctx.beginPath();
-  ctx.moveTo(cx - 8 + 2, cy - 2 + 2); ctx.lineTo(cx + 8 + 2, cy - 2 + 2);
-  ctx.lineTo(cx + 11 + 2, cy + 11 + 2); ctx.lineTo(cx - 11 + 2, cy + 11 + 2);
-  ctx.closePath(); ctx.fill();
-
-  ctx.fillStyle = ag.color;
-  ctx.beginPath();
-  ctx.moveTo(cx - 8 + jitter, cy - 2); ctx.lineTo(cx + 8, cy - 2 + jitter);
-  ctx.lineTo(cx + 11, cy + 11); ctx.lineTo(cx - 11, cy + 11);
-  ctx.closePath(); ctx.fill(); ctx.stroke();
-
-  // Doodle arm & paintbrush / megaphone prop
-  ctx.beginPath();
-  ctx.moveTo(cx + 8, cy + 1); ctx.lineTo(cx + 18, cy - 3 + Math.sin(tick * 0.3) * 3);
-  ctx.stroke();
-  ctx.fillStyle = '#FBE5C2';
-  ctx.beginPath(); ctx.arc(cx + 19, cy - 4 + Math.sin(tick * 0.3) * 3, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-  // Quick, Draw! smiley_face head cel (cream paper + bold ink)
-  ctx.fillStyle = '#FFFBF4';
-  ctx.beginPath(); ctx.arc(cx + jitter * 0.5, cy - 10, 9.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Doodle eyes & smile
-  ctx.fillStyle = '#161412';
-  ctx.beginPath();
-  ctx.arc(cx - 3, cy - 11.5, 1.6, 0, Math.PI * 2);
-  ctx.arc(cx + 3.5, cy - 11.5, 1.6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.arc(cx + 0.5, cy - 9, 4.5, 0.2, Math.PI - 0.2); ctx.stroke();
-
-  // Quick, Draw! artist hat / crown cel
-  ctx.fillStyle = ag.color;
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.ellipse(cx, cy - 18.5, 11.5, 4.5, -0.12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-  // Speech bubble (Quick, Draw! cream card + 2px ink shadow)
-  if (ag.bubble) {
-    ctx.font = 'bold 9.5px JetBrains Mono, monospace';
-    const tw = ctx.measureText(ag.bubble).width + 10;
-    const bx = Math.max(6, Math.min(640 - tw - 6, cx - tw / 2));
-    const by = Math.max(36, cy - 39);
-    drawQdCard(ctx, bx, by, tw, 15, '#FFFBF4', 2);
-    ctx.fillStyle = '#161412';
-    ctx.fillText(ag.bubble, bx + 5, by + 11);
-  }
-
-  // Cream-paper Quick, Draw! nameplate under feet
-  ctx.font = 'bold 9px JetBrains Mono, monospace';
-  const nw = ctx.measureText(ag.name).width + 10;
-  drawQdCard(ctx, cx - nw / 2, ag.y + 23, nw, 13, '#ECE2CE', 2);
-  ctx.fillStyle = '#161412';
-  ctx.fillText(ag.name, cx - nw / 2 + 5, ag.y + 32.5);
+  forcedPanelIdx = 3; // Highlight Panel 4 (The Finished 7-Plane Cartoon)
+  const badge = document.getElementById('cache-timer-badge');
+  if (badge) badge.textContent = 'Clocktower Cache: Reset 00:01 / 55:00';
 }
 
 function stepOfficeSim() {
@@ -447,117 +345,27 @@ function stepOfficeSim() {
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
 
-  // 1. Draw the Quick, Draw! Studio Wing with gentle multiplane camera pan
+  // 1. Draw the crisp 4-Panel Scott McCloud Comic Page completely still (zero camera wobble or walking stick figures)
   const wing = STUDIO_WINGS[activeWingIdx];
   if (wing && wing.img && wing.img.complete && wing.img.naturalWidth > 0) {
-    const panX = Math.sin(simTick * 0.015) * 14;
-    const panY = Math.cos(simTick * 0.012) * 6;
-    ctx.drawImage(wing.img, -16 + panX, -8 + panY, W + 32, H + 16);
+    ctx.drawImage(wing.img, 0, 0, W, H);
   } else {
     ctx.fillStyle = '#F6EFE3';
     ctx.fillRect(0, 0, W, H);
   }
 
-  // 2. Wing-specific live Quick, Draw! ink & paper overlays
-  if (activeWingIdx === 0) {
-    // Wing A: Golden camera exposure rays down the 7-plane tower
-    ctx.strokeStyle = (flashFrames > 0) ? '#C94A29' : '#EF9F3A';
-    ctx.lineWidth = (flashFrames > 0) ? 3 : 2;
-    if (flashFrames > 0) flashFrames--;
-    ctx.setLineDash([6, 5]);
-    ctx.beginPath();
-    ctx.moveTo(148, 52); ctx.lineTo(82, 305);
-    ctx.moveTo(148, 52); ctx.lineTo(215, 305);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  } else if (activeWingIdx === 1) {
-    // Wing B: Boiling onion-skin keyframe rings on the 4 Quick, Draw! drafting desks
-    const discs = [[242, 165], [392, 165], [242, 272], [392, 272]];
-    discs.forEach(([dx, dy], i) => {
-      ctx.strokeStyle = (i === Math.floor(simTick / 30) % 4) ? '#C94A29' : '#2B5B84';
-      ctx.lineWidth = 2.2;
-      ctx.beginPath();
-      ctx.arc(dx, dy, 13 + Math.sin(simTick * 0.12 + i) * 3.5, 0, Math.PI * 2);
-      ctx.stroke();
-    });
-  } else if (activeWingIdx === 2) {
-    // Wing C: Flickering 35mm projector ink rays in the Screening Room + ON AIR Foley card
-    ctx.strokeStyle = '#EF9F3A';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(395, 132); ctx.lineTo(560, 72);
-    ctx.moveTo(395, 132); ctx.lineTo(560, 188);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    drawQdCard(ctx, 20, 38, 126, 22, (simTick % 30 < 15) ? '#F7D8CE' : '#FFFBF4', 2);
-    ctx.fillStyle = '#C94A29'; ctx.font = 'bold 10px JetBrains Mono, monospace';
-    ctx.fillText('● ON AIR // FOLEY', 27, 53);
-  } else if (activeWingIdx === 3) {
-    // Wing D: Hand-drawn 3D Spatiotemporal Worm ribbon inside the paper prism cube
-    ctx.strokeStyle = '#161412';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    for (let t = 0; t <= 24; t++) {
-      const wx = 462 + (t / 24) * 95;
-      const wy = 212 + Math.sin(t * 0.45 + simTick * 0.08) * 26;
-      if (t === 0) ctx.moveTo(wx, wy); else ctx.lineTo(wx, wy);
-    }
-    ctx.stroke();
-    ctx.strokeStyle = '#EF9F3A';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-  }
-
-  // 3. Walk & draw the Quick, Draw! Studio Crew across the floorboards
-  const waypoints = [
-    { x: 165, y: 272 }, { x: 295, y: 215 }, { x: 385, y: 205 },
-    { x: 485, y: 205 }, { x: 445, y: 275 }, { x: 235, y: 255 }
+  // 2. Calm Reading Spotlight across the 4 juxtaposed panels (2.5 seconds per panel @ 60fps = 150 ticks)
+  const activePanel = (forcedPanelIdx >= 0) ? forcedPanelIdx : (Math.floor(simTick / 150) % 4);
+  const panelRects = [
+    { x: 9,   y: 32,  w: 306, h: 156 }, // Panel 1 (Top-Left)
+    { x: 325, y: 32,  w: 306, h: 156 }, // Panel 2 (Top-Right)
+    { x: 9,   y: 196, w: 306, h: 156 }, // Panel 3 (Bottom-Left)
+    { x: 325, y: 196, w: 306, h: 156 }  // Panel 4 (Bottom-Right)
   ];
-  for (const ag of simAgents) {
-    const dx = ag.tx - ag.x, dy = ag.ty - ag.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist < 4) {
-      const wp = waypoints[Math.floor(Math.random() * waypoints.length)];
-      ag.tx = wp.x + (Math.random() - 0.5) * 30;
-      ag.ty = wp.y + (Math.random() - 0.5) * 18;
-    } else {
-      ag.x += (dx / dist) * 1.15;
-      ag.y += (dy / dist) * 1.15;
-    }
-    drawIllustratedCrewMember(ctx, ag, simTick);
-  }
-
-  // 4. Top Quick, Draw! Cream-Paper Clapperboard Slate Header
-  ctx.fillStyle = '#ECE2CE';
-  ctx.fillRect(0, 0, W, 30);
-  ctx.strokeStyle = '#161412';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(0, 0, W, 30);
-  for (let cx = 0; cx < W; cx += 28) {
-    ctx.fillStyle = '#EF9F3A';
-    ctx.beginPath();
-    ctx.moveTo(cx, 0); ctx.lineTo(cx + 14, 0); ctx.lineTo(cx + 8, 6); ctx.lineTo(cx - 6, 6);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-  }
-  ctx.fillStyle = '#161412';
-  ctx.font = 'bold 11px JetBrains Mono, monospace';
-  ctx.fillText(STUDIO_WINGS[activeWingIdx].name, 12, 21);
-
-  // 5. Bottom Quick, Draw! 35mm Paper Filmstrip & X-Sheet Status Bar
-  ctx.fillStyle = '#ECE2CE';
-  ctx.fillRect(0, H - 28, W, 28);
-  ctx.strokeStyle = '#161412';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(0, H - 28, W, 28);
-  for (let sx = 8; sx < W; sx += 18) {
-    ctx.fillStyle = '#FFFBF4';
-    ctx.fillRect(sx, H - 25, 8, 4);
-    ctx.strokeRect(sx, H - 25, 8, 4);
-  }
-  ctx.fillStyle = '#161412';
-  ctx.font = 'bold 10.5px JetBrains Mono, monospace';
-  ctx.fillText(simNotice, 12, H - 8);
+  const pr = panelRects[activePanel];
+  ctx.strokeStyle = '#EF9F3A';
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(pr.x, pr.y, pr.w, pr.h);
 
   requestAnimationFrame(stepOfficeSim);
 }

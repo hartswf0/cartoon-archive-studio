@@ -2,20 +2,30 @@
 """
 tools/behind_the_scenes_studio_engine.py
 ========================================
-Unified Quick, Draw! Multiplane Animation Studio Soundstage Engine.
-Renders:
-  - 4 Master Architectural Studio Soundstage Plates (`studio_bg_1..4.jpg` + `studio_bg_5_bullpen_unoccupied.jpg`)
-  - 18 Behind-the-Scenes Studio Soundstage Films (10 Virtual Agent Office & Worktree Films + 8 AI Video Director Skill Films)
-  - 2 Master Contact Sheets (`preview/bts_10_agent_offices_atlas.png` & `preview/bts_8_video_skills_atlas.png`)
-  - Master Documentary Film (`Behind_The_Scenes_Multiplane_Studio_Film.mp4`)
+Scott McCloud "Understanding Comics" + Quick, Draw! Sequential Art Studio Engine.
 
-100% UNIFIED IN THE QUICK, DRAW! AESTHETIC:
-  - Warm archival cream paper (`#F6EFE3` / `#FFFBF4`), soft pastel gouache washes (`#FBE5C2`, `#D4E8DC`, `#D6E4F0`, `#F7D8CE`),
-    and crisp `#161412` hand-drawn Quick, Draw! ink strokes with 4-keyframe living line boil (`K01..K04`) and `3px` hard ink drop-shadows.
-  - Every studio room, camera rig, drafting table, lamp, microphone, clock, prop, and animator character is constructed from
-    REAL Quick, Draw! vector doodles (`quickdraw_samples/<category>.json`) with watertight gouache occlusion cels (0 X-ray bleeds).
-  - Archival source frames are rendered as unified graphite/blueprint pencil traces on `#F6EFE3` paper alongside the 7-plane
-    Quick, Draw! multiplane cartoons.
+Directly implements Scott McCloud's core distinction between COMICS (Space) and FILM (Time)
+from *Understanding Comics* (Chapter 1, Page 7 / PDF Page 14):
+  "Each successive frame of a movie is projected on exactly the SAME space — the screen —
+   while each frame of COMICS must occupy a DIFFERENT space.
+   SPACE does for COMICS what TIME does for FILM!"
+
+1. IN STATIC COMIC PAGES (`*_poster.png`, `studio_bg_1..5.jpg`, and `bts_*_atlas.png`):
+   All 4 panels (`1920x1080` downsampled cleanly to `1280x720`) are juxtaposed in SPACE as a
+   2x2 Scott McCloud Comic Page with crisp cream gutters, 4px black ink borders, auto-fitted
+   captions (0% text truncation), and rich comic scenes modeled directly on *Understanding Comics*:
+     - Scene A (McCloud p. 14): Multiplane Camera Rig with 3 separated glass depth planes
+     - Scene B (McCloud p. 9):  Tilted animation drafting table, swing-arm lamp & storyboard wall
+     - Scene C (McCloud p. 14): 35mm Dailies Film Projector casting a light beam onto a theater screen
+     - Scene D (McCloud p. 24): Sequential Time-Frames gallery wall & 55-minute studio clock
+
+2. IN ANIMATED FILMS (`bts_films/*.mp4`, `*.gif`, and `Behind_The_Scenes_Multiplane_Studio_Film.mp4`):
+   Each of the 4 panels is projected FULL-SCREEN (`960x540`) ONE AT A TIME in TIME on the screen
+   (10.0 seconds total @ 12fps = 120 frames):
+     - Act 1 (0.0s - 2.3s): FULL-SCREEN PANEL 1 (Scott in the studio + huge 24pt speech balloon)
+     - Act 2 (2.3s - 4.6s): FULL-SCREEN PANEL 2 (Step-by-step `1 --> 2 --> 3` visual diagram)
+     - Act 3 (4.6s - 7.0s): FULL-SCREEN PANEL 3 (35mm 4-Keyframe Filmstrip: K1 -> K2 -> K3 -> K4)
+     - Act 4 (7.0s - 10.0s): FULL-SCREEN PANEL 4 (Unobstructed 900x430 7-plane Quick, Draw! cartoon!)
 """
 
 import json
@@ -23,11 +33,12 @@ import math
 import os
 import shutil
 import subprocess
+import textwrap
 import wave
 from pathlib import Path
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path("/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio")
 QD_DIR = ROOT / "quickdraw_samples"
@@ -41,345 +52,472 @@ BTS_DIR.mkdir(parents=True, exist_ok=True)
 PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Unified Quick, Draw! Studio Palette (in OpenCV BGR matching CSS variables in index.html)
-COL_PAPER       = (227, 239, 246)  # #F6EFE3 warm archival paper
-COL_PAPER_DEEP  = (206, 226, 236)  # #ECE2CE deeper paper wash
-COL_SHEET       = (244, 251, 255)  # #FFFBF4 bright cream cel sheet
-COL_INK         = (18, 20, 22)     # #161412 Quick, Draw! fountain-pen ink
-COL_INK_SOFT    = (50, 56, 61)     # #3D3832 soft graphite ink
-COL_RULE        = (168, 191, 203)  # #CBBFA8 drafting rule line
-COL_TAG         = (58, 159, 239)   # #EF9F3A warm amber tag
-COL_TAG_PALE    = (194, 229, 251)  # #FBE5C2 pale amber gouache wash
-COL_WAX         = (41, 74, 201)    # #C94A29 red-orange wax seal
-COL_WAX_PALE    = (206, 216, 247)  # #F7D8CE pale coral gouache wash
-COL_FOREST      = (79, 107, 47)    # #2F6B4F studio forest green
-COL_FOREST_PALE = (220, 232, 212)  # #D4E8DC pale sage gouache wash
-COL_BLUE        = (132, 91, 43)    # #2B5B84 blueprint slate blue
-COL_BLUE_PALE   = (240, 228, 214)  # #D6E4F0 pale sky gouache wash
+# Unified McCloud + Quick, Draw! Palette (BGR for OpenCV)
+BGR_GUTTER      = (244, 251, 255)  # #FFFBF4 crisp comic page gutter
+BGR_PAPER       = (227, 239, 246)  # #F6EFE3 warm panel paper
+BGR_PAPER_DARK  = (206, 226, 236)  # #ECE2CE shaded paper tone
+BGR_INK         = (18, 20, 22)     # #161412 solid comic ink black
+BGR_AMBER_PALE  = (194, 229, 251)  # #FBE5C2 narrative caption box fill
+BGR_AMBER       = (58, 159, 239)   # #EF9F3A warm golden accent
+BGR_RED         = (41, 74, 201)    # #C94A29 comic title red / wax accent
+BGR_CORAL_PALE  = (206, 216, 247)  # #F7D8CE soft coral gouache cel
+BGR_MINT_PALE   = (220, 232, 212)  # #D4E8DC soft sage gouache cel
+BGR_BLUE_PALE   = (240, 228, 214)  # #D6E4F0 soft sky gouache cel
+BGR_BLUE        = (132, 91, 43)    # #2B5B84 blueprint / McCloud jacket blue
+BGR_GREEN       = (79, 107, 47)    # #2F6B4F forest green accent
 
-# Named Quick, Draw! Studio Crew (constructed from real Quick, Draw! doodles!)
+
+def _load_font(paths, size: int):
+    for p, idx in paths:
+        if os.path.exists(p):
+            try:
+                return ImageFont.truetype(p, size=size, index=idx)
+            except Exception:
+                try:
+                    return ImageFont.truetype(p, size=size)
+                except Exception:
+                    pass
+    return ImageFont.load_default()
+
+
+FONT_DISPLAY_XL = _load_font([
+    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
+    ("/System/Library/Fonts/Supplemental/Arial Black.ttf", 0),
+], 28)
+
+FONT_DISPLAY_LG = _load_font([
+    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
+    ("/System/Library/Fonts/Supplemental/Arial Black.ttf", 0),
+], 22)
+
+FONT_DISPLAY_MD = _load_font([
+    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
+    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
+], 17)
+
+FONT_SPEECH_LG = _load_font([
+    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
+    ("/System/Library/Fonts/Supplemental/Comic Sans MS Bold.ttf", 0),
+], 22)
+
+FONT_CAPTION_LG = _load_font([
+    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
+    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
+], 19)
+
+FONT_CAPTION_MD = _load_font([
+    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
+    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
+], 16)
+
+FONT_LABEL_MD = _load_font([
+    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
+    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
+], 17)
+
+
+def fit_text_font(draw: ImageDraw.ImageDraw, text: str, max_width: int, preferred_fonts: list):
+    """Returns the largest font from `preferred_fonts` that fits `text` within `max_width`."""
+    for f in preferred_fonts:
+        bbox = draw.textbbox((0, 0), text, font=f)
+        if (bbox[2] - bbox[0]) <= max_width:
+            return f
+    return preferred_fonts[-1]
+
+
 STUDIO_AGENTS = [
-    {"name": "Maestro", "role": "Studio Director & Kanban Lead", "color": COL_TAG_PALE, "accent": COL_TAG, "hat_qd": "crown", "prop_qd": "megaphone"},
-    {"name": "Auditor (Codex)", "role": "16-Gate & CLIP Dailies Critic", "color": COL_FOREST_PALE, "accent": COL_FOREST, "hat_qd": "eyeglasses", "prop_qd": "flashlight"},
-    {"name": "Camera Op", "role": "7-Plane Multiplane Rig Operator", "color": COL_BLUE_PALE, "accent": COL_BLUE, "hat_qd": "hat", "prop_qd": "camera"},
-    {"name": "Lead Animator", "role": "4-Key Quick, Draw! Cel Inker", "color": COL_WAX_PALE, "accent": COL_WAX, "hat_qd": "bowtie", "prop_qd": "paintbrush"},
-    {"name": "Earshot Foley", "role": "252-SFX Jerk-Spike Sound Artist", "color": COL_TAG_PALE, "accent": COL_BLUE, "hat_qd": "headphones", "prop_qd": "microphone"},
-    {"name": "Merge Archivist", "role": "Steenbeck Vault & Worktree Keeper", "color": COL_FOREST_PALE, "accent": COL_INK_SOFT, "hat_qd": "hat", "prop_qd": "book"},
+    {"name": "Scott (Director)", "role": "Sequential Art Narrator & Guide", "color": BGR_BLUE_PALE, "accent": BGR_BLUE},
+    {"name": "Lead Animator", "role": "4-Key Quick, Draw! Cel Inker", "color": BGR_CORAL_PALE, "accent": BGR_RED},
+    {"name": "Camera Op", "role": "7-Plane Multiplane Rig Operator", "color": BGR_AMBER_PALE, "accent": BGR_AMBER},
+    {"name": "Auditor (Codex)", "role": "16-Gate & Closure Dailies Critic", "color": BGR_MINT_PALE, "accent": BGR_GREEN},
 ]
 
+# 10 Virtual Agent Office & Worktree Comic Chapters
 AGENT_OFFICE_SPECS = [
     {
         "id": "office-01-agent-office",
         "num": 1,
         "group": "office",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "WING A // QUICK, DRAW! 7-PLANE TOWER & 3-FLOOR STUDIO",
+        "wing_name": "CHAPTER 01 // 3D MULTI-FLOOR STUDIO",
         "repo": "AgentSystemLabs/agent-office",
         "url": "https://github.com/AgentSystemLabs/agent-office",
-        "category": "3D Multi-Floor Studio + Worktrees (Closest Kohnny Match)",
+        "category": "3D Multi-Floor Studio + Worktrees",
         "install": "curl -fsSL https://raw.githubusercontent.com/AgentSystemLabs/agent-office/main/install.sh | bash",
-        "title": "3D Multi-Floor Soundstage & Worktree Lightboxes",
+        "title": "Separating Depth Into 3 Studio Floors",
         "featured_shot": "giraffe-walks-past",
-        "blurb": "Full Quick, Draw! multi-floor animation soundstage where the towering 7-level Multiplane Camera Rig stands beside three cutaway floors: the Steenbeck Archive Vault, the 4-Desk Animator Bullpen, and the Storyboard & Espresso Lounge.",
-        "stages": ["Vault: 35mm Archive Trace", "Bullpen: 4-Key Lightbox", "Tower: 7-Plane Exposure", "Lounge: Corkboard PR Merge"],
+        "speech_p1": "HOW DO WE TURN A FLAT DOODLE INTO A DEEP MULTIPLANE WORLD?",
+        "caption_p2": "WE SPLIT THE STUDIO INTO 3 FLOORS: VAULT, BULLPEN & TOWER!",
+        "diag_steps": [("book", "1. ARCHIVE VAULT"), ("paintbrush", "2. 4-KEY BULLPEN"), ("camera", "3. 7-PLANE TOWER")],
+        "caption_p3": "BEFORE IT'S PROJECTED, FILM IS 4 STATIC KEYFRAMES IN SPACE:",
+        "caption_p4": "PROJECTED IN TIME, CLOSURE CREATES LIVING PARALLAX!",
+        "blurb": "Explains in 4 sequential comic panels how the studio separates archive tracing (Floor 1), 4-keyframe cel inking (Floor 2), and 7-plane camera exposure (Tower) so every shot has true multiplane depth.",
+        "stages": ["Panel 1: The Depth Question", "Panel 2: 3 Studio Floors", "Panel 3: 4 Keyframes in Space", "Panel 4: Living Parallax"],
     },
     {
         "id": "office-02-agent-007",
         "num": 2,
         "group": "office",
         "studio_wing": "bg5_bullpen",
-        "wing_name": "WING B // QUICK, DRAW! ANIMATOR BULLPEN & ARMATURE WALL",
+        "wing_name": "CHAPTER 02 // KANBAN WORKTREE BULLPEN",
         "repo": "bill10/agent-007",
         "url": "https://github.com/bill10/agent-007",
-        "category": "Kanban Worktrees + Animator Bullpen + Manager Director",
+        "category": "Kanban Worktrees + Isolated Desks",
         "install": "git clone https://github.com/bill10/agent-007",
-        "title": "Director Billion & 4-Desk Worktree Bullpen",
+        "title": "One Isolated Drafting Desk Per Shot",
         "featured_shot": "train",
-        "blurb": "Inside the Quick, Draw! isometric bullpen, Director Billion assigns each shot card from the back storyboard wall to an isolated drafting desk where circular lightboxes trace the 4 keyframes in onion-skin ink.",
-        "stages": ["Corkboard: Pin Shot Card", "Lightbox: Spawn Worktree", "Projector: Audit 7-Plane", "Steenbeck: Splice to Main"],
+        "speech_p1": "IF 4 ANIMATORS DRAW ON ONE CEL, IT'S AN UNREADABLE MESS!",
+        "caption_p2": "EACH SHOT CARD SPAWNS ITS OWN ISOLATED DRAFTING DESK:",
+        "diag_steps": [("picture_frame", "1. SHOT CARD"), ("table", "2. ISOLATED DESK"), ("train", "3. CLEAN MERGE")],
+        "caption_p3": "EACH DESK INKS 4 CLEAN QUICK, DRAW! KEYFRAMES IN SEQUENCE:",
+        "caption_p4": "AND SPLICES A CRISP STEAM TRAIN INTO THE MASTER REEL!",
+        "blurb": "Shows why piling multiple agents onto one canvas fails—and how giving each shot card its own isolated Git worktree drafting desk produces clean, conflict-free 4-keyframe animation.",
+        "stages": ["Panel 1: Why Shared Cels Fail", "Panel 2: Isolated Worktree Desk", "Panel 3: 4 Train Keyframes", "Panel 4: Clean Master Splice"],
     },
     {
         "id": "office-03-claude-office",
         "num": 3,
         "group": "office",
         "studio_wing": "bg2_occupied",
-        "wing_name": "WING B2 // SPECIALIST INK & PAINT DRAFTING BULLPEN",
+        "wing_name": "CHAPTER 03 // SPECIALIST INK & PAINT",
         "repo": "W17ant/Claude-Office",
         "url": "https://github.com/W17ant/Claude-Office",
-        "category": "Isometric Studio + Specialist Routing + Footage Meters",
+        "category": "Specialist Routing + Cel Handoff",
         "install": "git clone https://github.com/W17ant/Claude-Office.git && cd Claude-Office && npm i && npm run install-hooks",
-        "title": "Specialist Animator Routing & Cel Footage Meters",
+        "title": "Passing the Cel From Pencil to Gouache",
         "featured_shot": "lighthouse",
-        "blurb": "Four specialist Quick, Draw! animators (SAM Silhouette Tracer, CLIP Critic, Multiplane Compositor, Gouache Painter) work under Quick, Draw! floor lamps while hook events route cel sheets between their glowing lightboxes.",
-        "stages": ["Hook: PreToolUse Slate", "Route to Cel Specialist", "Approve Gouache Keyframe", "Footage & Token Reel Sync"],
+        "speech_p1": "ONE ARTIST SHOULDN'T DO EVERYTHING AT ONCE! WE DIVIDE THE CRAFT.",
+        "caption_p2": "THE CEL PASSES FROM PENCIL TRACE TO WATERTIGHT GOUACHE:",
+        "diag_steps": [("pencil", "1. PENCIL TRACE"), ("paintbrush", "2. GOUACHE CEL"), ("lighthouse", "3. 7-PLANE SCENE")],
+        "caption_p3": "SPACE DOES FOR COMICS WHAT TIME DOES FOR FILM (4 KEYS):",
+        "caption_p4": "THE WATERTIGHT CEL BLOCKS BACKGROUND BLEED IN MOTION!",
+        "blurb": "Follows a single lighthouse cel as it moves from archival pencil silhouette to watertight gouache backing cel to 7-plane coastal composition.",
+        "stages": ["Panel 1: Dividing the Craft", "Panel 2: Pencil -> Ink -> Paint", "Panel 3: 4 Lighthouse Keys", "Panel 4: Watertight Projection"],
     },
     {
         "id": "office-04-pixel-office",
         "num": 4,
         "group": "office",
         "studio_wing": "bg5_bullpen",
-        "wing_name": "WING B3 // STORYBOARD ARMATURE WALL & CELEBRATION STAGE",
+        "wing_name": "CHAPTER 04 // STORYBOARD & CRITIQUE",
         "repo": "KalebKE/PixelOffice",
         "url": "https://github.com/KalebKE/PixelOffice",
-        "category": "2D Studio (Claude Code + Codex Storyboard Critique)",
+        "category": "Storyboard Pitch + Codex Critique",
         "install": "git clone https://github.com/KalebKE/PixelOffice && cd PixelOffice && python3 hooks/manage_hooks.py install && ./start.sh",
-        "title": "Bouleau Storyboard Pitch & 16-Gate Wrap Party",
+        "title": "Separating Form From Content at the Storyboard",
         "featured_shot": "guitar",
-        "blurb": "Doodle animators gather at the Golden Armature storyboard wall during Stage 2-4 planning, return to their Quick, Draw! lightboxes to ink 4-cycle backgrounds, and celebrate when all 16/16 studio gates pass.",
-        "stages": ["Pitch at Storyboard Wall", "Ink 4-Cycle BG at Lightbox", "Screen 16-Gate Dailies", "Studio Wrap Celebration"],
+        "speech_p1": "BEFORE INKING A SINGLE FRAME, WE COMPOSE THE STAGE ARMATURE!",
+        "caption_p2": "COMPOSER DRAFTS THE POSE -> CRITIC AUDITS THE SILHOUETTE:",
+        "diag_steps": [("picture_frame", "1. ARMATURE"), ("eyeglasses", "2. CRITIC AUDIT"), ("guitar", "3. APPROVED CEL")],
+        "caption_p3": "FOUR DISTINCT POSES CREATE ORGANIC LINE BOIL ACROSS FRAMES:",
+        "caption_p4": "RESULT: A CLEAR, UNCLUTTERED GUITAR PERFORMANCE!",
+        "blurb": "Demonstrates how planning composition on the storyboard wall before inking prevents visual clutter and locks the subject onto clean harmonic lines.",
+        "stages": ["Panel 1: Plan Before Inking", "Panel 2: Armature & Audit", "Panel 3: 4 Guitar Keyframes", "Panel 4: Uncluttered Stage"],
     },
     {
         "id": "office-05-pixel-agents",
         "num": 5,
         "group": "office",
-        "studio_wing": "bg1_multifloor",
-        "wing_name": "WING A2 // SPIRAL STAIRCASE & TRANSCRIPT STATE FLOOR",
-        "repo": "pixel-agents-hq/pixel-agents",
-        "url": "https://github.com/pixel-agents-hq/pixel-agents",
-        "category": "A* Studio Floor Pathfinding & Transcript Watcher",
-        "install": "git clone https://github.com/pixel-agents-hq/pixel-agents",
-        "title": "Studio Floor Pathfinding & Live X-Sheet State Machine",
+        "studio_wing": "bg2_occupied",
+        "wing_name": "CHAPTER 05 // LIVING IN LINE",
+        "repo": "pablodelucca/pixel-agents",
+        "url": "https://github.com/pablodelucca/pixel-agents",
+        "category": "Parallel Subagent Inkers",
+        "install": "code --install-extension pablodelucca.pixel-agents",
+        "title": "Why 4 Hand-Drawn Keys Beat Mechanical Tweening",
         "featured_shot": "tractor",
-        "blurb": "Watches live JSONL production transcripts and drives Quick, Draw! animators up and down the studio stairs between the Archive Vault, the 2nd-floor Lightbox Desks, and the 7-Level Multiplane Camera Tower.",
-        "stages": ["Tail X-Sheet Transcript", "State: ARCHIVE_STEENBECK", "Climb Studio Stairs to Rig", "State: SHOOTING_7_PLANE"],
+        "speech_p1": "SLIDING ONE STATIC DRAWING ACROSS THE SCREEN FEELS ROBOTIC!",
+        "caption_p2": "FOUR SUBAGENT INKERS REDRAW KEYFRAMES K1, K2, K3 & K4:",
+        "diag_steps": [("pencil", "1. KEYS K1 & K2"), ("paintbrush", "2. KEYS K3 & K4"), ("tractor", "3. LIVING BOIL")],
+        "caption_p3": "COMPARE THE 4 HAND-DRAWN TRACTOR KEYS SIDE-BY-SIDE:",
+        "caption_p4": "YOUR EYE CLOSES THE GUTTER INTO BREATHING HAND-DRAWN MOTION!",
+        "blurb": "Explains Scott McCloud's 'Living in Line' (Ch. 5) and 'Blood in the Gutter' (Ch. 3): why 4 distinct hand-drawn Quick, Draw! keyframes feel alive while affine sliding feels robotic.",
+        "stages": ["Panel 1: Why Sliding Feels Dead", "Panel 2: 4 Parallel Key Inkers", "Panel 3: K1..K4 Side-by-Side", "Panel 4: Living Line Boil"],
     },
     {
         "id": "office-06-my-office",
         "num": 6,
         "group": "office",
-        "studio_wing": "bg4_optical",
-        "wing_name": "WING D // 35MM ARCHIVE VAULT & OPTICAL PRINTER BENCH",
-        "repo": "khanh020905/my-office",
-        "url": "https://github.com/khanh020905/my-office",
-        "category": "3D Archive Film Vault & Rotoscope Bench",
-        "install": "git clone https://github.com/khanh020905/my-office",
-        "title": "35mm Film Canister Vault & Rotoscope Lightbox Walk",
+        "studio_wing": "bg4_clocktower",
+        "wing_name": "CHAPTER 06 // TIME FRAMES & CONTINUITY",
+        "repo": "m1heng/my-office",
+        "url": "https://github.com/m1heng/my-office",
+        "category": "Session Continuity & Time Frames",
+        "install": "git clone https://github.com/m1heng/my-office.git && cd my-office && npm install && npm run build",
+        "title": "Keeping Continuity Across Time Frames",
         "featured_shot": "speedboat",
-        "blurb": "Whenever an agent reads archival Quick, Draw! strokes, the doodle animator walks to the archive bookshelves, threads the reel onto the twin-reel rotoscope bench, and traces the multiplane cel layers.",
-        "stages": ["Pull Archive Book & Reel", "Thread Twin-Reel Rotoscope", "Trace Quick, Draw! Strokes", "Expose Multiplane Cel"],
+        "speech_p1": "HOW DO WE KEEP CONTINUITY ACROSS 346 SHOTS WITHOUT LOSING THE THREAD?",
+        "caption_p2": "BEFORE THE 55-MINUTE CLOCK EXPIRES, WE SEAL THE X-SHEET:",
+        "diag_steps": [("clock", "1. 55M CLOCK"), ("book", "2. X-SHEET LOG"), ("speedboat", "3. NEXT REEL")],
+        "caption_p3": "EVERY KEYFRAME IN THE FILMSTRIP REMEMBERS THE PREVIOUS POSE:",
+        "caption_p4": "SO THE SPEEDBOAT CUTS ACROSS THE WATER WITH ZERO JUMPS!",
+        "blurb": "Uses McCloud's Chapter 4 ('Time Frames') to show how logging exposure sheets before the 55-minute cache window preserves visual continuity across shots.",
+        "stages": ["Panel 1: The Continuity Problem", "Panel 2: 55-Minute X-Sheet Log", "Panel 3: 4 Speedboat Keys", "Panel 4: Seamless Motion"],
     },
     {
         "id": "office-07-workbench",
         "num": 7,
         "group": "office",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "WING A3 // MULTI-FLOOR WORKTREE SPLICING & VAULT",
-        "repo": "proactive-agent/workbench",
-        "url": "https://github.com/proactive-agent/workbench",
-        "category": "Kanban + Worktrees + AI Semantic Film Splicing",
-        "install": "git clone https://github.com/proactive-agent/workbench",
-        "title": "Per-Shot Worktree Isolation & Steenbeck Semantic Splice",
+        "wing_name": "CHAPTER 07 // 7-PLANE EXPOSURE SHEET",
+        "repo": "taw0002/Claude-Code-Agent-Monitor-Workbench",
+        "url": "https://github.com/taw0002/Claude-Code-Agent-Monitor-Workbench",
+        "category": "X-Sheet & Multiplane Platen Check",
+        "install": "git clone https://github.com/taw0002/Claude-Code-Agent-Monitor-Workbench",
+        "title": "Reading the 7-Plane Multiplane X-Sheet",
         "featured_shot": "bicycle",
-        "blurb": "Isolates concurrent animation batches on separate studio floors, swaps model harnesses when rate-limited, and splices completed 7-plane film strips together on the ground-floor Steenbeck editor.",
-        "stages": ["Isolate Floor Worktrees", "Swap Animator Crew Pool", "Check Cel Layer Overlap", "Steenbeck Semantic Splice"],
+        "speech_p1": "HOW DO CLOUDS, TREES, AND THE HERO MOVE AT DIFFERENT SPEEDS?",
+        "caption_p2": "THE X-SHEET ASSIGNS EACH LAYER ITS OWN PARALLAX DEPTH:",
+        "diag_steps": [("cloud", "1. SKY (0.2x)"), ("tree", "2. TREES (0.5x)"), ("bicycle", "3. HERO (1.0x)")],
+        "caption_p3": "SIDE-BY-SIDE IN SPACE, YOU SEE THE BICYCLE PEDAL FORWARD:",
+        "caption_p4": "PROJECTED IN TIME, THE 7 PLANES GLIDE IN DEPTH!",
+        "blurb": "Breaks down multiplane parallax into a simple 3-step diagram: Sky moves at 0.2x, Midground Trees at 0.5x, and the Hero Bicycle at 1.0x.",
+        "stages": ["Panel 1: How Parallax Works", "Panel 2: 0.2x / 0.5x / 1.0x Planes", "Panel 3: 4 Bicycle Keyframes", "Panel 4: Multiplane Depth"],
     },
     {
         "id": "office-08-kanban-code",
         "num": 8,
         "group": "office",
-        "studio_wing": "bg3_screening",
-        "wing_name": "WING C // DAILIES SCREENING ROOM & DIRECTOR ALERTS",
-        "repo": "langwatch/kanban-code",
-        "url": "https://github.com/langwatch/kanban-code",
-        "category": "Dailies Screening Theatre + Mobile Director Review",
-        "install": "git clone https://github.com/langwatch/kanban-code",
-        "title": "35mm Dailies Screening Theatre & Mobile Director Sign-Off",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "CHAPTER 08 // THE 6 STEPS OF CREATION",
+        "repo": "langoustine69/kanban-code",
+        "url": "https://github.com/langoustine69/kanban-code",
+        "category": "McCloud's 6 Steps: Idea -> Form -> Craft",
+        "install": "git clone https://github.com/langoustine69/kanban-code && cd kanban-code && npm i && npm run compile",
+        "title": "From Idea to Form to Idiom to Craft",
         "featured_shot": "carrot",
-        "blurb": "Links every shot's worktree to the Quick, Draw! Screening Theatre where the projector beams the 4-pass background redraw sheet onto the big screen and rings the studio alarm clock for 1-tap approval.",
-        "stages": ["Thread Worktree Dailies", "Project 4-Pass BG Sheet", "Ring Screening Bell Alert", "Director Chair Sign-Off"],
+        "speech_p1": "IN CHAPTER 7, EVERY WORK OF ART TRAVELS THROUGH CLEAR STAGES!",
+        "caption_p2": "IDEA -> FORM (4 KEYS) -> IDIOM (QUICK, DRAW!) -> CRAFT:",
+        "diag_steps": [("light_bulb", "1. CORE IDEA"), ("pencil", "2. 4-KEY FORM"), ("carrot", "3. FINISHED CRAFT")],
+        "caption_p3": "HERE ARE THE 4 STRUCTURAL KEYFRAMES OF SHOT #063 CARROT:",
+        "caption_p4": "CRAFT AND SURFACE BRING THE SIMPLE DOODLE TO LIFE!",
+        "blurb": "Applies Scott McCloud's Chapter 7 ('The Six Steps': Idea/Purpose -> Form -> Idiom -> Structure -> Craft -> Surface) to our 4-column studio Kanban pipeline.",
+        "stages": ["Panel 1: McCloud's Six Steps", "Panel 2: Idea -> Form -> Craft", "Panel 3: 4 Carrot Keyframes", "Panel 4: Finished Surface"],
     },
     {
         "id": "office-09-vibe-kanban",
         "num": 9,
         "group": "office",
-        "studio_wing": "bg2_occupied",
-        "wing_name": "WING B4 // 10-HARNESS ANIMATOR BULLPEN & CEL DIFFS",
+        "studio_wing": "bg3_screening",
+        "wing_name": "CHAPTER 09 // SIDE-BY-SIDE DAILIES",
         "repo": "BloopAI/vibe-kanban",
         "url": "https://github.com/BloopAI/vibe-kanban",
-        "category": "Multi-Harness Animator Bullpen + Live Stage Preview",
+        "category": "Side-by-Side Archival vs. Cartoon Review",
         "install": "npx vibe-kanban",
-        "title": "10-Harness Bullpen + Grease-Pencil Cel Diffs & Live Stage",
-        "featured_shot": "sandwich",
-        "blurb": "Orchestrates 10+ coding harnesses across the Quick, Draw! drafting bullpen with red pencil diff notes written directly on the lightbox glass and live multiplane parallax previews on the studio wall.",
-        "stages": ["Brief 10 Bullpen Animators", "Project Live 7-Plane Stage", "Red-Pencil Cel Critique", "FIFO Film Reel Splice"],
+        "title": "Juxtaposing Archival Reference & Cartoon Cel",
+        "featured_shot": "diamond",
+        "speech_p1": "HOW DO WE KNOW OUR CARTOON MATCHES THE ARCHIVAL VIDEO'S MOTION?",
+        "caption_p2": "WE JUXTAPOSE ARCHIVAL TRACE & CARTOON CEL SIDE-BY-SIDE:",
+        "diag_steps": [("television", "1. ARCHIVAL"), ("eyeglasses", "2. COMPARE ARC"), ("diamond", "3. CARTOON CEL")],
+        "caption_p3": "TRACE THE MOTION ARC ACROSS ALL 4 KEYFRAMES IN SPACE:",
+        "caption_p4": "SAME MOTION TRAJECTORY — AMPLIFIED THROUGH SIMPLIFICATION!",
+        "blurb": "Shows how placing the archival reference and the Quick, Draw! cartoon side-by-side lets the director verify motion fidelity while amplifying clarity through simplification.",
+        "stages": ["Panel 1: Verifying the Motion Arc", "Panel 2: Archival vs. Cartoon", "Panel 3: 4 Diamond Keyframes", "Panel 4: Amplified Clarity"],
     },
     {
         "id": "office-10-claude-code-kanban",
         "num": 10,
         "group": "office",
-        "studio_wing": "bg4_optical",
-        "wing_name": "WING D2 // CLOCKTOWER 55-MIN CACHE COMPACTOR ATELIER",
-        "repo": "NikiforovAll/claude-code-kanban",
-        "url": "https://github.com/NikiforovAll/claude-code-kanban",
-        "category": "Clocktower Atelier + 55-Min Cache Compactor",
-        "install": "npm install -g claude-code-kanban && claude-code-kanban --install && claude-code-kanban --open",
-        "title": "Quick, Draw! Clocktower 55-Min Compactor & Before/After Bench",
+        "studio_wing": "bg3_screening",
+        "wing_name": "CHAPTER 10 // PUTTING IT ALL TOGETHER",
+        "repo": "NikkeTryHard/claude-code-kanban",
+        "url": "https://github.com/NikkeTryHard/claude-code-kanban",
+        "category": "346-Shot Master Anthology Assembly",
+        "install": "git clone https://github.com/NikkeTryHard/claude-code-kanban && cd claude-code-kanban && npm i && npm start",
+        "title": "Assembling All 346 Shots Into One Anthology",
         "featured_shot": "star",
-        "blurb": "Under the giant Quick, Draw! studio clock & hourglass, animators compare Before/After cel mockups on the optical printer bench while the 55-minute chime auto-compacts session handoff notes.",
-        "stages": ["Lightbox: Before/After Cel", "Optical Bench: 7-Plane Rig", "55-Min Clocktower Chime", "Handoff Ledger Dispatch"],
+        "speech_p1": "WHEN ALL 346 SHOTS PASS REVIEW, WE SPLICE THEM INTO ONE REEL!",
+        "caption_p2": "STORYBOARD -> 4-KEY LIGHTBOX -> 7-PLANE RIG -> MASTER REEL:",
+        "diag_steps": [("picture_frame", "1. STORYBOARD"), ("camera", "2. MULTIPLANE"), ("star", "3. ANTHOLOGY")],
+        "caption_p3": "FOUR KEYFRAMES OF SHOT #285 STAR IN DELIBERATE SEQUENCE:",
+        "caption_p4": "SPACE AND TIME UNITE IN THE FINISHED CARTOON ARCHIVE!",
+        "blurb": "Mirrors Scott McCloud's Chapter 9 ('Putting It All Together'), showing how 346 individual 4-keyframe cartoons combine into a single unified visual language.",
+        "stages": ["Panel 1: The 346-Shot Goal", "Panel 2: Full Studio Pipeline", "Panel 3: 4 Star Keyframes", "Panel 4: The Living Anthology"],
     },
 ]
 
+# 8 AI Video Director & Motion Skill Comic Chapters
 VIDEO_SKILL_SPECS = [
     {
         "id": "skill-01-huashu-motion",
         "num": 11,
         "group": "skill",
-        "studio_wing": "bg3_screening",
-        "wing_name": "WING C1 // PREMIERE SCREENING THEATRE & BEAT CONSOLE",
-        "timestamp": "00:46",
-        "repo": "alchaincyf/huashu-motion",
-        "url": "https://github.com/alchaincyf/huashu-motion",
-        "category": "Beat-Synced Premiere Films & Dailies Screening Studio",
-        "install": "npx skills add alchaincyf/huashu-motion",
-        "title": "Beat-Synced Studio Premiere Film & Screening Console",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "SKILL 01 // CAMERA BLOCKING & PAN",
+        "timestamp": "01:12",
+        "repo": "ceilf6/Huashu-lead-universal-to-motion",
+        "url": "https://github.com/ceilf6/Huashu-lead-universal-to-motion",
+        "category": "Multiplane Camera Pan & Pacing",
+        "install": "git clone https://github.com/ceilf6/Huashu-lead-universal-to-motion.git",
+        "title": "How Camera Pan Creates Depth Across Planes",
         "featured_shot": "giraffe-walks-past",
-        "blurb": "Inside the Quick, Draw! Dailies Screening Theatre, the projector and stereo mixing console cut between our 346 multiplane shots right on the musical downbeat while projecting live CLIP & 16-gate studio charts.",
-        "stages": ["Console: Lock Beat Grid", "Projector: 346-Shot Chart", "Screen: Beat-Synced Cuts", "Premiere Reel Master Out"],
+        "speech_p1": "WHY DOES THE CAMERA PAN SLOWLY INSTEAD OF JUMPING AROUND?",
+        "caption_p2": "A SMOOTH PAN LETS YOUR EYE READ FOREGROUND vs. HORIZON:",
+        "diag_steps": [("mountain", "1. HORIZON"), ("bush", "2. MID BUSHES"), ("giraffe", "3. HERO WALK")],
+        "caption_p3": "FOUR KEYFRAMES OF THE GIRAFFE STRIDING PAST THE CAMERA:",
+        "caption_p4": "CALM CAMERA PACING MAKES THE MOTION EFFORTLESS TO WATCH!",
+        "blurb": "Explains why calm, deliberate camera pans across separated depth planes let the viewer perceive spatial composition instead of chaotic motion blur.",
+        "stages": ["Panel 1: Why Calm Pacing Matters", "Panel 2: Horizon / Mid / Hero", "Panel 3: 4 Giraffe Keyframes", "Panel 4: Effortless Parallax"],
     },
     {
         "id": "skill-02-rossark-motion-skill",
         "num": 12,
         "group": "skill",
         "studio_wing": "bg5_bullpen",
-        "wing_name": "WING B5 // 60 FPS ARC-TRACING LIGHTBOX & CLOCKWORK",
-        "timestamp": "03:51",
-        "repo": "rossark0/rossark-motion-skill",
-        "url": "https://github.com/rossark0/rossark-motion-skill",
-        "category": "60 FPS Single-Scene-Clock SVG Character Arcs",
-        "install": "npx skills@latest add rossark0/rossark-motion-skill",
-        "title": "60 FPS Single-Scene-Clock SVG Arcs on the Lightbox",
-        "featured_shot": "bicycle",
-        "blurb": "On the circular Quick, Draw! lightbox disc, the Lead Animator traces Quick, Draw! SVG strokes along smooth cubic Bezier motion arcs driven by a single deterministic scene clock tau and MOTION.md rules.",
-        "stages": ["Pin MOTION.md to Peg Bar", "Lock Single Clock tau", "Trace Cubic Bezier Arcs", "60 FPS Cel Exposure"],
+        "wing_name": "SKILL 02 // FIGURE-GROUND CONTRAST",
+        "timestamp": "02:35",
+        "repo": "rossark/motion-skill",
+        "url": "https://github.com/rossark/motion-skill",
+        "category": "Figure-Ground Separation & Typography",
+        "install": "git clone https://github.com/rossark/motion-skill.git ~/.claude/skills/motion-skill",
+        "title": "Amplification Through Simplification",
+        "featured_shot": "lighthouse",
+        "speech_p1": "WHEN A FRAME IS FULL OF TINY LABELS, YOU CAN'T SEE THE STORY!",
+        "caption_p2": "WE STRIP AWAY CLUTTER SO THE ICON READS IN ONE GLANCE:",
+        "diag_steps": [("cloud", "1. SOFT SKY"), ("tree", "2. SIMPLE SHORE"), ("lighthouse", "3. BOLD HERO")],
+        "caption_p3": "BOLD BLACK INK + WARM GOUACHE = 100% FIGURE-GROUND CLARITY:",
+        "caption_p4": "BY SIMPLIFYING THE FORM, WE AMPLIFY THE MEANING!",
+        "blurb": "Applies Scott McCloud's 'Amplification Through Simplification' (Ch. 2, p. 30): stripping away visual noise and floating labels so the bold Quick, Draw! icon commands the frame.",
+        "stages": ["Panel 1: Eliminate Visual Noise", "Panel 2: Sky / Shore / Hero", "Panel 3: 4 Lighthouse Keys", "Panel 4: Instant Readability"],
     },
     {
         "id": "skill-03-take-one",
         "num": 13,
         "group": "skill",
-        "studio_wing": "bg2_occupied",
-        "wing_name": "WING B6 // 4-DESK STORY ROOM (STRATEGIST TO CRITIC)",
-        "timestamp": "05:03",
-        "repo": "talsiach/take-one",
-        "url": "https://github.com/talsiach/take-one",
-        "category": "Strategist -> Creative Director -> Storyboard -> Critic",
-        "install": "git clone https://github.com/talsiach/take-one ~/.claude/skills/take-one",
-        "title": "4-Desk Story Bullpen: Strategist, Director, Boarder & Critic",
-        "featured_shot": "lighthouse",
-        "blurb": "Each of the 4 Quick, Draw! drafting desks in our bullpen houses one role: Desk 1 writes the visual thesis, Desk 2 locks Bouleau's 14-line armature, Desk 3 inks the 4 keyframes, and Desk 4 runs blind critique.",
-        "stages": ["Desk 1: Visual Thesis", "Desk 2: 14-Line Armature", "Desk 3: 4-Key Cel Inking", "Desk 4: Blind Critic Pass"],
+        "studio_wing": "bg3_screening",
+        "wing_name": "SKILL 03 // ONE IDEA PER SHOT",
+        "timestamp": "04:55",
+        "repo": "puravparab/take-one",
+        "url": "https://github.com/puravparab/take-one",
+        "category": "Single-Focus Shot Directing",
+        "install": "npx skills add puravparab/take-one",
+        "title": "One Clear Action Per Panel, One Beat at a Time",
+        "featured_shot": "bicycle",
+        "speech_p1": "NEVER MAKE THE VIEWER READ FOUR MOVING THINGS AT ONCE!",
+        "caption_p2": "GIVE EACH PANEL ONE CLEAR SUBJECT AND ONE CLEAR ACTION:",
+        "diag_steps": [("megaphone", "1. CALL ACTION"), ("camera", "2. FRAME HERO"), ("bicycle", "3. HOLD POSE")],
+        "caption_p3": "FOUR DELIBERATE KEYFRAMES OF THE BICYCLE IN SEQUENCE:",
+        "caption_p4": "ONE CLEAR SUBJECT IN MOTION — NOTHING EXTRA TO DISTRACT YOU!",
+        "blurb": "Demonstrates the golden rule of both comics and film direction: one clear focal action per panel so the viewer's eye always knows exactly where to look.",
+        "stages": ["Panel 1: Stop Simultaneous Clutter", "Panel 2: One Subject Per Frame", "Panel 3: 4 Bicycle Keyframes", "Panel 4: Pure Focal Motion"],
     },
     {
         "id": "skill-04-reanimate",
         "num": 14,
         "group": "skill",
-        "studio_wing": "bg4_optical",
-        "wing_name": "WING D3 // TWIN-REEL ROTOSCOPE & OPTICAL DIFF BENCH",
-        "timestamp": "06:55",
+        "studio_wing": "bg4_clocktower",
+        "wing_name": "SKILL 04 // ROTOSCOPE & CLOSURE",
+        "timestamp": "06:34",
         "repo": "NiazMorshed2007/reanimate",
         "url": "https://github.com/NiazMorshed2007/reanimate",
-        "category": "Twin-Reel Rotoscope Reverse-Engineering & IoU Match",
+        "category": "Archival Trace -> Iconic Doodle",
         "install": "npx skills add NiazMorshed2007/reanimate -g",
-        "title": "Twin-Reel Optical Printer & Onion-Skin Silhouette Match",
+        "title": "From Photographic Video to Iconic Cartoon",
         "featured_shot": "train",
-        "blurb": "Threads the archival reference trace and our new 7-plane Quick, Draw! cartoon reel through the twin-reel optical printer, superimposing both frames on the glowing rotoscope glass until silhouette IoU >= 0.89.",
-        "stages": ["Thread 33 Archival Frames", "Superimpose on Rotoscope", "Refine Keyframe Pose Arc", "Lock Silhouette IoU >= 0.89"],
+        "speech_p1": "A PHOTOGRAPH SHOWS ONE OBJECT. A CARTOON SPEAKS UNIVERSALLY!",
+        "caption_p2": "WE TRACE THE ARCHIVAL MOTION ARC INTO AN ICONIC DOODLE:",
+        "diag_steps": [("television", "1. RAW VIDEO"), ("pencil", "2. MOTION ARC"), ("train", "3. ICONIC TRAIN")],
+        "caption_p3": "THE 4 ICONIC TRAIN KEYFRAMES PRESERVE THE EXACT TRAJECTORY:",
+        "caption_p4": "NOW THE ARCHIVAL MOTION LIVES AS A UNIVERSAL CARTOON!",
+        "blurb": "Illustrates Scott McCloud's Picture Plane triangle (Ch. 2, pp. 28-31): moving from realistic video toward iconic cartooning while preserving the authentic physical motion arc.",
+        "stages": ["Panel 1: Photo vs. Cartoon Icon", "Panel 2: Trace the Motion Arc", "Panel 3: 4 Iconic Train Keys", "Panel 4: Universal Motion"],
     },
     {
         "id": "skill-05-argo",
         "num": 15,
         "group": "skill",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "WING A4 // 7-LEVEL MULTIPLANE RIG & SPOTLIGHT CALLOUTS",
+        "wing_name": "SKILL 05 // FULL-SCREEN SEQUENCING",
         "timestamp": "09:02",
         "repo": "shreyaskarnik/argo",
         "url": "https://github.com/shreyaskarnik/argo",
-        "category": "Multiplane Camera Rig Walkthrough & Spotlight Callouts",
+        "category": "Full-Screen Sequential Projection",
         "install": "npm i -D @argo-video/cli",
-        "title": "7-Level Multiplane Camera Rig Tour & Plane Callouts",
+        "title": "Space in Comics vs. Time in Film",
         "featured_shot": "guitar",
-        "blurb": "Guides the studio camera down all 7 gouache platens of the towering Quick, Draw! Multiplane Camera Rig—spotlighting the Sky Backdrop (P6), Midground Scenery (P3), Hero Character Cel (P2), and Foreground (P0).",
-        "stages": ["Rig Top: Camera Lens Check", "Spotlight Planes P6..P3", "Zoom Callout on Hero P2", "Sync Exposure to Narration"],
+        "speech_p1": "IN COMICS, PANELS SHARE THE PAGE. IN FILM, EACH FILLS THE SCREEN!",
+        "caption_p2": "WE PROJECT ONE FULL-SCREEN BEAT AT A TIME (2.5s EACH):",
+        "diag_steps": [("flashlight", "1. SETUP BEAT"), ("eyeglasses", "2. DIAGRAM BEAT"), ("guitar", "3. FULL FINALE")],
+        "caption_p3": "FIRST YOU SEE THE 4 KEYFRAMES LAID OUT SIDE-BY-SIDE...",
+        "caption_p4": "...THEN THE FINISHED ANIMATION FILLS THE SCREEN IN TIME!",
+        "blurb": "Implements Scott McCloud's Page 14 law ('Each successive frame of a movie is projected on the SAME space — the screen!'): projecting each panel full-screen in the video while juxtaposing all 4 on the comic page.",
+        "stages": ["Panel 1: Space vs. Time (McCloud p. 14)", "Panel 2: Full-Screen Beats", "Panel 3: 4 Guitar Keyframes", "Panel 4: Full-Screen Finale"],
     },
     {
         "id": "skill-06-explainroo",
         "num": 16,
         "group": "skill",
         "studio_wing": "bg3_screening",
-        "wing_name": "WING C2 // VOICEOVER BOOTH & SUBTITLE SCREENING STAGE",
+        "wing_name": "SKILL 06 // SHOW AND TELL (CH. 6)",
         "timestamp": "09:50",
         "repo": "vincentsch/explainroo",
         "url": "https://github.com/vincentsch/explainroo",
-        "category": "Voiceover Recording Booth + Word-Timed Screening Titles",
+        "category": "Interdependent Words & Pictures",
         "install": "git clone https://github.com/vincentsch/explainroo.git",
-        "title": "Voiceover Boom Booth & Word-Timed Screening Cards",
+        "title": "Show and Tell: Words & Pictures Together",
         "featured_shot": "diamond",
-        "blurb": "Records warm studio narration under the hanging Quick, Draw! condenser microphone on the left soundstage while projecting word-accurate title cards onto the dailies projection screen on the right.",
-        "stages": ["Script 13-Stage Studio Tour", "Record at Condenser Mic", "Align Whisper Word Cues", "Project Title Cards on Screen"],
+        "speech_p1": "IN CHAPTER 6, WORDS AND PICTURES ARE PARTNERS IN A DANCE!",
+        "caption_p2": "WORDS SET THE QUESTION -> PICTURES SHOW WHAT WORDS CANNOT:",
+        "diag_steps": [("microphone", "1. SHORT CAPTION"), ("picture_frame", "2. CLEAR IMAGE"), ("diamond", "3. MEANING")],
+        "caption_p3": "NO TINY TELEMETRY NUMBERS — JUST 4 CLEAR VISUAL KEYFRAMES:",
+        "caption_p4": "THE CAPTION SETS THE STAGE; THE CARTOON DELIVERS THE MOTION!",
+        "blurb": "Applies Scott McCloud's Chapter 6 ('Show and Tell'): replacing redundant technical text tags with short, punchy captions that let the drawings do the visual heavy lifting.",
+        "stages": ["Panel 1: Partners in a Dance", "Panel 2: Words + Pictures", "Panel 3: 4 Visual Keyframes", "Panel 4: Show, Don't Clutter"],
     },
     {
         "id": "skill-07-video-director",
         "num": 17,
         "group": "skill",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "WING A5 // X-SHEET CONTINUITY & STEENBECK QA LAB",
+        "wing_name": "SKILL 07 // COMPOSITION & BALANCE",
         "timestamp": "11:20",
         "repo": "win4r/video-director",
         "url": "https://github.com/win4r/video-director",
-        "category": "Pre-Shoot X-Sheet Check + Steenbeck Post-Render QA",
+        "category": "Rule of Thirds & Visual Balance",
         "install": "git clone https://github.com/win4r/video-director.git && cp -R video-director/video-director ~/.claude/skills/",
-        "title": "Pre-Shoot X-Sheet Check & Steenbeck Loupe QA",
+        "title": "Anchoring the Hero in Clean Space",
         "featured_shot": "carrot",
-        "blurb": "Before shooting on the 7-level Multiplane Tower, the Director validates the exposure X-sheet (`check_timeline.py`), then inspects the developed film on the ground-floor Steenbeck (`qa_video.py`).",
-        "stages": ["Audit Exposure X-Sheet", "Shoot 7-Plane Multiplane", "Inspect Steenbeck Loupe", "Certify LUFS & Print Master"],
+        "speech_p1": "GOOD COMPOSITION MEANS AMPLE BREATHING ROOM AROUND THE HERO!",
+        "caption_p2": "WE ANCHOR THE SUBJECT ON THE HARMONIC GRID WITH CLEAN MARGINS:",
+        "diag_steps": [("picture_frame", "1. AMPLE MARGIN"), ("scissors", "2. TRIM CLUTTER"), ("carrot", "3. BALANCED SHOT")],
+        "caption_p3": "NOTICE THE GENEROUS CREAM PAPER SPACE AROUND ALL 4 KEYFRAMES:",
+        "caption_p4": "NEGATIVE SPACE MAKES THE CARTOON SILHOUETTE POP!",
+        "blurb": "Demonstrates why negative space (warm cream paper around the subject) is essential for readable composition across all 346 shots.",
+        "stages": ["Panel 1: The Power of Negative Space", "Panel 2: Trim the Clutter", "Panel 3: 4 Balanced Keyframes", "Panel 4: Crisp Silhouette Pop"],
     },
     {
         "id": "skill-08-earshot",
         "num": 18,
         "group": "skill",
         "studio_wing": "bg3_screening",
-        "wing_name": "WING C3 // FOLEY PIT (WOOD/GRAVEL/WATER) & JERK SYNC",
+        "wing_name": "SKILL 08 // SOUND IN THE GUTTER",
         "timestamp": "12:57",
         "repo": "Leonxlnx/earshot",
         "url": "https://github.com/Leonxlnx/earshot",
-        "category": "Foley Pit + 252-SFX Bank Synced to Worm Jerk Spikes",
+        "category": "Comic Sound Effects & Foley Sync",
         "install": "git clone https://github.com/Leonxlnx/earshot.git",
-        "title": "Live Foley Pit & 252-SFX Synced to Worm Jerk ||c'''(tau)||",
+        "title": "Seeing Sound & Hearing Motion",
         "featured_shot": "zigzag",
-        "blurb": "Whenever the 3D Spatiotemporal Worm's Kinetic Jerk ||c'''(tau)|| spikes on the screening room monitor, the ON AIR lamp flashes and our Foley Artist strikes Quick, Draw! props in the floor Foley pit!",
-        "stages": ["Track 3D Worm Jerk ||c'''||", "Flash ON AIR at Jerk Peak", "Strike Foley Pit Props", "Mix Console VU & Master"],
+        "speech_p1": "IN COMICS, A BOLD 'BANG!' OR 'WHOOSH!' LETS YOUR EYES HEAR SOUND!",
+        "caption_p2": "IN FILM, WE TRIGGER FOLEY SFX AT THE EXACT PEAK OF MOTION:",
+        "diag_steps": [("headphones", "1. PEAK TURN"), ("megaphone", "2. WHOOSH! SFX"), ("zigzag", "3. SYNCED REEL")],
+        "caption_p3": "WHEREVER THE ZIGZAG SHARPLY CHANGES DIRECTION (K2 & K3)...",
+        "caption_p4": "...EARSHOT FIRES A CRISP FOLEY ACCENT RIGHT ON THE BEAT!",
+        "blurb": "Connects comic-book onomatopoeia ('PTU!', 'BANG!', 'WHOOSH!' from McCloud pp. 5-6) to our automated Earshot Foley cues triggered at sharp turns in the motion path.",
+        "stages": ["Panel 1: Seeing Sound in Comics", "Panel 2: Peak Turn -> Foley Cue", "Panel 3: 4 Zigzag Keyframes", "Panel 4: Synced Sound & Motion"],
     },
 ]
 
 _QD_CACHE = {}
-_WORM_DATA_CACHE = None
-_SKETCH_PAIR_CACHE = {}
-
-
-def chaikin_smooth(pts: list, iterations: int = 1) -> list:
-    if len(pts) < 3:
-        return pts
-    out = [list(p) for p in pts]
-    for _ in range(iterations):
-        if len(out) < 3:
-            break
-        nxt = [out[0]]
-        for i in range(len(out) - 1):
-            p0, p1 = out[i], out[i + 1]
-            nxt.append([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]])
-            nxt.append([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]])
-        nxt.append(out[-1])
-        out = nxt
-    return out
+_SHOT_FRAMES_CACHE = {}
 
 
 def load_qd_norm(cat: str, idx: int = 0) -> list:
-    """Loads a clean, normalized `[0,1]` Quick, Draw! vector doodle from `quickdraw_samples/<cat>.json`."""
-    if cat not in _QD_CACHE:
-        p = QD_DIR / f"{cat}.json"
+    cat_clean = "giraffe" if cat == "giraffe-walks-past" else cat.replace("-", "_").strip()
+    if cat_clean not in _QD_CACHE:
+        p = QD_DIR / f"{cat_clean}.json"
         if not p.exists():
-            _QD_CACHE[cat] = []
-            return []
+            p = QD_DIR / "star.json"
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
             recs = data.get("drawings", data.get("records", [])) if isinstance(data, dict) else data
@@ -391,11 +529,11 @@ def load_qd_norm(cat: str, idx: int = 0) -> list:
                     valid.append(st)
             if not valid:
                 valid = [r.get("strokes", r.get("drawing", [])) for r in recs[:10] if r.get("strokes", r.get("drawing", []))]
-            _QD_CACHE[cat] = valid
+            _QD_CACHE[cat_clean] = valid
         except Exception:
-            _QD_CACHE[cat] = []
+            _QD_CACHE[cat_clean] = []
             return []
-    items = _QD_CACHE[cat]
+    items = _QD_CACHE[cat_clean]
     if not items:
         return []
     raw = items[idx % len(items)]
@@ -418,483 +556,499 @@ def load_qd_norm(cat: str, idx: int = 0) -> list:
     span = max(10.0, max(x1 - x0, y1 - y0))
     w_span = max(6.0, x1 - x0)
     h_span = max(6.0, y1 - y0)
+    ox = (span - w_span) * 0.5
+    oy = (span - h_span) * 0.5
     norm = []
     for s in strokes:
-        ns = [[(p[0] - x0) / w_span, (p[1] - y0) / h_span] for p in s]
-        norm.append(chaikin_smooth(ns, 1))
+        norm.append([[(px - x0 + ox) / span, (py - y0 + oy) / span] for px, py in s])
     return norm
 
 
-def draw_qd_line(canvas, p0, p1, color=COL_INK, thickness=2, boil_seed=0):
-    """Draws a hand-sketched Quick, Draw! ink line with subtle organic midpoint wobble."""
-    x0, y0 = float(p0[0]), float(p0[1])
-    x1, y1 = float(p1[0]), float(p1[1])
-    dist = math.hypot(x1 - x0, y1 - y0)
-    steps = max(2, min(14, int(dist / 28.0)))
-    pts = []
-    for i in range(steps + 1):
-        t = i / float(steps)
-        px = x0 + (x1 - x0) * t
-        py = y0 + (y1 - y0) * t
-        if 0 < i < steps:
-            jx = math.sin(i * 1.9 + boil_seed * 1.3 + x0 * 0.05) * 1.1
-            jy = math.cos(i * 2.3 + boil_seed * 1.7 + y0 * 0.05) * 1.1
-            px += jx
-            py += jy
-        pts.append([int(round(px)), int(round(py))])
-    cv2.polylines(canvas, [np.array(pts, dtype=np.int32)], False, color, thickness, cv2.LINE_AA)
-
-
-def draw_qd_card(canvas, x0, y0, x1, y1, fill_bgr=COL_SHEET, ink_bgr=COL_INK, thickness=2, shadow=True, boil_seed=0, header_bgr=None, title=""):
-    """Draws a Quick, Draw! cream paper sheet card with hard offset ink drop-shadow and hand-inked border."""
-    x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-    if shadow:
-        cv2.rectangle(canvas, (x0 + 3, y0 + 3), (x1 + 3, y1 + 3), ink_bgr, -1)
-    cv2.rectangle(canvas, (x0, y0), (x1, y1), fill_bgr, -1)
-    if header_bgr is not None:
-        cv2.rectangle(canvas, (x0, y0), (x1, y0 + 20), header_bgr, -1)
-        draw_qd_line(canvas, (x0, y0 + 20), (x1, y0 + 20), ink_bgr, 1, boil_seed)
-    draw_qd_line(canvas, (x0, y0), (x1, y0), ink_bgr, thickness, boil_seed)
-    draw_qd_line(canvas, (x1, y0), (x1, y1), ink_bgr, thickness, boil_seed + 1)
-    draw_qd_line(canvas, (x1, y1), (x0, y1), ink_bgr, thickness, boil_seed + 2)
-    draw_qd_line(canvas, (x0, y1), (x0, y0), ink_bgr, thickness, boil_seed + 3)
-    if title:
-        cv2.putText(canvas, title, (x0 + 7, y0 + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.34, COL_INK, 1, cv2.LINE_AA)
-
-
-def draw_qd_doodle(canvas, cat: str, idx: int, cx: float, cy: float, w: float, h: float,
-                   cel_bgr=COL_SHEET, ink_bgr=COL_INK, thickness: int = 2, boil_seed: int = 0, flip_x: bool = False):
-    """
-    Renders a REAL Quick, Draw! vector doodle from `quickdraw_samples/<cat>.json` at `(cx, cy, w, h)`
-    with a watertight gouache paper backing cel (so background lines never bleed through) and 4-keyframe boil.
-    """
-    norm = load_qd_norm(cat, idx)
+def draw_qd_doodle(
+    img: np.ndarray,
+    cat: str,
+    cx: float,
+    cy: float,
+    w: float,
+    h: float,
+    fill_bgr=BGR_GUTTER,
+    ink_bgr=BGR_INK,
+    thickness: int = 3,
+    boil_phase: int = 0,
+    idx: int = 0,
+):
+    norm = load_qd_norm(cat, idx=idx)
     if not norm:
         return
-    H_c, W_c = canvas.shape[:2]
-    x0 = cx - 0.5 * w
-    y0 = cy - 0.5 * h
-    strokes = []
+    rng = np.random.RandomState((hash(cat) & 0xFFFF) + boil_phase * 53)
+    x0 = cx - w * 0.5
+    y0 = cy - h * 0.5
+    scaled_strokes = []
     all_pts = []
-    for s_i, s in enumerate(norm):
+    for s in norm:
         pts = []
-        for p_i, (px, py) in enumerate(s):
-            nx = (1.0 - px) if flip_x else px
-            jx = math.sin(boil_seed * 1.6 + s_i * 1.1 + p_i * 0.7) * 0.85
-            jy = math.cos(boil_seed * 1.9 + s_i * 1.3 + p_i * 0.9) * 0.85
-            gx = int(round(np.clip(x0 + nx * w + jx, 2, W_c - 3)))
-            gy = int(round(np.clip(y0 + py * h + jy, 2, H_c - 3)))
-            pts.append([gx, gy])
-            all_pts.append([gx, gy])
+        for nx, ny in s:
+            jx = float(rng.uniform(-0.4, 0.4)) if boil_phase > 0 else 0.0
+            jy = float(rng.uniform(-0.4, 0.4)) if boil_phase > 0 else 0.0
+            px = int(round(x0 + nx * w + jx))
+            py = int(round(y0 + ny * h + jy))
+            pts.append([px, py])
+            all_pts.append([px, py])
         if len(pts) >= 2:
-            strokes.append(np.array(pts, dtype=np.int32))
-
-    if cel_bgr is not None and len(all_pts) >= 3:
-        # Tight morphological gouache backing cel so studio background lines are cleanly occluded
-        xs = [p[0] for p in all_pts]
-        ys = [p[1] for p in all_pts]
-        pad = 8
-        bx0, by0 = max(0, min(xs) - pad), max(0, min(ys) - pad)
-        bx1, by1 = min(W_c - 1, max(xs) + pad), min(H_c - 1, max(ys) + pad)
-        mw, mh = max(6, bx1 - bx0 + 1), max(6, by1 - by0 + 1)
-        mask = np.zeros((mh, mw), dtype=np.uint8)
-        for st in strokes:
-            shifted = st - np.array([[bx0, by0]], dtype=np.int32)
-            cv2.polylines(mask, [shifted], False, 255, 6, cv2.LINE_AA)
-        k_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
-        closed = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k_close)
-        cnts, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        filled = np.zeros_like(closed)
-        cv2.drawContours(filled, cnts, -1, 255, cv2.FILLED)
-        roi = canvas[by0:by0 + mh, bx0:bx0 + mw]
-        if roi.shape[:2] == filled.shape[:2]:
-            roi[filled > 0] = cel_bgr
-
-    for st in strokes:
-        cv2.polylines(canvas, [st], False, ink_bgr, thickness, cv2.LINE_AA)
+            scaled_strokes.append(np.array(pts, dtype=np.int32))
+    if not scaled_strokes:
+        return
+    if fill_bgr is not None and len(all_pts) >= 3:
+        hull = cv2.convexHull(np.array(all_pts, dtype=np.int32))
+        cv2.fillConvexPoly(img, hull + np.array([3, 3], dtype=np.int32), BGR_INK, cv2.LINE_AA)
+        cv2.fillConvexPoly(img, hull, fill_bgr, cv2.LINE_AA)
+    for arr in scaled_strokes:
+        cv2.polylines(img, [arr], False, ink_bgr, thickness, cv2.LINE_AA)
 
 
-def draw_qd_studio_wing(W: int, H: int, wing: str, boil_key: int = 0) -> np.ndarray:
-    """
-    Constructs the full-frame (W x H) Architectural Animation Studio Soundstage in the
-    100% Unified Quick, Draw! Paper & Boiling-Ink Aesthetic (`#F6EFE3` paper + real Quick, Draw! doodles).
-    """
-    canvas = np.full((H, W, 3), COL_PAPER, dtype=np.uint8)
-
-    # Subtle hand-ruled perspective drafting grid on archival paper
-    for gx in range(0, W, 48):
-        cv2.line(canvas, (gx, 36), (gx, H - 36), (214, 226, 235), 1)
-    for gy in range(36, H - 36, 36):
-        cv2.line(canvas, (0, gy), (W, gy), (214, 226, 235), 1)
-
-    if wing == "bg1_multifloor":
-        # =====================================================================
-        # WING A: 7-LEVEL MULTIPLANE CAMERA TOWER (LEFT) + 3-FLOOR STUDIO (RIGHT)
-        # =====================================================================
-        # Left Multiplane Tower Zone Wash
-        draw_qd_card(canvas, 14, 42, 246, 314, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key)
-        # Two vertical cast-iron Multiplane Tower pillars in Quick, Draw! ink
-        draw_qd_card(canvas, 28, 46, 44, 310, fill_bgr=COL_PAPER_DEEP, shadow=False, boil_seed=boil_key + 1)
-        draw_qd_card(canvas, 216, 46, 232, 310, fill_bgr=COL_PAPER_DEEP, shadow=False, boil_seed=boil_key + 2)
-        # Top Camera Mount + Real Quick, Draw! `camera` aiming down!
-        draw_qd_doodle(canvas, "camera", 0, 130, 64, 52, 34, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        # 6 Glass Multiplane Platens (P6..P1) holding real Quick, Draw! doodles!
-        platen_specs = [
-            (102, "P6 SKY", "cloud", COL_BLUE_PALE),
-            (136, "P5 FAR", "mountain", COL_PAPER),
-            (170, "P4 MID", "tree", COL_FOREST_PALE),
-            (204, "P3 PROP", "house", COL_TAG_PALE),
-            (238, "P2 HERO", "giraffe", COL_WAX_PALE),
-            (274, "P1 FORE", "bush", COL_FOREST_PALE),
-        ]
-        for p_i, (py, p_lbl, p_cat, p_col) in enumerate(platen_specs):
-            shift = int(round(math.sin(boil_key * 0.9 + p_i) * (p_i + 1) * 1.5))
-            draw_qd_card(canvas, 48 + shift, py - 11, 212 + shift, py + 11, fill_bgr=p_col, shadow=False, boil_seed=boil_key + p_i)
-            draw_qd_doodle(canvas, p_cat, p_i, 145 + shift, py, 34, 18, cel_bgr=None, thickness=1, boil_seed=boil_key + p_i)
-            cv2.putText(canvas, p_lbl, (53 + shift, py + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.28, COL_INK, 1, cv2.LINE_AA)
-
-        # Center Spiral Staircase / Ladder Column (x: 252..308)
-        draw_qd_card(canvas, 252, 42, 308, 314, fill_bgr=COL_PAPER_DEEP, shadow=True, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "stairs", 0, 280, 110, 44, 65, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "ladder", 0, 280, 235, 38, 95, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-
-        # Right 3 Cutaway Studio Floors (x: 316..626)
-        # Floor 3 (Top: Storyboard & Espresso Lounge, y: 42..152)
-        draw_qd_card(canvas, 316, 42, 626, 152, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key)
-        # Floor 2 (Middle: Animator Lightbox Bullpen, y: 158..244)
-        draw_qd_card(canvas, 316, 158, 626, 244, fill_bgr=COL_TAG_PALE, shadow=True, boil_seed=boil_key + 1)
-        draw_qd_doodle(canvas, "floor_lamp", 0, 338, 198, 28, 52, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "table", 0, 405, 212, 58, 36, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "chair", 0, 368, 214, 28, 36, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        # Floor 1 (Bottom: 35mm Steenbeck Archive Vault, y: 250..314)
-        draw_qd_card(canvas, 316, 250, 626, 314, fill_bgr=COL_BLUE_PALE, shadow=True, boil_seed=boil_key + 2)
-        for bx in [342, 388, 555, 598]:
-            draw_qd_doodle(canvas, "book", bx % 3, bx, 282, 34, 34, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "television", 0, 472, 282, 48, 42, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "coffee_cup", 0, 518, 288, 26, 24, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-
-    elif wing in ("bg5_bullpen", "bg2_occupied"):
-        # =====================================================================
-        # WING B: QUICK, DRAW! ISOMETRIC ANIMATOR BULLPEN & ARMATURE WALL
-        # =====================================================================
-        # Isometric studio walls & wooden plank floor lines in Quick, Draw! ink
-        draw_qd_card(canvas, 14, 42, 626, 314, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key)
-        # Left Studio Window Wall with Quick, Draw! `window`, `clock`, `cat`, `floor_lamp`, `coffee_cup`
-        draw_qd_card(canvas, 22, 48, 336, 168, fill_bgr=COL_TAG_PALE, shadow=False, boil_seed=boil_key, title="BULLPEN STORYBOARD & MODEL SHEETS")
-        # Pinned Quick, Draw! storyboard frames connected by Bouleau's 14-line golden armature!
-        for px, py, pcat in [(58, 96, "picture_frame"), (125, 96, "giraffe"), (192, 96, "train"), (260, 96, "lighthouse"), (88, 138, "bicycle"), (165, 138, "guitar"), (245, 138, "star")]:
-            draw_qd_card(canvas, px - 26, py - 18, px + 26, py + 18, fill_bgr=COL_SHEET, shadow=False, boil_seed=boil_key)
-            draw_qd_doodle(canvas, pcat, 0, px, py, 36, 26, cel_bgr=None, thickness=1, boil_seed=boil_key)
-        # Golden Bouleau armature diagonals across the storyboard corkboard
-        draw_qd_line(canvas, (28, 66), (330, 162), COL_TAG, 2, boil_key)
-        draw_qd_line(canvas, (28, 162), (330, 66), COL_TAG, 2, boil_key + 1)
-
-        # Drafting Desks, Lamps, Chairs, Paintbrush & Coffee Cups on the Bullpen Floor (y: 174..308)
-        draw_qd_doodle(canvas, "floor_lamp", 0, 48, 228, 42, 72, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "table", 0, 175, 248, 110, 64, cel_bgr=COL_PAPER_DEEP, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "chair", 0, 102, 258, 44, 54, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "table", 1, 335, 262, 110, 64, cel_bgr=COL_PAPER_DEEP, thickness=2, boil_seed=boil_key + 1)
-        draw_qd_doodle(canvas, "chair", 1, 262, 268, 44, 54, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key + 1)
-        draw_qd_doodle(canvas, "coffee_cup", 0, 238, 208, 30, 26, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "paintbrush", 0, 82, 195, 34, 32, cel_bgr=COL_WAX_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "cat", 0, 48, 290, 42, 32, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-
-    elif wing == "bg3_screening":
-        # =====================================================================
-        # WING C: QUICK, DRAW! FOLEY SOUNDSTAGE PIT (LEFT) & SCREENING ROOM (RIGHT)
-        # =====================================================================
-        # Left Half: Foley Recording Stage (x: 14..368, y: 42..314)
-        draw_qd_card(canvas, 14, 42, 368, 314, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key)
-        # Acoustic Quick, Draw! baffle panels along top wall
-        for bx in range(155, 355, 48):
-            draw_qd_card(canvas, bx, 48, bx + 38, 82, fill_bgr=COL_PAPER_DEEP, shadow=False, boil_seed=boil_key + bx)
-        # Hanging Boom Microphone & Headphones
-        draw_qd_line(canvas, (22, 96), (185, 76), COL_INK, 3, boil_key)
-        draw_qd_doodle(canvas, "microphone", 0, 185, 112, 36, 48, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        # Foley Prop Table with Quick, Draw! `shoe`, `alarm_clock`, `teapot`, `megaphone`
-        draw_qd_doodle(canvas, "table", 0, 190, 196, 145, 58, cel_bgr=COL_PAPER_DEEP, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "shoe", 0, 142, 174, 34, 24, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "teapot", 0, 190, 172, 34, 26, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "alarm_clock", 0, 238, 172, 30, 28, cel_bgr=COL_WAX_PALE, thickness=2, boil_seed=boil_key)
-        # Mixing Console (`stereo` / `radio`)
-        draw_qd_doodle(canvas, "stereo", 0, 318, 206, 68, 48, cel_bgr=COL_BLUE_PALE, thickness=2, boil_seed=boil_key)
-        # 3-Surface Floor Foley Pit (WOOD / GRAVEL / WATER)
-        pit_specs = [(32, 112, COL_TAG_PALE, "WOOD PIT"), (118, 198, COL_PAPER_DEEP, "GRAVEL PIT"), (204, 284, COL_BLUE_PALE, "WATER PIT")]
-        for px0, px1, pcol, plbl in pit_specs:
-            draw_qd_card(canvas, px0, 258, px1, 308, fill_bgr=pcol, shadow=False, boil_seed=boil_key)
-            cv2.putText(canvas, plbl, (px0 + 8, 302), cv2.FONT_HERSHEY_SIMPLEX, 0.28, COL_INK, 1, cv2.LINE_AA)
-
-        # Right Half: 35mm Dailies Screening Theatre (x: 376..626, y: 42..314)
-        draw_qd_card(canvas, 376, 42, 626, 314, fill_bgr=COL_PAPER_DEEP, shadow=True, boil_seed=boil_key + 1)
-        # Quick, Draw! `camera` Projector on pedestal + Row of 4 Quick, Draw! Director `chair`s
-        draw_qd_doodle(canvas, "camera", 1, 398, 128, 42, 34, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        for cx_chair in [418, 472, 526, 580]:
-            draw_qd_doodle(canvas, "chair", 0, cx_chair, 272, 42, 52, cel_bgr=COL_WAX_PALE, thickness=2, boil_seed=boil_key, flip_x=True)
-
-    else:
-        # =====================================================================
-        # WING D: QUICK, DRAW! CLOCKTOWER OPTICAL PRINTER & 3D WORM ATELIER
-        # =====================================================================
-        draw_qd_card(canvas, 14, 42, 626, 314, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key)
-        # Left: Twin-Reel Optical Printer (`clock`/`wheel` reels + `camera` + `scissors` + `film`)
-        draw_qd_card(canvas, 24, 52, 256, 222, fill_bgr=COL_TAG_PALE, shadow=False, boil_seed=boil_key, title="TWIN-REEL OPTICAL PRINTER")
-        draw_qd_doodle(canvas, "wheel", 0, 82, 112, 62, 62, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "wheel", 1, 182, 112, 62, 62, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key + 1)
-        draw_qd_doodle(canvas, "camera", 0, 132, 178, 58, 42, cel_bgr=COL_BLUE_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "scissors", 0, 52, 185, 36, 32, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-
-        # Center: 55-Minute Prompt-Cache Clocktower (`clock`, `hourglass`, `alarm_clock`, `paintbrush` shelves)
-        draw_qd_card(canvas, 266, 52, 424, 306, fill_bgr=COL_PAPER_DEEP, shadow=False, boil_seed=boil_key, title="55-MIN CACHE CLOCKTOWER")
-        draw_qd_doodle(canvas, "clock", 0, 345, 118, 78, 78, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "hourglass", 0, 305, 198, 42, 52, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "alarm_clock", 0, 382, 198, 44, 48, cel_bgr=COL_WAX_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "paintbrush", 0, 298, 268, 38, 38, cel_bgr=COL_FOREST_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "crayon", 0, 388, 268, 38, 38, cel_bgr=COL_BLUE_PALE, thickness=2, boil_seed=boil_key)
-
-        # Right: 3D Spatiotemporal Worm Pedestal flanked by Quick, Draw! `floor_lamp` & `light_bulb`
-        draw_qd_doodle(canvas, "light_bulb", 0, 505, 68, 34, 38, cel_bgr=COL_TAG_PALE, thickness=2, boil_seed=boil_key)
-        draw_qd_doodle(canvas, "floor_lamp", 0, 602, 245, 36, 78, cel_bgr=COL_SHEET, thickness=2, boil_seed=boil_key)
-
-    return canvas
-
-
-def archival_to_quickdraw_sketch(arch_bgr: np.ndarray) -> np.ndarray:
-    """
-    Converts a raw photographic archival frame into the Unified Quick, Draw! Blueprint & Graphite
-    Sketch aesthetic on `#F6EFE3` cream paper (preserving the SAM tracker box in forest green ink).
-    """
-    h, w = arch_bgr.shape[:2]
-    gray = cv2.cvtColor(arch_bgr, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (3, 3), 0)
-    edges = cv2.Canny(blur, 45, 125)
-    adapt = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 4)
-    ink_mask = cv2.bitwise_or(edges, adapt)
-
-    # Start with warm archival paper (#F6EFE3) + subtle tonal paper wash from source luminance
-    out = np.full((h, w, 3), COL_PAPER, dtype=np.uint8)
-    dark_tone = (gray < 115)
-    out[dark_tone] = COL_PAPER_DEEP
-    out[ink_mask > 0] = COL_INK_SOFT
-
-    # Preserve green SAM bounding box from comparison.mp4 in crisp forest green ink
-    b, g, r = arch_bgr[:, :, 0], arch_bgr[:, :, 1], arch_bgr[:, :, 2]
-    green_box = (g > 150) & (g > r + 40) & (g > b + 40)
-    out[green_box] = COL_FOREST
-    return out
-
-
-def get_worm_record(slug: str) -> dict:
-    """Loads the 3D Spatiotemporal Worm record for `slug` from data/spatiotemporal_worms_346.json."""
-    global _WORM_DATA_CACHE
-    if _WORM_DATA_CACHE is None:
-        wpath = DATA_DIR / "spatiotemporal_worms_346.json"
-        if wpath.exists():
-            try:
-                raw = json.loads(wpath.read_text())
-                _WORM_DATA_CACHE = {s["slug"]: s for s in raw.get("shots", [])}
-            except Exception:
-                _WORM_DATA_CACHE = {}
-        else:
-            _WORM_DATA_CACHE = {}
-    return _WORM_DATA_CACHE.get(slug, {})
-
-
-def load_shot_pair(slug: str, frame_idx: int):
-    """Loads (quickdraw_archival_sketch, cartoon_frame) at frame_idx from shots/<slug>/comparison.mp4."""
-    key = (slug, frame_idx % 33)
-    if key in _SKETCH_PAIR_CACHE:
-        return _SKETCH_PAIR_CACHE[key]
+def load_shot_frames(slug: str):
+    """Loads 33 archival pencil sketches and 33 Quick, Draw! cartoon frames with old HUD bars cleanly cropped out."""
+    if slug in _SHOT_FRAMES_CACHE:
+        return _SHOT_FRAMES_CACHE[slug]
     comp_path = SHOTS_DIR / slug / "comparison.mp4"
+    arch_sketches, cart_frames = [], []
     if comp_path.exists():
         cap = cv2.VideoCapture(str(comp_path))
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx % 33)
-        ok, fr = cap.read()
+        while len(cart_frames) < 33:
+            ok, fr = cap.read()
+            if not ok:
+                break
+            fh, fw = fr.shape[:2]
+            half_w = fw // 2
+            # Crop top 22px and bottom 24px so old baked-in HUD bars in comparison.mp4 are 100% gone!
+            y_top = min(22, fh // 8)
+            y_bot = max(y_top + 40, fh - 24)
+            crop_a = fr[y_top:y_bot, 4:half_w - 4]
+            crop_c = fr[y_top:y_bot, half_w + 4:fw - 4]
+            raw_a = cv2.resize(crop_a, (480, 320), interpolation=cv2.INTER_AREA)
+            raw_c = cv2.resize(crop_c, (480, 320), interpolation=cv2.INTER_AREA)
+
+            gray = cv2.cvtColor(raw_a, cv2.COLOR_BGR2GRAY)
+            blur = cv2.GaussianBlur(gray, (3, 3), 0)
+            edges = cv2.Canny(blur, 45, 125)
+            adapt = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 5)
+            ink = cv2.bitwise_or(edges, adapt)
+            sk = np.full((320, 480, 3), BGR_PAPER, dtype=np.uint8)
+            sk[blur < 115] = BGR_PAPER_DARK
+            sk[ink > 0] = BGR_INK
+            arch_sketches.append(sk)
+            cart_frames.append(raw_c)
         cap.release()
-        if ok and fr is not None:
-            h, w = fr.shape[:2]
-            arch_raw = fr[:, :w // 2]
-            cart_raw = fr[:, w // 2:]
-            arch_qd = archival_to_quickdraw_sketch(arch_raw)
-            _SKETCH_PAIR_CACHE[key] = (arch_qd, cart_raw)
-            return arch_qd, cart_raw
-    f = np.full((240, 320, 3), COL_SHEET, dtype=np.uint8)
-    return f, f
+    if not cart_frames:
+        blank = np.full((320, 480, 3), BGR_PAPER, dtype=np.uint8)
+        draw_qd_doodle(blank, slug, 240, 160, 180, 180, fill_bgr=BGR_AMBER_PALE, thickness=4)
+        arch_sketches = [blank.copy() for _ in range(33)]
+        cart_frames = [blank.copy() for _ in range(33)]
+    while len(cart_frames) < 33:
+        arch_sketches.append(arch_sketches[-1])
+        cart_frames.append(cart_frames[-1])
+    _SHOT_FRAMES_CACHE[slug] = (arch_sketches, cart_frames)
+    return arch_sketches, cart_frames
 
 
-def load_shot_keyframe_strip(slug: str):
-    """Loads the 4-keyframe sheet or design.png for `slug` so we can project it on the animator's lightbox."""
-    for name in ["selected-keys.png", "design.png", "stage_3_keyframes.png"]:
-        p = SHOTS_DIR / slug / name
-        if p.exists():
-            img = cv2.imread(str(p))
-            if img is not None:
-                return img
-    return None
+def draw_mccloud_presenter(img: np.ndarray, cx: int, cy: int, scale: float = 1.0, pose: int = 0, dark_bg: bool = False):
+    """Draws our iconic Scott McCloud-style Cartoon Narrator (round white glasses, plaid blazer, lightning tee)."""
+    def S(val):
+        return int(round(val * scale))
+
+    tx0, tx1 = cx - S(52), cx + S(52)
+    ty0, ty1 = cy + S(28), cy + S(115)
+    torso_pts = np.array([
+        [cx - S(40), ty0],
+        [cx + S(40), ty0],
+        [tx1, ty1],
+        [tx0, ty1],
+    ], dtype=np.int32)
+    cv2.fillConvexPoly(img, torso_pts, BGR_BLUE, cv2.LINE_AA)
+    cv2.polylines(img, [torso_pts], True, BGR_INK if not dark_bg else BGR_GUTTER, 3, cv2.LINE_AA)
+
+    for gx in range(cx - S(42), cx + S(44), max(8, S(14))):
+        cv2.line(img, (gx, ty0 + S(4)), (gx, ty1 - S(2)), BGR_INK, 2, cv2.LINE_AA)
+    for gy in range(ty0 + S(14), ty1, max(8, S(16))):
+        cv2.line(img, (tx0 + S(6), gy), (tx1 - S(6), gy), BGR_INK, 2, cv2.LINE_AA)
+
+    shirt_pts = np.array([
+        [cx - S(16), ty0],
+        [cx + S(16), ty0],
+        [cx + S(11), ty1],
+        [cx - S(11), ty1],
+    ], dtype=np.int32)
+    cv2.fillConvexPoly(img, shirt_pts, BGR_RED, cv2.LINE_AA)
+    cv2.polylines(img, [shirt_pts], True, BGR_INK, 2, cv2.LINE_AA)
+    bolt_pts = np.array([
+        [cx - S(6), ty0 + S(20)],
+        [cx + S(8), ty0 + S(32)],
+        [cx - S(2), ty0 + S(38)],
+        [cx + S(9), ty0 + S(54)],
+    ], dtype=np.int32)
+    cv2.polylines(img, [bolt_pts], False, BGR_AMBER, 3, cv2.LINE_AA)
+
+    arm_lift = S(-10) if (pose % 2 == 1) else 0
+    hx = cx + S(68)
+    hy = cy + S(34) + arm_lift
+    cv2.line(img, (cx + S(38), ty0 + S(20)), (hx, hy), BGR_BLUE, max(8, S(13)), cv2.LINE_AA)
+    cv2.line(img, (cx + S(38), ty0 + S(20)), (hx, hy), BGR_INK if not dark_bg else BGR_GUTTER, 3, cv2.LINE_AA)
+    cv2.circle(img, (hx + S(5), hy - S(3)), S(10), BGR_GUTTER, -1, cv2.LINE_AA)
+    cv2.circle(img, (hx + S(5), hy - S(3)), S(10), BGR_INK, 2, cv2.LINE_AA)
+
+    cv2.rectangle(img, (cx - S(10), cy + S(15)), (cx + S(10), cy + S(30)), BGR_GUTTER, -1)
+    cv2.rectangle(img, (cx - S(10), cy + S(15)), (cx + S(10), cy + S(30)), BGR_INK, 2)
+
+    cv2.ellipse(img, (cx, cy - S(6)), (S(29), S(34)), 0, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
+    cv2.ellipse(img, (cx, cy - S(6)), (S(29), S(34)), 0, 0, 360, BGR_INK, 3, cv2.LINE_AA)
+
+    hair_pts = np.array([
+        [cx - S(30), cy - S(8)],
+        [cx - S(28), cy - S(32)],
+        [cx - S(8), cy - S(43)],
+        [cx + S(15), cy - S(42)],
+        [cx + S(31), cy - S(28)],
+        [cx + S(30), cy - S(8)],
+        [cx + S(19), cy - S(19)],
+        [cx + S(2), cy - S(16)],
+        [cx - S(14), cy - S(24)],
+    ], dtype=np.int32)
+    cv2.fillPoly(img, [hair_pts], BGR_INK, cv2.LINE_AA)
+    if dark_bg:
+        cv2.polylines(img, [hair_pts], True, BGR_GUTTER, 1, cv2.LINE_AA)
+
+    lx, rx = cx - S(11), cx + S(13)
+    gy = cy - S(6)
+    gr = S(11)
+    cv2.circle(img, (lx, gy), gr, (255, 255, 255), -1, cv2.LINE_AA)
+    cv2.circle(img, (rx, gy), gr, (255, 255, 255), -1, cv2.LINE_AA)
+    cv2.circle(img, (lx, gy), gr, BGR_INK, 3, cv2.LINE_AA)
+    cv2.circle(img, (rx, gy), gr, BGR_INK, 3, cv2.LINE_AA)
+    cv2.line(img, (lx + gr, gy), (rx - gr, gy), BGR_INK, 3, cv2.LINE_AA)
+    cv2.line(img, (cx - S(29), gy - S(2)), (lx - gr, gy), BGR_INK, 3, cv2.LINE_AA)
+
+    brow_y = gy - gr - S(5)
+    cv2.line(img, (lx - S(8), brow_y + S(2)), (lx + S(7), brow_y - S(2)), BGR_INK, 2, cv2.LINE_AA)
+    cv2.line(img, (rx - S(7), brow_y - S(2)), (rx + S(8), brow_y + S(2)), BGR_INK, 2, cv2.LINE_AA)
+
+    nose_pts = np.array([[cx + S(1), gy + S(3)], [cx + S(7), gy + S(11)], [cx + S(1), gy + S(13)]], dtype=np.int32)
+    cv2.polylines(img, [nose_pts], False, BGR_INK, 2, cv2.LINE_AA)
+    if pose % 2 == 0:
+        cv2.ellipse(img, (cx + S(1), cy + S(16)), (S(8), S(5)), 0, 0, 180, BGR_INK, -1, cv2.LINE_AA)
+    else:
+        cv2.ellipse(img, (cx + S(1), cy + S(16)), (S(7), S(3)), 0, 0, 180, BGR_INK, 2, cv2.LINE_AA)
 
 
-def draw_animator_lightbox_disc(canvas, cx, cy, radius, slug, f_idx, label="LIGHTBOX"):
-    """Draws a circular Quick, Draw! animator lightbox disc on `#FFFBF4` paper with peg bar & live onion-skin keyframe."""
-    boil = (f_idx // 2) % 4
-    # Offset ink drop-shadow + outer wooden rim in amber tag wash
-    cv2.circle(canvas, (cx + 3, cy + 3), radius + 5, COL_INK, -1, cv2.LINE_AA)
-    cv2.circle(canvas, (cx, cy), radius + 5, COL_TAG_PALE, -1, cv2.LINE_AA)
-    cv2.circle(canvas, (cx, cy), radius + 5, COL_INK, 2, cv2.LINE_AA)
-    cv2.circle(canvas, (cx, cy), radius, COL_SHEET, -1, cv2.LINE_AA)
-
-    kf_img = load_shot_keyframe_strip(slug)
-    if kf_img is not None:
-        kh, kw = kf_img.shape[:2]
-        k_idx = (f_idx // 4) % 4
-        if kw >= kh * 2:
-            cw = kw // 4
-            crop = kf_img[:, k_idx * cw:(k_idx + 1) * cw]
-        else:
-            crop = kf_img
-        d = radius * 2 - 6
-        if d > 12 and crop.size > 0:
-            thumb = cv2.resize(crop, (d, d), interpolation=cv2.INTER_AREA)
-            y0, x0 = cy - d // 2, cx - d // 2
-            roi = canvas[max(0, y0):min(canvas.shape[0], y0 + d), max(0, x0):min(canvas.shape[1], x0 + d)]
-            if roi.shape[:2] == (d, d):
-                mask = np.zeros((d, d), dtype=np.uint8)
-                cv2.circle(mask, (d // 2, d // 2), d // 2 - 2, 255, -1)
-                blended = cv2.addWeighted(roi, 0.15, thumb, 0.85, 0)
-                roi[mask > 0] = blended[mask > 0]
-
-    cv2.circle(canvas, (cx, cy), radius, COL_INK, 2, cv2.LINE_AA)
-    # Brass registration peg bar at top of lightbox disc
-    draw_qd_card(canvas, cx - int(radius * 0.65), cy - radius - 4, cx + int(radius * 0.65), cy - radius + 4,
-                 fill_bgr=COL_TAG, shadow=False, boil_seed=boil)
-    for px in [-int(radius * 0.4), 0, int(radius * 0.4)]:
-        cv2.circle(canvas, (cx + px, cy - radius), 2, COL_INK, -1)
-
-    # Real Quick, Draw! `pencil` / `paintbrush` actively sketching across the lightbox!
-    pen_x = cx + int(round(math.cos(f_idx * 0.45) * (radius * 0.35)))
-    pen_y = cy + int(round(math.sin(f_idx * 0.65) * (radius * 0.30)))
-    draw_qd_doodle(canvas, "pencil", 0, pen_x + 10, pen_y - 10, 24, 24, cel_bgr=None, ink_bgr=COL_WAX, thickness=2, boil_seed=boil)
-
-    if label:
-        draw_qd_card(canvas, cx - radius, cy + radius - 10, cx + radius, cy + radius + 5, fill_bgr=COL_SHEET, shadow=False, boil_seed=boil)
-        cv2.putText(canvas, label, (cx - radius + 4, cy + radius + 1), cv2.FONT_HERSHEY_SIMPLEX, 0.28, COL_INK, 1, cv2.LINE_AA)
-
-
-def draw_studio_crew_member(canvas, x, y, agent, frame_idx=0, scale=0.95, bubble_text=""):
+def draw_panel1_studio_environment(canvas: np.ndarray, spec: dict, boil_phase: int = 0):
     """
-    Draws a 100% Quick, Draw! Doodle Studio Crew Member (constructed from real Quick, Draw! `smiley_face`,
-    `crown`/`hat`/`headphones`/`eyeglasses`, hand-inked boiling doodle smock, scissoring legs, and Quick, Draw! prop).
+    Draws a rich, uncluttered Scott McCloud studio environment on the right side of Panel 1 (x: 430..920, y: 190..505)
+    modeled directly on *Understanding Comics*:
+      - `bg1_multifloor`: 3-Plane Multiplane Camera Tower (Sky / Midground / Hero glass platens)
+      - `bg5_bullpen` / `bg2_occupied`: Tilted Animation Drafting Table & Swing-Arm Lamp (McCloud p. 9, Panel 1)
+      - `bg3_screening`: 35mm Dailies Film Projector & Theater Screen (McCloud p. 14, Panel 7)
+      - `bg4_clocktower`: Sequential Gallery Wall & 55-Minute Studio Clock (McCloud p. 15 & p. 24)
     """
-    boil = (frame_idx // 2) % 4
-    bob = int(round(math.sin(frame_idx * 0.55 + x * 0.04) * 2.5 * scale))
-    cy = y + bob
+    wing = spec["studio_wing"]
+    slug = spec["featured_shot"]
 
-    # Hand-inked floor shadow loop
-    cv2.ellipse(canvas, (x, y + int(23 * scale)), (int(12 * scale), int(4 * scale)), 0, 0, 360, COL_PAPER_DEEP, -1, cv2.LINE_AA)
-    cv2.ellipse(canvas, (x, y + int(23 * scale)), (int(12 * scale), int(4 * scale)), 0, 0, 360, COL_INK, 1, cv2.LINE_AA)
+    if wing == "bg1_multifloor":
+        # 3-Tier Multiplane Camera Stand (x: 500..880, y: 195..500)
+        cv2.line(canvas, (520, 200), (520, 505), BGR_INK, 6, cv2.LINE_AA)
+        cv2.line(canvas, (860, 200), (860, 505), BGR_INK, 6, cv2.LINE_AA)
+        # Top Camera Unit pointing down
+        draw_qd_doodle(canvas, "camera", 690, 222, 74, 54, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
+        # 3 Separated Horizontal Glass Planes (`P2 HERO`, `P4 MID`, `P6 SKY`)
+        plane_specs = [
+            (295, BGR_CORAL_PALE, slug, "HERO PLANE (1.0x)"),
+            (375, BGR_MINT_PALE, "tree", "MID PLANE (0.5x)"),
+            (455, BGR_BLUE_PALE, "cloud", "SKY PLANE (0.2x)"),
+        ]
+        for py, pcol, pcat, _ in plane_specs:
+            pts = np.array([[505, py + 12], [545, py - 14], [875, py - 14], [835, py + 12]], dtype=np.int32)
+            cv2.fillConvexPoly(canvas, pts + np.array([3, 3]), BGR_INK, cv2.LINE_AA)
+            cv2.fillConvexPoly(canvas, pts, pcol, cv2.LINE_AA)
+            cv2.polylines(canvas, [pts], True, BGR_INK, 3, cv2.LINE_AA)
+            draw_qd_doodle(canvas, pcat, 690, py - 4, 58, 44, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
 
-    # Walking Quick, Draw! legs
-    stride = int(round(math.sin(frame_idx * 0.65 + y * 0.05) * 6.5 * scale))
-    draw_qd_line(canvas, (x - int(4 * scale), cy + int(10 * scale)), (x - int(4 * scale) - stride, y + int(22 * scale)), COL_INK, 2, boil)
-    draw_qd_line(canvas, (x + int(4 * scale), cy + int(10 * scale)), (x + int(4 * scale) + stride, y + int(22 * scale)), COL_INK, 2, boil + 1)
+    elif wing in ("bg5_bullpen", "bg2_occupied"):
+        # Scott's Tilted Animation Drafting Table & Architect Lamp (McCloud p. 9, Panel 1!)
+        # Back Storyboard Card Frame on wall
+        cv2.rectangle(canvas, (565, 198), (885, 312), BGR_INK, -1)
+        cv2.rectangle(canvas, (560, 193), (880, 307), BGR_PAPER_DARK, -1)
+        cv2.rectangle(canvas, (560, 193), (880, 307), BGR_INK, 3)
+        for ci, ccat in enumerate(["picture_frame", slug, "star"]):
+            cx_c = 618 + ci * 102
+            cv2.rectangle(canvas, (cx_c - 40, 206), (cx_c + 40, 294), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (cx_c - 40, 206), (cx_c + 40, 294), BGR_INK, 2)
+            draw_qd_doodle(canvas, ccat, cx_c, 250, 56, 56, fill_bgr=BGR_AMBER_PALE, thickness=2, boil_phase=boil_phase)
 
-    # Quick, Draw! doodle smock torso (gouache cel + boiling ink outline)
-    draw_qd_card(canvas, x - int(10 * scale), cy - int(2 * scale), x + int(10 * scale), cy + int(12 * scale),
-                 fill_bgr=agent["color"], shadow=False, boil_seed=boil)
+        # Tilted Drafting Desk surface + glowing circular animation lightbox disc
+        desk_pts = np.array([[475, 425], [840, 355], [900, 445], [535, 505]], dtype=np.int32)
+        cv2.fillConvexPoly(canvas, desk_pts + np.array([4, 4]), BGR_INK, cv2.LINE_AA)
+        cv2.fillConvexPoly(canvas, desk_pts, BGR_AMBER_PALE, cv2.LINE_AA)
+        cv2.polylines(canvas, [desk_pts], True, BGR_INK, 4, cv2.LINE_AA)
+        cv2.ellipse(canvas, (690, 428), (78, 42), -10, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (690, 428), (78, 42), -10, 0, 360, BGR_INK, 3, cv2.LINE_AA)
+        draw_qd_doodle(canvas, slug, 690, 426, 86, 64, fill_bgr=None, thickness=3, boil_phase=boil_phase)
 
-    # Real Quick, Draw! `smiley_face` head!
-    draw_qd_doodle(canvas, "smiley_face", 0, x, cy - int(11 * scale), int(21 * scale), int(21 * scale),
-                   cel_bgr=COL_SHEET, ink_bgr=COL_INK, thickness=2, boil_seed=boil)
+    elif wing == "bg3_screening":
+        # McCloud Page 14 Panel 7: 35mm Film Projector on table casting light beam onto Theater Screen!
+        # Projector Reels & Body (x: 470..590, y: 310..480)
+        cv2.circle(canvas, (495, 335), 28, BGR_PAPER_DARK, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (495, 335), 28, BGR_INK, 3, cv2.LINE_AA)
+        cv2.circle(canvas, (555, 335), 28, BGR_PAPER_DARK, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (555, 335), 28, BGR_INK, 3, cv2.LINE_AA)
+        cv2.rectangle(canvas, (485, 365), (568, 435), BGR_BLUE_PALE, -1)
+        cv2.rectangle(canvas, (485, 365), (568, 435), BGR_INK, 3)
+        # Golden projection beam cone
+        beam_pts = np.array([[570, 385], [890, 220], [890, 475], [570, 405]], dtype=np.int32)
+        cv2.fillConvexPoly(canvas, beam_pts, BGR_AMBER_PALE, cv2.LINE_AA)
+        cv2.line(canvas, (570, 385), (890, 220), BGR_INK, 2, cv2.LINE_AA)
+        cv2.line(canvas, (570, 405), (890, 475), BGR_INK, 2, cv2.LINE_AA)
+        # Projection Screen on right (x: 685..905, y: 215..475)
+        cv2.rectangle(canvas, (690, 220), (905, 475), BGR_INK, -1)
+        cv2.rectangle(canvas, (684, 214), (899, 469), BGR_GUTTER, -1)
+        cv2.rectangle(canvas, (684, 214), (899, 469), BGR_INK, 4)
+        draw_qd_doodle(canvas, slug, 792, 342, 145, 145, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
 
-    # Real Quick, Draw! Hat / Crown / Headphones / Eyeglasses on top!
-    hat_cat = agent.get("hat_qd", "hat")
-    draw_qd_doodle(canvas, hat_cat, 0, x, cy - int(22 * scale), int(22 * scale), int(13 * scale),
-                   cel_bgr=agent["color"], ink_bgr=COL_INK, thickness=1, boil_seed=boil)
-
-    # Real Quick, Draw! Prop (`megaphone`, `paintbrush`, `camera`, `microphone`, `book`) in hand!
-    prop_cat = agent.get("prop_qd", "paintbrush")
-    draw_qd_doodle(canvas, prop_cat, 0, x + int(17 * scale), cy + int(2 * scale), int(18 * scale), int(18 * scale),
-                   cel_bgr=COL_SHEET, ink_bgr=COL_INK, thickness=1, boil_seed=boil)
-
-    # Cream paper nameplate badge under feet
-    name_w = len(agent["name"]) * 5 + 10
-    draw_qd_card(canvas, x - name_w // 2, y + int(24 * scale), x + name_w // 2, y + int(37 * scale),
-                 fill_bgr=COL_SHEET, shadow=False, boil_seed=boil)
-    cv2.putText(canvas, agent["name"], (x - name_w // 2 + 4, y + int(33 * scale)), cv2.FONT_HERSHEY_SIMPLEX, 0.28, COL_INK, 1, cv2.LINE_AA)
-
-    if bubble_text:
-        bw = min(152, max(76, len(bubble_text) * 5 + 12))
-        bx0 = max(6, min(canvas.shape[1] - bw - 6, x - bw // 2))
-        by0 = max(40, cy - int(42 * scale))
-        draw_qd_card(canvas, bx0, by0, bx0 + bw, by0 + 16, fill_bgr=COL_TAG_PALE, shadow=True, boil_seed=boil)
-        cv2.putText(canvas, bubble_text[:26], (bx0 + 5, by0 + 12), cv2.FONT_HERSHEY_SIMPLEX, 0.29, COL_INK, 1, cv2.LINE_AA)
-
-
-def draw_3d_worm_prism_widget(canvas, x0, y0, x1, y1, slug, f_idx, title="3D WORM PRISM"):
-    """Renders the shot's real 3D Spatiotemporal Worm inside a Quick, Draw! cream paper & ink isometric prism card."""
-    boil = (f_idx // 2) % 4
-    draw_qd_card(canvas, x0, y0, x1, y1, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil, header_bgr=COL_BLUE_PALE)
-
-    pw, ph = x1 - x0, y1 - y0
-    # Hand-sketched Bouleau 14-Line Armature & Rule of Thirds in soft drafting rule ink
-    draw_qd_line(canvas, (x0 + 8, y0 + 22), (x1 - 8, y1 - 14), COL_RULE, 1, boil)
-    draw_qd_line(canvas, (x0 + 8, y1 - 14), (x1 - 8, y0 + 22), COL_RULE, 1, boil + 1)
-    for frac in (0.333, 0.667):
-        gx = x0 + int(pw * frac)
-        draw_qd_line(canvas, (gx, y0 + 22), (gx, y1 - 14), COL_RULE, 1, boil)
-
-    wrec = get_worm_record(slug)
-    traj = wrec.get("trajectory", [])
-    raw_topo = wrec.get("topology", "helical_corkscrew")
-    topo = raw_topo.get("class", "helical_corkscrew") if isinstance(raw_topo, dict) else str(raw_topo)
-    pts = []
-    for t_i in range(33):
-        tx = x0 + 10 + int(round((t_i / 32.0) * (pw - 20)))
-        if t_i < len(traj):
-            u_val = float(traj[t_i].get("u", 0.5))
-            v_val = float(traj[t_i].get("v", 0.5))
-            ty = y0 + 24 + int(round((0.5 * v_val + 0.5 * (1.0 - u_val)) * (ph - 40)))
-        else:
-            ty = (y0 + y1) // 2 + int(round(math.sin(t_i * 0.35) * (ph * 0.22)))
-        pts.append([tx, max(y0 + 22, min(y1 - 16, ty))])
-
-    pts_arr = np.array(pts, dtype=np.int32)
-    # Quick, Draw! gouache amber ribbon + crisp black ink centerline
-    cv2.polylines(canvas, [pts_arr], False, COL_TAG, 5, cv2.LINE_AA)
-    cv2.polylines(canvas, [pts_arr], False, COL_INK, 2, cv2.LINE_AA)
-
-    cur_t = f_idx % 33
-    cx, cy = pts[cur_t]
-    draw_qd_line(canvas, (cx, y0 + 22), (cx, y1 - 14), COL_WAX, 1, boil)
-    cv2.circle(canvas, (cx, cy), 5, COL_WAX, -1, cv2.LINE_AA)
-    cv2.circle(canvas, (cx, cy), 5, COL_INK, 2, cv2.LINE_AA)
-
-    cv2.putText(canvas, f"{title}: {topo[:18]}", (x0 + 6, y0 + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.29, COL_INK, 1, cv2.LINE_AA)
-    cv2.putText(canvas, f"tau={cur_t:02d}/33f", (x0 + 6, y1 - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.28, COL_INK_SOFT, 1, cv2.LINE_AA)
+    else:
+        # McCloud Page 15 & 24: Time-Frames Gallery Wall + 55-Minute Clock
+        draw_qd_doodle(canvas, "clock", 535, 275, 95, 95, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
+        for fi in range(3):
+            fx0 = 615 + fi * 98
+            fy0 = 235 + fi * 18
+            cv2.rectangle(canvas, (fx0 + 4, fy0 + 4), (fx0 + 84, fy0 + 134), BGR_INK, -1)
+            cv2.rectangle(canvas, (fx0, fy0), (fx0 + 80, fy0 + 130), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (fx0, fy0), (fx0 + 80, fy0 + 130), BGR_INK, 3)
+            draw_qd_doodle(canvas, slug, fx0 + 40, fy0 + 65, 58, 58, fill_bgr=BGR_BLUE_PALE, thickness=2, idx=fi)
 
 
-def generate_foley_wav(wav_path: Path, n_frames: int, fps: int = 10, seed: int = 1):
-    """Generates a warm studio projector hum + melodic marimba & Earshot Foley transients WAV."""
+def render_single_panel_fullscreen(
+    spec: dict,
+    panel_num: int,
+    sub_step: float = 1.0,
+    shot_frame_idx: int = 16,
+    boil_phase: int = 0,
+) -> np.ndarray:
+    """
+    Renders ONE single panel (`panel_num` in 1..4) at FULL 960x540 screen size!
+    Because each panel is designed at 960x540 with large 20pt-28pt typography and auto-fitted
+    headers, it is 100% readable both when projected full-screen in the video AND when assembled
+    into a 2x2 comic page!
+    """
+    W, H = 960, 540
+    canvas = np.full((H, W, 3), BGR_PAPER, dtype=np.uint8)
+    slug = spec["featured_shot"]
+    arch_sketches, cart_frames = load_shot_frames(slug)
+
+    pad = 16
+    cap_h = 54
+    bx0, by0, bx1, by1 = pad, pad, W - pad, H - pad
+
+    if panel_num == 1:
+        # Dramatic solid black backdrop for odd chapters (like McCloud pp. 9, 10, 13, 14), warm paper for even
+        dark_p1 = (spec["num"] % 2 == 1)
+        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_INK if dark_p1 else BGR_PAPER, -1)
+        if dark_p1:
+            rng_s = np.random.RandomState(spec["num"] * 31)
+            for _ in range(28):
+                sx = int(rng_s.randint(bx0 + 20, bx1 - 20))
+                sy = int(rng_s.randint(by0 + 70, by1 - 20))
+                cv2.circle(canvas, (sx, sy), 2, BGR_GUTTER, -1)
+
+        # Draw the McCloud Studio Environment on the right half
+        draw_panel1_studio_environment(canvas, spec, boil_phase=boil_phase)
+
+        # Draw Scott McCloud Presenter on the bottom-left (large & expressive)
+        pres_pose = (boil_phase // 2) % 2
+        draw_mccloud_presenter(canvas, bx0 + 165, by1 - 135, scale=1.35, pose=pres_pose, dark_bg=dark_p1)
+
+    elif panel_num == 2:
+        # 3-Step Visual Diagram (`[1] --> [2] --> [3]`)
+        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
+        steps = spec["diag_steps"]
+        n_s = len(steps)
+        vis_steps = max(1, min(n_s, int(sub_step * n_s) + 1)) if sub_step < 0.99 else n_s
+        g_fills = [BGR_BLUE_PALE, BGR_AMBER_PALE, BGR_MINT_PALE]
+        box_w, box_h = 216, 230
+        gap = 68
+        total_w = n_s * box_w + (n_s - 1) * gap
+        start_x = (W - total_w) // 2
+        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 16
+
+        for s_i in range(vis_steps):
+            cat_name, _ = steps[s_i]
+            sx0 = start_x + s_i * (box_w + gap)
+            sy0 = cy_box - box_h // 2
+            sx1, sy1 = sx0 + box_w, sy0 + box_h
+            cv2.rectangle(canvas, (sx0 + 5, sy0 + 5), (sx1 + 5, sy1 + 5), BGR_INK, -1)
+            cv2.rectangle(canvas, (sx0, sy0), (sx1, sy1), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (sx0, sy0), (sx1, sy1), BGR_INK, 4)
+            draw_qd_doodle(
+                canvas, cat_name,
+                cx=sx0 + box_w // 2, cy=sy0 + box_h // 2,
+                w=145, h=145,
+                fill_bgr=g_fills[s_i % len(g_fills)], ink_bgr=BGR_INK, thickness=4,
+                boil_phase=boil_phase,
+            )
+            if s_i < vis_steps - 1:
+                ax0 = sx1 + 12
+                ax1 = sx1 + gap - 12
+                ay = cy_box
+                cv2.line(canvas, (ax0, ay), (ax1, ay), BGR_INK, 6, cv2.LINE_AA)
+                cv2.polylines(
+                    canvas,
+                    [np.array([[ax1 - 14, ay - 12], [ax1 + 2, ay], [ax1 - 14, ay + 12]], dtype=np.int32)],
+                    False, BGR_INK, 6, cv2.LINE_AA,
+                )
+
+    elif panel_num == 3:
+        # McCloud Page 14-15: "Before it's projected, film is just a very slow comic!" (35mm 4-Keyframe Strip)
+        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
+        strip_y0 = by0 + cap_h + 36
+        strip_y1 = by1 - 36
+        cv2.rectangle(canvas, (bx0 + 20, strip_y0), (bx1 - 20, strip_y1), BGR_INK, -1)
+        for sx in range(bx0 + 34, bx1 - 30, 28):
+            cv2.rectangle(canvas, (sx, strip_y0 + 8), (sx + 14, strip_y0 + 20), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (sx, strip_y1 - 20), (sx + 14, strip_y1 - 8), BGR_GUTTER, -1)
+
+        key_indices = [0, 10, 21, 32]
+        kw = (bx1 - bx0 - 80) // 4
+        kh = (strip_y1 - strip_y0) - 68
+        active_k = min(3, int(sub_step * 4)) if sub_step < 0.99 else -1
+
+        for k_i, f_idx in enumerate(key_indices):
+            kx0 = bx0 + 32 + k_i * (kw + 6)
+            ky0 = strip_y0 + 34
+            src_fr = arch_sketches[f_idx] if k_i == 0 else cart_frames[f_idx]
+            thumb = cv2.resize(src_fr, (kw, kh), interpolation=cv2.INTER_AREA)
+            canvas[ky0:ky0 + kh, kx0:kx0 + kw] = thumb
+            is_hi = (k_i == active_k or active_k == -1)
+            cv2.rectangle(canvas, (kx0, ky0), (kx0 + kw, ky0 + kh), BGR_AMBER if is_hi else BGR_GUTTER, 4 if is_hi else 2)
+
+    elif panel_num == 4:
+        # Full-screen unobstructed 7-Plane Quick, Draw! Cartoon
+        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
+        vx0, vy0 = bx0 + 24, by0 + cap_h + 14
+        vw, vh = (bx1 - bx0) - 48, (by1 - by0 - cap_h) - 28
+        cur_fr = cart_frames[shot_frame_idx % len(cart_frames)]
+        big_cart = cv2.resize(cur_fr, (vw, vh), interpolation=cv2.INTER_LINEAR)
+        canvas[vy0:vy0 + vh, vx0:vx0 + vw] = big_cart
+        cv2.rectangle(canvas, (vx0, vy0), (vx0 + vw, vy0 + vh), BGR_INK, 4)
+
+    # =========================================================================
+    # PIL HIGH-RESOLUTION COMIC LETTERING (0% TRUNCATION GUARANTEED)
+    # =========================================================================
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+
+    if panel_num == 1:
+        # Top chapter pill inside Panel 1
+        draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
+        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=(201, 74, 41), outline=(22, 20, 18), width=4)
+        draw.text((bx0 + 18, by0 + 10), "1", font=FONT_DISPLAY_XL, fill=(255, 251, 244))
+        hdr_txt = f"{spec['wing_name']} — {spec['title'].upper()}"
+        f_hdr = fit_text_font(draw, hdr_txt, (bx1 - bx0) - 74, [FONT_DISPLAY_LG, FONT_DISPLAY_MD, FONT_CAPTION_MD])
+        draw.text((bx0 + 68, by0 + 14), hdr_txt, font=f_hdr, fill=(22, 20, 18))
+
+        # Large Oval Speech Balloon above Scott
+        s_box = (bx0 + 44, by0 + cap_h + 18, bx0 + 540, by0 + cap_h + 148)
+        tx, ty = bx0 + 185, by1 - 190
+        bx_mid = (s_box[0] + s_box[2]) // 2
+        tail_pts = [(bx_mid - 18, s_box[3] - 6), (bx_mid + 12, s_box[3] - 6), (tx, ty)]
+        draw.polygon([(p[0] + 4, p[1] + 4) for p in tail_pts], fill=(22, 20, 18))
+        draw.rounded_rectangle([s_box[0] + 4, s_box[1] + 4, s_box[2] + 4, s_box[3] + 4], radius=28, fill=(22, 20, 18))
+        draw.polygon(tail_pts, fill=(255, 255, 255), outline=(22, 20, 18))
+        draw.rounded_rectangle(s_box, radius=28, fill=(255, 255, 255), outline=(22, 20, 18), width=4)
+        draw.polygon([(bx_mid - 15, s_box[3] - 8), (bx_mid + 9, s_box[3] - 8), (bx_mid - 3, s_box[3] - 1)], fill=(255, 255, 255))
+
+        lines = textwrap.wrap(spec["speech_p1"].upper(), width=28)[:3]
+        lh = 28
+        sy_txt = s_box[1] + ((s_box[3] - s_box[1]) - len(lines) * lh) // 2 - 2
+        for i, ln in enumerate(lines):
+            bb = draw.textbbox((0, 0), ln, font=FONT_SPEECH_LG)
+            tw = bb[2] - bb[0]
+            draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=FONT_SPEECH_LG, fill=(22, 20, 18))
+
+    else:
+        cap_map = {2: spec["caption_p2"], 3: spec["caption_p3"], 4: spec["caption_p4"]}
+        cap_txt = cap_map[panel_num].upper()
+        draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
+        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=(201, 74, 41), outline=(22, 20, 18), width=4)
+        draw.text((bx0 + 18, by0 + 10), str(panel_num), font=FONT_DISPLAY_XL, fill=(255, 251, 244))
+        f_cap = fit_text_font(draw, cap_txt, (bx1 - bx0) - 74, [FONT_CAPTION_LG, FONT_CAPTION_MD])
+        draw.text((bx0 + 68, by0 + 15), cap_txt, font=f_cap, fill=(22, 20, 18))
+
+    if panel_num == 2:
+        steps = spec["diag_steps"]
+        n_s = len(steps)
+        vis_steps = max(1, min(n_s, int(sub_step * n_s) + 1)) if sub_step < 0.99 else n_s
+        box_w, box_h = 216, 230
+        gap = 68
+        total_w = n_s * box_w + (n_s - 1) * gap
+        start_x = (W - total_w) // 2
+        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 16
+        for s_i in range(vis_steps):
+            _, lbl = steps[s_i]
+            scx = start_x + s_i * (box_w + gap) + box_w // 2
+            sy1 = cy_box + box_h // 2
+            bb = draw.textbbox((0, 0), lbl, font=FONT_LABEL_MD)
+            tw = bb[2] - bb[0]
+            draw.rounded_rectangle([scx - tw // 2 - 12, sy1 + 14, scx + tw // 2 + 12, sy1 + 46], radius=8, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+            draw.text((scx - tw // 2, sy1 + 18), lbl, font=FONT_LABEL_MD, fill=(22, 20, 18))
+
+    elif panel_num == 3:
+        strip_y0 = by0 + cap_h + 36
+        kw = (bx1 - bx0 - 80) // 4
+        k_labels = ["1. ARCHIVAL TRACE", "2. KEYFRAME K1", "3. KEYFRAME K2", "4. KEYFRAME K4"]
+        for k_i, kl in enumerate(k_labels):
+            kx0 = bx0 + 32 + k_i * (kw + 6)
+            ky0 = strip_y0 + 34
+            draw.rectangle([kx0 + 6, ky0 + 6, kx0 + 168, ky0 + 32], fill=(255, 251, 244), outline=(22, 20, 18), width=2)
+            draw.text((kx0 + 12, ky0 + 9), kl, font=FONT_CAPTION_MD, fill=(22, 20, 18))
+
+    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+    cv2.rectangle(out_bgr, (bx0, by0), (bx1, by1), BGR_INK, 5)
+    return out_bgr
+
+
+def assemble_4panel_comic_page(spec: dict) -> np.ndarray:
+    """
+    Assembles the 4 full-resolution panels (`Panel 1..4`) into a crisp 1280x720 2x2 Scott McCloud Comic Page
+    (Juxtaposed in SPACE for static reading on posters, studio wing plates, and contact sheets).
+    """
+    p1 = render_single_panel_fullscreen(spec, 1, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
+    p2 = render_single_panel_fullscreen(spec, 2, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
+    p3 = render_single_panel_fullscreen(spec, 3, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
+    p4 = render_single_panel_fullscreen(spec, 4, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
+
+    top_row = np.hstack([p1, p2])
+    bot_row = np.hstack([p3, p4])
+    grid = np.vstack([top_row, bot_row])
+    return cv2.resize(grid, (1280, 720), interpolation=cv2.INTER_AREA)
+
+
+def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int = 42):
     sr = 22050
-    dur = n_frames / float(fps)
-    n_samples = int(sr * dur)
-    t = np.linspace(0.0, dur, n_samples, endpoint=False)
-    rng = np.random.default_rng(seed)
+    n_samples = int(sr * duration_sec)
+    t = np.linspace(0.0, duration_sec, n_samples, endpoint=False)
+    rng = np.random.RandomState(seed)
 
-    notes = [220.0, 277.18, 329.63, 440.0, 554.37, 659.25]
-    sig = 0.025 * np.sin(2.0 * math.pi * 110.0 * t)
-    for beat_i in range(int(dur * 2) + 1):
-        t0 = beat_i * 0.45
-        mask = (t >= t0) & (t < t0 + 0.38)
-        if not np.any(mask):
-            continue
-        freq = notes[(beat_i + seed) % len(notes)]
-        env = np.exp(-6.5 * (t[mask] - t0))
-        sig[mask] += 0.18 * env * np.sin(2.0 * math.pi * freq * (t[mask] - t0))
-        click_mask = (t >= t0) & (t < t0 + 0.03)
-        if np.any(click_mask):
-            sig[click_mask] += 0.12 * rng.standard_normal(np.sum(click_mask)) * np.exp(-45.0 * (t[click_mask] - t0))
+    audio = (
+        0.04 * np.sin(2 * np.pi * 220.0 * t)
+        + 0.03 * np.sin(2 * np.pi * 277.18 * t)
+        + 0.025 * np.sin(2 * np.pi * 329.63 * t)
+    )
+    for beat_s in [0.05, 2.3, 4.6, 7.0]:
+        if beat_s < duration_sec:
+            idx = int(beat_s * sr)
+            blen = min(int(0.12 * sr), n_samples - idx)
+            if blen > 0:
+                env = np.exp(-np.linspace(0, 6, blen))
+                audio[idx:idx + blen] += 0.16 * env * rng.normal(0, 1, blen)
 
-    sig = np.clip(sig, -0.95, 0.95)
-    pcm = (sig * 32767.0).astype(np.int16)
+    audio = np.clip(audio, -0.95, 0.95)
+    pcm = (audio * 32767.0).astype(np.int16)
     with wave.open(str(wav_path), "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
@@ -902,284 +1056,142 @@ def generate_foley_wav(wav_path: Path, n_frames: int, fps: int = 10, seed: int =
         wf.writeframes(pcm.tobytes())
 
 
-def render_studio_film_frame(spec: dict, f_idx: int, total_frames: int = 40):
+def render_single_bts_film(spec: dict) -> dict:
     """
-    Renders one 640x360 frame of a Behind-the-Scenes Studio Film in the 100% Unified Quick, Draw!
-    Paper, Gouache Cel & Boiling-Ink Aesthetic.
+    Implements McCloud Page 14 ("Each successive frame of a movie is projected on the SAME space — the screen!"):
+    Projects each of the 4 panels FULL-SCREEN (`960x540`) in deliberate sequence over 10.0 seconds (120 frames @ 12fps):
+      - Frames 00..27 (0.0s - 2.3s): FULL-SCREEN PANEL 1 (Scott + Studio Environment + Big Speech Balloon)
+      - Frames 28..55 (2.3s - 4.6s): FULL-SCREEN PANEL 2 (`1 --> 2 --> 3` Diagram)
+      - Frames 56..83 (4.6s - 7.0s): FULL-SCREEN PANEL 3 (35mm 4-Keyframe Filmstrip stepping K1 -> K4)
+      - Frames 84..119 (7.0s - 10.0s): FULL-SCREEN PANEL 4 (Full-screen 7-plane Quick, Draw! cartoon animation!)
     """
-    W, H = 640, 360
-    wing = spec.get("studio_wing", "bg1_multifloor")
-    boil_key = (f_idx // 2) % 4
+    fid = spec["id"]
+    mp4_path = BTS_DIR / f"{fid}.mp4"
+    gif_path = BTS_DIR / f"{fid}.gif"
+    poster_path = BTS_DIR / f"{fid}_poster.png"
+    raw_mp4 = BTS_DIR / f"_{fid}_raw.mp4"
+    wav_path = BTS_DIR / f"_{fid}.wav"
 
-    # 1. Construct the Unified Quick, Draw! Studio Wing with 4-keyframe boiling ink
-    canvas = draw_qd_studio_wing(W, H, wing, boil_key=boil_key)
+    fps = 12
+    n_frames = 120  # 10.0 calm, unhurried seconds per film
+    W, H = 960, 540
 
-    stage_idx = min(3, int((f_idx / float(total_frames)) * 4))
-    stage_progress = (f_idx % (total_frames // 4)) / float(max(1, total_frames // 4 - 1))
+    # Static poster shows the 2x2 Juxtaposed Comic Page (`1280x720`)
+    poster_bgr = assemble_4panel_comic_page(spec)
+    cv2.imwrite(str(poster_path), poster_bgr)
 
-    # Load unified Quick, Draw! archival sketch & 7-plane cartoon frames for the featured shot
-    arch_fr, cart_fr = load_shot_pair(spec["featured_shot"], f_idx)
+    vw = cv2.VideoWriter(str(raw_mp4), cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
+    gif_pil_frames = []
 
-    # =========================================================================
-    # WING-SPECIFIC QUICK, DRAW! STUDIO EQUIPMENT & LIVE ANIMATION
-    # =========================================================================
-    if wing == "bg1_multifloor":
-        # Golden paper camera exposure cone down the 7-plane tower when exposing a keyframe
-        if f_idx % 8 < 3:
-            cone_overlay = canvas.copy()
-            cone_pts = np.array([[130, 78], [52, 286], [208, 286]], dtype=np.int32)
-            cv2.fillPoly(cone_overlay, [cone_pts], COL_TAG_PALE, cv2.LINE_AA)
-            cv2.addWeighted(cone_overlay, 0.35, canvas, 0.65, 0, canvas)
+    for f_i in range(n_frames):
+        boil_phase = (f_i // 6) % 4
+        if f_i < 28:
+            p_num = 1
+            sub = f_i / 27.0
+            shot_f = 16
+        elif f_i < 56:
+            p_num = 2
+            sub = (f_i - 28) / 27.0
+            shot_f = 16
+        elif f_i < 84:
+            p_num = 3
+            sub = (f_i - 56) / 27.0
+            shot_f = 16
+        else:
+            p_num = 4
+            sub = (f_i - 84) / 35.0
+            shot_f = int(round(sub * 32))
 
-        # Top-Right Mezzanine Lounge: Quick, Draw! Dailies Card (x: 322..620, y: 46..148)
-        draw_qd_card(canvas, 322, 46, 620, 148, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key,
-                     header_bgr=COL_TAG_PALE, title=f"STUDIO DAILIES // {spec['featured_shot'].upper()}")
-        arch_sm = cv2.resize(arch_fr, (136, 74))
-        cart_sm = cv2.resize(cart_fr, (136, 74))
-        canvas[70:144, 330:466] = arch_sm
-        canvas[70:144, 476:612] = cart_sm
-        draw_qd_card(canvas, 330, 70, 466, 144, fill_bgr=None if False else COL_PAPER, shadow=False, boil_seed=boil_key)
-        canvas[71:143, 331:465] = arch_sm[1:-1, 1:-1]
-        draw_qd_card(canvas, 476, 70, 612, 144, fill_bgr=COL_SHEET, shadow=False, boil_seed=boil_key + 1)
-        canvas[71:143, 477:611] = cart_sm[1:-1, 1:-1]
-        cv2.putText(canvas, "ARCHIVE PENCIL TRACE", (334, 81), cv2.FONT_HERSHEY_SIMPLEX, 0.27, COL_INK, 1, cv2.LINE_AA)
-        cv2.putText(canvas, "7-PLANE QUICK, DRAW!", (480, 81), cv2.FONT_HERSHEY_SIMPLEX, 0.27, COL_FOREST, 1, cv2.LINE_AA)
+        frame_bgr = render_single_panel_fullscreen(
+            spec,
+            panel_num=p_num,
+            sub_step=sub,
+            shot_frame_idx=shot_f,
+            boil_phase=boil_phase,
+        )
+        vw.write(frame_bgr)
+        if f_i % 4 == 0:
+            rgb_small = cv2.cvtColor(cv2.resize(frame_bgr, (640, 360), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB)
+            gif_pil_frames.append(Image.fromarray(rgb_small))
 
-        # Middle Floor Bullpen: Glowing Lightbox Disc + 3D Worm Card
-        draw_animator_lightbox_disc(canvas, 405, 198, 24, spec["featured_shot"], f_idx, "KEY TRACE")
-        draw_3d_worm_prism_widget(canvas, 456, 160, 620, 240, spec["featured_shot"], f_idx, "3D WORM")
+    vw.release()
 
-        # Quick, Draw! Crew walking across the 3 floors
-        crew_wps = [(130, 278), (280, 205), (362, 205), (442, 282)]
-        for c_i in range(3):
-            ag = STUDIO_AGENTS[(spec["num"] + c_i) % len(STUDIO_AGENTS)]
-            p0 = crew_wps[(c_i + stage_idx) % len(crew_wps)]
-            p1 = crew_wps[(c_i + stage_idx + 1) % len(crew_wps)]
-            cx = int(round((1 - stage_progress) * p0[0] + stage_progress * p1[0]))
-            cy = int(round((1 - stage_progress) * p0[1] + stage_progress * p1[1]))
-            bub = spec["stages"][stage_idx] if c_i == 0 else ""
-            draw_studio_crew_member(canvas, cx, cy, ag, f_idx + c_i * 4, scale=0.85, bubble_text=bub)
+    gif_pil_frames[0].save(
+        str(gif_path),
+        save_all=True,
+        append_images=gif_pil_frames[1:],
+        duration=330,  # ~3 fps GIF -> 30 frames = 10.0 calm, readable seconds
+        loop=0,
+        optimize=True,
+    )
 
-    elif wing in ("bg5_bullpen", "bg2_occupied"):
-        # Two Foreground Quick, Draw! Animator Lightboxes with live onion-skin keyframes
-        draw_animator_lightbox_disc(canvas, 175, 226, 33, spec["featured_shot"], f_idx, "DESK A // K01-K02")
-        draw_animator_lightbox_disc(canvas, 335, 244, 31, spec["featured_shot"], f_idx + 8, "DESK B // K03-K04")
+    synthesize_studio_soundtrack(wav_path, duration_sec=n_frames / fps, seed=spec["num"] * 101)
+    subprocess.run(
+        [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-i", str(raw_mp4),
+            "-i", str(wav_path),
+            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "fast", "-crf", "22",
+            "-c:a", "aac", "-b:a", "96k", "-shortest",
+            str(mp4_path),
+        ],
+        check=True,
+    )
+    raw_mp4.unlink(missing_ok=True)
+    wav_path.unlink(missing_ok=True)
 
-        # Right Wall: Quick, Draw! Storyboard & Dailies Sheet (x: 344..620, y: 48..162)
-        draw_qd_card(canvas, 344, 48, 620, 162, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key,
-                     header_bgr=COL_TAG_PALE, title=f"BULLPEN DAILIES // {spec['featured_shot'].upper()}")
-        arch_sm = cv2.resize(arch_fr, (126, 84))
-        cart_sm = cv2.resize(cart_fr, (126, 84))
-        canvas[72:156, 352:478] = arch_sm
-        canvas[72:156, 486:612] = cart_sm
-        cv2.rectangle(canvas, (352, 72), (478, 156), COL_INK, 1)
-        cv2.rectangle(canvas, (486, 72), (612, 156), COL_INK, 1)
-        cv2.putText(canvas, "ARCHIVE TRACE", (356, 83), cv2.FONT_HERSHEY_SIMPLEX, 0.27, COL_INK, 1, cv2.LINE_AA)
-        cv2.putText(canvas, "7-PLANE CEL", (490, 83), cv2.FONT_HERSHEY_SIMPLEX, 0.27, COL_FOREST, 1, cv2.LINE_AA)
-
-        # Bottom-Right: Bouleau 14-Line Worm Card
-        draw_3d_worm_prism_widget(canvas, 426, 172, 620, 292, spec["featured_shot"], f_idx, "BOULEAU 14-LINE WORM")
-
-        # Quick, Draw! Crew walking between the drafting desks
-        crew_wps = [(112, 252), (255, 198), (262, 265), (395, 255)]
-        for c_i in range(3):
-            ag = STUDIO_AGENTS[(spec["num"] + c_i) % len(STUDIO_AGENTS)]
-            p0 = crew_wps[(c_i + stage_idx) % len(crew_wps)]
-            p1 = crew_wps[(c_i + stage_idx + 1) % len(crew_wps)]
-            cx = int(round((1 - stage_progress) * p0[0] + stage_progress * p1[0]))
-            cy = int(round((1 - stage_progress) * p0[1] + stage_progress * p1[1]))
-            bub = spec["stages"][stage_idx] if c_i == 0 else ""
-            draw_studio_crew_member(canvas, cx, cy, ag, f_idx + c_i * 5, scale=0.88, bubble_text=bub)
-
-    elif wing == "bg3_screening":
-        # Volumetric paper projector beam from Quick, Draw! `camera` projector (412, 128) to Cinema Screen
-        beam_overlay = canvas.copy()
-        beam_pts = np.array([[412, 126], [426, 52], [426, 198]], dtype=np.int32)
-        cv2.fillPoly(beam_overlay, [beam_pts], COL_TAG_PALE, cv2.LINE_AA)
-        cv2.addWeighted(beam_overlay, 0.45, canvas, 0.55, 0, canvas)
-        draw_qd_line(canvas, (412, 126), (426, 52), COL_TAG, 1, boil_key)
-        draw_qd_line(canvas, (412, 126), (426, 198), COL_TAG, 1, boil_key + 1)
-
-        # Grand Dailies Cinema Screen Card (x: 422..620, y: 48..204)
-        draw_qd_card(canvas, 422, 48, 620, 204, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key,
-                     header_bgr=COL_TAG_PALE, title=f"SCREENING THEATRE // {spec['featured_shot'].upper()}")
-        arch_sm = cv2.resize(arch_fr, (90, 68))
-        cart_sm = cv2.resize(cart_fr, (92, 68))
-        canvas[72:140, 428:518] = arch_sm
-        canvas[72:140, 522:614] = cart_sm
-        cv2.rectangle(canvas, (428, 72), (518, 140), COL_INK, 1)
-        cv2.rectangle(canvas, (522, 72), (614, 140), COL_INK, 1)
-        cv2.putText(canvas, "ARCHIVE TRACE", (431, 82), cv2.FONT_HERSHEY_SIMPLEX, 0.25, COL_INK, 1, cv2.LINE_AA)
-        cv2.putText(canvas, "7-PLANE FILM", (525, 82), cv2.FONT_HERSHEY_SIMPLEX, 0.25, COL_FOREST, 1, cv2.LINE_AA)
-
-        # Hand-inked Earshot Jerk & Audio Waveform bars inside bottom of Cinema Screen
-        cv2.putText(canvas, "EARSHOT JERK ||c'''(tau)|| & SFX SYNC", (430, 155), cv2.FONT_HERSHEY_SIMPLEX, 0.27, COL_INK, 1, cv2.LINE_AA)
-        for w_i in range(34):
-            wx = 432 + w_i * 5
-            wh = int(round(abs(math.sin(w_i * 0.45 + f_idx * 0.55)) * 22)) + 3
-            wcol = COL_WAX if wh > 16 else COL_FOREST
-            cv2.line(canvas, (wx, 194), (wx, 194 - wh), wcol, 2, cv2.LINE_AA)
-
-        # Quick, Draw! "ON AIR // FOLEY" Studio Sign on top-left wall
-        is_jerk_peak = (f_idx % 7 < 3)
-        draw_qd_card(canvas, 24, 48, 148, 76, fill_bgr=COL_WAX_PALE if is_jerk_peak else COL_SHEET, shadow=True, boil_seed=boil_key)
-        cv2.circle(canvas, (38, 62), 6, COL_WAX if is_jerk_peak else COL_PAPER_DEEP, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (38, 62), 6, COL_INK, 1, cv2.LINE_AA)
-        cv2.putText(canvas, "ON AIR // FOLEY", (50, 66), cv2.FONT_HERSHEY_SIMPLEX, 0.32, COL_INK, 1, cv2.LINE_AA)
-
-        # Hand-drawn acoustic ripple circles over the active Foley Pit surface
-        pit_centers = [(72, 282), (158, 282), (244, 282)]
-        pc = pit_centers[stage_idx % 3]
-        for r_i in range(1, 3):
-            rad = ((f_idx * 4 + r_i * 10) % 24) + 6
-            cv2.circle(canvas, pc, rad, COL_WAX, 1, cv2.LINE_AA)
-
-        draw_animator_lightbox_disc(canvas, 68, 198, 24, spec["featured_shot"], f_idx, "CUE SHEET")
-        draw_studio_crew_member(canvas, 168, 232, STUDIO_AGENTS[4], f_idx, scale=0.90, bubble_text=spec["stages"][stage_idx])
-        draw_studio_crew_member(canvas, 332, 258, STUDIO_AGENTS[0], f_idx + 6, scale=0.86, bubble_text="Dailies Cut!")
-
-    else:
-        # Wing D: `bg4_optical` — Twin-Reel Optical Printer, 55-Min Clocktower & 3D Worm Cube
-        # Bottom-Left: Rotoscope Lightbox Bench Card (x: 24..256, y: 226..312)
-        draw_qd_card(canvas, 24, 226, 256, 312, fill_bgr=COL_SHEET, shadow=True, boil_seed=boil_key,
-                     header_bgr=COL_BLUE_PALE, title=f"ROTOSCOPE BENCH // {spec['featured_shot'].upper()}")
-        arch_sm = cv2.resize(arch_fr, (106, 58))
-        cart_sm = cv2.resize(cart_fr, (106, 58))
-        canvas[250:308, 30:136] = arch_sm
-        canvas[250:308, 144:250] = cart_sm
-        cv2.rectangle(canvas, (30, 250), (136, 308), COL_INK, 1)
-        cv2.rectangle(canvas, (144, 250), (250, 308), COL_INK, 1)
-        cv2.putText(canvas, "ARCHIVE TRACE", (34, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.25, COL_INK, 1, cv2.LINE_AA)
-        cv2.putText(canvas, "7-PLANE CEL", (148, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.25, COL_FOREST, 1, cv2.LINE_AA)
-
-        # Right: 3D Spatiotemporal Worm Prism Pedestal (x: 434..582, y: 112..268)
-        draw_3d_worm_prism_widget(canvas, 434, 112, 582, 268, spec["featured_shot"], f_idx, "OPTICAL WORM CUBE")
-
-        draw_studio_crew_member(canvas, 298, 252, STUDIO_AGENTS[2], f_idx, scale=0.88, bubble_text=spec["stages"][stage_idx])
-        draw_studio_crew_member(canvas, 392, 258, STUDIO_AGENTS[1], f_idx + 5, scale=0.86, bubble_text="IoU >= 0.89!")
-
-    # =========================================================================
-    # TOP QUICK, DRAW! CLAPPERBOARD SLATE HEADER (y = 0..36, Cream & Amber Ink)
-    # =========================================================================
-    cv2.rectangle(canvas, (0, 0), (W, 36), COL_PAPER_DEEP, -1)
-    draw_qd_line(canvas, (0, 36), (W, 36), COL_INK, 2, boil_key)
-    # Hand-drawn diagonal clapperboard stripes along top edge (y = 0..6)
-    for cl_x in range(0, W, 28):
-        pts_cl = np.array([[cl_x, 0], [cl_x + 14, 0], [cl_x + 8, 6], [cl_x - 6, 6]], dtype=np.int32)
-        cv2.fillPoly(canvas, [pts_cl], COL_INK, cv2.LINE_AA)
-
-    badge_col = COL_TAG if spec["group"] == "office" else COL_FOREST_PALE
-    draw_qd_card(canvas, 8, 9, 138, 31, fill_bgr=badge_col, shadow=False, boil_seed=boil_key)
-    group_lbl = f"STUDIO #{spec['num']:02d}" if spec["group"] == "office" else f"SKILL #{spec['num']-10:02d} ({spec.get('timestamp','')})"
-    cv2.putText(canvas, group_lbl, (13, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.35, COL_INK, 1, cv2.LINE_AA)
-    cv2.putText(canvas, f"{spec['repo']} // {spec['title'][:42]}", (148, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.39, COL_INK, 1, cv2.LINE_AA)
-
-    # =========================================================================
-    # BOTTOM QUICK, DRAW! 35MM FILMSTRIP & X-SHEET BAR (y = 320..360)
-    # =========================================================================
-    cv2.rectangle(canvas, (0, H - 40), (W, H), COL_PAPER_DEEP, -1)
-    draw_qd_line(canvas, (0, H - 40), (W, H - 40), COL_INK, 2, boil_key + 1)
-    # Hand-inked 35mm sprocket holes along top & bottom of the X-sheet bar
-    for sp_x in range(8, W, 18):
-        cv2.rectangle(canvas, (sp_x, H - 37), (sp_x + 8, H - 33), COL_SHEET, -1)
-        cv2.rectangle(canvas, (sp_x, H - 37), (sp_x + 8, H - 33), COL_INK, 1)
-        cv2.rectangle(canvas, (sp_x, H - 6), (sp_x + 8, H - 2), COL_SHEET, -1)
-        cv2.rectangle(canvas, (sp_x, H - 6), (sp_x + 8, H - 2), COL_INK, 1)
-
-    for s_i, st_name in enumerate(spec["stages"]):
-        sx0 = 10 + s_i * 156
-        is_act = (s_i == stage_idx)
-        bg_c = COL_TAG if is_act else (COL_FOREST_PALE if s_i < stage_idx else COL_SHEET)
-        draw_qd_card(canvas, sx0, H - 30, sx0 + 150, H - 9, fill_bgr=bg_c, shadow=is_act, boil_seed=boil_key + s_i)
-        cv2.putText(canvas, f"{s_i+1}. {st_name[:22]}", (sx0 + 5, H - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.31, COL_INK, 1, cv2.LINE_AA)
-
-    return canvas
+    out_rec = dict(spec)
+    out_rec["mp4"] = f"bts_films/{fid}.mp4"
+    out_rec["gif"] = f"bts_films/{fid}.gif"
+    out_rec["poster"] = f"bts_films/{fid}_poster.png"
+    return out_rec
 
 
-def save_master_qd_studio_wings():
-    """Saves the 5 high-resolution Quick, Draw! Studio Wing plates (`1280x720`) to `bts_films/` and `ARTIFACT_DIR`."""
-    wing_files = [
-        ("bg1_multifloor", "studio_bg_1_multifloor_soundstage.jpg"),
-        ("bg2_occupied",   "studio_bg_2_drafting_bullpen.jpg"),
-        ("bg3_screening",  "studio_bg_3_foley_screening_stage.jpg"),
-        ("bg4_optical",    "studio_bg_4_clocktower_optical_lab.jpg"),
-        ("bg5_bullpen",    "studio_bg_5_bullpen_unoccupied.jpg"),
+def generate_studio_wing_comic_pages():
+    wing_specs = [
+        ("studio_bg_1_multifloor_soundstage.jpg", AGENT_OFFICE_SPECS[0]),
+        ("studio_bg_2_drafting_bullpen.jpg", AGENT_OFFICE_SPECS[2]),
+        ("studio_bg_3_foley_screening_stage.jpg", VIDEO_SKILL_SPECS[7]),
+        ("studio_bg_4_clocktower_optical_lab.jpg", VIDEO_SKILL_SPECS[3]),
+        ("studio_bg_5_bullpen_unoccupied.jpg", AGENT_OFFICE_SPECS[1]),
     ]
-    for w_key, fname in wing_files:
-        base_640 = draw_qd_studio_wing(640, 360, w_key, boil_key=0)
-        hi_res = cv2.resize(base_640, (1280, 720), interpolation=cv2.INTER_CUBIC)
+    for fname, sp in wing_specs:
+        page_bgr = assemble_4panel_comic_page(sp)
         out_p = BTS_DIR / fname
-        cv2.imwrite(str(out_p), hi_res)
+        cv2.imwrite(str(out_p), page_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
         shutil.copy2(out_p, ARTIFACT_DIR / fname)
 
 
-def build_single_bts_film(spec: dict):
-    """Builds MP4 (with Foley audio), animated GIF, and poster PNG for one Behind-the-Scenes Studio Film."""
-    slug = spec["id"]
-    total_frames = 40
-    fps = 10
-    frames_bgr = [render_studio_film_frame(spec, f_i, total_frames) for f_i in range(total_frames)]
-
-    poster_path = BTS_DIR / f"{slug}_poster.png"
-    cv2.imwrite(str(poster_path), frames_bgr[12])
-
-    gif_path = BTS_DIR / f"{slug}.gif"
-    pil_frames = [Image.fromarray(cv2.cvtColor(f, cv2.COLOR_BGR2RGB)) for f in frames_bgr[::2]]
-    pil_frames[0].save(
-        str(gif_path), save_all=True, append_images=pil_frames[1:], duration=180, loop=0, optimize=True
-    )
-
-    raw_mp4 = BTS_DIR / f"_{slug}_raw.mp4"
-    wav_path = BTS_DIR / f"_{slug}.wav"
-    final_mp4 = BTS_DIR / f"{slug}.mp4"
-
-    H, W = frames_bgr[0].shape[:2]
-    vw = cv2.VideoWriter(str(raw_mp4), cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
-    for f in frames_bgr:
-        vw.write(f)
-    vw.release()
-
-    generate_foley_wav(wav_path, total_frames, fps=fps, seed=spec["num"])
-
-    subprocess.run([
-        "ffmpeg", "-y", "-loglevel", "error",
-        "-i", str(raw_mp4), "-i", str(wav_path),
-        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22",
-        "-c:a", "aac", "-b:a", "96k", "-shortest",
-        str(final_mp4)
-    ], check=False)
-
-    if raw_mp4.exists():
-        raw_mp4.unlink()
-    if wav_path.exists():
-        wav_path.unlink()
-
-    return {
-        **spec,
-        "mp4": f"bts_films/{slug}.mp4",
-        "gif": f"bts_films/{slug}.gif",
-        "poster": f"bts_films/{slug}_poster.png",
-        "poster_bgr": frames_bgr[12],
-    }
-
-
-def render_contact_sheet(results, title, subtitle, out_name, cols=2):
-    rows = math.ceil(len(results) / cols)
+def render_contact_sheet(records: list, title: str, subtitle: str, out_name: str) -> Path:
+    n = len(records)
+    cols = 2
+    rows = int(math.ceil(n / cols))
     cw, ch = 640, 360
+    pad = 16
     header_h = 68
-    canvas = np.full((header_h + rows * ch, cols * cw, 3), COL_PAPER, dtype=np.uint8)
-    cv2.rectangle(canvas, (0, 0), (cols * cw, header_h - 4), COL_TAG_PALE, -1)
-    cv2.line(canvas, (0, header_h - 4), (cols * cw, header_h - 4), COL_INK, 2)
-    cv2.putText(canvas, title, (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.64, COL_INK, 2, cv2.LINE_AA)
-    cv2.putText(canvas, subtitle, (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.43, COL_INK_SOFT, 1, cv2.LINE_AA)
+    W = pad + cols * (cw + pad)
+    H = header_h + pad + rows * (ch + pad)
 
-    for idx, r in enumerate(results):
-        ri = idx // cols
-        ci = idx % cols
-        x0 = ci * cw
-        y0 = header_h + ri * ch
-        canvas[y0:y0 + ch, x0:x0 + cw] = r["poster_bgr"]
-        cv2.rectangle(canvas, (x0, y0), (x0 + cw - 1, y0 + ch - 1), COL_INK, 2)
+    canvas = np.full((H, W, 3), BGR_PAPER, dtype=np.uint8)
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+    draw.rectangle([0, 0, W, header_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
+    f_t = fit_text_font(draw, title.upper(), W - 36, [FONT_DISPLAY_LG, FONT_DISPLAY_MD])
+    draw.text((18, 10), title.upper(), font=f_t, fill=(22, 20, 18))
+    draw.text((18, 40), subtitle.upper(), font=FONT_CAPTION_MD, fill=(60, 55, 50))
+    canvas = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+
+    for i, r in enumerate(records):
+        ri = i // cols
+        ci = i % cols
+        x0 = pad + ci * (cw + pad)
+        y0 = header_h + pad + ri * (ch + pad)
+        p_img = cv2.imread(str(ROOT / r["poster"]))
+        if p_img is not None:
+            thumb = cv2.resize(p_img, (cw, ch), interpolation=cv2.INTER_AREA)
+            cv2.rectangle(canvas, (x0 + 4, y0 + 4), (x0 + cw + 4, y0 + ch + 4), BGR_INK, -1)
+            canvas[y0:y0 + ch, x0:x0 + cw] = thumb
+            cv2.rectangle(canvas, (x0, y0), (x0 + cw, y0 + ch), BGR_INK, 3)
 
     out_path = PREVIEW_DIR / out_name
     cv2.imwrite(str(out_path), canvas)
@@ -1188,59 +1200,66 @@ def render_contact_sheet(results, title, subtitle, out_name, cols=2):
 
 
 def main():
-    save_master_qd_studio_wings()
-    print("Saved 5 Master Quick, Draw! Studio Soundstage Wing plates.")
+    print("1. Rendering 5 Scott McCloud + Quick, Draw! Studio Chapter Comic Pages...")
+    generate_studio_wing_comic_pages()
 
-    all_specs = AGENT_OFFICE_SPECS + VIDEO_SKILL_SPECS
-    results = []
-    for sp in all_specs:
-        res = build_single_bts_film(sp)
-        results.append(res)
-        print(f"  Built Unified Quick, Draw! Studio Film [{sp['num']:02d}/18]: {sp['id']} ({sp['studio_wing']})")
+    office_results = []
+    skill_results = []
 
-    office_res = [r for r in results if r["group"] == "office"]
-    skill_res = [r for r in results if r["group"] == "skill"]
+    print("2. Rendering 10 Virtual Agent Office Full-Screen Sequential Comic Films (10.0s each)...")
+    for sp in AGENT_OFFICE_SPECS:
+        res = render_single_bts_film(sp)
+        office_results.append(res)
+        print(f"   [Office {sp['num']:02d}/10] {sp['id']} -> {res['mp4']}")
+
+    print("3. Rendering 8 AI Video Director Skill Full-Screen Sequential Comic Films (10.0s each)...")
+    for sp in VIDEO_SKILL_SPECS:
+        res = render_single_bts_film(sp)
+        skill_results.append(res)
+        print(f"   [Skill  {sp['num']-10:02d}/08] {sp['id']} -> {res['mp4']}")
 
     p_off = render_contact_sheet(
-        office_res,
-        "BEHIND THE SCENES PART I // 10 UNIFIED QUICK, DRAW! STUDIO & WORKTREE FILMS",
-        "100% Quick, Draw! Vector Doodles, Gouache Cels & 4-Key Boiling Ink Across All 4 Studio Wings (All 346 Cartoons)",
+        office_results,
+        "PART I: 10 VIRTUAL AGENT OFFICE & WORKTREE COMIC CHAPTERS (UNDERSTANDING COMICS + QUICK, DRAW!)",
+        "Static Page = Juxtaposed in Space (4 Panels) · Video = Projected Full-Screen One Panel at a Time in Time (McCloud p. 14)",
         "bts_10_agent_offices_atlas.png",
-        cols=2,
     )
-    p_sk = render_contact_sheet(
-        skill_res,
-        "BEHIND THE SCENES PART II // 8 UNIFIED QUICK, DRAW! AI VIDEO DIRECTOR SKILL FILMS",
-        "All 8 Video & Motion Skills Staged Inside the Quick, Draw! Screening Room, Lightbox Bullpen, Camera Tower & Foley Pit",
+    p_skl = render_contact_sheet(
+        skill_results,
+        "PART II: 8 AI VIDEO DIRECTOR & MOTION SKILL COMIC CHAPTERS (UNDERSTANDING COMICS + QUICK, DRAW!)",
+        "Amplification Through Simplification · Blood in the Gutter · Show and Tell · Full-Screen Sequential Pacing",
         "bts_8_video_skills_atlas.png",
-        cols=2,
     )
-    print("Rendered Unified Quick, Draw! BTS contact sheets:", p_off.name, p_sk.name)
+    print("4. Rendered Contact Sheets:", p_off.name, p_skl.name)
 
     for sample_id in ["office-01-agent-office", "office-02-agent-007", "skill-01-huashu-motion", "skill-04-reanimate", "skill-08-earshot"]:
-        src_gif = BTS_DIR / f"{sample_id}.gif"
-        if src_gif.exists():
-            shutil.copy2(src_gif, ARTIFACT_DIR / f"{sample_id}.gif")
+        shutil.copy2(BTS_DIR / f"{sample_id}.gif", ARTIFACT_DIR / f"{sample_id}.gif")
+        shutil.copy2(BTS_DIR / f"{sample_id}_poster.png", ARTIFACT_DIR / f"{sample_id}_poster.png")
 
-    concat_txt = BTS_DIR / "_concat_list.txt"
-    concat_txt.write_text("\n".join(f"file '{ROOT / r['mp4']}'" for r in results) + "\n")
+    concat_txt = BTS_DIR / "_master_concat.txt"
+    all_mp4s = [ROOT / r["mp4"] for r in (office_results + skill_results)]
+    concat_txt.write_text("\n".join(f"file '{p.resolve()}'" for p in all_mp4s) + "\n")
     master_mp4 = ROOT / "Behind_The_Scenes_Multiplane_Studio_Film.mp4"
-    subprocess.run([
-        "ffmpeg", "-y", "-loglevel", "error",
-        "-f", "concat", "-safe", "0", "-i", str(concat_txt),
-        "-c", "copy", str(master_mp4)
-    ], check=False)
-    if concat_txt.exists():
-        concat_txt.unlink()
-    print(f"Built Master Quick, Draw! Behind-the-Scenes Film: {master_mp4.name} ({master_mp4.stat().st_size / 1e6:.2f} MB)")
+    subprocess.run(
+        [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-f", "concat", "-safe", "0", "-i", str(concat_txt),
+            "-c", "copy", str(master_mp4),
+        ],
+        check=True,
+    )
+    concat_txt.unlink(missing_ok=True)
+    print(f"5. Assembled Master Film: {master_mp4.name} ({master_mp4.stat().st_size / 1e6:.2f} MB)")
 
-    clean_results = [{k: v for k, v in r.items() if k != "poster_bgr"} for r in results]
     payload = {
-        "total_films": len(clean_results),
+        "studio_title": "Understanding Secondhand Motion — A Scott McCloud & Quick, Draw! Sequential Art Guide",
+        "agents": [
+            {"name": a["name"], "role": a["role"]}
+            for a in STUDIO_AGENTS
+        ],
+        "office_films": office_results,
+        "skill_films": skill_results,
         "master_film": "Behind_The_Scenes_Multiplane_Studio_Film.mp4",
-        "agents": [{k: v for k, v in a.items() if not isinstance(v, tuple)} for a in STUDIO_AGENTS],
-        "office_films": [r for r in clean_results if r["group"] == "office"],
-        "skill_films": [r for r in clean_results if r["group"] == "skill"],
     }
     (DATA_DIR / "bts_studio_films.json").write_text(json.dumps(payload, indent=2))
     (ROOT / "bts_studio_data.js").write_text("window.BTS_STUDIO_DATA = " + json.dumps(payload, separators=(",", ":")) + ";\n")

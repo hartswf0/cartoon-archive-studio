@@ -215,8 +215,11 @@ def analyze_single_shot(shot_dir: Path, rank_idx: int):
             if not ok:
                 break
             fh, fw = fr.shape[:2]
-            arch_frames.append(cv2.resize(fr[:, :fw // 2], (160, 120)))
-            cart_frames.append(cv2.resize(fr[:, fw // 2:], (160, 120)))
+            half_w = fw // 2
+            y_top = min(22, fh // 8)
+            y_bot = max(y_top + 40, fh - 24)
+            arch_frames.append(cv2.resize(fr[y_top:y_bot, 4:half_w - 4], (160, 120)))
+            cart_frames.append(cv2.resize(fr[y_top:y_bot, half_w + 4:fw - 4], (160, 120)))
         cap.release()
 
     if not arch_frames:
@@ -427,6 +430,8 @@ def analyze_single_shot(shot_dir: Path, rank_idx: int):
     }
 
 
+from PIL import Image, ImageDraw, ImageFont
+
 QD_DIR = ROOT / "quickdraw_samples"
 _QD_CACHE = {}
 
@@ -444,6 +449,55 @@ ACCENT_RED = (41, 74, 201)        # #C94A29
 ACCENT_GREEN = (79, 107, 47)      # #2F6B4F
 ACCENT_BLUE = (132, 91, 43)       # #2B5B84
 ACCENT_GOLD = (58, 159, 239)      # #EF9F3A
+
+_FONT_CACHE = {}
+
+
+def get_comic_font(size: int, style: str = "bold"):
+    key = (size, style)
+    if key in _FONT_CACHE:
+        return _FONT_CACHE[key]
+    paths = [
+        "/System/Library/Fonts/Supplemental/Futura.ttc",
+        "/System/Library/Fonts/Supplemental/ChalkboardSE.ttc",
+        "/System/Library/Fonts/HelveticaNeue.ttc",
+    ]
+    if style == "comic":
+        paths = [
+            "/System/Library/Fonts/Supplemental/ChalkboardSE.ttc",
+            "/System/Library/Fonts/Supplemental/Futura.ttc",
+        ]
+    for p in paths:
+        if Path(p).exists():
+            try:
+                f = ImageFont.truetype(p, size)
+                _FONT_CACHE[key] = f
+                return f
+            except Exception:
+                pass
+    f = ImageFont.load_default()
+    _FONT_CACHE[key] = f
+    return f
+
+
+def fit_pil_font(draw: ImageDraw.ImageDraw, text: str, max_w: int, start_size: int, min_size: int = 10, style: str = "bold"):
+    for sz in range(start_size, min_size - 1, -1):
+        f = get_comic_font(sz, style)
+        bbox = draw.textbbox((0, 0), text, font=f)
+        if (bbox[2] - bbox[0]) <= max_w:
+            return f
+    return get_comic_font(min_size, style)
+
+
+def human_motion_story(topo_code: str) -> str:
+    stories = {
+        "vertical_pillar": "STEADY CENTER PILLAR (Holds center while 7 planes parallax)",
+        "sheared_ribbon": "GLIDES ACROSS FRAME (Smooth horizontal camera pan)",
+        "expanding_cone": "GROWS TOWARD CAMERA (Expands from background to foreground)",
+        "helical_corkscrew": "SPIRALS THROUGH TIME (Curved arc across 4 keyframes)",
+        "double_helix": "TWIN ACTION PATHS (Subject & background move together)",
+    }
+    return stories.get(topo_code, "SEQUENTIAL TIME-FRAMES (4 keyframes stacked in space)")
 
 
 def load_qd_doodle(slug: str):
@@ -536,7 +590,7 @@ def archival_slice_to_qd_sketch(bgr_img: np.ndarray) -> np.ndarray:
 
 
 def render_slitscan_tomography_atlas(records):
-    """Visualization 1: Fels & Mase Interactive Video Cubism / Video Summagator u-tau & v-tau Slit-Scan Atlas (Unified Quick, Draw! Aesthetic)."""
+    """Visualization 1: Scott McCloud 'Time Frames' Slit-Scan Atlas (How Space Shows Time Across 33 Frames)."""
     featured_slugs = [
         "giraffe-walks-past", "train", "lighthouse", "guitar",
         "tractor", "speedboat", "bicycle", "carrot",
@@ -547,21 +601,13 @@ def render_slitscan_tomography_atlas(records):
 
     cols, rows = 4, 3
     cell_w, cell_h = 420, 290
-    header_h = 68
+    header_h = 74
     canvas = np.full((header_h + rows * cell_h, cols * cell_w, 3), PAPER_CREAM, dtype=np.uint8)
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
-    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 2)
-    cv2.putText(
-        canvas,
-        "1. QUICK, DRAW! TOMOGRAPHIC SLIT-SCAN SLICES (u-tau & v-tau CROSS-SECTIONS // INTERACTIVE VIDEO CUBISM)",
-        (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.66, INK_BLACK, 2, cv2.LINE_AA
-    )
-    cv2.putText(
-        canvas,
-        "Left: Archival Graphite u-tau Horizon Slice + Worm c(tau) | Mid: Quick, Draw! Cartoon u-tau Slice | Right: Vertical v-tau Slice + Jerk Cues",
-        (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.44, INK_GRAPHITE, 1, cv2.LINE_AA
-    )
+    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+
+    text_overlays = []
 
     for idx, rec in enumerate(chosen[:12]):
         r_i = idx // cols
@@ -570,11 +616,9 @@ def render_slitscan_tomography_atlas(records):
         y0 = header_h + r_i * cell_h
 
         draw_qd_card(canvas, x0 + 6, y0 + 6, x0 + cell_w - 8, y0 + cell_h - 8, PAPER_LIGHT, shadow=3)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 32), PAPER_DARK, -1)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 32), INK_BLACK, 2)
-        lbl = f"#{rec['rank']:03d} {rec['slug'].upper()} // {rec['topology_code'].upper()} (shear={rec['shear_deg']:+.1f}deg)"
-        cv2.putText(canvas, lbl, (x0 + 12, y0 + 23), cv2.FONT_HERSHEY_SIMPLEX, 0.39, INK_BLACK, 1, cv2.LINE_AA)
-        draw_qd_doodle_stamp(canvas, rec["slug"], x0 + cell_w - 24, y0 + 19, 18.0, fill_bgr=GOUACHE_AMBER, thickness=1)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 34), PAPER_DARK, -1)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 34), INK_BLACK, 2)
+        draw_qd_doodle_stamp(canvas, rec["slug"], x0 + cell_w - 26, y0 + 20, 18.0, fill_bgr=GOUACHE_AMBER, thickness=2)
 
         arch_frs = rec["_arch_frames"]
         cart_frs = rec["_cart_frames"]
@@ -585,21 +629,19 @@ def render_slitscan_tomography_atlas(records):
         cart_utau = np.stack([fr[v_slice_idx, :, :] for fr in cart_frs], axis=0)
         cart_vtau = np.stack([fr[:, u_slice_idx, :] for fr in cart_frs], axis=0)
 
-        arch_utau_img = archival_slice_to_qd_sketch(cv2.resize(arch_utau, (124, 196), interpolation=cv2.INTER_LINEAR))
-        cart_utau_img = cv2.resize(cart_utau, (124, 196), interpolation=cv2.INTER_LINEAR)
-        cart_vtau_img = cv2.resize(cart_vtau, (124, 196), interpolation=cv2.INTER_LINEAR)
+        arch_utau_img = archival_slice_to_qd_sketch(cv2.resize(arch_utau, (124, 188), interpolation=cv2.INTER_LINEAR))
+        cart_utau_img = cv2.resize(cart_utau, (124, 188), interpolation=cv2.INTER_LINEAR)
+        cart_vtau_img = cv2.resize(cart_vtau, (124, 188), interpolation=cv2.INTER_LINEAR)
 
         for panel_img, coords in [(arch_utau_img, rec["worm_u"]), (cart_utau_img, rec["worm_u"]), (cart_vtau_img, rec["worm_v"])]:
             ph, pw = panel_img.shape[:2]
-            for gx in [int(0.333 * pw), int(0.667 * pw), int(0.618 * pw)]:
-                cv2.line(panel_img, (gx, 0), (gx, ph - 1), ACCENT_BLUE, 1, cv2.LINE_AA)
             pts = []
             for t_i, val in enumerate(coords):
-                px = int(np.clip(val * (pw - 1), 2, pw - 3))
+                px = int(np.clip(val * (pw - 1), 3, pw - 4))
                 py = int(round((t_i / 32.0) * (ph - 1)))
                 pts.append([px, py])
             pts_np = np.array(pts, dtype=np.int32)
-            cv2.polylines(panel_img, [pts_np], False, INK_BLACK, 4, cv2.LINE_AA)
+            cv2.polylines(panel_img, [pts_np], False, INK_BLACK, 5, cv2.LINE_AA)
             cv2.polylines(panel_img, [pts_np], False, ACCENT_GOLD, 2, cv2.LINE_AA)
             for cue in rec["earshot_cues"]:
                 py = int(round(((cue["frame"] - 1) / 32.0) * (ph - 1)))
@@ -607,22 +649,33 @@ def render_slitscan_tomography_atlas(records):
                 cv2.circle(panel_img, (px, py), 5, ACCENT_RED, -1, cv2.LINE_AA)
                 cv2.circle(panel_img, (px, py), 5, INK_BLACK, 1, cv2.LINE_AA)
 
-        py0 = y0 + 38
+        py0 = y0 + 40
         for p_idx, (p_im, p_title) in enumerate([
-            (arch_utau_img, "Pencil u-tau"),
-            (cart_utau_img, "Cartoon u-tau"),
-            (cart_vtau_img, "Vertical v-tau"),
+            (arch_utau_img, "1. Pencil Trace"),
+            (cart_utau_img, "2. Left-Right Motion"),
+            (cart_vtau_img, "3. Up-Down Motion"),
         ]):
             px0 = x0 + 13 + p_idx * 132
-            canvas[py0 + 16:py0 + 212, px0:px0 + 124] = p_im
-            cv2.rectangle(canvas, (px0, py0 + 16), (px0 + 124, py0 + 212), INK_BLACK, 2)
-            cv2.putText(canvas, p_title, (px0 + 4, py0 + 11), cv2.FONT_HERSHEY_SIMPLEX, 0.35, INK_BLACK, 1, cv2.LINE_AA)
+            canvas[py0 + 18:py0 + 206, px0:px0 + 124] = p_im
+            cv2.rectangle(canvas, (px0, py0 + 18), (px0 + 124, py0 + 206), INK_BLACK, 2)
+            text_overlays.append((px0 + 4, py0 + 1, p_title, 12, "bold", (22, 20, 18), 120))
 
-        cap_txt = f"dL*={rec['mean_chiaroscuro_dL']:.1f} | dH={rec['mean_hue_polarity_dH']:.0f}deg | d_grid={rec['mean_d_grid']:.3f} | Jerk={rec['peak_jerk']:.2f}"
-        cv2.putText(canvas, cap_txt, (x0 + 12, y0 + cell_h - 14), cv2.FONT_HERSHEY_SIMPLEX, 0.35, INK_GRAPHITE, 1, cv2.LINE_AA)
+        lbl = f"#{rec['rank']:03d} {rec['slug'].upper()}"
+        text_overlays.append((x0 + 14, y0 + 11, lbl, 15, "bold", (22, 20, 18), cell_w - 60))
+        story = human_motion_story(rec["topology_code"])
+        text_overlays.append((x0 + 14, y0 + cell_h - 30, story, 12, "comic", (47, 107, 79), cell_w - 28))
 
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+    draw.text((20, 12), "1. SCOTT McCLOUD 'TIME FRAMES': SLICING MOTION ACROSS SPACE (CH. 4)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "Top to Bottom = Frame 1 to Frame 33  |  Golden Ribbon = Subject's Path Through Time  |  Red Dots = Sound Effects", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    for tx, ty, txt, sz, st, col, mw in text_overlays:
+        f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
+        draw.text((tx, ty), txt, font=f, fill=col)
+
+    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     out_path = PREVIEW_DIR / "worm_slitscan_tomography_atlas.png"
-    cv2.imwrite(str(out_path), canvas)
+    cv2.imwrite(str(out_path), out_bgr)
     shutil.copy2(out_path, ARTIFACT_DIR / "worm_slitscan_tomography_atlas.png")
     return out_path
 
@@ -643,7 +696,7 @@ def hex_to_bgr(h):
 
 
 def render_3d_glass_prism_atlas(records):
-    """Visualization 2: 3D Quick, Draw! Paper-Prism Volume Rendering with Extruded Action Tubes & 14-Line Armature Filaments."""
+    """Visualization 2: Scott McCloud 'Time-Cube' (4 Keyframes Stacked in Space + Golden Motion Ribbon)."""
     featured_slugs = [
         "giraffe-walks-past", "train", "lighthouse", "guitar",
         "tractor", "speedboat", "bicycle", "carrot",
@@ -654,21 +707,13 @@ def render_3d_glass_prism_atlas(records):
 
     cols, rows = 4, 3
     cell_w, cell_h = 420, 300
-    header_h = 68
+    header_h = 74
     canvas = np.full((header_h + rows * cell_h, cols * cell_w, 3), PAPER_CREAM, dtype=np.uint8)
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
-    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 2)
-    cv2.putText(
-        canvas,
-        "2. 3D QUICK, DRAW! PAPER-PRISM VOLUME V(u,v,tau) // EXTRUDED DOODLE WORMS & 14-LINE ARMATURE",
-        (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.66, INK_BLACK, 2, cv2.LINE_AA
-    )
-    cv2.putText(
-        canvas,
-        "Red/Blue Filaments: Bouleau 14-Line Armature + Thirds | Gouache Ink Tube: Core Worm + Stamped Quick, Draw! Doodles at tau=0 & tau=1",
-        (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.44, INK_GRAPHITE, 1, cv2.LINE_AA
-    )
+    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+
+    text_overlays = []
 
     for idx, rec in enumerate(chosen[:12]):
         r_i = idx // cols
@@ -677,102 +722,68 @@ def render_3d_glass_prism_atlas(records):
         y0 = header_h + r_i * cell_h
 
         draw_qd_card(canvas, x0 + 6, y0 + 6, x0 + cell_w - 8, y0 + cell_h - 8, PAPER_LIGHT, shadow=3)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 34), PAPER_DARK, -1)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 34), INK_BLACK, 2)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 36), PAPER_DARK, -1)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 36), INK_BLACK, 2)
 
-        cx = x0 + cell_w // 2 - 8
-        cy = y0 + cell_h // 2 + 10
+        cx = x0 + cell_w // 2 - 4
+        cy = y0 + cell_h // 2 + 6
 
-        # Subtle drafting-paper grid inside cell
-        for gx in range(x0 + 24, x0 + cell_w - 16, 28):
-            cv2.line(canvas, (gx, y0 + 36), (gx, y0 + cell_h - 38), (232, 240, 246), 1)
-        for gy in range(y0 + 52, y0 + cell_h - 38, 28):
-            cv2.line(canvas, (x0 + 12, gy), (x0 + cell_w - 14, gy), (232, 240, 246), 1)
+        # Draw 3 Stacked Keyframe Cards (K1 at tau=0.0, K2 at tau=0.5, K4 at tau=1.0) inside the 3D Time-Cube
+        for tau_plane, plane_fill in [(0.0, GOUACHE_BLUE), (0.5, GOUACHE_AMBER), (1.0, GOUACHE_MINT)]:
+            p00 = project_3d_iso(0.0, 0.0, tau_plane, cx, cy)
+            p10 = project_3d_iso(1.0, 0.0, tau_plane, cx, cy)
+            p11 = project_3d_iso(1.0, 1.0, tau_plane, cx, cy)
+            p01 = project_3d_iso(0.0, 1.0, tau_plane, cx, cy)
+            poly = np.array([p00, p10, p11, p01], dtype=np.int32)
+            overlay = canvas.copy()
+            cv2.fillConvexPoly(overlay, poly, plane_fill, cv2.LINE_AA)
+            cv2.addWeighted(overlay, 0.38, canvas, 0.62, 0, canvas)
+            cv2.polylines(canvas, [poly], True, INK_BLACK, 2, cv2.LINE_AA)
 
-        corners = {}
-        for u_c in (0.0, 1.0):
-            for v_c in (0.0, 1.0):
-                for t_c in (0.0, 1.0):
-                    corners[(u_c, v_c, t_c)] = project_3d_iso(u_c, v_c, t_c, cx, cy)
+        # Connect the 4 outer corners of the Time-Cube
+        for u_c, v_c in [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]:
+            pa = project_3d_iso(u_c, v_c, 0.0, cx, cy)
+            pb = project_3d_iso(u_c, v_c, 1.0, cx, cy)
+            cv2.line(canvas, pa, pb, INK_GRAPHITE, 1, cv2.LINE_AA)
 
-        prism_edges = [
-            ((0,0,0), (1,0,0)), ((1,0,0), (1,1,0)), ((1,1,0), (0,1,0)), ((0,1,0), (0,0,0)),
-            ((0,0,1), (1,0,1)), ((1,0,1), (1,1,1)), ((1,1,1), (0,1,1)), ((0,1,1), (0,0,1)),
-            ((0,0,0), (0,0,1)), ((1,0,0), (1,0,1)), ((1,1,0), (1,1,1)), ((0,1,0), (0,1,1)),
-        ]
-        for p1, p2 in prism_edges:
-            cv2.line(canvas, corners[p1], corners[p2], INK_BLACK, 2, cv2.LINE_AA)
-
-        for g_u in (0.3333, 0.6180, 0.6667):
-            p_start = project_3d_iso(g_u, 0.3820, 0.0, cx, cy)
-            p_end = project_3d_iso(g_u, 0.3820, 1.0, cx, cy)
-            cv2.line(canvas, p_start, p_end, ACCENT_RED, 1, cv2.LINE_AA)
-        for u1, v1, u2, v2, _ in ARMATURE_14_LINES[:6]:
-            pa = project_3d_iso(u1, v1, 0.5, cx, cy)
-            pb = project_3d_iso(u2, v2, 0.5, cx, cy)
-            cv2.line(canvas, pa, pb, ACCENT_BLUE, 1, cv2.LINE_AA)
-
-        sec_pts = []
-        for t_i in range(33):
-            tau_v = t_i / 32.0
-            sec_pts.append(project_3d_iso(rec["sec_u"][t_i], rec["sec_v"][t_i], tau_v, cx, cy))
-        for t_i in range(len(sec_pts) - 1):
-            cv2.line(canvas, sec_pts[t_i], sec_pts[t_i + 1], ACCENT_BLUE, 3, cv2.LINE_AA)
-
-        gouache_cycle = [GOUACHE_AMBER, GOUACHE_MINT, GOUACHE_BLUE, GOUACHE_CORAL]
-        g_tint0 = gouache_cycle[idx % len(gouache_cycle)]
-        g_tint1 = gouache_cycle[(idx + 1) % len(gouache_cycle)]
-        c_bgr0 = tuple(int(0.45 * hex_to_bgr(rec["core_palette"][0])[k] + 0.55 * g_tint0[k]) for k in range(3))
-        c_bgr1 = tuple(int(0.45 * hex_to_bgr(rec["core_palette"][-1])[k] + 0.55 * g_tint1[k]) for k in range(3))
+        # Clean Golden Motion Ribbon connecting Frame 1 to Frame 33 (zero muddy black caterpillar circles!)
         worm_pts = []
         for t_i in range(33):
             tau_v = t_i / 32.0
             px, py = project_3d_iso(rec["worm_u"][t_i], rec["worm_v"][t_i], tau_v, cx, cy)
-            rad_px = int(np.clip(rec["worm_r"][t_i] * 54.0, 6, 22))
-            alpha = t_i / 32.0
-            col = tuple(int(np.clip((1 - alpha) * c_bgr0[k] + alpha * c_bgr1[k], 70, 250)) for k in range(3))
             worm_pts.append((px, py))
-            if t_i % 2 == 0 or t_i == 32:
-                cv2.circle(canvas, (px + 2, py + 2), rad_px, INK_BLACK, -1, cv2.LINE_AA)
-                cv2.circle(canvas, (px, py), rad_px, col, -1, cv2.LINE_AA)
-                cv2.circle(canvas, (px, py), rad_px, INK_BLACK, 2, cv2.LINE_AA)
 
         pts_np = np.array(worm_pts, dtype=np.int32)
-        cv2.polylines(canvas, [pts_np], False, INK_BLACK, 4, cv2.LINE_AA)
-        cv2.polylines(canvas, [pts_np], False, ACCENT_GOLD, 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts_np], False, INK_BLACK, 9, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts_np], False, ACCENT_GOLD, 5, cv2.LINE_AA)
 
-        # Stamp the genuine Quick, Draw! doodle at tau=0 (entry) and tau=1 (exit) of the 3D worm!
+        # Stamp the genuine Quick, Draw! doodle at Frame 1 (K1) and Frame 33 (K4)
         draw_qd_doodle_stamp(canvas, rec["slug"], worm_pts[0][0], worm_pts[0][1], 28.0, fill_bgr=GOUACHE_AMBER, thickness=2)
-        draw_qd_doodle_stamp(canvas, rec["slug"], worm_pts[-1][0], worm_pts[-1][1], 32.0, fill_bgr=PAPER_LIGHT, thickness=2)
+        draw_qd_doodle_stamp(canvas, rec["slug"], worm_pts[16][0], worm_pts[16][1], 24.0, fill_bgr=PAPER_LIGHT, thickness=2)
+        draw_qd_doodle_stamp(canvas, rec["slug"], worm_pts[-1][0], worm_pts[-1][1], 32.0, fill_bgr=GOUACHE_MINT, thickness=2)
 
-        for cue in rec["earshot_cues"]:
-            qx, qy = worm_pts[cue["frame"] - 1]
-            cv2.circle(canvas, (qx, qy), 6, ACCENT_RED, -1, cv2.LINE_AA)
-            cv2.circle(canvas, (qx, qy), 7, INK_BLACK, 2, cv2.LINE_AA)
+        lbl = f"#{rec['rank']:03d} {rec['slug'].upper()} // 3D TIME-CUBE"
+        text_overlays.append((x0 + 14, y0 + 11, lbl, 15, "bold", (22, 20, 18), cell_w - 28))
+        story = human_motion_story(rec["topology_code"])
+        text_overlays.append((x0 + 14, y0 + cell_h - 30, story, 12, "comic", (43, 91, 132), cell_w - 28))
 
-        cv2.putText(
-            canvas, f"#{rec['rank']:03d} {rec['slug'].upper()} // {rec['topology'].split('(')[0].strip()}",
-            (x0 + 12, y0 + 24), cv2.FONT_HERSHEY_SIMPLEX, 0.40, INK_BLACK, 1, cv2.LINE_AA
-        )
-        cv2.putText(
-            canvas,
-            f"Filament: {rec['dominant_filament']} (Lock {rec['compositional_lock_pct']:.0f}% | Arnheim {rec['arnheim_tension_pct']:.0f}%)",
-            (x0 + 12, y0 + cell_h - 28), cv2.FONT_HERSHEY_SIMPLEX, 0.34, INK_BLACK, 1, cv2.LINE_AA
-        )
-        cv2.putText(
-            canvas,
-            f"kappa={rec['mean_curvature']:.2f} | tau={rec['mean_torsion']:.2f} | SFX@{[c['frame'] for c in rec['earshot_cues']]}",
-            (x0 + 12, y0 + cell_h - 13), cv2.FONT_HERSHEY_SIMPLEX, 0.34, ACCENT_GREEN, 1, cv2.LINE_AA
-        )
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+    draw.text((20, 12), "2. SCOTT McCLOUD 3D TIME-CUBES: 4 KEYFRAMES STACKED IN SPACE (CH. 4)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "3 Translucent Cards = Keyframes K1, K2, K4 Stacked in Space  |  Golden Ribbon = Motion Path Connecting Them", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    for tx, ty, txt, sz, st, col, mw in text_overlays:
+        f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
+        draw.text((tx, ty), txt, font=f, fill=col)
 
+    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     out_path = PREVIEW_DIR / "worm_3d_glass_prism_atlas.png"
-    cv2.imwrite(str(out_path), canvas)
+    cv2.imwrite(str(out_path), out_bgr)
     shutil.copy2(out_path, ARTIFACT_DIR / "worm_3d_glass_prism_atlas.png")
     return out_path
 
 
 def render_cinemetrics_torus_atlas(records):
-    """Visualization 3: Frederic Brodbeck 360-deg Radial Cinemetrics Torus Atlas (Unified Quick, Draw! Aesthetic)."""
+    """Visualization 3: Color & Action Wheel Atlas (5 Gouache Palette Rings + Action Spikes)."""
     featured_slugs = [
         "giraffe-walks-past", "train", "lighthouse", "guitar",
         "tractor", "speedboat", "bicycle", "carrot",
@@ -783,21 +794,13 @@ def render_cinemetrics_torus_atlas(records):
 
     cols, rows = 4, 3
     cell_w, cell_h = 400, 300
-    header_h = 68
+    header_h = 74
     canvas = np.full((header_h + rows * cell_h, cols * cell_w, 3), PAPER_CREAM, dtype=np.uint8)
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
-    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 2)
-    cv2.putText(
-        canvas,
-        "3. QUICK, DRAW! RADIAL CINEMETRICS TORUS (BRODBECK 360-DEG RING // KALMUS BANDS + JERK SPIKES)",
-        (18, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.65, INK_BLACK, 2, cv2.LINE_AA
-    )
-    cv2.putText(
-        canvas,
-        "Inner 5 Gouache Bands: 3 Core-Worm + 2 Outer-Shell KALMUS Palette | Center: Quick, Draw! Doodle | Outer Spikes: Kinetic Jerk ||c'''(tau)||",
-        (18, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.43, INK_GRAPHITE, 1, cv2.LINE_AA
-    )
+    cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+
+    text_overlays = []
 
     for idx, rec in enumerate(chosen[:12]):
         r_i = idx // cols
@@ -806,11 +809,11 @@ def render_cinemetrics_torus_atlas(records):
         y0 = header_h + r_i * cell_h
 
         draw_qd_card(canvas, x0 + 6, y0 + 6, x0 + cell_w - 8, y0 + cell_h - 8, PAPER_LIGHT, shadow=3)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 32), PAPER_DARK, -1)
-        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 32), INK_BLACK, 2)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 36), PAPER_DARK, -1)
+        cv2.rectangle(canvas, (x0 + 6, y0 + 6), (x0 + cell_w - 8, y0 + 36), INK_BLACK, 2)
 
         cx = x0 + cell_w // 2
-        cy = y0 + cell_h // 2 + 12
+        cy = y0 + cell_h // 2 + 8
 
         swatches = rec["core_palette"] + rec["shell_palette"]
         gouache_bands = [GOUACHE_AMBER, GOUACHE_CORAL, GOUACHE_MINT, GOUACHE_BLUE, PAPER_DARK]
@@ -825,7 +828,6 @@ def render_cinemetrics_torus_atlas(records):
         cv2.circle(canvas, (cx, cy), 28, INK_BLACK, 2, cv2.LINE_AA)
         cv2.circle(canvas, (cx, cy), 79, INK_BLACK, 2, cv2.LINE_AA)
 
-        # Stamp the genuine Quick, Draw! category doodle inside the center of the torus!
         draw_qd_doodle_stamp(canvas, rec["slug"], cx, cy, 36.0, fill_bgr=GOUACHE_AMBER, thickness=2)
 
         max_j = max(rec["jerk_curve"]) + 1e-4
@@ -833,7 +835,7 @@ def render_cinemetrics_torus_atlas(records):
             ang = -math.pi / 2.0 + (2.0 * math.pi * t_i / 33.0)
             inten = rec["intensity_curve"][t_i]
             j_norm = rec["jerk_curve"][t_i] / max_j
-            spike_len = int(12 + 32 * (0.55 * inten + 0.45 * j_norm))
+            spike_len = int(12 + 30 * (0.55 * inten + 0.45 * j_norm))
             x1 = int(round(cx + 80 * math.cos(ang)))
             y1 = int(round(cy + 80 * math.sin(ang)))
             x2 = int(round(cx + (80 + spike_len) * math.cos(ang)))
@@ -843,44 +845,38 @@ def render_cinemetrics_torus_atlas(records):
             thick = 3 if is_key else 2
             cv2.line(canvas, (x1, y1), (x2, y2), col, thick, cv2.LINE_AA)
 
-        cv2.putText(
-            canvas, f"#{rec['rank']:03d} {rec['slug'].upper()} // {rec['topology_code'].upper()}",
-            (x0 + 12, y0 + 23), cv2.FONT_HERSHEY_SIMPLEX, 0.41, INK_BLACK, 1, cv2.LINE_AA
-        )
-        cv2.putText(
-            canvas,
-            f"Itten dL*={rec['mean_chiaroscuro_dL']:.1f} | dH={rec['mean_hue_polarity_dH']:.0f}deg | Area={rec['mean_extension_ratio']*100:.1f}%",
-            (x0 + 12, y0 + cell_h - 14), cv2.FONT_HERSHEY_SIMPLEX, 0.35, INK_GRAPHITE, 1, cv2.LINE_AA
-        )
+        lbl = f"#{rec['rank']:03d} {rec['slug'].upper()} // COLOR & RHYTHM WHEEL"
+        text_overlays.append((x0 + 14, y0 + 11, lbl, 15, "bold", (22, 20, 18), cell_w - 28))
+        story = f"5 Gouache Plane Colors  |  4 Red Keyframe Beats (K1, K2, K3, K4)"
+        text_overlays.append((x0 + 14, y0 + cell_h - 30, story, 12, "comic", (90, 82, 74), cell_w - 28))
 
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+    draw.text((20, 12), "3. COLOR & RHYTHM WHEELS: GOUACHE PALETTES & KEYFRAME BEATS (CH. 6)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "Center = Quick, Draw! Icon  |  5 Colored Rings = 7-Plane Gouache Palette  |  Red Spikes = 4 Keyframe Accents", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    for tx, ty, txt, sz, st, col, mw in text_overlays:
+        f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
+        draw.text((tx, ty), txt, font=f, fill=col)
+
+    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     out_path = PREVIEW_DIR / "worm_cinemetrics_torus_atlas.png"
-    cv2.imwrite(str(out_path), canvas)
+    cv2.imwrite(str(out_path), out_bgr)
     shutil.copy2(out_path, ARTIFACT_DIR / "worm_cinemetrics_torus_atlas.png")
     return out_path
 
 
 def render_manovich_montage_grid(records):
-    """Visualization 4: Lev Manovich Cultural Analytics Montage Grid + Bruce Block Visual Intensity Graph across all 346 shots (Unified Quick, Draw! Aesthetic)."""
+    """Visualization 4: All 346 Cartoons Side-by-Side as a Single Giant Comic Page."""
     cols, rows = 20, 18
     cw, ch = 84, 54
-    header_h = 68
+    header_h = 74
     footer_h = 128
     W = cols * cw
     H = header_h + rows * ch + footer_h
     canvas = np.full((H, W, 3), PAPER_CREAM, dtype=np.uint8)
 
     cv2.rectangle(canvas, (0, 0), (W, header_h), GOUACHE_AMBER, -1)
-    cv2.line(canvas, (0, header_h - 2), (W, header_h - 2), INK_BLACK, 2)
-    cv2.putText(
-        canvas,
-        "4. QUICK, DRAW! CULTURAL ANALYTICS MONTAGE GRID (LEV MANOVICH + BRUCE BLOCK INTENSITY ACROSS ALL 346 SHOTS)",
-        (16, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.64, INK_BLACK, 2, cv2.LINE_AA
-    )
-    cv2.putText(
-        canvas,
-        "Every Cell = 1 Shot (#001..#346): Midpoint Quick, Draw! Multiplane Frame + Extruded Worm Ribbon + Gouache Topology Header + Bruce Block Wave Below",
-        (16, 52), cv2.FONT_HERSHEY_SIMPLEX, 0.43, INK_GRAPHITE, 1, cv2.LINE_AA
-    )
+    cv2.line(canvas, (0, header_h - 2), (W, header_h - 2), INK_BLACK, 3)
 
     macro_intensities = []
     macro_dL = []
@@ -910,9 +906,8 @@ def render_manovich_montage_grid(records):
         cv2.polylines(mid_fr, [pts_np], False, ACCENT_GOLD, 1, cv2.LINE_AA)
 
         tcol = topo_colors.get(rec["topology_code"], PAPER_DARK)
-        cv2.rectangle(mid_fr, (0, 0), (cw - 2, 8), tcol, -1)
-        cv2.line(mid_fr, (0, 8), (cw - 2, 8), INK_BLACK, 1)
-        cv2.putText(mid_fr, f"{rec['rank']:03d}", (2, ch - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.28, INK_BLACK, 1, cv2.LINE_AA)
+        cv2.rectangle(mid_fr, (0, 0), (cw - 2, 7), tcol, -1)
+        cv2.line(mid_fr, (0, 7), (cw - 2, 7), INK_BLACK, 1)
 
         canvas[y0 + 1:y0 + ch - 1, x0 + 1:x0 + cw - 1] = mid_fr
         cv2.rectangle(canvas, (x0 + 1, y0 + 1), (x0 + cw - 1, y0 + ch - 1), INK_BLACK, 1)
@@ -922,29 +917,31 @@ def render_manovich_montage_grid(records):
     fy0 = header_h + rows * ch + 10
     fh = footer_h - 22
     draw_qd_card(canvas, 14, fy0, W - 16, fy0 + fh, PAPER_LIGHT, shadow=4)
-    cv2.putText(
-        canvas,
-        "BRUCE BLOCK MACRO VISUAL INTENSITY GRAPH (FOREST GREEN) & KALMUS CHIAROSCURO CONTRAST dL* (WAX RED) ACROSS ALL 346 SHOTS (#001 -> #346)",
-        (26, fy0 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, INK_BLACK, 1, cv2.LINE_AA
-    )
 
-    for gy in range(fy0 + 34, fy0 + fh - 10, 22):
+    for gy in range(fy0 + 38, fy0 + fh - 10, 22):
         cv2.line(canvas, (24, gy), (W - 26, gy), PAPER_DARK, 1)
 
     pts_int = []
     pts_dl = []
     for i, (val_i, val_l) in enumerate(zip(macro_intensities, macro_dL)):
         px = int(round(24 + (i / max(len(macro_intensities) - 1, 1)) * (W - 50)))
-        py_i = int(round(fy0 + fh - 12 - np.clip(val_i, 0.0, 1.0) * (fh - 38)))
-        py_l = int(round(fy0 + fh - 12 - np.clip(val_l / 55.0, 0.0, 1.0) * (fh - 38)))
+        py_i = int(round(fy0 + fh - 12 - np.clip(val_i, 0.0, 1.0) * (fh - 42)))
+        py_l = int(round(fy0 + fh - 12 - np.clip(val_l / 55.0, 0.0, 1.0) * (fh - 42)))
         pts_int.append([px, py_i])
         pts_dl.append([px, py_l])
 
     cv2.polylines(canvas, [np.array(pts_dl, dtype=np.int32)], False, ACCENT_RED, 2, cv2.LINE_AA)
     cv2.polylines(canvas, [np.array(pts_int, dtype=np.int32)], False, ACCENT_GREEN, 2, cv2.LINE_AA)
 
+    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+    draw.text((20, 12), "4. THE COMPLETE 346-SHOT ARCHIVE WALL (EVERY CARTOON IN ONE GIANT COMIC GRID)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "Every Panel = 1 Clean Multiplane Cartoon (#001 to #346) with Golden Motion Ribbon  |  Bottom Wave = Visual Rhythm Across All 346 Films", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    draw.text((26, fy0 + 8), "STUDIO RHYTHM WAVE ACROSS ALL 346 CARTOONS (GREEN = MOTION ENERGY  |  RED = LIGHT/DARK CONTRAST)", font=get_comic_font(15, "bold"), fill=(22, 20, 18))
+
+    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     out_path = PREVIEW_DIR / "worm_manovich_montage_grid.png"
-    cv2.imwrite(str(out_path), canvas)
+    cv2.imwrite(str(out_path), out_bgr)
     shutil.copy2(out_path, ARTIFACT_DIR / "worm_manovich_montage_grid.png")
     return out_path
 
