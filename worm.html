@@ -159,13 +159,13 @@ th { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercas
   </div>
 
   <div class="grid-2">
-    <!-- Left: Interactive 3D Glass-Prism Canvas -->
-    <div class="sheet" style="background:#14161C;color:#F4EFE6;">
+    <!-- Left: Interactive 3D Quick, Draw! Paper-Prism Canvas -->
+    <div class="sheet">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
-        <span class="mono" style="font-size:0.76rem;color:#73DCFF;font-weight:700;">3D GLASS-PRISM VOLUME V(u,v,&tau;) // DRAG OR ROTATE YAW &amp; PITCH</span>
-        <span class="mono" id="topo-badge" style="font-size:0.72rem;background:#263242;padding:0.2rem 0.5rem;border-radius:3px;color:#9BE8B0;">Topology</span>
+        <span class="mono" style="font-size:0.76rem;color:var(--wax);font-weight:700;">3D QUICK, DRAW! PAPER-PRISM VOLUME V(u,v,&tau;) // DRAG OR ROTATE YAW &amp; PITCH</span>
+        <span class="mono" id="topo-badge" style="font-size:0.72rem;background:var(--amber-pale);border:1.5px solid var(--ink);padding:0.15rem 0.5rem;border-radius:3px;color:var(--ink);font-weight:700;">Topology</span>
       </div>
-      <canvas id="prism-canvas" width="680" height="430" style="width:100%;aspect-ratio:68/43;background:#101217;border:1.5px solid #4A5568;border-radius:4px;cursor:grab;display:block;"></canvas>
+      <canvas id="prism-canvas" width="680" height="430" style="width:100%;aspect-ratio:68/43;background:#FFFBF4;border:2px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--ink);cursor:grab;display:block;"></canvas>
       <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;margin-top:0.65rem;font-size:0.74rem;" class="mono">
         <label><input type="checkbox" id="chk-thirds" checked onchange="drawActiveWorm()"> Rule of Thirds Tunnel</label>
         <label><input type="checkbox" id="chk-armature" checked onchange="drawActiveWorm()"> Bouleau 14-Line Armature</label>
@@ -173,7 +173,7 @@ th { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercas
         <label><input type="checkbox" id="chk-secondary" checked onchange="drawActiveWorm()"> Secondary Counterpoint Tube</label>
         <label>Yaw: <input type="range" id="yaw-slider" min="-180" max="180" value="32" oninput="setManualAngle()"></label>
       </div>
-      <p class="mono" id="grammar-readout" style="font-size:0.74rem;color:#CBD5E0;margin:0.55rem 0 0;"></p>
+      <p class="mono" id="grammar-readout" style="font-size:0.74rem;color:var(--ink-soft);margin:0.55rem 0 0;"></p>
     </div>
 
     <!-- Right: Live Brodbeck 360° Cinemetrics Torus + KALMUS Stratigraphy + Curvature/Jerk Curves -->
@@ -184,7 +184,7 @@ th { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercas
           <span class="mono" id="kalmus-readout" style="font-size:0.72rem;color:var(--forest);font-weight:700;"></span>
         </div>
         <div style="display:grid;grid-template-columns:210px 1fr;gap:0.8rem;align-items:center;">
-          <canvas id="torus-canvas" width="220" height="220" style="width:100%;aspect-ratio:1/1;border:1.5px solid var(--ink);border-radius:4px;background:#FFFBF4;"></canvas>
+          <canvas id="torus-canvas" width="220" height="220" style="width:100%;aspect-ratio:1/1;border:2px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--ink);background:#FFFBF4;"></canvas>
           <div class="mono" style="font-size:0.74rem;display:flex;flex-direction:column;gap:0.45rem;">
             <div><strong>Core Worm Palette (Subject):</strong> <span id="core-swatches"></span></div>
             <div><strong>Outer Shell Palette (Negative Space):</strong> <span id="shell-swatches"></span></div>
@@ -202,7 +202,7 @@ th { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercas
           <strong class="mono" style="font-size:0.75rem;">SPACE-CURVE DIFFERENTIAL GEOMETRY // &kappa;(&tau;), JERK ||c'''(&tau;)|| &amp; ARMATURE TORQUE d_grid(&tau;)</strong>
           <span class="mono" id="geom-readout" style="font-size:0.72rem;"></span>
         </div>
-        <canvas id="curves-canvas" width="540" height="185" style="width:100%;height:185px;border:1.5px solid var(--ink);border-radius:4px;background:#16181F;display:block;"></canvas>
+        <canvas id="curves-canvas" width="540" height="185" style="width:100%;height:185px;border:2px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--ink);background:#FFFBF4;display:block;"></canvas>
       </div>
     </div>
   </div>
@@ -389,12 +389,22 @@ function drawActiveWorm() {
   document.getElementById('val-sfx').innerHTML = (rec.earshot_cues || []).map(c => `&bull; f${String(c.frame).padStart(2,'0')} (${c.time_s}s, Jerk=${c.jerk}): <code>${c.sfx}</code>`).join('<br>');
   document.getElementById('geom-readout').textContent = `Mean Curvature κ=${rec.mean_curvature} | Torsion τ=${rec.mean_torsion} | Peak Jerk=${rec.peak_jerk}`;
 
-  // 1. Render 3D Glass Prism
+  // 1. Render 3D Quick, Draw! Paper Prism
   const cv = document.getElementById('prism-canvas');
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  ctx.fillStyle = '#101217';
+  ctx.fillStyle = '#FFFBF4';
   ctx.fillRect(0, 0, W, H);
+
+  // Subtle Quick, Draw! drafting-paper grid
+  ctx.strokeStyle = '#EFE6D5';
+  ctx.lineWidth = 1;
+  for (let gx = 0; gx < W; gx += 28) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+  }
+  for (let gy = 0; gy < H; gy += 28) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+  }
 
   const corners = {};
   for (let u of [0,1]) for (let v of [0,1]) for (let t of [0,1]) {
@@ -405,8 +415,8 @@ function drawActiveWorm() {
     ['001','101'],['101','111'],['111','011'],['011','001'],
     ['000','001'],['100','101'],['110','111'],['010','011']
   ];
-  ctx.strokeStyle = 'rgba(130, 150, 185, 0.42)';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = '#161412';
+  ctx.lineWidth = 1.8;
   for (const [a, b] of edges) {
     ctx.beginPath();
     ctx.moveTo(corners[a][0], corners[a][1]);
@@ -415,8 +425,8 @@ function drawActiveWorm() {
   }
 
   if (document.getElementById('chk-thirds').checked) {
-    ctx.strokeStyle = 'rgba(239, 159, 58, 0.45)';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(201, 74, 41, 0.45)';
+    ctx.lineWidth = 1.4;
     for (const u of [0.3333, 0.6667]) for (const v of [0.3333, 0.6667]) {
       const p0 = project3D(u, v, 0, W, H);
       const p1 = project3D(u, v, 1, W, H);
@@ -425,8 +435,8 @@ function drawActiveWorm() {
   }
 
   if (document.getElementById('chk-armature').checked) {
-    ctx.strokeStyle = 'rgba(255, 215, 90, 0.28)';
-    ctx.lineWidth = 1.0;
+    ctx.strokeStyle = 'rgba(43, 91, 132, 0.35)';
+    ctx.lineWidth = 1.2;
     for (const t of [0.0, 0.5, 1.0]) {
       for (const [u1, v1, u2, v2] of ARMATURE_LINES) {
         const pa = project3D(u1, v1, t, W, H);
@@ -439,15 +449,16 @@ function drawActiveWorm() {
   if (document.getElementById('chk-golden').checked) {
     const pg0 = project3D(0.618, 0.382, 0, W, H);
     const pg1 = project3D(0.618, 0.382, 1, W, H);
-    ctx.strokeStyle = 'rgba(255, 95, 195, 0.75)';
+    ctx.strokeStyle = '#C94A29';
+    ctx.lineWidth = 1.8;
     ctx.setLineDash([5, 4]);
     ctx.beginPath(); ctx.moveTo(pg0[0], pg0[1]); ctx.lineTo(pg1[0], pg1[1]); ctx.stroke();
     ctx.setLineDash([]);
   }
 
   if (document.getElementById('chk-secondary').checked && rec.sec_u) {
-    ctx.strokeStyle = '#4FD1C5';
-    ctx.lineWidth = 3.0;
+    ctx.strokeStyle = '#2B5B84';
+    ctx.lineWidth = 3.2;
     ctx.beginPath();
     for (let i = 0; i < rec.sec_u.length; i++) {
       const p = project3D(rec.sec_u[i], rec.sec_v[i], i / 32, W, H);
@@ -456,7 +467,7 @@ function drawActiveWorm() {
     ctx.stroke();
   }
 
-  // Draw extruded 3D Core Worm
+  // Draw extruded 3D Core Worm with Quick, Draw! gouache cels + #161412 ink outlines
   const wormPts = [];
   for (let i = 0; i < rec.worm_u.length; i++) {
     const p = project3D(rec.worm_u[i], rec.worm_v[i], i / 32, W, H);
@@ -464,24 +475,29 @@ function drawActiveWorm() {
     wormPts.push([p[0], p[1], rad, i]);
   }
   for (const [px, py, rad, i] of wormPts) {
-    ctx.fillStyle = rec.core_palette[Math.min(2, Math.floor(i / 11))] || '#EF9F3A';
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 1.4;
+    ctx.fillStyle = '#161412';
+    ctx.beginPath(); ctx.arc(px + 2, py + 2, rad, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = rec.core_palette[Math.min(2, Math.floor(i / 11))] || '#FBE5C2';
+    ctx.strokeStyle = '#161412';
+    ctx.lineWidth = 2.0;
     ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   }
-  ctx.strokeStyle = '#FFFFFF';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#161412';
+  ctx.lineWidth = 4.5;
   ctx.beginPath();
   wormPts.forEach(([px, py], i) => { if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
+  ctx.stroke();
+  ctx.strokeStyle = '#FFFBF4';
+  ctx.lineWidth = 2.0;
   ctx.stroke();
 
   // Highlight Earshot Jerk cue frames
   for (const cue of (rec.earshot_cues || [])) {
     const wp = wormPts[Math.max(0, Math.min(32, cue.frame - 1))];
     if (wp) {
-      ctx.fillStyle = '#E53E3E';
-      ctx.beginPath(); ctx.arc(wp[0], wp[1], 7, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#C94A29';
+      ctx.beginPath(); ctx.arc(wp[0], wp[1], 7.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#161412'; ctx.lineWidth = 2; ctx.stroke();
     }
   }
 
@@ -496,12 +512,15 @@ function drawActiveWorm() {
     tctx.strokeStyle = swatches[idx % swatches.length] || '#EF9F3A';
     tctx.lineWidth = 8;
     tctx.beginPath(); tctx.arc(110, 110, r, 0, Math.PI * 2); tctx.stroke();
+    tctx.strokeStyle = '#161412';
+    tctx.lineWidth = 1.2;
+    tctx.beginPath(); tctx.arc(110, 110, r + 4, 0, Math.PI * 2); tctx.stroke();
   });
   const maxJ = Math.max(...(rec.jerk_curve || [0.1]), 0.001);
   for (let i = 0; i < 33; i++) {
     const ang = -Math.PI / 2 + (2 * Math.PI * i / 33);
     const len = 10 + 26 * (0.5 * rec.intensity_curve[i] + 0.5 * (rec.jerk_curve[i] / maxJ));
-    tctx.strokeStyle = [0, 10, 21, 32].includes(i) ? '#C94A29' : '#2F6B4F';
+    tctx.strokeStyle = [0, 10, 21, 32].includes(i) ? '#C94A29' : '#161412';
     tctx.lineWidth = [0, 10, 21, 32].includes(i) ? 3 : 2;
     tctx.beginPath();
     tctx.moveTo(110 + 75 * Math.cos(ang), 110 + 75 * Math.sin(ang));
@@ -509,16 +528,26 @@ function drawActiveWorm() {
     tctx.stroke();
   }
 
-  // 3. Render Differential Geometry & Chromatic Curves
+  // 3. Render Differential Geometry & Chromatic Curves on Quick, Draw! Cream Paper
   const ccv = document.getElementById('curves-canvas');
   const cctx = ccv.getContext('2d');
   const cW = ccv.width, cH = ccv.height;
-  cctx.fillStyle = '#16181F';
+  cctx.fillStyle = '#FFFBF4';
   cctx.fillRect(0, 0, cW, cH);
+  cctx.strokeStyle = '#E6DEC8';
+  cctx.lineWidth = 1;
+  for (let gy = 30; gy < cH - 18; gy += 32) {
+    cctx.beginPath(); cctx.moveTo(18, gy); cctx.lineTo(cW - 18, gy); cctx.stroke();
+  }
+  cctx.strokeStyle = '#161412';
+  cctx.lineWidth = 1.8;
+  cctx.beginPath();
+  cctx.moveTo(18, 24); cctx.lineTo(18, cH - 18); cctx.lineTo(cW - 18, cH - 18);
+  cctx.stroke();
 
   function plotCurve(arr, maxVal, color, label, yOff) {
     cctx.strokeStyle = color;
-    cctx.lineWidth = 2.2;
+    cctx.lineWidth = 2.6;
     cctx.beginPath();
     for (let i = 0; i < arr.length; i++) {
       const x = 18 + (i / 32) * (cW - 36);
@@ -527,12 +556,12 @@ function drawActiveWorm() {
     }
     cctx.stroke();
     cctx.fillStyle = color;
-    cctx.font = '11px JetBrains Mono, monospace';
+    cctx.font = 'bold 11px JetBrains Mono, monospace';
     cctx.fillText(label, 18 + yOff * 175, 16);
   }
-  plotCurve(rec.intensity_curve, 1.0, '#68D391', '■ Bruce Block Intensity', 0);
-  plotCurve(rec.jerk_curve, maxJ, '#FC8181', '■ Kinetic Jerk ||c\'\'\'||', 1);
-  plotCurve(rec.dL_curve, 50.0, '#F6AD55', '■ KALMUS Chiaroscuro ΔL*', 2);
+  plotCurve(rec.intensity_curve, 1.0, '#2F6B4F', '■ Bruce Block Intensity', 0);
+  plotCurve(rec.jerk_curve, maxJ, '#C94A29', '■ Kinetic Jerk ||c\'\'\'||', 1);
+  plotCurve(rec.dL_curve, 50.0, '#2B5B84', '■ KALMUS Chiaroscuro ΔL*', 2);
 }
 
 window.addEventListener('DOMContentLoaded', initWormApp);
