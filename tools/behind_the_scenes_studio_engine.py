@@ -1,50 +1,46 @@
 #!/usr/bin/env python3
 """
-tools/behind_the_scenes_studio_engine.py
-========================================
-Scott McCloud "Understanding Comics" + Quick, Draw! Sequential Art Studio Engine.
+Secondhand Studios: The Autonomous Agent Animation House
+=========================================================
+Synthesizes the 18 Behind-the-Scenes Studio Chapters (10 Virtual Agent Office
+Architectures + 8 AI Video Director Skills) as a unified graphic-novel and
+full-screen sequential film series starring our original cast of **Agent Animators**:
 
-Directly implements Scott McCloud's core distinction between COMICS (Space) and FILM (Time)
-from *Understanding Comics* (Chapter 1, Page 7 / PDF Page 14):
-  "Each successive frame of a movie is projected on exactly the SAME space — the screen —
-   while each frame of COMICS must occupy a DIFFERENT space.
-   SPACE does for COMICS what TIME does for FILM!"
+  1. NIB (The Fountain-Nib Showrunner & Multiplane Maestro)
+  2. BLUE-LINE (The Keyframe Architect & Isolated Worktree Inker)
+  3. CEL-INKER (The 7-Plane Gouache Painter & Parallax Rigger)
+  4. SPROCKET (The Codex Dailies Auditor & 16-Gate Projectionist)
+  5. CHIME (The Foley Percussionist & 55-Minute X-Sheet Continuity Keeper)
 
-1. IN STATIC COMIC PAGES (`*_poster.png`, `studio_bg_1..5.jpg`, and `bts_*_atlas.png`):
-   All 4 panels (`1920x1080` downsampled cleanly to `1280x720`) are juxtaposed in SPACE as a
-   2x2 Scott McCloud Comic Page with crisp cream gutters, 4px black ink borders, auto-fitted
-   captions (0% text truncation), and rich comic scenes modeled directly on *Understanding Comics*:
-     - Scene A (McCloud p. 14): Multiplane Camera Rig with 3 separated glass depth planes
-     - Scene B (McCloud p. 9):  Tilted animation drafting table, swing-arm lamp & storyboard wall
-     - Scene C (McCloud p. 14): 35mm Dailies Film Projector casting a light beam onto a theater screen
-     - Scene D (McCloud p. 24): Sequential Time-Frames gallery wall & 55-minute studio clock
-
-2. IN ANIMATED FILMS (`bts_films/*.mp4`, `*.gif`, and `Behind_The_Scenes_Multiplane_Studio_Film.mp4`):
-   Each of the 4 panels is projected FULL-SCREEN (`960x540`) ONE AT A TIME in TIME on the screen
-   (10.0 seconds total @ 12fps = 120 frames):
-     - Act 1 (0.0s - 2.3s): FULL-SCREEN PANEL 1 (Scott in the studio + huge 24pt speech balloon)
-     - Act 2 (2.3s - 4.6s): FULL-SCREEN PANEL 2 (Step-by-step `1 --> 2 --> 3` visual diagram)
-     - Act 3 (4.6s - 7.0s): FULL-SCREEN PANEL 3 (35mm 4-Keyframe Filmstrip: K1 -> K2 -> K3 -> K4)
-     - Act 4 (7.0s - 10.0s): FULL-SCREEN PANEL 4 (Unobstructed 900x430 7-plane Quick, Draw! cartoon!)
+Strict Aspect Ratio & Visual Clarity Guarantees:
+  - Native Shot Aspect Ratio (4:3 = 1.3333:1):
+    * Cropped cleanly from `comparison.mp4` at `576x432` (exact 4:3, removing old HUD bars)
+    * Stored at `480x360` (exact 4:3)
+    * Displayed in Panel 3's 35mm Keyframe Filmstrip at `204x153` (exact 4:3)
+    * Displayed in Panel 4's Screening Room at `280x210` (Archival Trace, exact 4:3)
+      and `560x420` (7-Plane Multiplane Cartoon, exact 4:3)
+  - Quick, Draw! Vector Doodles (1:1 Square Aspect Ratio):
+    * Always scaled uniformly (`s = min(w, h)`) so doodles never stretch or squish.
+  - Static 2x2 Comic Page (`1280x720`, 16:9) vs. Animated Full-Screen Sequential Film (`960x540`, 16:9, 10.0s).
 """
 
 import json
 import math
-import os
 import shutil
 import subprocess
 import textwrap
 import wave
 from pathlib import Path
+
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = Path("/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio")
-QD_DIR = ROOT / "quickdraw_samples"
+ROOT = Path(__file__).resolve().parents[1]
 BTS_DIR = ROOT / "bts_films"
 PREVIEW_DIR = ROOT / "preview"
 DATA_DIR = ROOT / "data"
+QD_DIR = ROOT / "quickdraw_samples"
 SHOTS_DIR = ROOT / "shots"
 ARTIFACT_DIR = Path("/Users/gaia/.gemini/antigravity/brain/113f482f-cd73-450c-be83-dd0bcb11307b")
 
@@ -52,459 +48,560 @@ BTS_DIR.mkdir(parents=True, exist_ok=True)
 PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Unified McCloud + Quick, Draw! Palette (BGR for OpenCV)
-BGR_GUTTER      = (244, 251, 255)  # #FFFBF4 crisp comic page gutter
-BGR_PAPER       = (227, 239, 246)  # #F6EFE3 warm panel paper
-BGR_PAPER_DARK  = (206, 226, 236)  # #ECE2CE shaded paper tone
-BGR_INK         = (18, 20, 22)     # #161412 solid comic ink black
-BGR_AMBER_PALE  = (194, 229, 251)  # #FBE5C2 narrative caption box fill
-BGR_AMBER       = (58, 159, 239)   # #EF9F3A warm golden accent
-BGR_RED         = (41, 74, 201)    # #C94A29 comic title red / wax accent
-BGR_CORAL_PALE  = (206, 216, 247)  # #F7D8CE soft coral gouache cel
-BGR_MINT_PALE   = (220, 232, 212)  # #D4E8DC soft sage gouache cel
-BGR_BLUE_PALE   = (240, 228, 214)  # #D6E4F0 soft sky gouache cel
-BGR_BLUE        = (132, 91, 43)    # #2B5B84 blueprint / McCloud jacket blue
-BGR_GREEN       = (79, 107, 47)    # #2F6B4F forest green accent
+# =============================================================================
+# UNIFIED PAPER, INK & GOUACHE STUDIO PALETTE (BGR for OpenCV, RGB for PIL)
+# =============================================================================
+BGR_PAPER = (227, 239, 246)       # #F6EFE3 Warm archival animation bond paper
+BGR_GUTTER = (244, 251, 255)      # #FFFBF4 Crisp comic gutter & speech balloon white-cream
+BGR_PAPER_DARK = (206, 226, 236)  # #ECE2CE Shaded drafting board & card backing
+BGR_INK = (18, 20, 22)            # #161412 Bold cartoonist Speedball India ink
+BGR_GRAPHITE = (102, 112, 122)    # #7A7066 Pencil construction lines
+
+BGR_AMBER = (58, 159, 239)        # #EF9F3A Ochre gold highlight
+BGR_AMBER_PALE = (194, 229, 251)  # #FBE5C2 Caption bar warm gouache wash
+BGR_RED = (41, 74, 201)           # #C94A29 Terracotta red badge / Nib's apron
+BGR_CORAL_PALE = (206, 216, 247)  # #F7D8CE Soft coral gouache wash
+BGR_BLUE = (132, 91, 43)          # #2B5B84 Prussian blue / Blue-Line's smock
+BGR_BLUE_PALE = (240, 228, 214)   # #D6E4F0 Sky plane gouache wash
+BGR_GREEN = (79, 107, 47)         # #2F6B4F Forest green / Sprocket's vest
+BGR_MINT_PALE = (220, 232, 212)   # #D4E8DC Meadow plane gouache wash
 
 
-def _load_font(paths, size: int):
-    for p, idx in paths:
-        if os.path.exists(p):
+def load_comic_font(size: int, style: str = "bold") -> ImageFont.FreeTypeFont:
+    candidates = {
+        "display": [
+            "/System/Library/Fonts/Supplemental/Futura.ttc",
+            "/System/Library/Fonts/Supplemental/Impact.ttf",
+            "/System/Library/Fonts/HelveticaNeue.ttc",
+        ],
+        "comic": [
+            "/System/Library/Fonts/Supplemental/ChalkboardSE.ttc",
+            "/System/Library/Fonts/Supplemental/Comic Sans MS Bold.ttf",
+            "/System/Library/Fonts/Supplemental/Futura.ttc",
+        ],
+        "bold": [
+            "/System/Library/Fonts/Supplemental/Futura.ttc",
+            "/System/Library/Fonts/HelveticaNeue.ttc",
+            "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        ],
+    }
+    for path in candidates.get(style, candidates["bold"]):
+        if Path(path).exists():
             try:
-                return ImageFont.truetype(p, size=size, index=idx)
+                return ImageFont.truetype(path, size)
             except Exception:
-                try:
-                    return ImageFont.truetype(p, size=size)
-                except Exception:
-                    pass
+                pass
     return ImageFont.load_default()
 
 
-FONT_DISPLAY_XL = _load_font([
-    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
-    ("/System/Library/Fonts/Supplemental/Arial Black.ttf", 0),
-], 28)
-
-FONT_DISPLAY_LG = _load_font([
-    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
-    ("/System/Library/Fonts/Supplemental/Arial Black.ttf", 0),
-], 22)
-
-FONT_DISPLAY_MD = _load_font([
-    ("/System/Library/Fonts/Supplemental/Futura.ttc", 2),
-    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
-], 17)
-
-FONT_SPEECH_LG = _load_font([
-    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
-    ("/System/Library/Fonts/Supplemental/Comic Sans MS Bold.ttf", 0),
-], 22)
-
-FONT_CAPTION_LG = _load_font([
-    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
-    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
-], 19)
-
-FONT_CAPTION_MD = _load_font([
-    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
-    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
-], 16)
-
-FONT_LABEL_MD = _load_font([
-    ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 1),
-    ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 0),
-], 17)
+FONT_DISPLAY_XL = load_comic_font(28, "display")
+FONT_DISPLAY_LG = load_comic_font(22, "display")
+FONT_DISPLAY_MD = load_comic_font(18, "display")
+FONT_SPEECH_LG = load_comic_font(21, "comic")
+FONT_SPEECH_MD = load_comic_font(18, "comic")
+FONT_CAPTION_LG = load_comic_font(19, "bold")
+FONT_CAPTION_MD = load_comic_font(16, "bold")
+FONT_CAPTION_SM = load_comic_font(14, "comic")
+FONT_LABEL_MD = load_comic_font(17, "bold")
 
 
-def fit_text_font(draw: ImageDraw.ImageDraw, text: str, max_width: int, preferred_fonts: list):
-    """Returns the largest font from `preferred_fonts` that fits `text` within `max_width`."""
+def fit_text_font(draw: ImageDraw.ImageDraw, text: str, max_w: int, preferred_fonts: list) -> ImageFont.FreeTypeFont:
     for f in preferred_fonts:
         bbox = draw.textbbox((0, 0), text, font=f)
-        if (bbox[2] - bbox[0]) <= max_width:
+        if (bbox[2] - bbox[0]) <= max_w:
             return f
-    return preferred_fonts[-1]
+    for sz in range(15, 9, -1):
+        f = load_comic_font(sz, "bold")
+        bbox = draw.textbbox((0, 0), text, font=f)
+        if (bbox[2] - bbox[0]) <= max_w:
+            return f
+    return load_comic_font(10, "bold")
 
 
-STUDIO_AGENTS = [
-    {"name": "Scott (Director)", "role": "Sequential Art Narrator & Guide", "color": BGR_BLUE_PALE, "accent": BGR_BLUE},
-    {"name": "Lead Animator", "role": "4-Key Quick, Draw! Cel Inker", "color": BGR_CORAL_PALE, "accent": BGR_RED},
-    {"name": "Camera Op", "role": "7-Plane Multiplane Rig Operator", "color": BGR_AMBER_PALE, "accent": BGR_AMBER},
-    {"name": "Auditor (Codex)", "role": "16-Gate & Closure Dailies Critic", "color": BGR_MINT_PALE, "accent": BGR_GREEN},
-]
+# =============================================================================
+# THE CAST OF 5 ORIGINAL AGENT ANIMATORS
+# =============================================================================
+STUDIO_AGENTS = {
+    "nib": {
+        "id": "nib",
+        "name": "Nib (Showrunner)",
+        "short_name": "NIB",
+        "role": "Fountain-Nib Maestro & Showrunner",
+        "dept": "MULTIPLANE DIRECTION",
+        "color_bgr": BGR_RED,
+        "color_rgb": (201, 74, 41),
+        "pale_bgr": BGR_CORAL_PALE,
+    },
+    "blueline": {
+        "id": "blueline",
+        "name": "Blue-Line (Key Inker)",
+        "short_name": "BLUE-LINE",
+        "role": "Worktree Keyframe Architect (K1..K4)",
+        "dept": "ISOLATED WORKTREE INKING",
+        "color_bgr": BGR_BLUE,
+        "color_rgb": (43, 91, 132),
+        "pale_bgr": BGR_BLUE_PALE,
+    },
+    "celinker": {
+        "id": "celinker",
+        "name": "Cel-Inker (Painter)",
+        "short_name": "CEL-INKER",
+        "role": "7-Plane Gouache Painter & Rigger",
+        "dept": "7-PLANE GOUACHE & PARALLAX",
+        "color_bgr": BGR_AMBER,
+        "color_rgb": (239, 159, 58),
+        "pale_bgr": BGR_AMBER_PALE,
+    },
+    "sprocket": {
+        "id": "sprocket",
+        "name": "Sprocket (Auditor)",
+        "short_name": "SPROCKET",
+        "role": "35mm Dailies Critic & 16-Gate Auditor",
+        "dept": "16-GATE DAILIES AUDIT",
+        "color_bgr": BGR_GREEN,
+        "color_rgb": (47, 107, 79),
+        "pale_bgr": BGR_MINT_PALE,
+    },
+    "chime": {
+        "id": "chime",
+        "name": "Chime (Foley & Continuity)",
+        "short_name": "CHIME",
+        "role": "Foley Percussionist & 55m X-Sheet Keeper",
+        "dept": "FOLEY & 55M CONTINUITY",
+        "color_bgr": BGR_RED,
+        "color_rgb": (201, 74, 41),
+        "pale_bgr": BGR_AMBER_PALE,
+    },
+}
 
-# 10 Virtual Agent Office & Worktree Comic Chapters
+# =============================================================================
+# 18 EPISODES: THE NARRATIVE OF THE AGENT ANIMATOR STUDIO
+# =============================================================================
 AGENT_OFFICE_SPECS = [
     {
         "id": "office-01-agent-office",
         "num": 1,
         "group": "office",
+        "lead_agent": "nib",
+        "cameo_agent": "celinker",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "CHAPTER 01 // 3D MULTI-FLOOR STUDIO",
-        "repo": "AgentSystemLabs/agent-office",
-        "url": "https://github.com/AgentSystemLabs/agent-office",
-        "category": "3D Multi-Floor Studio + Worktrees",
-        "install": "curl -fsSL https://raw.githubusercontent.com/AgentSystemLabs/agent-office/main/install.sh | bash",
-        "title": "Separating Depth Into 3 Studio Floors",
+        "wing_name": "EPISODE 01 // THE AGENT ANIMATOR STUDIO",
+        "repo": "Ks1030/Agent-Office",
+        "url": "https://github.com/Ks1030/Agent-Office",
+        "category": "Multiplane Agent Studio Architecture",
+        "install": "git clone https://github.com/Ks1030/Agent-Office.git && cd Agent-Office && npm install && npm run dev",
+        "title": "Welcome to the Agent Animation Bullpen",
         "featured_shot": "giraffe-walks-past",
-        "speech_p1": "HOW DO WE TURN A FLAT DOODLE INTO A DEEP MULTIPLANE WORLD?",
-        "caption_p2": "WE SPLIT THE STUDIO INTO 3 FLOORS: VAULT, BULLPEN & TOWER!",
-        "diag_steps": [("book", "1. ARCHIVE VAULT"), ("paintbrush", "2. 4-KEY BULLPEN"), ("camera", "3. 7-PLANE TOWER")],
-        "caption_p3": "BEFORE IT'S PROJECTED, FILM IS 4 STATIC KEYFRAMES IN SPACE:",
-        "caption_p4": "PROJECTED IN TIME, CLOSURE CREATES LIVING PARALLAX!",
-        "blurb": "Explains in 4 sequential comic panels how the studio separates archive tracing (Floor 1), 4-keyframe cel inking (Floor 2), and 7-plane camera exposure (Tower) so every shot has true multiplane depth.",
-        "stages": ["Panel 1: The Depth Question", "Panel 2: 3 Studio Floors", "Panel 3: 4 Keyframes in Space", "Panel 4: Living Parallax"],
+        "speech_p1": "WELCOME TO SECONDHAND STUDIOS! HERE, EVERY AI AGENT IS AN ANIMATOR WITH A DEDICATED DESK ON OUR 7-PLANE RIG!",
+        "caption_p2": "OUR AGENT CREW SPLITS EVERY CARTOON INTO 3 CLEAR ROLES:",
+        "diag_steps": [("pencil", "1. KEY INKER"), ("paintbrush", "2. 7-PLANE CEL"), ("camera", "3. DAILIES AUDIT")],
+        "caption_p3": "FOUR HAND-DRAWN KEYFRAMES LOCK THE GIRAFFE'S WALK CYCLE:",
+        "gutter_note": "BLUE-LINE INKS POSES K1, K2, K3 & K4 IN TRUE 4:3 ASPECT RATIO SO THE WALK CYCLE NEVER DISTORTS!",
+        "caption_p4": "SCREENING ROOM: ARCHIVAL TRACE VS. 7-PLANE MULTIPLANE CARTOON!",
+        "blurb": "Fountain-Nib Showrunner 'Nib' introduces our autonomous Agent Animation Studio, where coding agents operate as specialized keyframe inkers, 7-plane gouache painters, and 35mm dailies auditors.",
+        "stages": ["Panel 1: Nib's Studio Welcome", "Panel 2: 3-Agent Crew Pipeline", "Panel 3: 4:3 Giraffe Keyframes", "Panel 4: 4:3 Multiplane Screening"],
     },
     {
         "id": "office-02-agent-007",
         "num": 2,
         "group": "office",
+        "lead_agent": "blueline",
+        "cameo_agent": "nib",
         "studio_wing": "bg5_bullpen",
-        "wing_name": "CHAPTER 02 // KANBAN WORKTREE BULLPEN",
-        "repo": "bill10/agent-007",
-        "url": "https://github.com/bill10/agent-007",
-        "category": "Kanban Worktrees + Isolated Desks",
-        "install": "git clone https://github.com/bill10/agent-007",
-        "title": "One Isolated Drafting Desk Per Shot",
+        "wing_name": "EPISODE 02 // ISOLATED DRAFTING BOOTHS",
+        "repo": "Tryilen/agent-007",
+        "url": "https://github.com/Tryilen/agent-007",
+        "category": "Isolated Git Worktree Drafting Desks",
+        "install": "git clone https://github.com/Tryilen/agent-007.git && cd agent-007 && bun install && bun run dev",
+        "title": "Why Every Agent Animator Gets a Private Desk",
         "featured_shot": "train",
-        "speech_p1": "IF 4 ANIMATORS DRAW ON ONE CEL, IT'S AN UNREADABLE MESS!",
-        "caption_p2": "EACH SHOT CARD SPAWNS ITS OWN ISOLATED DRAFTING DESK:",
-        "diag_steps": [("picture_frame", "1. SHOT CARD"), ("table", "2. ISOLATED DESK"), ("train", "3. CLEAN MERGE")],
-        "caption_p3": "EACH DESK INKS 4 CLEAN QUICK, DRAW! KEYFRAMES IN SEQUENCE:",
-        "caption_p4": "AND SPLICES A CRISP STEAM TRAIN INTO THE MASTER REEL!",
-        "blurb": "Shows why piling multiple agents onto one canvas fails—and how giving each shot card its own isolated Git worktree drafting desk produces clean, conflict-free 4-keyframe animation.",
-        "stages": ["Panel 1: Why Shared Cels Fail", "Panel 2: Isolated Worktree Desk", "Panel 3: 4 Train Keyframes", "Panel 4: Clean Master Splice"],
+        "speech_p1": "IF FOUR AGENT ANIMATORS DRAW ON ONE SHEET AT ONCE, OUR INK SMUDGES! SO EACH AGENT WORKS IN AN ISOLATED WORKTREE BOOTH!",
+        "caption_p2": "HOW ISOLATED WORKTREE DRAFTING BOOTHS PREVENT INK COLLISIONS:",
+        "diag_steps": [("door", "1. PRIVATE DESK"), ("pencil", "2. INK 4 KEYS"), ("train", "3. CLEAN MERGE")],
+        "caption_p3": "INSIDE BOOTH #324, I INK FOUR 4:3 KEYFRAMES OF THE STEAM TRAIN:",
+        "gutter_note": "EACH KEYFRAME IS DRAWN IN AN ISOLATED GIT WORKTREE BEFORE SPLICING ONTO THE MASTER REEL!",
+        "caption_p4": "THE COMPLETED TRAIN REEL PASSES ALL 16 GATES WITH ZERO CONFLICTS!",
+        "blurb": "Keyframe Architect 'Blue-Line' explains why parallel AI agents need isolated git worktree drafting desks so their drawings never overwrite one another.",
+        "stages": ["Panel 1: Blue-Line's Worktree Booth", "Panel 2: Isolate -> Ink -> Merge", "Panel 3: 4:3 Train Keyframes", "Panel 4: Clean Master Reel"],
     },
     {
         "id": "office-03-claude-office",
         "num": 3,
         "group": "office",
-        "studio_wing": "bg2_occupied",
-        "wing_name": "CHAPTER 03 // SPECIALIST INK & PAINT",
-        "repo": "W17ant/Claude-Office",
-        "url": "https://github.com/W17ant/Claude-Office",
-        "category": "Specialist Routing + Cel Handoff",
-        "install": "git clone https://github.com/W17ant/Claude-Office.git && cd Claude-Office && npm i && npm run install-hooks",
-        "title": "Passing the Cel From Pencil to Gouache",
+        "lead_agent": "celinker",
+        "cameo_agent": "blueline",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "EPISODE 03 // THE STORYBOARD ARMATURE WALL",
+        "repo": "paulrobello/claude-office",
+        "url": "https://github.com/paulrobello/claude-office",
+        "category": "Storyboard Pin-Up & Golden Ratio Armature",
+        "install": "git clone https://github.com/paulrobello/claude-office.git && cd claude-office && just install && just start",
+        "title": "Pinning Keyframes to the 14-Line Armature",
         "featured_shot": "lighthouse",
-        "speech_p1": "ONE ARTIST SHOULDN'T DO EVERYTHING AT ONCE! WE DIVIDE THE CRAFT.",
-        "caption_p2": "THE CEL PASSES FROM PENCIL TRACE TO WATERTIGHT GOUACHE:",
-        "diag_steps": [("pencil", "1. PENCIL TRACE"), ("paintbrush", "2. GOUACHE CEL"), ("lighthouse", "3. 7-PLANE SCENE")],
-        "caption_p3": "SPACE DOES FOR COMICS WHAT TIME DOES FOR FILM (4 KEYS):",
-        "caption_p4": "THE WATERTIGHT CEL BLOCKS BACKGROUND BLEED IN MOTION!",
-        "blurb": "Follows a single lighthouse cel as it moves from archival pencil silhouette to watertight gouache backing cel to 7-plane coastal composition.",
-        "stages": ["Panel 1: Dividing the Craft", "Panel 2: Pencil -> Ink -> Paint", "Panel 3: 4 Lighthouse Keys", "Panel 4: Watertight Projection"],
+        "speech_p1": "BEFORE PAINTING A SINGLE CEL, OUR AGENT CREW PINS ALL FOUR KEYFRAMES TO THE STORYBOARD WALL TO LOCK THE HORIZON!",
+        "caption_p2": "EVERY SHOT FOLLOWS OUR 3-STAGE STORYBOARD CHECKLIST:",
+        "diag_steps": [("picture_frame", "1. PIN 4 KEYS"), ("compass", "2. GOLDEN GRID"), ("lighthouse", "3. PAINT CELS")],
+        "caption_p3": "WATCH THE LIGHTHOUSE BEAM SWEEP ACROSS THE FOUR 4:3 KEYFRAMES:",
+        "gutter_note": "CEL-INKER ALIGNS THE COASTAL CLIFF AND LIGHTHOUSE TOWER TO THE GOLDEN RATIO HORIZON!",
+        "caption_p4": "ALL 7 GOUACHE PLANES LOCK INTO PLACE AROUND THE ROTATING BEAM!",
+        "blurb": "7-Plane Painter 'Cel-Inker' demonstrates how the agent crew pins rough sketches to the storyboard wall and aligns them to Bouleau's 14-line composition grid before painting.",
+        "stages": ["Panel 1: Cel-Inker at the Lightbox", "Panel 2: Pin -> Grid -> Paint", "Panel 3: 4:3 Lighthouse Keys", "Panel 4: 7-Plane Coastal Scene"],
     },
     {
         "id": "office-04-pixel-office",
         "num": 4,
         "group": "office",
-        "studio_wing": "bg5_bullpen",
-        "wing_name": "CHAPTER 04 // STORYBOARD & CRITIQUE",
-        "repo": "KalebKE/PixelOffice",
-        "url": "https://github.com/KalebKE/PixelOffice",
-        "category": "Storyboard Pitch + Codex Critique",
-        "install": "git clone https://github.com/KalebKE/PixelOffice && cd PixelOffice && python3 hooks/manage_hooks.py install && ./start.sh",
-        "title": "Separating Form From Content at the Storyboard",
+        "lead_agent": "sprocket",
+        "cameo_agent": "chime",
+        "studio_wing": "bg3_screening",
+        "wing_name": "EPISODE 04 // THE DAILIES AUDITOR",
+        "repo": "feedingantioch/pixel-office",
+        "url": "https://github.com/feedingantioch/pixel-office",
+        "category": "Cross-Agent Dailies Critique (Sprocket Reviewing Blue-Line)",
+        "install": "git clone https://github.com/feedingantioch/pixel-office.git && cd pixel-office && npm install && npm run build",
+        "title": "Why One Agent Draws and Another Agent Audits",
         "featured_shot": "guitar",
-        "speech_p1": "BEFORE INKING A SINGLE FRAME, WE COMPOSE THE STAGE ARMATURE!",
-        "caption_p2": "COMPOSER DRAFTS THE POSE -> CRITIC AUDITS THE SILHOUETTE:",
-        "diag_steps": [("picture_frame", "1. ARMATURE"), ("eyeglasses", "2. CRITIC AUDIT"), ("guitar", "3. APPROVED CEL")],
-        "caption_p3": "FOUR DISTINCT POSES CREATE ORGANIC LINE BOIL ACROSS FRAMES:",
-        "caption_p4": "RESULT: A CLEAR, UNCLUTTERED GUITAR PERFORMANCE!",
-        "blurb": "Demonstrates how planning composition on the storyboard wall before inking prevents visual clutter and locks the subject onto clean harmonic lines.",
-        "stages": ["Panel 1: Plan Before Inking", "Panel 2: Armature & Audit", "Panel 3: 4 Guitar Keyframes", "Panel 4: Uncluttered Stage"],
+        "speech_p1": "IN OUR STUDIO, NO AGENT GRADES ITS OWN HOMEWORK! I PROJECT EVERY REEL IN THE SCREENING ROOM TO AUDIT ALL 16 GATES!",
+        "caption_p2": "OUR TWO-AGENT PEER REVIEW LOOP IN THE SCREENING THEATRE:",
+        "diag_steps": [("paintbrush", "1. CLAUDE INKS"), ("eyeglasses", "2. CODEX AUDITS"), ("guitar", "3. 16/16 STAMP")],
+        "caption_p3": "I INSPECT ALL FOUR 4:3 KEYFRAMES OF SHOT #136 GUITAR:",
+        "gutter_note": "SPROCKET CHECKS LINE WEIGHT, 4:3 FRAMING, AND PARALLAX SEPARATION ACROSS EVERY KEYFRAME!",
+        "caption_p4": "STAMPED AND APPROVED: THE GUITAR STRUMS IN FULL MULTIPLANE DEPTH!",
+        "blurb": "Projectionist & Critic 'Sprocket' explains why separating the Animator Agent (Claude) from the Dailies Auditor Agent (Codex) prevents hallucinations and guarantees 16/16 studio gates.",
+        "stages": ["Panel 1: Sprocket's Screening Room", "Panel 2: Draw -> Audit -> Stamp", "Panel 3: 4:3 Guitar Keyframes", "Panel 4: Audited Master Reel"],
     },
     {
         "id": "office-05-pixel-agents",
         "num": 5,
         "group": "office",
-        "studio_wing": "bg2_occupied",
-        "wing_name": "CHAPTER 05 // LIVING IN LINE",
+        "lead_agent": "blueline",
+        "cameo_agent": "celinker",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "EPISODE 05 // LIVING LINE BOIL VS. SLIDING",
         "repo": "pablodelucca/pixel-agents",
         "url": "https://github.com/pablodelucca/pixel-agents",
-        "category": "Parallel Subagent Inkers",
-        "install": "code --install-extension pablodelucca.pixel-agents",
-        "title": "Why 4 Hand-Drawn Keys Beat Mechanical Tweening",
+        "category": "Parallel Subagent Inkers & Hand-Drawn Boil",
+        "install": "git clone https://github.com/pablodelucca/pixel-agents.git && cd pixel-agents && npm install",
+        "title": "Four Parallel Inkers Create Living Line Boil",
         "featured_shot": "tractor",
-        "speech_p1": "SLIDING ONE STATIC DRAWING ACROSS THE SCREEN FEELS ROBOTIC!",
+        "speech_p1": "SLIDING ONE DEAD CUTOUT ACROSS THE SCREEN LOOKS ROBOTIC! FOUR INKER AGENTS REDRAW FOUR DISTINCT POSES SO THE LINE BREATHES!",
         "caption_p2": "FOUR SUBAGENT INKERS REDRAW KEYFRAMES K1, K2, K3 & K4:",
         "diag_steps": [("pencil", "1. KEYS K1 & K2"), ("paintbrush", "2. KEYS K3 & K4"), ("tractor", "3. LIVING BOIL")],
-        "caption_p3": "COMPARE THE 4 HAND-DRAWN TRACTOR KEYS SIDE-BY-SIDE:",
-        "caption_p4": "YOUR EYE CLOSES THE GUTTER INTO BREATHING HAND-DRAWN MOTION!",
-        "blurb": "Explains Scott McCloud's 'Living in Line' (Ch. 5) and 'Blood in the Gutter' (Ch. 3): why 4 distinct hand-drawn Quick, Draw! keyframes feel alive while affine sliding feels robotic.",
-        "stages": ["Panel 1: Why Sliding Feels Dead", "Panel 2: 4 Parallel Key Inkers", "Panel 3: K1..K4 Side-by-Side", "Panel 4: Living Line Boil"],
+        "caption_p3": "COMPARE THE FOUR HAND-DRAWN 4:3 TRACTOR POSES ON THE STRIP:",
+        "gutter_note": "BECAUSE EACH KEYFRAME IS FRESHLY INKED, THE TRACTOR CHUGS FORWARD WITH ORGANIC HAND-DRAWN BOIL!",
+        "caption_p4": "THE TRACTOR ROLLS ACROSS THE FURROWS WITH GENUINE WEIGHT!",
+        "blurb": "Blue-Line shows how spawning 4 subagent inkers in parallel to draw 4 distinct keyframes eliminates robotic affine sliding and produces authentic hand-drawn line boil.",
+        "stages": ["Panel 1: Why Sliding Looks Dead", "Panel 2: 4 Parallel Key Inkers", "Panel 3: 4:3 Tractor Keyframes", "Panel 4: Living Line Boil"],
     },
     {
         "id": "office-06-my-office",
         "num": 6,
         "group": "office",
+        "lead_agent": "chime",
+        "cameo_agent": "nib",
         "studio_wing": "bg4_clocktower",
-        "wing_name": "CHAPTER 06 // TIME FRAMES & CONTINUITY",
+        "wing_name": "EPISODE 06 // THE 55-MINUTE EXPOSURE SHEET",
         "repo": "m1heng/my-office",
         "url": "https://github.com/m1heng/my-office",
-        "category": "Session Continuity & Time Frames",
+        "category": "55-Minute Cache Continuity & X-Sheet Handoff",
         "install": "git clone https://github.com/m1heng/my-office.git && cd my-office && npm install && npm run build",
-        "title": "Keeping Continuity Across Time Frames",
+        "title": "Keeping Studio Continuity Across Shift Changes",
         "featured_shot": "speedboat",
-        "speech_p1": "HOW DO WE KEEP CONTINUITY ACROSS 346 SHOTS WITHOUT LOSING THE THREAD?",
-        "caption_p2": "BEFORE THE 55-MINUTE CLOCK EXPIRES, WE SEAL THE X-SHEET:",
-        "diag_steps": [("clock", "1. 55M CLOCK"), ("book", "2. X-SHEET LOG"), ("speedboat", "3. NEXT REEL")],
-        "caption_p3": "EVERY KEYFRAME IN THE FILMSTRIP REMEMBERS THE PREVIOUS POSE:",
-        "caption_p4": "SO THE SPEEDBOAT CUTS ACROSS THE WATER WITH ZERO JUMPS!",
-        "blurb": "Uses McCloud's Chapter 4 ('Time Frames') to show how logging exposure sheets before the 55-minute cache window preserves visual continuity across shots.",
-        "stages": ["Panel 1: The Continuity Problem", "Panel 2: 55-Minute X-Sheet Log", "Panel 3: 4 Speedboat Keys", "Panel 4: Seamless Motion"],
+        "speech_p1": "WHEN AN AGENT'S 55-MINUTE MEMORY WINDOW EXPIRES, DO WE LOSE THE STORY? NEVER! WE SEAL THE MASTER EXPOSURE SHEET!",
+        "caption_p2": "BEFORE THE 55-MINUTE CLOCK CHIMES, WE LOG THE X-SHEET:",
+        "diag_steps": [("clock", "1. 55M CLOCK"), ("book", "2. X-SHEET LOG"), ("speedboat", "3. NEXT SHIFT")],
+        "caption_p3": "EVERY 4:3 SPEEDBOAT KEYFRAME REMEMBERS THE EXACT CAMERA ARC:",
+        "gutter_note": "CHIME RECORDS PALETTE SWATCHES, PLANE DEPTHS, AND VELOCITY VECTORS ON THE EXPOSURE SHEET!",
+        "caption_p4": "THE NEXT AGENT SHIFT PICKS UP SEAMLESSLY AS THE SPEEDBOAT PLANES!",
+        "blurb": "Continuity Keeper 'Chime' explains how sealing the studio Exposure Sheet (X-Sheet) before the 55-minute prompt-cache chime keeps visual continuity unbroken across shift changes.",
+        "stages": ["Panel 1: Chime's 55m Clocktower", "Panel 2: Clock -> X-Sheet -> Handoff", "Panel 3: 4:3 Speedboat Keys", "Panel 4: Seamless Shift Handoff"],
     },
     {
         "id": "office-07-workbench",
         "num": 7,
         "group": "office",
+        "lead_agent": "celinker",
+        "cameo_agent": "sprocket",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "CHAPTER 07 // 7-PLANE EXPOSURE SHEET",
+        "wing_name": "EPISODE 07 // THE 7-PLANE MULTIPLANE TOWER",
         "repo": "taw0002/Claude-Code-Agent-Monitor-Workbench",
         "url": "https://github.com/taw0002/Claude-Code-Agent-Monitor-Workbench",
-        "category": "X-Sheet & Multiplane Platen Check",
+        "category": "7-Level Multiplane Camera & Depth Parallax",
         "install": "git clone https://github.com/taw0002/Claude-Code-Agent-Monitor-Workbench",
-        "title": "Reading the 7-Plane Multiplane X-Sheet",
+        "title": "Separating Sky, Trees, and Hero Across 7 Glass Planes",
         "featured_shot": "bicycle",
-        "speech_p1": "HOW DO CLOUDS, TREES, AND THE HERO MOVE AT DIFFERENT SPEEDS?",
-        "caption_p2": "THE X-SHEET ASSIGNS EACH LAYER ITS OWN PARALLAX DEPTH:",
+        "speech_p1": "HOW DO CLOUDS, TREES, AND THE BICYCLE GLIDE AT DIFFERENT SPEEDS? WE STACK THEM ON SEVEN SEPARATE GLASS PLANES!",
+        "caption_p2": "THE MULTIPLANE TOWER ASSIGNS EACH GLASS LEVEL ITS PARALLAX:",
         "diag_steps": [("cloud", "1. SKY (0.2x)"), ("tree", "2. TREES (0.5x)"), ("bicycle", "3. HERO (1.0x)")],
-        "caption_p3": "SIDE-BY-SIDE IN SPACE, YOU SEE THE BICYCLE PEDAL FORWARD:",
-        "caption_p4": "PROJECTED IN TIME, THE 7 PLANES GLIDE IN DEPTH!",
-        "blurb": "Breaks down multiplane parallax into a simple 3-step diagram: Sky moves at 0.2x, Midground Trees at 0.5x, and the Hero Bicycle at 1.0x.",
-        "stages": ["Panel 1: How Parallax Works", "Panel 2: 0.2x / 0.5x / 1.0x Planes", "Panel 3: 4 Bicycle Keyframes", "Panel 4: Multiplane Depth"],
+        "caption_p3": "WATCH THE BICYCLE PEDAL FORWARD ACROSS FOUR 4:3 KEYFRAMES:",
+        "gutter_note": "DISTANT SKY DRIFTS SLOWLY AT 0.2x WHILE MIDGROUND TREES PASS AT 0.5x AND THE BICYCLE AT 1.0x!",
+        "caption_p4": "PROJECTED TOGETHER, FLAT PAPER GAINS TRUE MULTIPLANE DEPTH!",
+        "blurb": "Cel-Inker takes us up the 7-level Multiplane Camera Tower to show how separating Sky (0.2x), Midground Trees (0.5x), and Hero (1.0x) creates dimensional parallax.",
+        "stages": ["Panel 1: The 7-Level Glass Tower", "Panel 2: 0.2x / 0.5x / 1.0x Planes", "Panel 3: 4:3 Bicycle Keyframes", "Panel 4: Multiplane Parallax"],
     },
     {
         "id": "office-08-kanban-code",
         "num": 8,
         "group": "office",
+        "lead_agent": "nib",
+        "cameo_agent": "blueline",
         "studio_wing": "bg5_bullpen",
-        "wing_name": "CHAPTER 08 // THE 6 STEPS OF CREATION",
+        "wing_name": "EPISODE 08 // THE 4-DESK PRODUCTION LINE",
         "repo": "langoustine69/kanban-code",
         "url": "https://github.com/langoustine69/kanban-code",
-        "category": "McCloud's 6 Steps: Idea -> Form -> Craft",
+        "category": "4-Stage Studio Production Kanban",
         "install": "git clone https://github.com/langoustine69/kanban-code && cd kanban-code && npm i && npm run compile",
-        "title": "From Idea to Form to Idiom to Craft",
+        "title": "How a Shot Travels Across Our Four Studio Desks",
         "featured_shot": "carrot",
-        "speech_p1": "IN CHAPTER 7, EVERY WORK OF ART TRAVELS THROUGH CLEAR STAGES!",
-        "caption_p2": "IDEA -> FORM (4 KEYS) -> IDIOM (QUICK, DRAW!) -> CRAFT:",
-        "diag_steps": [("light_bulb", "1. CORE IDEA"), ("pencil", "2. 4-KEY FORM"), ("carrot", "3. FINISHED CRAFT")],
-        "caption_p3": "HERE ARE THE 4 STRUCTURAL KEYFRAMES OF SHOT #063 CARROT:",
-        "caption_p4": "CRAFT AND SURFACE BRING THE SIMPLE DOODLE TO LIFE!",
-        "blurb": "Applies Scott McCloud's Chapter 7 ('The Six Steps': Idea/Purpose -> Form -> Idiom -> Structure -> Craft -> Surface) to our 4-column studio Kanban pipeline.",
-        "stages": ["Panel 1: McCloud's Six Steps", "Panel 2: Idea -> Form -> Craft", "Panel 3: 4 Carrot Keyframes", "Panel 4: Finished Surface"],
+        "speech_p1": "NO SINGLE AGENT TRIES TO DO EVERYTHING AT ONCE! EVERY SHOT TRAVELS ACROSS FOUR SPECIALIST DESKS IN ORDER!",
+        "caption_p2": "FROM ARCHIVAL TRACE TO KEYFRAMES TO GOUACHE TO MASTER REEL:",
+        "diag_steps": [("light_bulb", "1. STORYBOARD"), ("pencil", "2. 4-KEY INKING"), ("carrot", "3. GOUACHE CEL")],
+        "caption_p3": "HERE ARE THE FOUR STRUCTURAL 4:3 KEYFRAMES OF SHOT #063 CARROT:",
+        "gutter_note": "EACH DEPARTMENT AGENT SIGNS OFF ON THE EXPOSURE SHEET BEFORE PASSING THE FOLDER TO THE NEXT DESK!",
+        "caption_p4": "CRAFT AND GOUACHE TEXTURE BRING THE SIMPLE CARROT DOODLE TO LIFE!",
+        "blurb": "Showrunner Nib walks through the 4-desk studio Kanban pipeline: Storyboard Pin-Up -> 4-Keyframe Inking -> 7-Plane Gouache Painting -> Steenbeck Vault Splice.",
+        "stages": ["Panel 1: Nib's 4-Desk Pipeline", "Panel 2: Storyboard -> Ink -> Paint", "Panel 3: 4:3 Carrot Keyframes", "Panel 4: Finished Gouache Cel"],
     },
     {
         "id": "office-09-vibe-kanban",
         "num": 9,
         "group": "office",
+        "lead_agent": "sprocket",
+        "cameo_agent": "blueline",
         "studio_wing": "bg3_screening",
-        "wing_name": "CHAPTER 09 // SIDE-BY-SIDE DAILIES",
+        "wing_name": "EPISODE 09 // TWIN-REEL DAILIES COMPARISON",
         "repo": "BloopAI/vibe-kanban",
         "url": "https://github.com/BloopAI/vibe-kanban",
-        "category": "Side-by-Side Archival vs. Cartoon Review",
+        "category": "Side-by-Side Archival vs. Multiplane Dailies",
         "install": "npx vibe-kanban",
-        "title": "Juxtaposing Archival Reference & Cartoon Cel",
+        "title": "Synchronizing Archival Footage with Multiplane Ink",
         "featured_shot": "diamond",
-        "speech_p1": "HOW DO WE KNOW OUR CARTOON MATCHES THE ARCHIVAL VIDEO'S MOTION?",
-        "caption_p2": "WE JUXTAPOSE ARCHIVAL TRACE & CARTOON CEL SIDE-BY-SIDE:",
-        "diag_steps": [("television", "1. ARCHIVAL"), ("eyeglasses", "2. COMPARE ARC"), ("diamond", "3. CARTOON CEL")],
-        "caption_p3": "TRACE THE MOTION ARC ACROSS ALL 4 KEYFRAMES IN SPACE:",
-        "caption_p4": "SAME MOTION TRAJECTORY — AMPLIFIED THROUGH SIMPLIFICATION!",
-        "blurb": "Shows how placing the archival reference and the Quick, Draw! cartoon side-by-side lets the director verify motion fidelity while amplifying clarity through simplification.",
-        "stages": ["Panel 1: Verifying the Motion Arc", "Panel 2: Archival vs. Cartoon", "Panel 3: 4 Diamond Keyframes", "Panel 4: Amplified Clarity"],
+        "speech_p1": "HOW DO WE PROVE OUR CARTOON HONORS THE ORIGINAL VIDEO'S MOTION? WE LOCK BOTH REELS IN OUR TWIN PROJECTOR!",
+        "caption_p2": "JUXTAPOSING ARCHIVAL PENCIL TRACE AND 7-PLANE CARTOON CEL:",
+        "diag_steps": [("television", "1. ARCHIVAL CLIP"), ("eyeglasses", "2. MOTION LOCK"), ("diamond", "3. TWIN DAILIES")],
+        "caption_p3": "FRAME 1 SHOWS THE ARCHIVAL TRACE; FRAMES 2-4 SHOW OUR 4:3 KEYS:",
+        "gutter_note": "SPROCKET VERIFIES THAT THE DIAMOND'S CENTER OF GRAVITY FOLLOWS THE EXACT ARCHIVAL TRAJECTORY!",
+        "caption_p4": "LEFT: 4:3 ARCHIVAL PENCIL TRACE — RIGHT: 4:3 MULTIPLANE CARTOON!",
+        "blurb": "Sprocket demonstrates the Twin-Reel Dailies Projector, locking the archival reference trace beside the newly inked 7-plane cartoon in true 4:3 aspect ratio.",
+        "stages": ["Panel 1: Twin-Reel Projector", "Panel 2: Reference -> Lock -> Dailies", "Panel 3: 4:3 Diamond Keyframes", "Panel 4: Side-by-Side 4:3 Proof"],
     },
     {
         "id": "office-10-claude-code-kanban",
         "num": 10,
         "group": "office",
-        "studio_wing": "bg3_screening",
-        "wing_name": "CHAPTER 10 // PUTTING IT ALL TOGETHER",
+        "lead_agent": "nib",
+        "cameo_agent": "chime",
+        "studio_wing": "bg4_clocktower",
+        "wing_name": "EPISODE 10 // THE 346-REEL MASTER VAULT",
         "repo": "NikkeTryHard/claude-code-kanban",
         "url": "https://github.com/NikkeTryHard/claude-code-kanban",
-        "category": "346-Shot Master Anthology Assembly",
-        "install": "git clone https://github.com/NikkeTryHard/claude-code-kanban && cd claude-code-kanban && npm i && npm start",
-        "title": "Assembling All 346 Shots Into One Anthology",
+        "category": "Full-Catalog 346-Shot Master Archive",
+        "install": "git clone https://github.com/NikkeTryHard/claude-code-kanban.git && cd claude-code-kanban && npm install && npm start",
+        "title": "How Our Agent Crew Completed All 346 Cartoons",
         "featured_shot": "star",
-        "speech_p1": "WHEN ALL 346 SHOTS PASS REVIEW, WE SPLICE THEM INTO ONE REEL!",
-        "caption_p2": "STORYBOARD -> 4-KEY LIGHTBOX -> 7-PLANE RIG -> MASTER REEL:",
-        "diag_steps": [("picture_frame", "1. STORYBOARD"), ("camera", "2. MULTIPLANE"), ("star", "3. ANTHOLOGY")],
-        "caption_p3": "FOUR KEYFRAMES OF SHOT #285 STAR IN DELIBERATE SEQUENCE:",
-        "caption_p4": "SPACE AND TIME UNITE IN THE FINISHED CARTOON ARCHIVE!",
-        "blurb": "Mirrors Scott McCloud's Chapter 9 ('Putting It All Together'), showing how 346 individual 4-keyframe cartoons combine into a single unified visual language.",
-        "stages": ["Panel 1: The 346-Shot Goal", "Panel 2: Full Studio Pipeline", "Panel 3: 4 Star Keyframes", "Panel 4: The Living Anthology"],
+        "speech_p1": "WORKING TOGETHER ACROSS 346 WORKTREES, OUR AGENT ANIMATOR CREW TRANSFORMED EVERY ARCHIVAL CLIP INTO A LIVING CARTOON!",
+        "caption_p2": "EVERY ONE OF THE 346 REELS PASSED THROUGH THREE STUDIO GATES:",
+        "diag_steps": [("pencil", "1. 346 TRACES"), ("paintbrush", "2. 2,422 PLANES"), ("star", "3. 346 REELS")],
+        "caption_p3": "FOUR RADIANT 4:3 KEYFRAMES OF SHOT #285 STAR ON 35MM FILM:",
+        "gutter_note": "346 SHOTS x 7 MULTIPLANE LAYERS = 2,422 HAND-INKED GOUACHE PLANES IN THE ARCHIVE VAULT!",
+        "caption_p4": "ALL 346 MULTIPLANE CARTOONS ARE SPLICED AND READY FOR SCREENING!",
+        "blurb": "Nib and Chime celebrate the completion of all 346 multiplane cartoons (2,422 painted depth planes) in the Secondhand Studios Master Archive Vault.",
+        "stages": ["Panel 1: The 346-Reel Vault", "Panel 2: 346 Traces -> 2,422 Planes", "Panel 3: 4:3 Star Keyframes", "Panel 4: Master Archive Finale"],
     },
 ]
 
-# 8 AI Video Director & Motion Skill Comic Chapters
 VIDEO_SKILL_SPECS = [
     {
         "id": "skill-01-huashu-motion",
         "num": 11,
         "group": "skill",
-        "studio_wing": "bg1_multifloor",
-        "wing_name": "SKILL 01 // CAMERA BLOCKING & PAN",
-        "timestamp": "01:12",
-        "repo": "ceilf6/Huashu-lead-universal-to-motion",
-        "url": "https://github.com/ceilf6/Huashu-lead-universal-to-motion",
-        "category": "Multiplane Camera Pan & Pacing",
-        "install": "git clone https://github.com/ceilf6/Huashu-lead-universal-to-motion.git",
-        "title": "How Camera Pan Creates Depth Across Planes",
-        "featured_shot": "giraffe-walks-past",
-        "speech_p1": "WHY DOES THE CAMERA PAN SLOWLY INSTEAD OF JUMPING AROUND?",
-        "caption_p2": "A SMOOTH PAN LETS YOUR EYE READ FOREGROUND vs. HORIZON:",
-        "diag_steps": [("mountain", "1. HORIZON"), ("bush", "2. MID BUSHES"), ("giraffe", "3. HERO WALK")],
-        "caption_p3": "FOUR KEYFRAMES OF THE GIRAFFE STRIDING PAST THE CAMERA:",
-        "caption_p4": "CALM CAMERA PACING MAKES THE MOTION EFFORTLESS TO WATCH!",
-        "blurb": "Explains why calm, deliberate camera pans across separated depth planes let the viewer perceive spatial composition instead of chaotic motion blur.",
-        "stages": ["Panel 1: Why Calm Pacing Matters", "Panel 2: Horizon / Mid / Hero", "Panel 3: 4 Giraffe Keyframes", "Panel 4: Effortless Parallax"],
+        "timestamp": "01:41",
+        "lead_agent": "nib",
+        "cameo_agent": "blueline",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "SKILL 01 // CAMERA PACING & FRAMING",
+        "repo": "octohash/huashu-skills (motion-graphics)",
+        "url": "https://github.com/octohash/huashu-skills",
+        "category": "Establishing Wide -> Action Medium -> Hero Close-Up",
+        "install": "git clone https://github.com/octohash/huashu-skills.git",
+        "title": "Directing the Camera: Wide, Medium, and Hero Framing",
+        "featured_shot": "butterfly",
+        "speech_p1": "A GREAT AGENT ANIMATOR DOESN'T JUST DRAW—WE DIRECT THE CAMERA! WIDE ESTABLISHING, MEDIUM ACTION, THEN HERO FOCUS!",
+        "caption_p2": "THREE CLASSIC CAMERA FRAMINGS USED BY OUR AGENT DIRECTORS:",
+        "diag_steps": [("picture_frame", "1. WIDE SCENE"), ("camera", "2. ACTION ARC"), ("butterfly", "3. HERO FOCUS")],
+        "caption_p3": "WATCH THE BUTTERFLY FLUTTER ACROSS FOUR 4:3 KEYFRAMES:",
+        "gutter_note": "EACH 4:3 FRAME GIVES THE BUTTERFLY BREATHING ROOM INSIDE THE GARDEN ENVIRONMENT!",
+        "caption_p4": "UNHURRIED PACING LETS YOUR EYE FOLLOW EVERY WINGBEAT!",
+        "blurb": "Nib demonstrates how the agent director stages camera framing and unhurried sequential pacing so the butterfly's flight reads effortlessly.",
+        "stages": ["Panel 1: Nib's Camera Lesson", "Panel 2: Wide -> Medium -> Hero", "Panel 3: 4:3 Butterfly Keyframes", "Panel 4: Garden Multiplane Flight"],
     },
     {
         "id": "skill-02-rossark-motion-skill",
         "num": 12,
         "group": "skill",
-        "studio_wing": "bg5_bullpen",
-        "wing_name": "SKILL 02 // FIGURE-GROUND CONTRAST",
-        "timestamp": "02:35",
+        "timestamp": "05:37",
+        "lead_agent": "celinker",
+        "cameo_agent": "nib",
+        "studio_wing": "bg1_multifloor",
+        "wing_name": "SKILL 02 // MULTIPLANE CAMERA SWEEP",
         "repo": "rossark/motion-skill",
         "url": "https://github.com/rossark/motion-skill",
-        "category": "Figure-Ground Separation & Typography",
-        "install": "git clone https://github.com/rossark/motion-skill.git ~/.claude/skills/motion-skill",
-        "title": "Amplification Through Simplification",
-        "featured_shot": "lighthouse",
-        "speech_p1": "WHEN A FRAME IS FULL OF TINY LABELS, YOU CAN'T SEE THE STORY!",
-        "caption_p2": "WE STRIP AWAY CLUTTER SO THE ICON READS IN ONE GLANCE:",
-        "diag_steps": [("cloud", "1. SOFT SKY"), ("tree", "2. SIMPLE SHORE"), ("lighthouse", "3. BOLD HERO")],
-        "caption_p3": "BOLD BLACK INK + WARM GOUACHE = 100% FIGURE-GROUND CLARITY:",
-        "caption_p4": "BY SIMPLIFYING THE FORM, WE AMPLIFY THE MEANING!",
-        "blurb": "Applies Scott McCloud's 'Amplification Through Simplification' (Ch. 2, p. 30): stripping away visual noise and floating labels so the bold Quick, Draw! icon commands the frame.",
-        "stages": ["Panel 1: Eliminate Visual Noise", "Panel 2: Sky / Shore / Hero", "Panel 3: 4 Lighthouse Keys", "Panel 4: Instant Readability"],
+        "category": "Multiplane Camera Dolly & Parallax Rig",
+        "install": "git clone https://github.com/rossark/motion-skill.git",
+        "title": "Cranking the Multiplane Camera Across 7 Glass Planes",
+        "featured_shot": "campfire",
+        "speech_p1": "WHEN WE CRANK THE MULTIPLANE CAMERA ACROSS THE CAMPFIRE, OUR 7 GLASS PLANES SHIFT IN PARALLAX SO FLAT PAPER FEELS DEEP!",
+        "caption_p2": "HOW OUR CAMERA AGENT COORDINATES FOREGROUND AND BACKGROUND:",
+        "diag_steps": [("mountain", "1. FAR HILLS"), ("tree", "2. PINE WOODS"), ("campfire", "3. WARM FLAME")],
+        "caption_p3": "FOUR FLICKERING 4:3 KEYFRAMES OF SHOT #042 CAMPFIRE:",
+        "gutter_note": "THE RIVERBANK LOGS FRAME THE FOREGROUND WHILE THE FLAMES DANCE ON THE HERO PLANE!",
+        "caption_p4": "WARM GOUACHE GLOW AND MULTIPLANE DEPTH AROUND THE CAMPFIRE!",
+        "blurb": "Cel-Inker shows how the Rossark Motion Skill cranks the virtual multiplane camera across distant hills, pine woods, and the flickering campfire.",
+        "stages": ["Panel 1: Cranking the Multiplane Rig", "Panel 2: Hills -> Woods -> Flame", "Panel 3: 4:3 Campfire Keyframes", "Panel 4: Glowing Night Scene"],
     },
     {
         "id": "skill-03-take-one",
         "num": 13,
         "group": "skill",
+        "timestamp": "09:49",
+        "lead_agent": "blueline",
+        "cameo_agent": "sprocket",
         "studio_wing": "bg3_screening",
-        "wing_name": "SKILL 03 // ONE IDEA PER SHOT",
-        "timestamp": "04:55",
-        "repo": "puravparab/take-one",
-        "url": "https://github.com/puravparab/take-one",
-        "category": "Single-Focus Shot Directing",
-        "install": "npx skills add puravparab/take-one",
-        "title": "One Clear Action Per Panel, One Beat at a Time",
-        "featured_shot": "bicycle",
-        "speech_p1": "NEVER MAKE THE VIEWER READ FOUR MOVING THINGS AT ONCE!",
-        "caption_p2": "GIVE EACH PANEL ONE CLEAR SUBJECT AND ONE CLEAR ACTION:",
-        "diag_steps": [("megaphone", "1. CALL ACTION"), ("camera", "2. FRAME HERO"), ("bicycle", "3. HOLD POSE")],
-        "caption_p3": "FOUR DELIBERATE KEYFRAMES OF THE BICYCLE IN SEQUENCE:",
-        "caption_p4": "ONE CLEAR SUBJECT IN MOTION — NOTHING EXTRA TO DISTRACT YOU!",
-        "blurb": "Demonstrates the golden rule of both comics and film direction: one clear focal action per panel so the viewer's eye always knows exactly where to look.",
-        "stages": ["Panel 1: Stop Simultaneous Clutter", "Panel 2: One Subject Per Frame", "Panel 3: 4 Bicycle Keyframes", "Panel 4: Pure Focal Motion"],
+        "wing_name": "SKILL 03 // STAGING TAKE ONE",
+        "repo": "nerfels/take-one",
+        "url": "https://github.com/nerfels/take-one",
+        "category": "Pre-Roll Stage Blocking & Clapperboard Lock",
+        "install": "git clone https://github.com/nerfels/take-one.git",
+        "title": "Blocking the Stage Floor Before Calling 'Action!'",
+        "featured_shot": "clock",
+        "speech_p1": "BEFORE THE CAMERA ROLLS ON TAKE ONE, EVERY PROP, SHADOW, AND KEYFRAME MUST HIT ITS MARK ON THE STAGE FLOOR!",
+        "caption_p2": "THREE CHECKS BEFORE OUR AGENT DIRECTOR SNAPS THE CLAPPER:",
+        "diag_steps": [("compass", "1. BLOCK STAGE"), ("megaphone", "2. SNAP SLATE"), ("clock", "3. ROLL TAKE 1")],
+        "caption_p3": "FOUR PRECISION 4:3 KEYFRAMES OF SHOT #071 CLOCK:",
+        "gutter_note": "THE PENDULUM AND HANDS ADVANCE CLEANLY ACROSS ALL FOUR KEYFRAMES WITHOUT CLIPPING THE BORDER!",
+        "caption_p4": "CRISP TABLETOP STAGING AND TIMING ON TAKE ONE!",
+        "blurb": "Blue-Line and Sprocket demonstrate the Take-One pre-roll checklist: stage blocking, clapperboard sync, and 4-keyframe timing verification.",
+        "stages": ["Panel 1: Pre-Roll Stage Blocking", "Panel 2: Block -> Slate -> Roll", "Panel 3: 4:3 Clock Keyframes", "Panel 4: Tabletop Clock Scene"],
     },
     {
         "id": "skill-04-reanimate",
         "num": 14,
         "group": "skill",
+        "timestamp": "13:02",
+        "lead_agent": "blueline",
+        "cameo_agent": "celinker",
         "studio_wing": "bg4_clocktower",
-        "wing_name": "SKILL 04 // ROTOSCOPE & CLOSURE",
-        "timestamp": "06:34",
-        "repo": "NiazMorshed2007/reanimate",
-        "url": "https://github.com/NiazMorshed2007/reanimate",
-        "category": "Archival Trace -> Iconic Doodle",
-        "install": "npx skills add NiazMorshed2007/reanimate -g",
-        "title": "From Photographic Video to Iconic Cartoon",
-        "featured_shot": "train",
-        "speech_p1": "A PHOTOGRAPH SHOWS ONE OBJECT. A CARTOON SPEAKS UNIVERSALLY!",
-        "caption_p2": "WE TRACE THE ARCHIVAL MOTION ARC INTO AN ICONIC DOODLE:",
-        "diag_steps": [("television", "1. RAW VIDEO"), ("pencil", "2. MOTION ARC"), ("train", "3. ICONIC TRAIN")],
-        "caption_p3": "THE 4 ICONIC TRAIN KEYFRAMES PRESERVE THE EXACT TRAJECTORY:",
-        "caption_p4": "NOW THE ARCHIVAL MOTION LIVES AS A UNIVERSAL CARTOON!",
-        "blurb": "Illustrates Scott McCloud's Picture Plane triangle (Ch. 2, pp. 28-31): moving from realistic video toward iconic cartooning while preserving the authentic physical motion arc.",
-        "stages": ["Panel 1: Photo vs. Cartoon Icon", "Panel 2: Trace the Motion Arc", "Panel 3: 4 Iconic Train Keys", "Panel 4: Universal Motion"],
+        "wing_name": "SKILL 04 // REANIMATING ARCHIVAL VIDEO",
+        "repo": "bytefer/reanimate",
+        "url": "https://github.com/bytefer/reanimate",
+        "category": "Archival Optical Flow -> 4-Keyframe Rotoscope",
+        "install": "git clone https://github.com/bytefer/reanimate.git",
+        "title": "Turning Archival Video into Living Hand-Drawn Ink",
+        "featured_shot": "giraffe-walks-past",
+        "speech_p1": "HOW DO WE REANIMATE RAW ARCHIVAL VIDEO INTO HAND-DRAWN INK? WE TRACE THE MOTION SPINE AND DRAW FOUR FRESH KEYFRAMES!",
+        "caption_p2": "OUR 3-STEP ROTOSCOPE & MULTIPLANE REANIMATION PIPELINE:",
+        "diag_steps": [("television", "1. TRACE MOTION"), ("pencil", "2. INK 4 KEYS"), ("giraffe", "3. 7-PLANE CEL")],
+        "caption_p3": "FROM PENCIL TRACE (FRAME 1) TO PAINTED 4:3 KEYFRAMES (2-4):",
+        "gutter_note": "WE NEVER BLUR PHOTOREAL PIXELS—WE RE-INK THE MOTION ENTIRELY IN QUICK, DRAW! LINE & GOUACHE!",
+        "caption_p4": "THE ARCHIVAL GIRAFFE REBORN AS A 7-PLANE MULTIPLANE CARTOON!",
+        "blurb": "Blue-Line and Cel-Inker reveal the core Reanimate workflow: extracting the motion trajectory from archival video and re-inking it as a 7-plane cartoon.",
+        "stages": ["Panel 1: The Rotoscope Lightbox", "Panel 2: Trace -> Ink -> Paint", "Panel 3: 4:3 Giraffe Keyframes", "Panel 4: Reanimated 4:3 Masterpiece"],
     },
     {
         "id": "skill-05-argo",
         "num": 15,
         "group": "skill",
-        "studio_wing": "bg1_multifloor",
-        "wing_name": "SKILL 05 // FULL-SCREEN SEQUENCING",
-        "timestamp": "09:02",
-        "repo": "shreyaskarnik/argo",
-        "url": "https://github.com/shreyaskarnik/argo",
-        "category": "Full-Screen Sequential Projection",
-        "install": "npm i -D @argo-video/cli",
-        "title": "Space in Comics vs. Time in Film",
-        "featured_shot": "guitar",
-        "speech_p1": "IN COMICS, PANELS SHARE THE PAGE. IN FILM, EACH FILLS THE SCREEN!",
-        "caption_p2": "WE PROJECT ONE FULL-SCREEN BEAT AT A TIME (2.5s EACH):",
-        "diag_steps": [("flashlight", "1. SETUP BEAT"), ("eyeglasses", "2. DIAGRAM BEAT"), ("guitar", "3. FULL FINALE")],
-        "caption_p3": "FIRST YOU SEE THE 4 KEYFRAMES LAID OUT SIDE-BY-SIDE...",
-        "caption_p4": "...THEN THE FINISHED ANIMATION FILLS THE SCREEN IN TIME!",
-        "blurb": "Implements Scott McCloud's Page 14 law ('Each successive frame of a movie is projected on the SAME space — the screen!'): projecting each panel full-screen in the video while juxtaposing all 4 on the comic page.",
-        "stages": ["Panel 1: Space vs. Time (McCloud p. 14)", "Panel 2: Full-Screen Beats", "Panel 3: 4 Guitar Keyframes", "Panel 4: Full-Screen Finale"],
+        "timestamp": "18:54",
+        "lead_agent": "sprocket",
+        "cameo_agent": "chime",
+        "studio_wing": "bg3_screening",
+        "wing_name": "SKILL 05 // THE 16 QUALITY GATES",
+        "repo": "mylin0/argo",
+        "url": "https://github.com/mylin0/argo",
+        "category": "Automated 16-Gate Visual Quality Assurance",
+        "install": "git clone https://github.com/mylin0/argo.git",
+        "title": "Guarding Every Frame Against Edge Clipping & Drift",
+        "featured_shot": "hot-air-balloon",
+        "speech_p1": "IF A HOT-AIR BALLOON DRIFTS OFF THE PAPER EDGE, I STOP THE PRESSES! EVERY REEL MUST PASS ALL 16 STUDIO QUALITY GATES!",
+        "caption_p2": "THREE CRITICAL QUALITY GATES CHECKED BY SPROCKET:",
+        "diag_steps": [("picture_frame", "1. ZERO CLIP"), ("eyeglasses", "2. 4:3 ASPECT"), ("hot_air_balloon", "3. 16/16 PASS")],
+        "caption_p3": "FOUR CENTERED 4:3 KEYFRAMES OF SHOT #152 HOT-AIR BALLOON:",
+        "gutter_note": "SPROCKET CONFIRMS SAFE MARGINS, TRUE 4:3 ASPECT RATIO, AND FULL SKY-TO-CLOUD PARALLAX!",
+        "caption_p4": "THE HOT-AIR BALLOON RISES SMOOTHLY THROUGH THE PAINTED SKY!",
+        "blurb": "Auditor Sprocket demonstrates the Argo 16-gate inspection harness, checking margin safety, true 4:3 aspect ratios, and multiplane parallax.",
+        "stages": ["Panel 1: Sprocket's 16-Gate Audit", "Panel 2: Margins -> Aspect -> Pass", "Panel 3: 4:3 Balloon Keyframes", "Panel 4: Approved Sky Ascension"],
     },
     {
         "id": "skill-06-explainroo",
         "num": 16,
         "group": "skill",
-        "studio_wing": "bg3_screening",
-        "wing_name": "SKILL 06 // SHOW AND TELL (CH. 6)",
-        "timestamp": "09:50",
-        "repo": "vincentsch/explainroo",
-        "url": "https://github.com/vincentsch/explainroo",
-        "category": "Interdependent Words & Pictures",
-        "install": "git clone https://github.com/vincentsch/explainroo.git",
-        "title": "Show and Tell: Words & Pictures Together",
-        "featured_shot": "diamond",
-        "speech_p1": "IN CHAPTER 6, WORDS AND PICTURES ARE PARTNERS IN A DANCE!",
-        "caption_p2": "WORDS SET THE QUESTION -> PICTURES SHOW WHAT WORDS CANNOT:",
-        "diag_steps": [("microphone", "1. SHORT CAPTION"), ("picture_frame", "2. CLEAR IMAGE"), ("diamond", "3. MEANING")],
-        "caption_p3": "NO TINY TELEMETRY NUMBERS — JUST 4 CLEAR VISUAL KEYFRAMES:",
-        "caption_p4": "THE CAPTION SETS THE STAGE; THE CARTOON DELIVERS THE MOTION!",
-        "blurb": "Applies Scott McCloud's Chapter 6 ('Show and Tell'): replacing redundant technical text tags with short, punchy captions that let the drawings do the visual heavy lifting.",
-        "stages": ["Panel 1: Partners in a Dance", "Panel 2: Words + Pictures", "Panel 3: 4 Visual Keyframes", "Panel 4: Show, Don't Clutter"],
+        "timestamp": "23:18",
+        "lead_agent": "nib",
+        "cameo_agent": "celinker",
+        "studio_wing": "bg5_bullpen",
+        "wing_name": "SKILL 06 // VISUAL STORYTELLING CLARITY",
+        "repo": "Explainum/explainroo",
+        "url": "https://github.com/Explainum/explainroo",
+        "category": "Amplification Through Simplification & Clear Diagrams",
+        "install": "git clone https://github.com/Explainum/explainroo.git",
+        "title": "Why Simple Cartoons Explain Complex Systems Best",
+        "featured_shot": "lighthouse",
+        "speech_p1": "NEVER BURY THE VIEWER IN FLOATING TELEMETRY NUMBERS! LET ONE CLEAR DIAGRAM AND ONE LIVING CARTOON TELL THE STORY!",
+        "caption_p2": "HOW OUR STUDIO TURNS COMPLEX DATA INTO CLEAR SEQUENTIAL ART:",
+        "diag_steps": [("scissors", "1. CUT CLUTTER"), ("smiley_face", "2. BOLD ICON"), ("lighthouse", "3. CLEAR STORY")],
+        "caption_p3": "FOUR UNCLUTTERED 4:3 KEYFRAMES OF THE COASTAL LIGHTHOUSE:",
+        "gutter_note": "BY STRIPPING AWAY TECHNICAL OVERLAYS, YOUR EYE READS THE BEAM AND WAVES INSTANTLY!",
+        "caption_p4": "CLEAN PAPER, BOLD INDIA INK, AND UNOBSTRUCTED 4:3 MOTION!",
+        "blurb": "Nib explains the studio's visual storytelling philosophy: stripping away noisy telemetry labels so clear icons and sequential panels communicate immediately.",
+        "stages": ["Panel 1: Cutting Visual Clutter", "Panel 2: Simplify -> Icon -> Story", "Panel 3: 4:3 Lighthouse Keys", "Panel 4: Unobstructed Clarity"],
     },
     {
         "id": "skill-07-video-director",
         "num": 17,
         "group": "skill",
+        "timestamp": "27:45",
+        "lead_agent": "sprocket",
+        "cameo_agent": "nib",
         "studio_wing": "bg1_multifloor",
-        "wing_name": "SKILL 07 // COMPOSITION & BALANCE",
-        "timestamp": "11:20",
-        "repo": "win4r/video-director",
-        "url": "https://github.com/win4r/video-director",
-        "category": "Rule of Thirds & Visual Balance",
-        "install": "git clone https://github.com/win4r/video-director.git && cp -R video-director/video-director ~/.claude/skills/",
-        "title": "Anchoring the Hero in Clean Space",
-        "featured_shot": "carrot",
-        "speech_p1": "GOOD COMPOSITION MEANS AMPLE BREATHING ROOM AROUND THE HERO!",
-        "caption_p2": "WE ANCHOR THE SUBJECT ON THE HARMONIC GRID WITH CLEAN MARGINS:",
-        "diag_steps": [("picture_frame", "1. AMPLE MARGIN"), ("scissors", "2. TRIM CLUTTER"), ("carrot", "3. BALANCED SHOT")],
-        "caption_p3": "NOTICE THE GENEROUS CREAM PAPER SPACE AROUND ALL 4 KEYFRAMES:",
-        "caption_p4": "NEGATIVE SPACE MAKES THE CARTOON SILHOUETTE POP!",
-        "blurb": "Demonstrates why negative space (warm cream paper around the subject) is essential for readable composition across all 346 shots.",
-        "stages": ["Panel 1: The Power of Negative Space", "Panel 2: Trim the Clutter", "Panel 3: 4 Balanced Keyframes", "Panel 4: Crisp Silhouette Pop"],
+        "wing_name": "SKILL 07 // UNIFIED STUDIO COLOR & RHYTHM",
+        "repo": "fireflewdev/video-director-skill",
+        "url": "https://github.com/fireflewdev/video-director-skill",
+        "category": "Archive-Wide Gouache Palette & Rhythm Continuity",
+        "install": "git clone https://github.com/fireflewdev/video-director-skill.git",
+        "title": "Harmonizing Paper, Ink, and Gouache Across 346 Films",
+        "featured_shot": "guitar",
+        "speech_p1": "ACROSS ALL 346 SHOTS, OUR AGENT STUDIO BALANCES CREAM PAPER, INDIA INK, AND GOUACHE SO EVERY REEL FEELS UNIFIED!",
+        "caption_p2": "THREE VISUAL PILLARS OF OUR UNIFIED STUDIO AESTHETIC:",
+        "diag_steps": [("paintbrush", "1. WARM PAPER"), ("palette", "2. 5 GOUACHES"), ("guitar", "3. BOLD INK")],
+        "caption_p3": "FOUR HARMONIZED 4:3 KEYFRAMES OF SHOT #136 GUITAR:",
+        "gutter_note": "EVERY SHOT IN THE ARCHIVE SHARES THE EXACT SAME WARM PAPER AND WATERCOLOR GOUACHE PALETTE!",
+        "caption_p4": "UNIFIED COLOR, LINE WEIGHT, AND 4:3 FRAMING IN EVERY REEL!",
+        "blurb": "Sprocket and Nib show how the Video Director Skill enforces a single cohesive warm-paper and gouache palette across all 346 films.",
+        "stages": ["Panel 1: Archive-Wide Direction", "Panel 2: Paper -> Gouache -> Ink", "Panel 3: 4:3 Guitar Keyframes", "Panel 4: Unified Studio Aesthetic"],
     },
     {
         "id": "skill-08-earshot",
         "num": 18,
         "group": "skill",
+        "timestamp": "31:10",
+        "lead_agent": "chime",
+        "cameo_agent": "sprocket",
         "studio_wing": "bg3_screening",
-        "wing_name": "SKILL 08 // SOUND IN THE GUTTER",
-        "timestamp": "12:57",
-        "repo": "Leonxlnx/earshot",
-        "url": "https://github.com/Leonxlnx/earshot",
-        "category": "Comic Sound Effects & Foley Sync",
-        "install": "git clone https://github.com/Leonxlnx/earshot.git",
-        "title": "Seeing Sound & Hearing Motion",
-        "featured_shot": "zigzag",
-        "speech_p1": "IN COMICS, A BOLD 'BANG!' OR 'WHOOSH!' LETS YOUR EYES HEAR SOUND!",
-        "caption_p2": "IN FILM, WE TRIGGER FOLEY SFX AT THE EXACT PEAK OF MOTION:",
-        "diag_steps": [("headphones", "1. PEAK TURN"), ("megaphone", "2. WHOOSH! SFX"), ("zigzag", "3. SYNCED REEL")],
-        "caption_p3": "WHEREVER THE ZIGZAG SHARPLY CHANGES DIRECTION (K2 & K3)...",
-        "caption_p4": "...EARSHOT FIRES A CRISP FOLEY ACCENT RIGHT ON THE BEAT!",
-        "blurb": "Connects comic-book onomatopoeia ('PTU!', 'BANG!', 'WHOOSH!' from McCloud pp. 5-6) to our automated Earshot Foley cues triggered at sharp turns in the motion path.",
-        "stages": ["Panel 1: Seeing Sound in Comics", "Panel 2: Peak Turn -> Foley Cue", "Panel 3: 4 Zigzag Keyframes", "Panel 4: Synced Sound & Motion"],
+        "wing_name": "SKILL 08 // FOLEY SOUNDSTAGE & JERK PEAKS",
+        "repo": "sphere-ai-lab/Earshot",
+        "url": "https://github.com/sphere-ai-lab/Earshot",
+        "category": "Motion-Triggered Foley & Soundstage Sync",
+        "install": "git clone https://github.com/sphere-ai-lab/Earshot.git",
+        "title": "Triggering Foley Sound Effects on Motion Peaks",
+        "featured_shot": "train",
+        "speech_p1": "SILENT INK COMES ALIVE WITH SOUND! I WATCH THE 3D MOTION CURVE FOR SHARP ACCELERATION PEAKS TO TRIGGER EVERY FOLEY CUE!",
+        "caption_p2": "HOW CHIME SYNCS FOLEY SOUND EFFECTS TO THE ANIMATION:",
+        "diag_steps": [("lightning", "1. JERK PEAK"), ("Bell", "2. FOLEY CUE"), ("train", "3. SYNCED REEL")],
+        "caption_p3": "FOUR 4:3 KEYFRAMES OF SHOT #324 TRAIN WITH ACOUSTIC CUES:",
+        "gutter_note": "WHENEVER THE TRAIN CHUGS OR WHISTLES AT PEAK ACCELERATION, CHIME DROPS A FRAME-ACCURATE FOLEY MARKER!",
+        "caption_p4": "PICTURE AND FOLEY LOCKED TOGETHER ON THE MASTER SOUNDTRACK!",
+        "blurb": "Foley Engineer 'Chime' demonstrates how Earshot detects acceleration peaks along the 3D motion curve to trigger frame-accurate Foley sound effects.",
+        "stages": ["Panel 1: Chime's Foley Soundstage", "Panel 2: Jerk Peak -> Foley -> Sync", "Panel 3: 4:3 Train Keyframes", "Panel 4: Synced Sound Master"],
     },
 ]
 
@@ -513,11 +610,18 @@ _SHOT_FRAMES_CACHE = {}
 
 
 def load_qd_norm(cat: str, idx: int = 0) -> list:
-    cat_clean = "giraffe" if cat == "giraffe-walks-past" else cat.replace("-", "_").strip()
+    cat_clean = "giraffe" if cat == "giraffe-walks-past" else cat.replace("-", "_").strip().lower()
     if cat_clean not in _QD_CACHE:
         p = QD_DIR / f"{cat_clean}.json"
         if not p.exists():
-            p = QD_DIR / "star.json"
+            # Fallback to a visually related category if needed
+            fallbacks = {
+                "palette": "paint_can",
+                "bell": "alarm_clock",
+            }
+            p = QD_DIR / f"{fallbacks.get(cat_clean, 'star')}.json"
+            if not p.exists():
+                p = QD_DIR / "star.json"
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
             recs = data.get("drawings", data.get("records", [])) if isinstance(data, dict) else data
@@ -577,21 +681,27 @@ def draw_qd_doodle(
     boil_phase: int = 0,
     idx: int = 0,
 ):
+    """
+    Draws a genuine Google Quick, Draw! vector doodle centered at (cx, cy).
+    Strictly preserves 1:1 uniform aspect ratio (`side = min(w, h)`) so doodles
+    never stretch or squish!
+    """
     norm = load_qd_norm(cat, idx=idx)
     if not norm:
         return
     rng = np.random.RandomState((hash(cat) & 0xFFFF) + boil_phase * 53)
-    x0 = cx - w * 0.5
-    y0 = cy - h * 0.5
+    side = float(min(w, h))
+    x0 = cx - side * 0.5
+    y0 = cy - side * 0.5
     scaled_strokes = []
     all_pts = []
     for s in norm:
         pts = []
         for nx, ny in s:
-            jx = float(rng.uniform(-0.4, 0.4)) if boil_phase > 0 else 0.0
-            jy = float(rng.uniform(-0.4, 0.4)) if boil_phase > 0 else 0.0
-            px = int(round(x0 + nx * w + jx))
-            py = int(round(y0 + ny * h + jy))
+            jx = float(rng.uniform(-0.35, 0.35)) if boil_phase > 0 else 0.0
+            jy = float(rng.uniform(-0.35, 0.35)) if boil_phase > 0 else 0.0
+            px = int(round(x0 + nx * side + jx))
+            py = int(round(y0 + ny * side + jy))
             pts.append([px, py])
             all_pts.append([px, py])
         if len(pts) >= 2:
@@ -607,7 +717,11 @@ def draw_qd_doodle(
 
 
 def load_shot_frames(slug: str):
-    """Loads 33 archival pencil sketches and 33 Quick, Draw! cartoon frames with old HUD bars cleanly cropped out."""
+    """
+    Loads 33 archival pencil sketches and 33 Quick, Draw! cartoon frames from `comparison.mp4`
+    at their EXACT native 4:3 aspect ratio (`576x432` crop -> `480x360` 4:3 frames),
+    with old baked-in top/bottom HUD bars cleanly removed!
+    """
     if slug in _SHOT_FRAMES_CACHE:
         return _SHOT_FRAMES_CACHE[slug]
     comp_path = SHOTS_DIR / slug / "comparison.mp4"
@@ -618,30 +732,36 @@ def load_shot_frames(slug: str):
             ok, fr = cap.read()
             if not ok:
                 break
-            fh, fw = fr.shape[:2]
-            half_w = fw // 2
-            # Crop top 22px and bottom 24px so old baked-in HUD bars in comparison.mp4 are 100% gone!
-            y_top = min(22, fh // 8)
-            y_bot = max(y_top + 40, fh - 24)
-            crop_a = fr[y_top:y_bot, 4:half_w - 4]
-            crop_c = fr[y_top:y_bot, half_w + 4:fw - 4]
-            raw_a = cv2.resize(crop_a, (480, 320), interpolation=cv2.INTER_AREA)
-            raw_c = cv2.resize(crop_c, (480, 320), interpolation=cv2.INTER_AREA)
+            fh, fw = fr.shape[:2]  # 480 x 1280 (each half is 640x480 = 4:3)
+            half_w = fw // 2       # 640
+            # Crop 30px top and 26px bottom -> height = 424px.
+            # For exact 4:3 aspect ratio, width = 424 * 4 / 3 = 565px!
+            y_top = 30
+            y_bot = fh - 26        # 454 (height = 424)
+            crop_h = y_bot - y_top
+            crop_w = int(round(crop_h * 4.0 / 3.0))  # 565
+            x_pad = max(0, (half_w - crop_w) // 2)   # 37
+
+            crop_a = fr[y_top:y_bot, x_pad:x_pad + crop_w]
+            crop_c = fr[y_top:y_bot, half_w + x_pad:half_w + x_pad + crop_w]
+            # Resize to 480x360 (EXACT 4:3 aspect ratio!)
+            raw_a = cv2.resize(crop_a, (480, 360), interpolation=cv2.INTER_AREA)
+            raw_c = cv2.resize(crop_c, (480, 360), interpolation=cv2.INTER_AREA)
 
             gray = cv2.cvtColor(raw_a, cv2.COLOR_BGR2GRAY)
             blur = cv2.GaussianBlur(gray, (3, 3), 0)
             edges = cv2.Canny(blur, 45, 125)
             adapt = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 5)
             ink = cv2.bitwise_or(edges, adapt)
-            sk = np.full((320, 480, 3), BGR_PAPER, dtype=np.uint8)
+            sk = np.full((360, 480, 3), BGR_PAPER, dtype=np.uint8)
             sk[blur < 115] = BGR_PAPER_DARK
             sk[ink > 0] = BGR_INK
             arch_sketches.append(sk)
             cart_frames.append(raw_c)
         cap.release()
     if not cart_frames:
-        blank = np.full((320, 480, 3), BGR_PAPER, dtype=np.uint8)
-        draw_qd_doodle(blank, slug, 240, 160, 180, 180, fill_bgr=BGR_AMBER_PALE, thickness=4)
+        blank = np.full((360, 480, 3), BGR_PAPER, dtype=np.uint8)
+        draw_qd_doodle(blank, slug, 240, 180, 200, 200, fill_bgr=BGR_AMBER_PALE, thickness=4)
         arch_sketches = [blank.copy() for _ in range(33)]
         cart_frames = [blank.copy() for _ in range(33)]
     while len(cart_frames) < 33:
@@ -651,176 +771,323 @@ def load_shot_frames(slug: str):
     return arch_sketches, cart_frames
 
 
-def draw_mccloud_presenter(img: np.ndarray, cx: int, cy: int, scale: float = 1.0, pose: int = 0, dark_bg: bool = False):
-    """Draws our iconic Scott McCloud-style Cartoon Narrator (round white glasses, plaid blazer, lightning tee)."""
-    def S(val):
+# =============================================================================
+# ORIGINAL CHARACTER ART: THE 5 AGENT ANIMATORS OF SECONDHAND STUDIOS
+# =============================================================================
+def draw_agent_animator(
+    img: np.ndarray,
+    agent_id: str,
+    cx: int,
+    cy: int,
+    scale: float = 1.0,
+    pose: int = 0,
+    dark_bg: bool = False,
+):
+    """
+    Draws one of our 5 bespoke Agent Animator characters in a classic 1930s
+    Fleischer / Inkwell-Toon + Quick, Draw! aesthetic (with pie-cut cartoon eyes,
+    white four-fingered animator gloves, studio apron/smock, and iconic headgear):
+      - `nib`: Gold-and-Ink Fountain-Pen Nib Crown + Terracotta Director Apron + Stylus Baton
+      - `blueline`: Prussian Blue Draftsman Visor + Ear Pencil + 4-Key Pegbar Slate
+      - `celinker`: Ochre Beret + Flip-Down Magnifier Loupe + Gouache Brush & Palette
+      - `sprocket`: Twin-Reel 35mm Projector Cap + Brass Monocle + 16-Gate Stamp
+      - `chime`: Studio Headphones + Clockwork Gear Crest + Brass Tuning Fork & Stopwatch
+    """
+    ag = STUDIO_AGENTS.get(agent_id, STUDIO_AGENTS["nib"])
+    col_bgr = ag["color_bgr"]
+    pale_bgr = ag["pale_bgr"]
+    outline_bgr = BGR_GUTTER if dark_bg else BGR_INK
+
+    def S(val: float) -> int:
         return int(round(val * scale))
 
-    tx0, tx1 = cx - S(52), cx + S(52)
-    ty0, ty1 = cy + S(28), cy + S(115)
-    torso_pts = np.array([
-        [cx - S(40), ty0],
-        [cx + S(40), ty0],
-        [tx1, ty1],
-        [tx0, ty1],
-    ], dtype=np.int32)
-    cv2.fillConvexPoly(img, torso_pts, BGR_BLUE, cv2.LINE_AA)
-    cv2.polylines(img, [torso_pts], True, BGR_INK if not dark_bg else BGR_GUTTER, 3, cv2.LINE_AA)
-
-    for gx in range(cx - S(42), cx + S(44), max(8, S(14))):
-        cv2.line(img, (gx, ty0 + S(4)), (gx, ty1 - S(2)), BGR_INK, 2, cv2.LINE_AA)
-    for gy in range(ty0 + S(14), ty1, max(8, S(16))):
-        cv2.line(img, (tx0 + S(6), gy), (tx1 - S(6), gy), BGR_INK, 2, cv2.LINE_AA)
-
+    # 1. Cartoon Studio Smock / Apron Torso
+    tx0, tx1 = cx - S(48), cx + S(48)
+    ty0, ty1 = cy + S(26), cy + S(112)
+    # White rolled-sleeve animator shirt underneath
     shirt_pts = np.array([
-        [cx - S(16), ty0],
-        [cx + S(16), ty0],
-        [cx + S(11), ty1],
-        [cx - S(11), ty1],
+        [cx - S(42), ty0],
+        [cx + S(42), ty0],
+        [tx1 + S(4), ty1],
+        [tx0 - S(4), ty1],
     ], dtype=np.int32)
-    cv2.fillConvexPoly(img, shirt_pts, BGR_RED, cv2.LINE_AA)
-    cv2.polylines(img, [shirt_pts], True, BGR_INK, 2, cv2.LINE_AA)
-    bolt_pts = np.array([
-        [cx - S(6), ty0 + S(20)],
-        [cx + S(8), ty0 + S(32)],
-        [cx - S(2), ty0 + S(38)],
-        [cx + S(9), ty0 + S(54)],
+    cv2.fillConvexPoly(img, shirt_pts, BGR_GUTTER, cv2.LINE_AA)
+    cv2.polylines(img, [shirt_pts], True, BGR_INK, max(2, S(3)), cv2.LINE_AA)
+
+    # Colored Studio Apron / Vest over the shirt
+    apron_pts = np.array([
+        [cx - S(32), ty0 + S(4)],
+        [cx + S(32), ty0 + S(4)],
+        [tx1 - S(4), ty1],
+        [tx0 + S(4), ty1],
     ], dtype=np.int32)
-    cv2.polylines(img, [bolt_pts], False, BGR_AMBER, 3, cv2.LINE_AA)
+    cv2.fillConvexPoly(img, apron_pts, col_bgr, cv2.LINE_AA)
+    cv2.polylines(img, [apron_pts], True, BGR_INK, max(2, S(3)), cv2.LINE_AA)
 
-    arm_lift = S(-10) if (pose % 2 == 1) else 0
-    hx = cx + S(68)
-    hy = cy + S(34) + arm_lift
-    cv2.line(img, (cx + S(38), ty0 + S(20)), (hx, hy), BGR_BLUE, max(8, S(13)), cv2.LINE_AA)
-    cv2.line(img, (cx + S(38), ty0 + S(20)), (hx, hy), BGR_INK if not dark_bg else BGR_GUTTER, 3, cv2.LINE_AA)
-    cv2.circle(img, (hx + S(5), hy - S(3)), S(10), BGR_GUTTER, -1, cv2.LINE_AA)
-    cv2.circle(img, (hx + S(5), hy - S(3)), S(10), BGR_INK, 2, cv2.LINE_AA)
+    # Apron shoulder straps & chest badge
+    cv2.line(img, (cx - S(22), ty0), (cx - S(18), ty0 + S(26)), BGR_INK, max(2, S(3)), cv2.LINE_AA)
+    cv2.line(img, (cx + S(22), ty0), (cx + S(18), ty0 + S(26)), BGR_INK, max(2, S(3)), cv2.LINE_AA)
+    cv2.rectangle(img, (cx - S(18), ty0 + S(26)), (cx + S(18), ty0 + S(56)), pale_bgr, -1)
+    cv2.rectangle(img, (cx - S(18), ty0 + S(26)), (cx + S(18), ty0 + S(56)), BGR_INK, max(2, S(2)))
 
-    cv2.rectangle(img, (cx - S(10), cy + S(15)), (cx + S(10), cy + S(30)), BGR_GUTTER, -1)
-    cv2.rectangle(img, (cx - S(10), cy + S(15)), (cx + S(10), cy + S(30)), BGR_INK, 2)
-
-    cv2.ellipse(img, (cx, cy - S(6)), (S(29), S(34)), 0, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
-    cv2.ellipse(img, (cx, cy - S(6)), (S(29), S(34)), 0, 0, 360, BGR_INK, 3, cv2.LINE_AA)
-
-    hair_pts = np.array([
-        [cx - S(30), cy - S(8)],
-        [cx - S(28), cy - S(32)],
-        [cx - S(8), cy - S(43)],
-        [cx + S(15), cy - S(42)],
-        [cx + S(31), cy - S(28)],
-        [cx + S(30), cy - S(8)],
-        [cx + S(19), cy - S(19)],
-        [cx + S(2), cy - S(16)],
-        [cx - S(14), cy - S(24)],
-    ], dtype=np.int32)
-    cv2.fillPoly(img, [hair_pts], BGR_INK, cv2.LINE_AA)
-    if dark_bg:
-        cv2.polylines(img, [hair_pts], True, BGR_GUTTER, 1, cv2.LINE_AA)
-
-    lx, rx = cx - S(11), cx + S(13)
-    gy = cy - S(6)
-    gr = S(11)
-    cv2.circle(img, (lx, gy), gr, (255, 255, 255), -1, cv2.LINE_AA)
-    cv2.circle(img, (rx, gy), gr, (255, 255, 255), -1, cv2.LINE_AA)
-    cv2.circle(img, (lx, gy), gr, BGR_INK, 3, cv2.LINE_AA)
-    cv2.circle(img, (rx, gy), gr, BGR_INK, 3, cv2.LINE_AA)
-    cv2.line(img, (lx + gr, gy), (rx - gr, gy), BGR_INK, 3, cv2.LINE_AA)
-    cv2.line(img, (cx - S(29), gy - S(2)), (lx - gr, gy), BGR_INK, 3, cv2.LINE_AA)
-
-    brow_y = gy - gr - S(5)
-    cv2.line(img, (lx - S(8), brow_y + S(2)), (lx + S(7), brow_y - S(2)), BGR_INK, 2, cv2.LINE_AA)
-    cv2.line(img, (rx - S(7), brow_y - S(2)), (rx + S(8), brow_y + S(2)), BGR_INK, 2, cv2.LINE_AA)
-
-    nose_pts = np.array([[cx + S(1), gy + S(3)], [cx + S(7), gy + S(11)], [cx + S(1), gy + S(13)]], dtype=np.int32)
-    cv2.polylines(img, [nose_pts], False, BGR_INK, 2, cv2.LINE_AA)
-    if pose % 2 == 0:
-        cv2.ellipse(img, (cx + S(1), cy + S(16)), (S(8), S(5)), 0, 0, 180, BGR_INK, -1, cv2.LINE_AA)
+    # Chest pocket emblem by role
+    if agent_id == "nib":
+        # 35mm film reel emblem
+        cv2.circle(img, (cx, ty0 + S(41)), S(10), BGR_AMBER, -1, cv2.LINE_AA)
+        cv2.circle(img, (cx, ty0 + S(41)), S(10), BGR_INK, max(1, S(2)), cv2.LINE_AA)
+        cv2.circle(img, (cx, ty0 + S(41)), S(3), BGR_INK, -1, cv2.LINE_AA)
+    elif agent_id == "blueline":
+        # 4-key registration peg marks
+        for kx in (-10, -3, 4, 11):
+            cv2.line(img, (cx + S(kx), ty0 + S(32)), (cx + S(kx), ty0 + S(50)), BGR_BLUE, max(1, S(2)))
+    elif agent_id == "celinker":
+        # 3 gouache color dots
+        for dx, dc in [(-9, BGR_RED), (0, BGR_AMBER), (9, BGR_GREEN)]:
+            cv2.circle(img, (cx + S(dx), ty0 + S(41)), S(4), dc, -1, cv2.LINE_AA)
+            cv2.circle(img, (cx + S(dx), ty0 + S(41)), S(4), BGR_INK, 1, cv2.LINE_AA)
+    elif agent_id == "sprocket":
+        # Checkmark gate emblem
+        chk = np.array([[cx - S(8), ty0 + S(41)], [cx - S(2), ty0 + S(48)], [cx + S(10), ty0 + S(33)]], dtype=np.int32)
+        cv2.polylines(img, [chk], False, BGR_GREEN, max(2, S(3)), cv2.LINE_AA)
     else:
-        cv2.ellipse(img, (cx + S(1), cy + S(16)), (S(7), S(3)), 0, 0, 180, BGR_INK, 2, cv2.LINE_AA)
+        # 55m stopwatch dial
+        cv2.circle(img, (cx, ty0 + S(41)), S(10), BGR_GUTTER, -1, cv2.LINE_AA)
+        cv2.circle(img, (cx, ty0 + S(41)), S(10), BGR_INK, max(1, S(2)), cv2.LINE_AA)
+        cv2.line(img, (cx, ty0 + S(41)), (cx + S(5), ty0 + S(35)), BGR_RED, max(1, S(2)), cv2.LINE_AA)
+
+    # 2. Expressive Gloved Cartoon Arm & Role Tool Prop
+    arm_lift = S(-8) if (pose % 2 == 1) else 0
+    hx = cx + S(64)
+    hy = cy + S(32) + arm_lift
+    cv2.line(img, (cx + S(36), ty0 + S(18)), (hx, hy), BGR_GUTTER, max(6, S(11)), cv2.LINE_AA)
+    cv2.line(img, (cx + S(36), ty0 + S(18)), (hx, hy), BGR_INK, max(2, S(3)), cv2.LINE_AA)
+    # Classic 4-finger white cartoon glove
+    cv2.circle(img, (hx + S(4), hy - S(2)), S(11), BGR_GUTTER, -1, cv2.LINE_AA)
+    cv2.circle(img, (hx + S(4), hy - S(2)), S(11), BGR_INK, max(2, S(2)), cv2.LINE_AA)
+
+    # Prop in hand
+    if agent_id == "nib":
+        # Fountain-Tip Director's Baton
+        cv2.line(img, (hx + S(6), hy - S(4)), (hx + S(32), hy - S(34)), BGR_INK, max(2, S(4)), cv2.LINE_AA)
+        nib_tip = np.array([
+            [hx + S(28), hy - S(30)],
+            [hx + S(40), hy - S(44)],
+            [hx + S(34), hy - S(26)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, nib_tip, BGR_AMBER, cv2.LINE_AA)
+        cv2.polylines(img, [nib_tip], True, BGR_INK, max(1, S(2)), cv2.LINE_AA)
+    elif agent_id == "blueline":
+        # Blue Non-Photo Animator's Pencil
+        cv2.line(img, (hx + S(4), hy - S(4)), (hx + S(30), hy - S(32)), BGR_BLUE, max(3, S(5)), cv2.LINE_AA)
+        cv2.circle(img, (hx + S(32), hy - S(34)), S(3), BGR_RED, -1, cv2.LINE_AA)
+    elif agent_id == "celinker":
+        # Gouache Paintbrush with amber paint tip
+        cv2.line(img, (hx + S(4), hy - S(4)), (hx + S(28), hy - S(30)), BGR_INK, max(2, S(4)), cv2.LINE_AA)
+        cv2.circle(img, (hx + S(31), hy - S(33)), S(7), BGR_AMBER, -1, cv2.LINE_AA)
+        cv2.circle(img, (hx + S(31), hy - S(33)), S(7), BGR_INK, max(1, S(2)), cv2.LINE_AA)
+    elif agent_id == "sprocket":
+        # 16-Gate Auditor Stamp
+        cv2.rectangle(img, (hx + S(8), hy - S(24)), (hx + S(30), hy - S(10)), BGR_GREEN, -1)
+        cv2.rectangle(img, (hx + S(8), hy - S(24)), (hx + S(30), hy - S(10)), BGR_INK, max(1, S(2)))
+    else:
+        # Brass Tuning Fork
+        cv2.line(img, (hx + S(6), hy - S(4)), (hx + S(18), hy - S(18)), BGR_AMBER, max(2, S(3)), cv2.LINE_AA)
+        cv2.line(img, (hx + S(14), hy - S(16)), (hx + S(24), hy - S(30)), BGR_AMBER, max(2, S(2)), cv2.LINE_AA)
+        cv2.line(img, (hx + S(20), hy - S(12)), (hx + S(30), hy - S(26)), BGR_AMBER, max(2, S(2)), cv2.LINE_AA)
+
+    # 3. Cartoon Neck & Round Inkwell-Toon Head
+    cv2.rectangle(img, (cx - S(9), cy + S(14)), (cx + S(9), cy + S(28)), BGR_GUTTER, -1)
+    cv2.rectangle(img, (cx - S(9), cy + S(14)), (cx + S(9), cy + S(28)), BGR_INK, max(2, S(2)))
+
+    cv2.ellipse(img, (cx, cy - S(6)), (S(30), S(32)), 0, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
+    cv2.ellipse(img, (cx, cy - S(6)), (S(30), S(32)), 0, 0, 360, BGR_INK, max(2, S(3)), cv2.LINE_AA)
+
+    # 4. Classic 1930s Pie-Cut Cartoon Eyes & Expressive Smile
+    for ex in (cx - S(11), cx + S(12)):
+        ey = cy - S(7)
+        # Outer eye oval
+        cv2.ellipse(img, (ex, ey), (S(7), S(9)), 0, 0, 360, (255, 255, 255), -1, cv2.LINE_AA)
+        cv2.ellipse(img, (ex, ey), (S(7), S(9)), 0, 0, 360, BGR_INK, max(1, S(2)), cv2.LINE_AA)
+        # Ink pupil with classic vintage white pie-cut wedge
+        cv2.ellipse(img, (ex + S(1), ey), (S(4), S(6)), 0, 0, 360, BGR_INK, -1, cv2.LINE_AA)
+        pie = np.array([[ex + S(1), ey], [ex + S(6), ey - S(4)], [ex + S(6), ey - S(1)]], dtype=np.int32)
+        cv2.fillConvexPoly(img, pie, (255, 255, 255), cv2.LINE_AA)
+
+    # Cartoon nose button & warm grin
+    cv2.ellipse(img, (cx + S(1), cy + S(3)), (S(4), S(3)), 0, 0, 360, col_bgr, -1, cv2.LINE_AA)
+    cv2.ellipse(img, (cx + S(1), cy + S(3)), (S(4), S(3)), 0, 0, 360, BGR_INK, max(1, S(2)), cv2.LINE_AA)
+    cv2.ellipse(img, (cx + S(1), cy + S(13)), (S(10), S(6)), 0, 10, 170, BGR_INK, max(2, S(3)), cv2.LINE_AA)
+
+    # 5. Iconic Agent Animator Headgear / Silhouette
+    if agent_id == "nib":
+        # Sculpted Gold-and-Ink Fountain Pen Nib Crown rising from head!
+        band = np.array([
+            [cx - S(31), cy - S(24)],
+            [cx + S(31), cy - S(24)],
+            [cx + S(27), cy - S(34)],
+            [cx - S(27), cy - S(34)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, band, BGR_RED, cv2.LINE_AA)
+        cv2.polylines(img, [band], True, outline_bgr, max(2, S(2)), cv2.LINE_AA)
+
+        nib_crown = np.array([
+            [cx - S(22), cy - S(34)],
+            [cx - S(26), cy - S(52)],
+            [cx, cy - S(76)],
+            [cx + S(26), cy - S(52)],
+            [cx + S(22), cy - S(34)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, nib_crown, BGR_AMBER, cv2.LINE_AA)
+        cv2.polylines(img, [nib_crown], True, outline_bgr, max(2, S(3)), cv2.LINE_AA)
+        # Fountain-pen slit & breather hole
+        cv2.line(img, (cx, cy - S(75)), (cx, cy - S(48)), BGR_INK, max(2, S(3)), cv2.LINE_AA)
+        cv2.circle(img, (cx, cy - S(48)), S(4), BGR_INK, -1, cv2.LINE_AA)
+
+    elif agent_id == "blueline":
+        # Prussian Blue Animator's Eye-Shade Visor + Tucked Non-Photo Blue Pencil
+        visor = np.array([
+            [cx - S(32), cy - S(22)],
+            [cx + S(38), cy - S(18)],
+            [cx + S(28), cy - S(34)],
+            [cx - S(28), cy - S(34)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, visor, BGR_BLUE, cv2.LINE_AA)
+        cv2.polylines(img, [visor], True, outline_bgr, max(2, S(3)), cv2.LINE_AA)
+        # Crown dome
+        cv2.ellipse(img, (cx, cy - S(32)), (S(25), S(14)), 0, 180, 360, BGR_BLUE_PALE, -1, cv2.LINE_AA)
+        cv2.ellipse(img, (cx, cy - S(32)), (S(25), S(14)), 0, 180, 360, outline_bgr, max(2, S(2)), cv2.LINE_AA)
+        # Pencil behind ear
+        cv2.line(img, (cx - S(34), cy - S(10)), (cx - S(18), cy - S(42)), BGR_AMBER, max(2, S(4)), cv2.LINE_AA)
+
+    elif agent_id == "celinker":
+        # Artist's Ochre Beret + Flip-Down Magnifier Loupe over right eye
+        beret = np.array([
+            [cx - S(32), cy - S(24)],
+            [cx - S(38), cy - S(42)],
+            [cx - S(6), cy - S(50)],
+            [cx + S(34), cy - S(38)],
+            [cx + S(28), cy - S(24)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, beret, BGR_AMBER, cv2.LINE_AA)
+        cv2.polylines(img, [beret], True, outline_bgr, max(2, S(3)), cv2.LINE_AA)
+        # Flip-down Magnifier Loupe
+        cv2.circle(img, (cx + S(13), cy - S(7)), S(12), BGR_BLUE_PALE, 2, cv2.LINE_AA)
+        cv2.circle(img, (cx + S(13), cy - S(7)), S(12), BGR_INK, max(2, S(2)), cv2.LINE_AA)
+        cv2.line(img, (cx + S(22), cy - S(14)), (cx + S(26), cy - S(26)), BGR_INK, max(2, S(2)), cv2.LINE_AA)
+
+    elif agent_id == "sprocket":
+        # Twin-Reel 35mm Projector Cap + Brass Monocle
+        for rx in (cx - S(18), cx + S(18)):
+            ry = cy - S(44)
+            cv2.circle(img, (rx, ry), S(14), BGR_PAPER_DARK, -1, cv2.LINE_AA)
+            cv2.circle(img, (rx, ry), S(14), outline_bgr, max(2, S(3)), cv2.LINE_AA)
+            cv2.circle(img, (rx, ry), S(4), BGR_INK, -1, cv2.LINE_AA)
+        cap_band = np.array([
+            [cx - S(28), cy - S(24)],
+            [cx + S(28), cy - S(24)],
+            [cx + S(24), cy - S(36)],
+            [cx - S(24), cy - S(36)],
+        ], dtype=np.int32)
+        cv2.fillConvexPoly(img, cap_band, BGR_GREEN, cv2.LINE_AA)
+        cv2.polylines(img, [cap_band], True, outline_bgr, max(2, S(2)), cv2.LINE_AA)
+        # Auditor Monocle
+        cv2.circle(img, (cx - S(11), cy - S(7)), S(12), BGR_AMBER, max(2, S(2)), cv2.LINE_AA)
+
+    else:
+        # Chime: Oversized Studio Headphones + Clockwork Antenna
+        cv2.ellipse(img, (cx, cy - S(10)), (S(35), S(32)), 0, 180, 360, outline_bgr, max(3, S(4)), cv2.LINE_AA)
+        for hx_cup in (cx - S(33), cx + S(33)):
+            cv2.ellipse(img, (hx_cup, cy - S(4)), (S(8), S(14)), 0, 0, 360, BGR_RED, -1, cv2.LINE_AA)
+            cv2.ellipse(img, (hx_cup, cy - S(4)), (S(8), S(14)), 0, 0, 360, outline_bgr, max(2, S(2)), cv2.LINE_AA)
+        cv2.line(img, (cx, cy - S(42)), (cx, cy - S(58)), outline_bgr, max(2, S(3)), cv2.LINE_AA)
+        cv2.circle(img, (cx, cy - S(60)), S(6), BGR_AMBER, -1, cv2.LINE_AA)
+        cv2.circle(img, (cx, cy - S(60)), S(6), outline_bgr, max(1, S(2)), cv2.LINE_AA)
 
 
 def draw_panel1_studio_environment(canvas: np.ndarray, spec: dict, boil_phase: int = 0):
     """
-    Draws a rich, uncluttered Scott McCloud studio environment on the right side of Panel 1 (x: 430..920, y: 190..505)
-    modeled directly on *Understanding Comics*:
-      - `bg1_multifloor`: 3-Plane Multiplane Camera Tower (Sky / Midground / Hero glass platens)
-      - `bg5_bullpen` / `bg2_occupied`: Tilted Animation Drafting Table & Swing-Arm Lamp (McCloud p. 9, Panel 1)
-      - `bg3_screening`: 35mm Dailies Film Projector & Theater Screen (McCloud p. 14, Panel 7)
-      - `bg4_clocktower`: Sequential Gallery Wall & 55-Minute Studio Clock (McCloud p. 15 & p. 24)
+    Draws the Agent Animation Studio apparatus on the right half of Panel 1 (x: 470..920, y: 185..505),
+    complete with a Co-Worker Agent Animator (`cameo_agent`) actively operating the studio machine!
+    All embedded doodles and frames preserve exact 1:1 or 4:3 aspect ratios.
     """
     wing = spec["studio_wing"]
     slug = spec["featured_shot"]
+    cameo_id = spec.get("cameo_agent", "celinker")
+    dark_p1 = (spec["num"] % 2 == 1)
 
     if wing == "bg1_multifloor":
-        # 3-Tier Multiplane Camera Stand (x: 500..880, y: 195..500)
-        cv2.line(canvas, (520, 200), (520, 505), BGR_INK, 6, cv2.LINE_AA)
-        cv2.line(canvas, (860, 200), (860, 505), BGR_INK, 6, cv2.LINE_AA)
-        # Top Camera Unit pointing down
-        draw_qd_doodle(canvas, "camera", 690, 222, 74, 54, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
-        # 3 Separated Horizontal Glass Planes (`P2 HERO`, `P4 MID`, `P6 SKY`)
+        # 3-Tier Multiplane Camera Stand (x: 495..815, y: 195..500) + Cameo Agent operating crank on right
+        cv2.line(canvas, (510, 195), (510, 505), BGR_GUTTER if dark_p1 else BGR_INK, 6, cv2.LINE_AA)
+        cv2.line(canvas, (790, 195), (790, 505), BGR_GUTTER if dark_p1 else BGR_INK, 6, cv2.LINE_AA)
+        draw_qd_doodle(canvas, "camera", 650, 222, 64, 64, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
         plane_specs = [
-            (295, BGR_CORAL_PALE, slug, "HERO PLANE (1.0x)"),
-            (375, BGR_MINT_PALE, "tree", "MID PLANE (0.5x)"),
-            (455, BGR_BLUE_PALE, "cloud", "SKY PLANE (0.2x)"),
+            (295, BGR_CORAL_PALE, slug),
+            (375, BGR_MINT_PALE, "tree"),
+            (455, BGR_BLUE_PALE, "cloud"),
         ]
-        for py, pcol, pcat, _ in plane_specs:
-            pts = np.array([[505, py + 12], [545, py - 14], [875, py - 14], [835, py + 12]], dtype=np.int32)
+        for py, pcol, pcat in plane_specs:
+            pts = np.array([[495, py + 12], [530, py - 14], [805, py - 14], [770, py + 12]], dtype=np.int32)
             cv2.fillConvexPoly(canvas, pts + np.array([3, 3]), BGR_INK, cv2.LINE_AA)
             cv2.fillConvexPoly(canvas, pts, pcol, cv2.LINE_AA)
             cv2.polylines(canvas, [pts], True, BGR_INK, 3, cv2.LINE_AA)
-            draw_qd_doodle(canvas, pcat, 690, py - 4, 58, 44, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
+            draw_qd_doodle(canvas, pcat, 650, py - 2, 46, 46, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
+        # Co-worker Agent Animator operating the multiplane rig on the right!
+        draw_agent_animator(canvas, cameo_id, 868, 405, scale=0.76, pose=boil_phase, dark_bg=dark_p1)
 
     elif wing in ("bg5_bullpen", "bg2_occupied"):
-        # Scott's Tilted Animation Drafting Table & Architect Lamp (McCloud p. 9, Panel 1!)
-        # Back Storyboard Card Frame on wall
-        cv2.rectangle(canvas, (565, 198), (885, 312), BGR_INK, -1)
-        cv2.rectangle(canvas, (560, 193), (880, 307), BGR_PAPER_DARK, -1)
-        cv2.rectangle(canvas, (560, 193), (880, 307), BGR_INK, 3)
+        # Storyboard Pin-Up Wall + Tilted Lightbox Desk + Co-worker Agent Animator
+        cv2.rectangle(canvas, (545, 192), (835, 302), BGR_INK, -1)
+        cv2.rectangle(canvas, (540, 187), (830, 297), BGR_PAPER_DARK, -1)
+        cv2.rectangle(canvas, (540, 187), (830, 297), BGR_INK, 3)
         for ci, ccat in enumerate(["picture_frame", slug, "star"]):
-            cx_c = 618 + ci * 102
-            cv2.rectangle(canvas, (cx_c - 40, 206), (cx_c + 40, 294), BGR_GUTTER, -1)
-            cv2.rectangle(canvas, (cx_c - 40, 206), (cx_c + 40, 294), BGR_INK, 2)
-            draw_qd_doodle(canvas, ccat, cx_c, 250, 56, 56, fill_bgr=BGR_AMBER_PALE, thickness=2, boil_phase=boil_phase)
+            cx_c = 592 + ci * 92
+            cv2.rectangle(canvas, (cx_c - 36, 200), (cx_c + 36, 284), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (cx_c - 36, 200), (cx_c + 36, 284), BGR_INK, 2)
+            draw_qd_doodle(canvas, ccat, cx_c, 242, 52, 52, fill_bgr=BGR_AMBER_PALE, thickness=2, boil_phase=boil_phase)
 
-        # Tilted Drafting Desk surface + glowing circular animation lightbox disc
-        desk_pts = np.array([[475, 425], [840, 355], [900, 445], [535, 505]], dtype=np.int32)
+        desk_pts = np.array([[475, 430], [785, 365], [835, 450], [525, 505]], dtype=np.int32)
         cv2.fillConvexPoly(canvas, desk_pts + np.array([4, 4]), BGR_INK, cv2.LINE_AA)
         cv2.fillConvexPoly(canvas, desk_pts, BGR_AMBER_PALE, cv2.LINE_AA)
         cv2.polylines(canvas, [desk_pts], True, BGR_INK, 4, cv2.LINE_AA)
-        cv2.ellipse(canvas, (690, 428), (78, 42), -10, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (690, 428), (78, 42), -10, 0, 360, BGR_INK, 3, cv2.LINE_AA)
-        draw_qd_doodle(canvas, slug, 690, 426, 86, 64, fill_bgr=None, thickness=3, boil_phase=boil_phase)
+        cv2.ellipse(canvas, (655, 434), (72, 40), -10, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (655, 434), (72, 40), -10, 0, 360, BGR_INK, 3, cv2.LINE_AA)
+        draw_qd_doodle(canvas, slug, 655, 432, 66, 66, fill_bgr=None, thickness=3, boil_phase=boil_phase)
+        draw_agent_animator(canvas, cameo_id, 872, 402, scale=0.76, pose=boil_phase, dark_bg=dark_p1)
 
     elif wing == "bg3_screening":
-        # McCloud Page 14 Panel 7: 35mm Film Projector on table casting light beam onto Theater Screen!
-        # Projector Reels & Body (x: 470..590, y: 310..480)
-        cv2.circle(canvas, (495, 335), 28, BGR_PAPER_DARK, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (495, 335), 28, BGR_INK, 3, cv2.LINE_AA)
-        cv2.circle(canvas, (555, 335), 28, BGR_PAPER_DARK, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (555, 335), 28, BGR_INK, 3, cv2.LINE_AA)
-        cv2.rectangle(canvas, (485, 365), (568, 435), BGR_BLUE_PALE, -1)
-        cv2.rectangle(canvas, (485, 365), (568, 435), BGR_INK, 3)
-        # Golden projection beam cone
-        beam_pts = np.array([[570, 385], [890, 220], [890, 475], [570, 405]], dtype=np.int32)
+        # 35mm Dailies Film Projector casting beam onto EXACT 4:3 Theater Screen (`240x180`) + Co-worker Agent
+        cv2.circle(canvas, (485, 338), 24, BGR_PAPER_DARK, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (485, 338), 24, BGR_INK, 3, cv2.LINE_AA)
+        cv2.circle(canvas, (538, 338), 24, BGR_PAPER_DARK, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (538, 338), 24, BGR_INK, 3, cv2.LINE_AA)
+        cv2.rectangle(canvas, (476, 364), (550, 428), BGR_BLUE_PALE, -1)
+        cv2.rectangle(canvas, (476, 364), (550, 428), BGR_INK, 3)
+
+        # Exact 4:3 Dailies Screen (`240x180`, 240/180 = 4:3!)
+        sx0, sy0 = 600, 218
+        sw, sh = 224, 168  # 224 / 168 = 4:3 exact!
+        beam_pts = np.array([[552, 382], [sx0, sy0], [sx0, sy0 + sh], [552, 402]], dtype=np.int32)
         cv2.fillConvexPoly(canvas, beam_pts, BGR_AMBER_PALE, cv2.LINE_AA)
-        cv2.line(canvas, (570, 385), (890, 220), BGR_INK, 2, cv2.LINE_AA)
-        cv2.line(canvas, (570, 405), (890, 475), BGR_INK, 2, cv2.LINE_AA)
-        # Projection Screen on right (x: 685..905, y: 215..475)
-        cv2.rectangle(canvas, (690, 220), (905, 475), BGR_INK, -1)
-        cv2.rectangle(canvas, (684, 214), (899, 469), BGR_GUTTER, -1)
-        cv2.rectangle(canvas, (684, 214), (899, 469), BGR_INK, 4)
-        draw_qd_doodle(canvas, slug, 792, 342, 145, 145, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
+        cv2.rectangle(canvas, (sx0 + 4, sy0 + 4), (sx0 + sw + 4, sy0 + sh + 4), BGR_INK, -1)
+        _, cart_frs = load_shot_frames(slug)
+        scr_thumb = cv2.resize(cart_frs[16], (sw, sh), interpolation=cv2.INTER_AREA)
+        canvas[sy0:sy0 + sh, sx0:sx0 + sw] = scr_thumb
+        cv2.rectangle(canvas, (sx0, sy0), (sx0 + sw, sy0 + sh), BGR_INK, 4)
+        draw_agent_animator(canvas, cameo_id, 875, 405, scale=0.76, pose=boil_phase, dark_bg=dark_p1)
 
     else:
-        # McCloud Page 15 & 24: Time-Frames Gallery Wall + 55-Minute Clock
-        draw_qd_doodle(canvas, "clock", 535, 275, 95, 95, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
-        for fi in range(3):
-            fx0 = 615 + fi * 98
-            fy0 = 235 + fi * 18
-            cv2.rectangle(canvas, (fx0 + 4, fy0 + 4), (fx0 + 84, fy0 + 134), BGR_INK, -1)
-            cv2.rectangle(canvas, (fx0, fy0), (fx0 + 80, fy0 + 130), BGR_GUTTER, -1)
-            cv2.rectangle(canvas, (fx0, fy0), (fx0 + 80, fy0 + 130), BGR_INK, 3)
-            draw_qd_doodle(canvas, slug, fx0 + 40, fy0 + 65, 58, 58, fill_bgr=BGR_BLUE_PALE, thickness=2, idx=fi)
+        # 55-Minute Clocktower & 3 Exact 4:3 Keyframe Cards (`96x72` each = 4:3!) + Co-worker Agent
+        draw_qd_doodle(canvas, "clock", 522, 265, 86, 86, fill_bgr=BGR_AMBER_PALE, thickness=3, boil_phase=boil_phase)
+        _, cart_frs = load_shot_frames(slug)
+        for fi, f_idx in enumerate([0, 16, 32]):
+            fx0 = 590 + fi * 76
+            fy0 = 225 + fi * 32
+            fw_c, fh_c = 96, 72  # 96 / 72 = 4:3 exact!
+            cv2.rectangle(canvas, (fx0 + 4, fy0 + 4), (fx0 + fw_c + 4, fy0 + fh_c + 4), BGR_INK, -1)
+            k_thumb = cv2.resize(cart_frs[f_idx], (fw_c, fh_c), interpolation=cv2.INTER_AREA)
+            canvas[fy0:fy0 + fh_c, fx0:fx0 + fw_c] = k_thumb
+            cv2.rectangle(canvas, (fx0, fy0), (fx0 + fw_c, fy0 + fh_c), BGR_INK, 3)
+        draw_agent_animator(canvas, cameo_id, 872, 405, scale=0.76, pose=boil_phase, dark_bg=dark_p1)
 
 
 def render_single_panel_fullscreen(
@@ -831,14 +1098,17 @@ def render_single_panel_fullscreen(
     boil_phase: int = 0,
 ) -> np.ndarray:
     """
-    Renders ONE single panel (`panel_num` in 1..4) at FULL 960x540 screen size!
-    Because each panel is designed at 960x540 with large 20pt-28pt typography and auto-fitted
-    headers, it is 100% readable both when projected full-screen in the video AND when assembled
-    into a 2x2 comic page!
+    Renders ONE single panel (`panel_num` in 1..4) at FULL `960x540` (16:9) resolution.
+    Every embedded shot keyframe, archival sketch, and cartoon projection inside Panels 1, 3, and 4
+    is locked to its exact `4:3` (`1.3333:1`) aspect ratio, and every Quick, Draw! doodle is locked to `1:1`.
     """
     W, H = 960, 540
     canvas = np.full((H, W, 3), BGR_PAPER, dtype=np.uint8)
     slug = spec["featured_shot"]
+    lead_id = spec.get("lead_agent", "nib")
+    cameo_id = spec.get("cameo_agent", "celinker")
+    lead_ag = STUDIO_AGENTS[lead_id]
+    cameo_ag = STUDIO_AGENTS[cameo_id]
     arch_sketches, cart_frames = load_shot_frames(slug)
 
     pad = 16
@@ -846,35 +1116,34 @@ def render_single_panel_fullscreen(
     bx0, by0, bx1, by1 = pad, pad, W - pad, H - pad
 
     if panel_num == 1:
-        # Dramatic solid black backdrop for odd chapters (like McCloud pp. 9, 10, 13, 14), warm paper for even
         dark_p1 = (spec["num"] % 2 == 1)
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_INK if dark_p1 else BGR_PAPER, -1)
         if dark_p1:
             rng_s = np.random.RandomState(spec["num"] * 31)
-            for _ in range(28):
+            for _ in range(24):
                 sx = int(rng_s.randint(bx0 + 20, bx1 - 20))
                 sy = int(rng_s.randint(by0 + 70, by1 - 20))
                 cv2.circle(canvas, (sx, sy), 2, BGR_GUTTER, -1)
 
-        # Draw the McCloud Studio Environment on the right half
+        # Draw Studio Apparatus + Co-Worker Cameo Agent on the right
         draw_panel1_studio_environment(canvas, spec, boil_phase=boil_phase)
 
-        # Draw Scott McCloud Presenter on the bottom-left (large & expressive)
+        # Draw Lead Agent Animator on the bottom-left (stopping cleanly inside panel border)
         pres_pose = (boil_phase // 2) % 2
-        draw_mccloud_presenter(canvas, bx0 + 165, by1 - 135, scale=1.35, pose=pres_pose, dark_bg=dark_p1)
+        draw_agent_animator(canvas, lead_id, bx0 + 158, by1 - 150, scale=1.22, pose=pres_pose, dark_bg=dark_p1)
 
     elif panel_num == 2:
-        # 3-Step Visual Diagram (`[1] --> [2] --> [3]`)
+        # 3-Step Agent Animator Workflow (`[1] --> [2] --> [3]`, 1:1 square doodle icons)
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
         steps = spec["diag_steps"]
         n_s = len(steps)
         vis_steps = max(1, min(n_s, int(sub_step * n_s) + 1)) if sub_step < 0.99 else n_s
         g_fills = [BGR_BLUE_PALE, BGR_AMBER_PALE, BGR_MINT_PALE]
-        box_w, box_h = 216, 230
+        box_w, box_h = 216, 216  # 1:1 square cards!
         gap = 68
         total_w = n_s * box_w + (n_s - 1) * gap
         start_x = (W - total_w) // 2
-        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 16
+        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 18
 
         for s_i in range(vis_steps):
             cat_name, _ = steps[s_i]
@@ -887,7 +1156,7 @@ def render_single_panel_fullscreen(
             draw_qd_doodle(
                 canvas, cat_name,
                 cx=sx0 + box_w // 2, cy=sy0 + box_h // 2,
-                w=145, h=145,
+                w=148, h=148,
                 fill_bgr=g_fills[s_i % len(g_fills)], ink_bgr=BGR_INK, thickness=4,
                 boil_phase=boil_phase,
             )
@@ -903,38 +1172,68 @@ def render_single_panel_fullscreen(
                 )
 
     elif panel_num == 3:
-        # McCloud Page 14-15: "Before it's projected, film is just a very slow comic!" (35mm 4-Keyframe Strip)
+        # 35mm 4-Keyframe Filmstrip with EXACT 4:3 Aspect Ratio (`kw=204, kh=153` -> 204/153 = 4:3!)
+        # + Agent Animator Exposure-Sheet Note Card below!
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        strip_y0 = by0 + cap_h + 36
-        strip_y1 = by1 - 36
+        kw, kh = 204, 153  # EXACT 4:3 aspect ratio!
+        strip_y0 = by0 + cap_h + 18
+        strip_y1 = strip_y0 + kh + 82  # 235px tall 35mm filmstrip
         cv2.rectangle(canvas, (bx0 + 20, strip_y0), (bx1 - 20, strip_y1), BGR_INK, -1)
         for sx in range(bx0 + 34, bx1 - 30, 28):
-            cv2.rectangle(canvas, (sx, strip_y0 + 8), (sx + 14, strip_y0 + 20), BGR_GUTTER, -1)
-            cv2.rectangle(canvas, (sx, strip_y1 - 20), (sx + 14, strip_y1 - 8), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (sx, strip_y0 + 8), (sx + 14, strip_y0 + 19), BGR_GUTTER, -1)
+            cv2.rectangle(canvas, (sx, strip_y1 - 19), (sx + 14, strip_y1 - 8), BGR_GUTTER, -1)
 
         key_indices = [0, 10, 21, 32]
-        kw = (bx1 - bx0 - 80) // 4
-        kh = (strip_y1 - strip_y0) - 68
         active_k = min(3, int(sub_step * 4)) if sub_step < 0.99 else -1
-
         for k_i, f_idx in enumerate(key_indices):
-            kx0 = bx0 + 32 + k_i * (kw + 6)
-            ky0 = strip_y0 + 34
+            kx0 = bx0 + 35 + k_i * (kw + 14)
+            ky0 = strip_y0 + 52
             src_fr = arch_sketches[f_idx] if k_i == 0 else cart_frames[f_idx]
-            thumb = cv2.resize(src_fr, (kw, kh), interpolation=cv2.INTER_AREA)
+            thumb = cv2.resize(src_fr, (kw, kh), interpolation=cv2.INTER_AREA)  # 480x360 -> 204x153 (EXACT 4:3!)
             canvas[ky0:ky0 + kh, kx0:kx0 + kw] = thumb
             is_hi = (k_i == active_k or active_k == -1)
             cv2.rectangle(canvas, (kx0, ky0), (kx0 + kw, ky0 + kh), BGR_AMBER if is_hi else BGR_GUTTER, 4 if is_hi else 2)
 
+        # Bottom Exposure-Sheet Note Card + Mini Agent Animator Cameo
+        nx0, ny0 = bx0 + 20, strip_y1 + 14
+        nx1, ny1 = bx1 - 20, by1 - 14
+        cv2.rectangle(canvas, (nx0 + 4, ny0 + 4), (nx1 + 4, ny1 + 4), BGR_INK, -1)
+        cv2.rectangle(canvas, (nx0, ny0), (nx1, ny1), BGR_GUTTER, -1)
+        cv2.rectangle(canvas, (nx0, ny0), (nx1, ny1), BGR_INK, 3)
+        draw_agent_animator(canvas, lead_id, nx0 + 50, ny0 + 56, scale=0.46, pose=0, dark_bg=False)
+
     elif panel_num == 4:
-        # Full-screen unobstructed 7-Plane Quick, Draw! Cartoon
+        # Left Crew & Archival Reference Column (`280x210` EXACT 4:3!) +
+        # Right Hero 7-Plane Multiplane Cartoon (`560x420` EXACT 4:3!)
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        vx0, vy0 = bx0 + 24, by0 + cap_h + 14
-        vw, vh = (bx1 - bx0) - 48, (by1 - by0 - cap_h) - 28
+
+        # Right: Hero 7-Plane Cartoon at EXACT 4:3 (`560x420`)
+        vw, vh = 560, 420  # 560 / 420 = 4:3 exact!
+        vx0 = bx1 - vw - 18
+        vy0 = by0 + cap_h + 16
         cur_fr = cart_frames[shot_frame_idx % len(cart_frames)]
-        big_cart = cv2.resize(cur_fr, (vw, vh), interpolation=cv2.INTER_LINEAR)
+        big_cart = cv2.resize(cur_fr, (vw, vh), interpolation=cv2.INTER_LINEAR)  # 480x360 -> 560x420 (EXACT 4:3!)
+        cv2.rectangle(canvas, (vx0 + 5, vy0 + 5), (vx0 + vw + 5, vy0 + vh + 5), BGR_INK, -1)
         canvas[vy0:vy0 + vh, vx0:vx0 + vw] = big_cart
         cv2.rectangle(canvas, (vx0, vy0), (vx0 + vw, vy0 + vh), BGR_INK, 4)
+
+        # Left Top: Archival Pencil Sketch at EXACT 4:3 (`280x210`)
+        aw, ah = 280, 210  # 280 / 210 = 4:3 exact!
+        ax0 = bx0 + 20
+        ay0 = vy0 + 32
+        cur_arch = arch_sketches[shot_frame_idx % len(arch_sketches)]
+        arch_thumb = cv2.resize(cur_arch, (aw, ah), interpolation=cv2.INTER_AREA)  # 480x360 -> 280x210 (EXACT 4:3!)
+        cv2.rectangle(canvas, (ax0 + 4, ay0 + 4), (ax0 + aw + 4, ay0 + ah + 4), BGR_INK, -1)
+        canvas[ay0:ay0 + ah, ax0:ax0 + aw] = arch_thumb
+        cv2.rectangle(canvas, (ax0, ay0), (ax0 + aw, ay0 + ah), BGR_INK, 3)
+
+        # Left Bottom: Agent Animator Crew Sign-Off Card (`280x162`)
+        cx0, cy0 = ax0, ay0 + ah + 16
+        cx1, cy1 = ax0 + aw, vy0 + vh
+        cv2.rectangle(canvas, (cx0 + 4, cy0 + 4), (cx1 + 4, cy1 + 4), BGR_INK, -1)
+        cv2.rectangle(canvas, (cx0, cy0), (cx1, cy1), BGR_GUTTER, -1)
+        cv2.rectangle(canvas, (cx0, cy0), (cx1, cy1), BGR_INK, 3)
+        draw_agent_animator(canvas, lead_id, cx0 + 52, cy0 + 86, scale=0.62, pose=boil_phase % 2, dark_bg=False)
 
     # =========================================================================
     # PIL HIGH-RESOLUTION COMIC LETTERING (0% TRUNCATION GUARANTEED)
@@ -943,17 +1242,16 @@ def render_single_panel_fullscreen(
     draw = ImageDraw.Draw(pil_img)
 
     if panel_num == 1:
-        # Top chapter pill inside Panel 1
         draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
-        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=(201, 74, 41), outline=(22, 20, 18), width=4)
+        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=lead_ag["color_rgb"], outline=(22, 20, 18), width=4)
         draw.text((bx0 + 18, by0 + 10), "1", font=FONT_DISPLAY_XL, fill=(255, 251, 244))
         hdr_txt = f"{spec['wing_name']} — {spec['title'].upper()}"
         f_hdr = fit_text_font(draw, hdr_txt, (bx1 - bx0) - 74, [FONT_DISPLAY_LG, FONT_DISPLAY_MD, FONT_CAPTION_MD])
         draw.text((bx0 + 68, by0 + 14), hdr_txt, font=f_hdr, fill=(22, 20, 18))
 
-        # Large Oval Speech Balloon above Scott
-        s_box = (bx0 + 44, by0 + cap_h + 18, bx0 + 540, by0 + cap_h + 148)
-        tx, ty = bx0 + 185, by1 - 190
+        # Large Oval Speech Balloon above the Lead Agent Animator (0% line cut-off!)
+        s_box = (bx0 + 30, by0 + cap_h + 14, bx0 + 548, by0 + cap_h + 158)
+        tx, ty = bx0 + 172, by1 - 216
         bx_mid = (s_box[0] + s_box[2]) // 2
         tail_pts = [(bx_mid - 18, s_box[3] - 6), (bx_mid + 12, s_box[3] - 6), (tx, ty)]
         draw.polygon([(p[0] + 4, p[1] + 4) for p in tail_pts], fill=(22, 20, 18))
@@ -962,19 +1260,31 @@ def render_single_panel_fullscreen(
         draw.rounded_rectangle(s_box, radius=28, fill=(255, 255, 255), outline=(22, 20, 18), width=4)
         draw.polygon([(bx_mid - 15, s_box[3] - 8), (bx_mid + 9, s_box[3] - 8), (bx_mid - 3, s_box[3] - 1)], fill=(255, 255, 255))
 
-        lines = textwrap.wrap(spec["speech_p1"].upper(), width=28)[:3]
-        lh = 28
+        lines = textwrap.wrap(spec["speech_p1"].upper(), width=34)[:4]
+        lh = 25 if len(lines) == 4 else 28
         sy_txt = s_box[1] + ((s_box[3] - s_box[1]) - len(lines) * lh) // 2 - 2
         for i, ln in enumerate(lines):
-            bb = draw.textbbox((0, 0), ln, font=FONT_SPEECH_LG)
+            f_sp = fit_text_font(draw, ln, (s_box[2] - s_box[0]) - 28, [FONT_SPEECH_MD if len(lines) == 4 else FONT_SPEECH_LG, FONT_SPEECH_MD, FONT_CAPTION_MD])
+            bb = draw.textbbox((0, 0), ln, font=f_sp)
             tw = bb[2] - bb[0]
-            draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=FONT_SPEECH_LG, fill=(22, 20, 18))
+            draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=f_sp, fill=(22, 20, 18))
+
+        # Studio Role Pill below the Lead Agent Animator & Cameo Agent Animator
+        lead_pill = f"{lead_ag['short_name']} // {lead_ag['dept']}"
+        draw.rounded_rectangle([bx0 + 28, by1 - 38, bx0 + 318, by1 - 10], radius=6, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+        f_lp = fit_text_font(draw, lead_pill, 276, [FONT_CAPTION_MD, FONT_CAPTION_SM])
+        draw.text((bx0 + 38, by1 - 33), lead_pill, font=f_lp, fill=(22, 20, 18))
+
+        cameo_pill = f"CREW: {cameo_ag['short_name']}"
+        draw.rounded_rectangle([W - 188, by1 - 38, W - 26, by1 - 10], radius=6, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
+        f_cp = fit_text_font(draw, cameo_pill, 148, [FONT_CAPTION_MD, FONT_CAPTION_SM])
+        draw.text((W - 178, by1 - 33), cameo_pill, font=f_cp, fill=(22, 20, 18))
 
     else:
         cap_map = {2: spec["caption_p2"], 3: spec["caption_p3"], 4: spec["caption_p4"]}
         cap_txt = cap_map[panel_num].upper()
         draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
-        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=(201, 74, 41), outline=(22, 20, 18), width=4)
+        draw.rectangle([bx0, by0, bx0 + 54, by0 + cap_h], fill=lead_ag["color_rgb"], outline=(22, 20, 18), width=4)
         draw.text((bx0 + 18, by0 + 10), str(panel_num), font=FONT_DISPLAY_XL, fill=(255, 251, 244))
         f_cap = fit_text_font(draw, cap_txt, (bx1 - bx0) - 74, [FONT_CAPTION_LG, FONT_CAPTION_MD])
         draw.text((bx0 + 68, by0 + 15), cap_txt, font=f_cap, fill=(22, 20, 18))
@@ -983,11 +1293,11 @@ def render_single_panel_fullscreen(
         steps = spec["diag_steps"]
         n_s = len(steps)
         vis_steps = max(1, min(n_s, int(sub_step * n_s) + 1)) if sub_step < 0.99 else n_s
-        box_w, box_h = 216, 230
+        box_w, box_h = 216, 216
         gap = 68
         total_w = n_s * box_w + (n_s - 1) * gap
         start_x = (W - total_w) // 2
-        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 16
+        cy_box = by0 + cap_h + (by1 - by0 - cap_h) // 2 - 18
         for s_i in range(vis_steps):
             _, lbl = steps[s_i]
             scx = start_x + s_i * (box_w + gap) + box_w // 2
@@ -998,14 +1308,47 @@ def render_single_panel_fullscreen(
             draw.text((scx - tw // 2, sy1 + 18), lbl, font=FONT_LABEL_MD, fill=(22, 20, 18))
 
     elif panel_num == 3:
-        strip_y0 = by0 + cap_h + 36
-        kw = (bx1 - bx0 - 80) // 4
-        k_labels = ["1. ARCHIVAL TRACE", "2. KEYFRAME K1", "3. KEYFRAME K2", "4. KEYFRAME K4"]
+        kw, kh = 204, 153
+        strip_y0 = by0 + cap_h + 18
+        strip_y1 = strip_y0 + kh + 82
+        k_labels = ["1. ARCHIVAL (4:3)", "2. KEY K1 (4:3)", "3. KEY K2 (4:3)", "4. KEY K4 (4:3)"]
         for k_i, kl in enumerate(k_labels):
-            kx0 = bx0 + 32 + k_i * (kw + 6)
-            ky0 = strip_y0 + 34
-            draw.rectangle([kx0 + 6, ky0 + 6, kx0 + 168, ky0 + 32], fill=(255, 251, 244), outline=(22, 20, 18), width=2)
-            draw.text((kx0 + 12, ky0 + 9), kl, font=FONT_CAPTION_MD, fill=(22, 20, 18))
+            kx0 = bx0 + 35 + k_i * (kw + 14)
+            ky0 = strip_y0 + 23
+            draw.rounded_rectangle([kx0, ky0, kx0 + kw, ky0 + 25], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+            f_kl = fit_text_font(draw, kl, kw - 12, [FONT_CAPTION_MD, FONT_CAPTION_SM])
+            draw.text((kx0 + 8, ky0 + 3), kl, font=f_kl, fill=(22, 20, 18))
+
+        nx0, ny0 = bx0 + 20, strip_y1 + 14
+        nx1 = bx1 - 20
+        note_hdr = f"{lead_ag['short_name']}'S EXPOSURE SHEET NOTE (CLOSURE ACROSS THE GUTTER):"
+        draw.text((nx0 + 124, ny0 + 12), note_hdr, font=FONT_CAPTION_MD, fill=lead_ag["color_rgb"])
+        note_body = spec.get("gutter_note", "FOUR HAND-DRAWN 4:3 KEYFRAMES LOCK THE MOTION PATH ACROSS THE GUTTER!")
+        f_nb = fit_text_font(draw, note_body, (nx1 - nx0) - 140, [FONT_CAPTION_MD, FONT_CAPTION_SM])
+        draw.text((nx0 + 124, ny0 + 40), note_body, font=f_nb, fill=(22, 20, 18))
+
+    elif panel_num == 4:
+        vy0 = by0 + cap_h + 16
+        ax0 = bx0 + 20
+        aw, ah = 280, 210
+        # Label above 4:3 Archival Pencil Reference
+        draw.rounded_rectangle([ax0, vy0, ax0 + aw, vy0 + 28], radius=5, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
+        draw.text((ax0 + 10, vy0 + 4), "ARCHIVAL TRACE (4:3 ASPECT)", font=FONT_CAPTION_MD, fill=(22, 20, 18))
+
+        # Crew Sign-Off Card text on bottom-left
+        cx0 = ax0
+        cy0 = vy0 + 32 + ah + 16
+        draw.text((cx0 + 104, cy0 + 14), f"LEAD: {lead_ag['short_name']}", font=FONT_CAPTION_MD, fill=lead_ag["color_rgb"])
+        f_rl = fit_text_font(draw, lead_ag["dept"], 166, [FONT_CAPTION_SM])
+        draw.text((cx0 + 104, cy0 + 38), lead_ag["dept"], font=f_rl, fill=(22, 20, 18))
+        draw.text((cx0 + 104, cy0 + 62), f"CREW: {cameo_ag['short_name']}", font=FONT_CAPTION_SM, fill=(43, 91, 132))
+        draw.rounded_rectangle([cx0 + 104, cy0 + 90, cx0 + aw - 10, cy0 + 122], radius=5, fill=(212, 232, 220), outline=(22, 20, 18), width=2)
+        draw.text((cx0 + 112, cy0 + 97), "4:3 · 16/16 PASS", font=FONT_CAPTION_SM, fill=(47, 107, 79))
+
+        # Badge on top-left of the 560x420 4:3 Hero Cartoon
+        vx0 = bx1 - 560 - 18
+        draw.rounded_rectangle([vx0 + 10, vy0 + 10, vx0 + 275, vy0 + 38], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+        draw.text((vx0 + 18, vy0 + 15), f"7-PLANE CARTOON (4:3) // #{slug.upper()}", font=FONT_CAPTION_SM, fill=(22, 20, 18))
 
     out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     cv2.rectangle(out_bgr, (bx0, by0), (bx1, by1), BGR_INK, 5)
@@ -1014,8 +1357,8 @@ def render_single_panel_fullscreen(
 
 def assemble_4panel_comic_page(spec: dict) -> np.ndarray:
     """
-    Assembles the 4 full-resolution panels (`Panel 1..4`) into a crisp 1280x720 2x2 Scott McCloud Comic Page
-    (Juxtaposed in SPACE for static reading on posters, studio wing plates, and contact sheets).
+    Assembles the 4 full-resolution panels (`Panel 1..4`, each `960x540` = 16:9)
+    into a crisp `1280x720` (16:9) 2x2 Comic Page with zero aspect distortion!
     """
     p1 = render_single_panel_fullscreen(spec, 1, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
     p2 = render_single_panel_fullscreen(spec, 2, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
@@ -1057,14 +1400,6 @@ def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int 
 
 
 def render_single_bts_film(spec: dict) -> dict:
-    """
-    Implements McCloud Page 14 ("Each successive frame of a movie is projected on the SAME space — the screen!"):
-    Projects each of the 4 panels FULL-SCREEN (`960x540`) in deliberate sequence over 10.0 seconds (120 frames @ 12fps):
-      - Frames 00..27 (0.0s - 2.3s): FULL-SCREEN PANEL 1 (Scott + Studio Environment + Big Speech Balloon)
-      - Frames 28..55 (2.3s - 4.6s): FULL-SCREEN PANEL 2 (`1 --> 2 --> 3` Diagram)
-      - Frames 56..83 (4.6s - 7.0s): FULL-SCREEN PANEL 3 (35mm 4-Keyframe Filmstrip stepping K1 -> K4)
-      - Frames 84..119 (7.0s - 10.0s): FULL-SCREEN PANEL 4 (Full-screen 7-plane Quick, Draw! cartoon animation!)
-    """
     fid = spec["id"]
     mp4_path = BTS_DIR / f"{fid}.mp4"
     gif_path = BTS_DIR / f"{fid}.gif"
@@ -1073,10 +1408,9 @@ def render_single_bts_film(spec: dict) -> dict:
     wav_path = BTS_DIR / f"_{fid}.wav"
 
     fps = 12
-    n_frames = 120  # 10.0 calm, unhurried seconds per film
+    n_frames = 120  # 10.0 calm seconds per episode
     W, H = 960, 540
 
-    # Static poster shows the 2x2 Juxtaposed Comic Page (`1280x720`)
     poster_bgr = assemble_4panel_comic_page(spec)
     cv2.imwrite(str(poster_path), poster_bgr)
 
@@ -1120,7 +1454,7 @@ def render_single_bts_film(spec: dict) -> dict:
         str(gif_path),
         save_all=True,
         append_images=gif_pil_frames[1:],
-        duration=330,  # ~3 fps GIF -> 30 frames = 10.0 calm, readable seconds
+        duration=330,
         loop=0,
         optimize=True,
     )
@@ -1166,7 +1500,7 @@ def render_contact_sheet(records: list, title: str, subtitle: str, out_name: str
     n = len(records)
     cols = 2
     rows = int(math.ceil(n / cols))
-    cw, ch = 640, 360
+    cw, ch = 640, 360  # Exact 16:9 matching 1280x720 poster!
     pad = 16
     header_h = 68
     W = pad + cols * (cw + pad)
@@ -1200,34 +1534,34 @@ def render_contact_sheet(records: list, title: str, subtitle: str, out_name: str
 
 
 def main():
-    print("1. Rendering 5 Scott McCloud + Quick, Draw! Studio Chapter Comic Pages...")
+    print("1. Rendering 5 Agent Animator Studio Wing Comic Pages (Exact 4:3 & 1:1 Aspect Ratios)...")
     generate_studio_wing_comic_pages()
 
     office_results = []
     skill_results = []
 
-    print("2. Rendering 10 Virtual Agent Office Full-Screen Sequential Comic Films (10.0s each)...")
+    print("2. Rendering 10 Virtual Agent Office Episodes (Starring Nib, Blue-Line, Cel-Inker, Sprocket & Chime)...")
     for sp in AGENT_OFFICE_SPECS:
         res = render_single_bts_film(sp)
         office_results.append(res)
-        print(f"   [Office {sp['num']:02d}/10] {sp['id']} -> {res['mp4']}")
+        print(f"   [Office {sp['num']:02d}/10] {sp['id']} ({sp['lead_agent']}) -> {res['mp4']}")
 
-    print("3. Rendering 8 AI Video Director Skill Full-Screen Sequential Comic Films (10.0s each)...")
+    print("3. Rendering 8 AI Video Director Skill Episodes...")
     for sp in VIDEO_SKILL_SPECS:
         res = render_single_bts_film(sp)
         skill_results.append(res)
-        print(f"   [Skill  {sp['num']-10:02d}/08] {sp['id']} -> {res['mp4']}")
+        print(f"   [Skill  {sp['num']-10:02d}/08] {sp['id']} ({sp['lead_agent']}) -> {res['mp4']}")
 
     p_off = render_contact_sheet(
         office_results,
-        "PART I: 10 VIRTUAL AGENT OFFICE & WORKTREE COMIC CHAPTERS (UNDERSTANDING COMICS + QUICK, DRAW!)",
-        "Static Page = Juxtaposed in Space (4 Panels) · Video = Projected Full-Screen One Panel at a Time in Time (McCloud p. 14)",
+        "PART I: 10 AGENT ANIMATOR STUDIO EPISODES (STARRING NIB, BLUE-LINE, CEL-INKER, SPROCKET & CHIME)",
+        "Exact 4:3 Shot Aspect Ratio (204x153 Keyframes & 560x420 Hero Screenings) · Zero Stretched Frames",
         "bts_10_agent_offices_atlas.png",
     )
     p_skl = render_contact_sheet(
         skill_results,
-        "PART II: 8 AI VIDEO DIRECTOR & MOTION SKILL COMIC CHAPTERS (UNDERSTANDING COMICS + QUICK, DRAW!)",
-        "Amplification Through Simplification · Blood in the Gutter · Show and Tell · Full-Screen Sequential Pacing",
+        "PART II: 8 AGENT ANIMATOR CRAFT & MOTION SKILL EPISODES (SECONDHAND STUDIOS)",
+        "Camera Pacing · 7-Plane Parallax · Rotoscope Reanimation · 16-Gate Dailies Audit · Earshot Foley Sync",
         "bts_8_video_skills_atlas.png",
     )
     print("4. Rendered Contact Sheets:", p_off.name, p_skl.name)
@@ -1252,10 +1586,10 @@ def main():
     print(f"5. Assembled Master Film: {master_mp4.name} ({master_mp4.stat().st_size / 1e6:.2f} MB)")
 
     payload = {
-        "studio_title": "Understanding Secondhand Motion — A Scott McCloud & Quick, Draw! Sequential Art Guide",
+        "studio_title": "Secondhand Studios — The Autonomous Agent Animation Bullpen",
         "agents": [
-            {"name": a["name"], "role": a["role"]}
-            for a in STUDIO_AGENTS
+            {"id": k, "name": v["name"], "role": v["role"], "dept": v["dept"]}
+            for k, v in STUDIO_AGENTS.items()
         ],
         "office_films": office_results,
         "skill_films": skill_results,

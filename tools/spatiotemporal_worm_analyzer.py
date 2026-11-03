@@ -216,10 +216,13 @@ def analyze_single_shot(shot_dir: Path, rank_idx: int):
                 break
             fh, fw = fr.shape[:2]
             half_w = fw // 2
-            y_top = min(22, fh // 8)
-            y_bot = max(y_top + 40, fh - 24)
-            arch_frames.append(cv2.resize(fr[y_top:y_bot, 4:half_w - 4], (160, 120)))
-            cart_frames.append(cv2.resize(fr[y_top:y_bot, half_w + 4:fw - 4], (160, 120)))
+            y_top = 30
+            y_bot = fh - 26
+            crop_h = y_bot - y_top
+            crop_w = int(round(crop_h * 4.0 / 3.0))
+            x_pad = max(0, (half_w - crop_w) // 2)
+            arch_frames.append(cv2.resize(fr[y_top:y_bot, x_pad:x_pad + crop_w], (160, 120)))
+            cart_frames.append(cv2.resize(fr[y_top:y_bot, half_w + x_pad:half_w + x_pad + crop_w], (160, 120)))
         cap.release()
 
     if not arch_frames:
@@ -667,8 +670,8 @@ def render_slitscan_tomography_atlas(records):
 
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
-    draw.text((20, 12), "1. SCOTT McCLOUD 'TIME FRAMES': SLICING MOTION ACROSS SPACE (CH. 4)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
-    draw.text((20, 44), "Top to Bottom = Frame 1 to Frame 33  |  Golden Ribbon = Subject's Path Through Time  |  Red Dots = Sound Effects", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    draw.text((20, 12), "1. AGENT ANIMATOR MOTION SLICES: SLICING 33 FRAMES ACROSS SPACE (NIB & CHIME)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "Top to Bottom = Frame 1 to Frame 33  |  Golden Ribbon = Subject's Path Through Time  |  Red Dots = Chime's Foley Cues", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
     for tx, ty, txt, sz, st, col, mw in text_overlays:
         f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
         draw.text((tx, ty), txt, font=f, fill=col)
@@ -696,7 +699,7 @@ def hex_to_bgr(h):
 
 
 def render_3d_glass_prism_atlas(records):
-    """Visualization 2: Scott McCloud 'Time-Cube' (4 Keyframes Stacked in Space + Golden Motion Ribbon)."""
+    """Visualization 2: Agent Animator 3D Time-Cubes (4 Keyframes Stacked in Space + Golden Motion Ribbon)."""
     featured_slugs = [
         "giraffe-walks-past", "train", "lighthouse", "guitar",
         "tractor", "speedboat", "bicycle", "carrot",
@@ -746,7 +749,7 @@ def render_3d_glass_prism_atlas(records):
             pb = project_3d_iso(u_c, v_c, 1.0, cx, cy)
             cv2.line(canvas, pa, pb, INK_GRAPHITE, 1, cv2.LINE_AA)
 
-        # Clean Golden Motion Ribbon connecting Frame 1 to Frame 33 (zero muddy black caterpillar circles!)
+        # Clean Golden Motion Ribbon connecting Frame 1 to Frame 33
         worm_pts = []
         for t_i in range(33):
             tau_v = t_i / 32.0
@@ -769,7 +772,7 @@ def render_3d_glass_prism_atlas(records):
 
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
-    draw.text((20, 12), "2. SCOTT McCLOUD 3D TIME-CUBES: 4 KEYFRAMES STACKED IN SPACE (CH. 4)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 12), "2. BLUE-LINE'S 3D TIME-CUBES: 4 KEYFRAMES STACKED IN SPACE (K1..K4)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
     draw.text((20, 44), "3 Translucent Cards = Keyframes K1, K2, K4 Stacked in Space  |  Golden Ribbon = Motion Path Connecting Them", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
     for tx, ty, txt, sz, st, col, mw in text_overlays:
         f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
@@ -783,7 +786,7 @@ def render_3d_glass_prism_atlas(records):
 
 
 def render_cinemetrics_torus_atlas(records):
-    """Visualization 3: Color & Action Wheel Atlas (5 Gouache Palette Rings + Action Spikes)."""
+    """Visualization 3: Cel-Inker & Chime's Color & Rhythm Wheel Atlas (5 Gouache Palette Rings + Action Spikes)."""
     featured_slugs = [
         "giraffe-walks-past", "train", "lighthouse", "guitar",
         "tractor", "speedboat", "bicycle", "carrot",
@@ -852,7 +855,7 @@ def render_cinemetrics_torus_atlas(records):
 
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
-    draw.text((20, 12), "3. COLOR & RHYTHM WHEELS: GOUACHE PALETTES & KEYFRAME BEATS (CH. 6)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 12), "3. CEL-INKER & CHIME'S COLOR & RHYTHM WHEELS: 7-PLANE PALETTES & BEATS", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
     draw.text((20, 44), "Center = Quick, Draw! Icon  |  5 Colored Rings = 7-Plane Gouache Palette  |  Red Spikes = 4 Keyframe Accents", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
     for tx, ty, txt, sz, st, col, mw in text_overlays:
         f = fit_pil_font(draw, txt, mw, sz, min_size=10, style=st)
@@ -866,9 +869,9 @@ def render_cinemetrics_torus_atlas(records):
 
 
 def render_manovich_montage_grid(records):
-    """Visualization 4: All 346 Cartoons Side-by-Side as a Single Giant Comic Page."""
+    """Visualization 4: All 346 Cartoons Side-by-Side at Exact 4:3 Cell Aspect Ratio (`76x57` inner thumbnail = 4:3!)."""
     cols, rows = 20, 18
-    cw, ch = 84, 54
+    cw, ch = 78, 59  # Inner cell is 76x57 -> 76 / 57 = 4 / 3 (EXACT 4:3 aspect ratio!)
     header_h = 74
     footer_h = 128
     W = cols * cw
@@ -935,8 +938,8 @@ def render_manovich_montage_grid(records):
 
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
-    draw.text((20, 12), "4. THE COMPLETE 346-SHOT ARCHIVE WALL (EVERY CARTOON IN ONE GIANT COMIC GRID)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
-    draw.text((20, 44), "Every Panel = 1 Clean Multiplane Cartoon (#001 to #346) with Golden Motion Ribbon  |  Bottom Wave = Visual Rhythm Across All 346 Films", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
+    draw.text((20, 12), "4. SPROCKET'S 346-SHOT ARCHIVE WALL (EVERY 4:3 CARTOON IN ONE STUDIO GRID)", font=get_comic_font(24, "bold"), fill=(22, 20, 18))
+    draw.text((20, 44), "Every 4:3 Panel = 1 Multiplane Cartoon (#001 to #346) with Golden Motion Ribbon  |  Bottom Wave = Studio Rhythm Across All 346 Films", font=get_comic_font(15, "comic"), fill=(90, 82, 74))
     draw.text((26, fy0 + 8), "STUDIO RHYTHM WAVE ACROSS ALL 346 CARTOONS (GREEN = MOTION ENERGY  |  RED = LIGHT/DARK CONTRAST)", font=get_comic_font(15, "bold"), fill=(22, 20, 18))
 
     out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
