@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D Spatiotemporal Cinema Worm Visualizer — V(u,v,τ) // Secondhand Motion Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F6EFE3;
+  --paper-deep: #ECE2CE;
+  --sheet: #FFFBF4;
+  --ink: #161412;
+  --ink-soft: #3D3832;
+  --graphite: #6B6359;
+  --rule: #CBBFA8;
+  --tag: #EF9F3A;
+  --tag-pale: #FBE5C2;
+  --wax: #C94A29;
+  --wax-pale: #F7D8CE;
+  --forest: #2F6B4F;
+  --forest-pale: #D4E8DC;
+  --blue: #2B5B84;
+  --blue-pale: #D6E4F0;
+  --shadow: 3px 3px 0 #161412;
+  --shadow-sm: 2px 2px 0 #161412;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+}
+.pegbar {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--paper); border-bottom: 2px solid var(--ink);
+  padding: 0.55rem 1.2rem; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.pegbar-brand {
+  display: flex; align-items: center; gap: 0.65rem;
+  text-decoration: none; font-family: var(--font-display);
+  font-weight: 800; font-size: 1.08rem; color: var(--ink);
+}
+.pegbar-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.pegbar-nav a {
+  text-decoration: none; font-family: var(--font-mono); font-size: 0.76rem;
+  padding: 0.28rem 0.62rem; border: 1.5px solid transparent; border-radius: 3px; color: var(--ink-soft);
+}
+.pegbar-nav a:hover, .pegbar-nav a.active {
+  border-color: var(--ink); background: var(--sheet); color: var(--ink); box-shadow: 2px 2px 0 var(--ink);
+}
+.wrap { max-width: 1340px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.08; margin: 0 0 0.5rem 0; font-weight: 800; }
+h1 { font-size: clamp(2rem, 4vw, 3.2rem); }
+h2 { font-size: clamp(1.35rem, 2.4vw, 1.95rem); }
+.mono { font-family: var(--font-mono); }
+.tag-pill {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase;
+  background: var(--tag); color: var(--ink); padding: 0.25rem 0.65rem;
+  border: 1.5px solid var(--ink); border-radius: 3px; box-shadow: 2px 2px 0 var(--ink); font-weight: 700;
+}
+.sheet {
+  background: var(--sheet); border: 2px solid var(--ink);
+  border-radius: 4px; box-shadow: var(--shadow); padding: 1.1rem;
+}
+.grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+@media (max-width: 960px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+.stat-box {
+  background: var(--sheet); border: 2px solid var(--ink);
+  box-shadow: var(--shadow-sm); padding: 0.65rem 0.75rem; border-radius: 4px;
+}
+.stat-box .num { font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; }
+.stat-box .lbl { font-family: var(--font-mono); font-size: 0.68rem; color: var(--graphite); text-transform: uppercase; }
+.btn {
+  font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700;
+  padding: 0.42rem 0.8rem; border: 1.5px solid var(--ink); border-radius: 3px;
+  background: var(--sheet); color: var(--ink); cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
+}
+.btn.active, .btn.primary { background: var(--tag); }
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; margin: 2.2rem 0 1.1rem; flex-wrap: wrap;
+}
+.swatch {
+  display: inline-block; width: 22px; height: 22px; border: 1.5px solid var(--ink);
+  border-radius: 3px; vertical-align: middle; margin-right: 4px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+th, td { border-bottom: 1px solid var(--rule); padding: 0.45rem 0.6rem; text-align: left; }
+th { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; background: var(--paper-deep); }
+</style>
+</head>
+<body>
+
+<header class="pegbar">
+  <a href="index.html" class="pegbar-brand">
+    <span>SECONDHAND MOTION // 3D SPATIOTEMPORAL WORM LAB V(u,v,&tau;)</span>
+  </a>
+  <nav class="pegbar-nav">
+    <a href="index.html">&larr; Main Studio (346 Shots)</a>
+    <a href="worm.html" class="active">3D Spatiotemporal Worm Lab</a>
+    <a href="behind-the-scenes.html">Behind-the-Scenes Agent Office (18 Films)</a>
+    <a href="reel.html">Wall of 346 Cartoons</a>
+    <a href="about.html">About &amp; Explainer</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <span class="tag-pill">Interactive Video Cubism (Fels &amp; Mase) &times; Video Summagator &times; KALMUS &times; Bouleau 14-Line Armature &times; Brodbeck Cinemetrics</span>
+  <h1 style="margin-top:0.6rem;">The 3D Spatiotemporal Cinema Worm Visualizer &mdash; \(\mathcal{V}(u, v, \tau)\) Across All 346 Cartoons</h1>
+  <p style="max-width:85ch;color:var(--ink-soft);">
+    When you stack every 2D frame \((u, v) \in [0, 1]^2\) along the time axis \(\tau \in [0, T]\), each of our <strong>346 multiplane cartoons</strong> stops being a flat slideshow and becomes a solid <strong>3D Spatiotemporal Volume \(\mathcal{V}(u, v, \tau)\)</strong>. Inside that 3D prism, the tracked character extrudes into a <strong>3D Spatiotemporal Action Worm \(\mathbf{c}(\tau) = (u(\tau), v(\tau), \tau)\)</strong> with cross-sectional radius \(r(\tau)\), threading through the glowing filaments of <strong>Bouleau&rsquo;s 14-Line Harmonic Armature</strong>, <strong>Rule of Thirds</strong>, and the <strong>Golden Ratio Spiral \((0.618, 0.382)\)</strong>.
+  </p>
+
+  <div class="grid-4" style="margin:1rem 0 1.5rem;">
+    <div class="stat-box">
+      <div class="num" id="stat-total">346 Volumes</div>
+      <div class="lbl">3D Spatiotemporal Worms V(u,v,&tau;)</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-dgrid">0.0124</div>
+      <div class="lbl">Mean Armature Distance d_grid(&tau;)</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-dl">11.4 CIE L*</div>
+      <div class="lbl">Mean KALMUS Chiaroscuro &Delta;L*(&tau;)</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-sfx">1,038 Cues</div>
+      <div class="lbl">Earshot SFX Synced to Jerk ||c'''(&tau;)||</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 3D GLASS PRISM + TOMOGRAPHY + CINEMETRICS STAGE -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Interactive 3D Spatiotemporal Volume Inspector</div>
+      <h2 id="active-worm-title">Select Any of the 346 Shots to Slice &amp; Rotate Its 3D Spatiotemporal Worm</h2>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+      <label class="mono" style="font-size:0.78rem;font-weight:700;">Shot:
+        <select id="shot-select" class="btn" style="min-width:210px;" onchange="selectWormShot(this.value)"></select>
+      </label>
+      <button class="btn" onclick="stepWormShot(-1)">&larr; Prev</button>
+      <button class="btn" onclick="stepWormShot(1)">Next &rarr;</button>
+      <button class="btn primary" id="btn-spin" onclick="togglePrismSpin()">Auto-Rotate 3D Prism: ON</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left: Interactive 3D Glass-Prism Canvas -->
+    <div class="sheet" style="background:#14161C;color:#F4EFE6;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
+        <span class="mono" style="font-size:0.76rem;color:#73DCFF;font-weight:700;">3D GLASS-PRISM VOLUME V(u,v,&tau;) // DRAG OR ROTATE YAW &amp; PITCH</span>
+        <span class="mono" id="topo-badge" style="font-size:0.72rem;background:#263242;padding:0.2rem 0.5rem;border-radius:3px;color:#9BE8B0;">Topology</span>
+      </div>
+      <canvas id="prism-canvas" width="680" height="430" style="width:100%;aspect-ratio:68/43;background:#101217;border:1.5px solid #4A5568;border-radius:4px;cursor:grab;display:block;"></canvas>
+      <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;margin-top:0.65rem;font-size:0.74rem;" class="mono">
+        <label><input type="checkbox" id="chk-thirds" checked onchange="drawActiveWorm()"> Rule of Thirds Tunnel</label>
+        <label><input type="checkbox" id="chk-armature" checked onchange="drawActiveWorm()"> Bouleau 14-Line Armature</label>
+        <label><input type="checkbox" id="chk-golden" checked onchange="drawActiveWorm()"> Golden Spiral Node (0.618, 0.382)</label>
+        <label><input type="checkbox" id="chk-secondary" checked onchange="drawActiveWorm()"> Secondary Counterpoint Tube</label>
+        <label>Yaw: <input type="range" id="yaw-slider" min="-180" max="180" value="32" oninput="setManualAngle()"></label>
+      </div>
+      <p class="mono" id="grammar-readout" style="font-size:0.74rem;color:#CBD5E0;margin:0.55rem 0 0;"></p>
+    </div>
+
+    <!-- Right: Live Brodbeck 360° Cinemetrics Torus + KALMUS Stratigraphy + Curvature/Jerk Curves -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="sheet">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <strong class="mono" style="font-size:0.75rem;">FREDERIC BRODBECK 360&deg; RADIAL CINEMETRICS TORUS &amp; KALMUS SWATCHES</strong>
+          <span class="mono" id="kalmus-readout" style="font-size:0.72rem;color:var(--forest);font-weight:700;"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:210px 1fr;gap:0.8rem;align-items:center;">
+          <canvas id="torus-canvas" width="220" height="220" style="width:100%;aspect-ratio:1/1;border:1.5px solid var(--ink);border-radius:4px;background:#FFFBF4;"></canvas>
+          <div class="mono" style="font-size:0.74rem;display:flex;flex-direction:column;gap:0.45rem;">
+            <div><strong>Core Worm Palette (Subject):</strong> <span id="core-swatches"></span></div>
+            <div><strong>Outer Shell Palette (Negative Space):</strong> <span id="shell-swatches"></span></div>
+            <div><strong>Itten Light&ndash;Dark (&Delta;L*):</strong> <span id="val-dl"></span></div>
+            <div><strong>Itten Cold&ndash;Warm Polarity (&Delta;H):</strong> <span id="val-dh"></span></div>
+            <div><strong>Contrast of Extension (A_worm/A):</strong> <span id="val-ext"></span></div>
+            <div><strong>Dominant 14-Line Filament:</strong> <span id="val-fil"></span></div>
+            <div><strong>Earshot Jerk SFX Cues:</strong> <div id="val-sfx" style="margin-top:0.2rem;color:var(--wax);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <strong class="mono" style="font-size:0.75rem;">SPACE-CURVE DIFFERENTIAL GEOMETRY // &kappa;(&tau;), JERK ||c'''(&tau;)|| &amp; ARMATURE TORQUE d_grid(&tau;)</strong>
+          <span class="mono" id="geom-readout" style="font-size:0.72rem;"></span>
+        </div>
+        <canvas id="curves-canvas" width="540" height="185" style="width:100%;height:185px;border:1.5px solid var(--ink);border-radius:4px;background:#16181F;display:block;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOUR CANONICAL SPATIOTEMPORAL VISUALIZATION ATLASES -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Four Canonical Spatiotemporal Worm Atlases Across the 346-Shot Corpus</div>
+      <h2>1. Slit-Scan Tomography &middot; 2. 3D Glass Prisms &middot; 3. Cinemetrics Torus &middot; 4. Manovich Cultural Analytics Grid</h2>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1.2rem;">
+    <div class="sheet">
+      <strong class="mono" style="font-size:0.76rem;display:block;margin-bottom:0.45rem;">1. TOMOGRAPHIC SLIT-SCAN SLICES (u-&tau; &amp; v-&tau; CROSS-SECTIONS)</strong>
+      <a href="preview/worm_slitscan_tomography_atlas.png" target="_blank">
+        <img src="preview/worm_slitscan_tomography_atlas.png" alt="Slit-Scan Tomography Atlas" style="width:100%;border:1.5px solid var(--ink);border-radius:3px;">
+      </a>
+    </div>
+    <div class="sheet">
+      <strong class="mono" style="font-size:0.76rem;display:block;margin-bottom:0.45rem;">2. 3D GLASS-PRISM VOLUME RENDERING WITH 14-LINE ARMATURE FILAMENTS</strong>
+      <a href="preview/worm_3d_glass_prism_atlas.png" target="_blank">
+        <img src="preview/worm_3d_glass_prism_atlas.png" alt="3D Glass-Prism Atlas" style="width:100%;border:1.5px solid var(--ink);border-radius:3px;">
+      </a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="sheet">
+      <strong class="mono" style="font-size:0.76rem;display:block;margin-bottom:0.45rem;">3. FREDERIC BRODBECK 360&deg; RADIAL CINEMETRICS TORUS ATLAS</strong>
+      <a href="preview/worm_cinemetrics_torus_atlas.png" target="_blank">
+        <img src="preview/worm_cinemetrics_torus_atlas.png" alt="Radial Cinemetrics Torus Atlas" style="width:100%;border:1.5px solid var(--ink);border-radius:3px;">
+      </a>
+    </div>
+    <div class="sheet">
+      <strong class="mono" style="font-size:0.76rem;display:block;margin-bottom:0.45rem;">4. LEV MANOVICH CULTURAL ANALYTICS MONTAGE GRID (ALL 346 SHOTS + BRUCE BLOCK WAVE)</strong>
+      <a href="preview/worm_manovich_montage_grid.png" target="_blank">
+        <img src="preview/worm_manovich_montage_grid.png" alt="Manovich Cultural Analytics Montage Grid" style="width:100%;border:1.5px solid var(--ink);border-radius:3px;">
+      </a>
+    </div>
+  </div>
+
+  <!-- TOPOLOGY GRAMMAR REFERENCE TABLE -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Director's Spatiotemporal Grammar Reference</div>
+      <h2>How 3D Worm Topology Decodes Camera Blocking, Parallax &amp; Montage</h2>
+    </div>
+  </div>
+  <div class="sheet" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Cinematic Technique</th>
+          <th>3D Spatiotemporal Worm Topology in (u, v, &tau;)</th>
+          <th>What It Reveals About the Director's Grammar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Locked Tripod + Static Blocking</strong></td>
+          <td><strong>Vertical Pillar:</strong> Straight cylinder parallel to the &tau;-axis inside a u = 1/3 or u = 0.5 grid channel</td>
+          <td>High stability/affinity (Wes Anderson, Ozu); near-zero spatial saccade load</td>
+        </tr>
+        <tr>
+          <td><strong>Camera Pan / Lateral Track</strong></td>
+          <td><strong>Sheared Diagonal Ribbon:</strong> Parallel worms slanting at &theta; = arctan(du/d&tau;) across the u-&tau; plane</td>
+          <td>Slope du/d&tau; measures exact pan speed; foreground worms shear steeper than background worms, revealing 7-plane parallax depth</td>
+        </tr>
+        <tr>
+          <td><strong>Dolly In / Snap Zoom</strong></td>
+          <td><strong>Expanding Cone / Funnel:</strong> Cross-sectional radius r(&tau;) flares outward across [0,1]&sup2;</td>
+          <td>Visualizes dramatic compression as Outer-Shell Negative Space volume shrinks</td>
+        </tr>
+        <tr>
+          <td><strong>S-Curve / Golden Spiral Staging</strong></td>
+          <td><strong>Helical Corkscrew:</strong> Worm spirals around the &tau;-axis toward Golden Ratio node (0.618, 0.382)</td>
+          <td>Kinetic grace distributed across both u and v rather than flat horizontal sliding</td>
+        </tr>
+        <tr>
+          <td><strong>Two-Shot / Dialogue Counterpoint</strong></td>
+          <td><strong>Double Helix / Braided Pillars:</strong> Hero worm and secondary counterpoint tube in Rabatment squares</td>
+          <td>Gap &Delta;u(&tau;) between the two worms measures interpersonal or spatial counterpoint over the shot</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script src="spatiotemporal_worms_data.js"></script>
+<script>
+const WORM_DB = window.SPATIOTEMPORAL_WORMS_DATA || { shots: [] };
+let activeIdx = 0;
+let autoSpin = true;
+let yawDeg = 32;
+let pitchDeg = 18;
+
+const ARMATURE_LINES = [
+  [0,0,1,1], [0,1,1,0],
+  [0,0.5,0.5,0], [0.5,0,1,0.5], [1,0.5,0.5,1], [0.5,1,0,0.5],
+  [0,0,0.5,1], [0,1,0.5,0], [1,0,0.5,1], [1,1,0.5,0],
+  [0.5,0,0.5,1], [0,0.5,1,0.5]
+];
+
+function initWormApp() {
+  const shots = WORM_DB.shots || [];
+  if (!shots.length) return;
+  document.getElementById('stat-total').textContent = shots.length + ' Volumes';
+  document.getElementById('stat-dgrid').textContent = (WORM_DB.mean_d_grid || 0.012).toFixed(4);
+  document.getElementById('stat-dl').textContent = (WORM_DB.mean_chiaroscuro_dL || 11.4).toFixed(1) + ' CIE L*';
+
+  const sel = document.getElementById('shot-select');
+  sel.innerHTML = shots.map((s, i) => `<option value="${i}">#${String(s.rank).padStart(3,'0')} ${s.slug} (${s.topology_code})</option>`).join('');
+  const gwpIdx = shots.findIndex(s => s.slug === 'giraffe-walks-past');
+  selectWormShot(gwpIdx >= 0 ? gwpIdx : 0);
+
+  requestAnimationFrame(tickSpin);
+}
+
+function selectWormShot(idx) {
+  const shots = WORM_DB.shots || [];
+  if (!shots.length) return;
+  activeIdx = (Number(idx) + shots.length) % shots.length;
+  document.getElementById('shot-select').value = String(activeIdx);
+  drawActiveWorm();
+}
+
+function stepWormShot(delta) {
+  selectWormShot(activeIdx + delta);
+}
+
+function togglePrismSpin() {
+  autoSpin = !autoSpin;
+  document.getElementById('btn-spin').textContent = 'Auto-Rotate 3D Prism: ' + (autoSpin ? 'ON' : 'OFF');
+}
+
+function setManualAngle() {
+  autoSpin = false;
+  document.getElementById('btn-spin').textContent = 'Auto-Rotate 3D Prism: OFF';
+  yawDeg = Number(document.getElementById('yaw-slider').value);
+  drawActiveWorm();
+}
+
+function tickSpin() {
+  if (autoSpin) {
+    yawDeg = (yawDeg + 0.45) % 360;
+    if (yawDeg > 180) yawDeg -= 360;
+    document.getElementById('yaw-slider').value = String(Math.round(yawDeg));
+    drawActiveWorm();
+  }
+  requestAnimationFrame(tickSpin);
+}
+
+function project3D(u, v, tau, W, H) {
+  const x = (u - 0.5) * 240;
+  const y = (v - 0.5) * 175;
+  const z = (tau - 0.5) * 260;
+  const radY = yawDeg * Math.PI / 180;
+  const radP = pitchDeg * Math.PI / 180;
+  const x1 = x * Math.cos(radY) + z * Math.sin(radY);
+  const z1 = -x * Math.sin(radY) + z * Math.cos(radY);
+  const y2 = y * Math.cos(radP) - z1 * Math.sin(radP);
+  const z2 = y * Math.sin(radP) + z1 * Math.cos(radP);
+  const fov = 620 / (620 + z2 * 0.45);
+  return [W / 2 + x1 * fov, H / 2 + y2 * fov, z2];
+}
+
+function drawActiveWorm() {
+  const shots = WORM_DB.shots || [];
+  if (!shots.length) return;
+  const rec = shots[activeIdx];
+
+  document.getElementById('active-worm-title').textContent = `#${String(rec.rank).padStart(3,'0')} ${rec.slug.toUpperCase()} — ${rec.topology}`;
+  document.getElementById('topo-badge').textContent = `${rec.topology_code.toUpperCase()} | shear=${rec.shear_deg >= 0 ? '+' : ''}${rec.shear_deg}° | r_ratio=${rec.radius_ratio}x`;
+  document.getElementById('grammar-readout').textContent = `Director's Grammar: ${rec.grammar_note}`;
+  document.getElementById('kalmus-readout').textContent = `Lock: ${rec.compositional_lock_pct}% | Arnheim Tension: ${rec.arnheim_tension_pct}%`;
+
+  document.getElementById('core-swatches').innerHTML = (rec.core_palette || []).map(c => `<span class="swatch" style="background:${c}" title="${c}"></span>`).join('');
+  document.getElementById('shell-swatches').innerHTML = (rec.shell_palette || []).map(c => `<span class="swatch" style="background:${c}" title="${c}"></span>`).join('');
+  document.getElementById('val-dl').textContent = `${rec.mean_chiaroscuro_dL} CIE L*`;
+  document.getElementById('val-dh').textContent = `${rec.mean_hue_polarity_dH}° hue separation`;
+  document.getElementById('val-ext').textContent = `${(rec.mean_extension_ratio * 100).toFixed(1)}% of frame`;
+  document.getElementById('val-fil').textContent = `${rec.dominant_filament} (mean d_grid = ${rec.mean_d_grid})`;
+  document.getElementById('val-sfx').innerHTML = (rec.earshot_cues || []).map(c => `&bull; f${String(c.frame).padStart(2,'0')} (${c.time_s}s, Jerk=${c.jerk}): <code>${c.sfx}</code>`).join('<br>');
+  document.getElementById('geom-readout').textContent = `Mean Curvature κ=${rec.mean_curvature} | Torsion τ=${rec.mean_torsion} | Peak Jerk=${rec.peak_jerk}`;
+
+  // 1. Render 3D Glass Prism
+  const cv = document.getElementById('prism-canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#101217';
+  ctx.fillRect(0, 0, W, H);
+
+  const corners = {};
+  for (let u of [0,1]) for (let v of [0,1]) for (let t of [0,1]) {
+    corners[`${u}${v}${t}`] = project3D(u, v, t, W, H);
+  }
+  const edges = [
+    ['000','100'],['100','110'],['110','010'],['010','000'],
+    ['001','101'],['101','111'],['111','011'],['011','001'],
+    ['000','001'],['100','101'],['110','111'],['010','011']
+  ];
+  ctx.strokeStyle = 'rgba(130, 150, 185, 0.42)';
+  ctx.lineWidth = 1.2;
+  for (const [a, b] of edges) {
+    ctx.beginPath();
+    ctx.moveTo(corners[a][0], corners[a][1]);
+    ctx.lineTo(corners[b][0], corners[b][1]);
+    ctx.stroke();
+  }
+
+  if (document.getElementById('chk-thirds').checked) {
+    ctx.strokeStyle = 'rgba(239, 159, 58, 0.45)';
+    ctx.lineWidth = 1.2;
+    for (const u of [0.3333, 0.6667]) for (const v of [0.3333, 0.6667]) {
+      const p0 = project3D(u, v, 0, W, H);
+      const p1 = project3D(u, v, 1, W, H);
+      ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+    }
+  }
+
+  if (document.getElementById('chk-armature').checked) {
+    ctx.strokeStyle = 'rgba(255, 215, 90, 0.28)';
+    ctx.lineWidth = 1.0;
+    for (const t of [0.0, 0.5, 1.0]) {
+      for (const [u1, v1, u2, v2] of ARMATURE_LINES) {
+        const pa = project3D(u1, v1, t, W, H);
+        const pb = project3D(u2, v2, t, W, H);
+        ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke();
+      }
+    }
+  }
+
+  if (document.getElementById('chk-golden').checked) {
+    const pg0 = project3D(0.618, 0.382, 0, W, H);
+    const pg1 = project3D(0.618, 0.382, 1, W, H);
+    ctx.strokeStyle = 'rgba(255, 95, 195, 0.75)';
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(pg0[0], pg0[1]); ctx.lineTo(pg1[0], pg1[1]); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  if (document.getElementById('chk-secondary').checked && rec.sec_u) {
+    ctx.strokeStyle = '#4FD1C5';
+    ctx.lineWidth = 3.0;
+    ctx.beginPath();
+    for (let i = 0; i < rec.sec_u.length; i++) {
+      const p = project3D(rec.sec_u[i], rec.sec_v[i], i / 32, W, H);
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.stroke();
+  }
+
+  // Draw extruded 3D Core Worm
+  const wormPts = [];
+  for (let i = 0; i < rec.worm_u.length; i++) {
+    const p = project3D(rec.worm_u[i], rec.worm_v[i], i / 32, W, H);
+    const rad = Math.max(7, Math.min(26, rec.worm_r[i] * 72));
+    wormPts.push([p[0], p[1], rad, i]);
+  }
+  for (const [px, py, rad, i] of wormPts) {
+    ctx.fillStyle = rec.core_palette[Math.min(2, Math.floor(i / 11))] || '#EF9F3A';
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  wormPts.forEach(([px, py], i) => { if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
+  ctx.stroke();
+
+  // Highlight Earshot Jerk cue frames
+  for (const cue of (rec.earshot_cues || [])) {
+    const wp = wormPts[Math.max(0, Math.min(32, cue.frame - 1))];
+    if (wp) {
+      ctx.fillStyle = '#E53E3E';
+      ctx.beginPath(); ctx.arc(wp[0], wp[1], 7, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
+
+  // 2. Render Brodbeck 360° Cinemetrics Torus
+  const tcv = document.getElementById('torus-canvas');
+  const tctx = tcv.getContext('2d');
+  tctx.fillStyle = '#FFFBF4';
+  tctx.fillRect(0, 0, 220, 220);
+  const swatches = [...(rec.core_palette || []), ...(rec.shell_palette || [])];
+  const radii = [70, 60, 50, 40, 30];
+  radii.forEach((r, idx) => {
+    tctx.strokeStyle = swatches[idx % swatches.length] || '#EF9F3A';
+    tctx.lineWidth = 8;
+    tctx.beginPath(); tctx.arc(110, 110, r, 0, Math.PI * 2); tctx.stroke();
+  });
+  const maxJ = Math.max(...(rec.jerk_curve || [0.1]), 0.001);
+  for (let i = 0; i < 33; i++) {
+    const ang = -Math.PI / 2 + (2 * Math.PI * i / 33);
+    const len = 10 + 26 * (0.5 * rec.intensity_curve[i] + 0.5 * (rec.jerk_curve[i] / maxJ));
+    tctx.strokeStyle = [0, 10, 21, 32].includes(i) ? '#C94A29' : '#2F6B4F';
+    tctx.lineWidth = [0, 10, 21, 32].includes(i) ? 3 : 2;
+    tctx.beginPath();
+    tctx.moveTo(110 + 75 * Math.cos(ang), 110 + 75 * Math.sin(ang));
+    tctx.lineTo(110 + (75 + len) * Math.cos(ang), 110 + (75 + len) * Math.sin(ang));
+    tctx.stroke();
+  }
+
+  // 3. Render Differential Geometry & Chromatic Curves
+  const ccv = document.getElementById('curves-canvas');
+  const cctx = ccv.getContext('2d');
+  const cW = ccv.width, cH = ccv.height;
+  cctx.fillStyle = '#16181F';
+  cctx.fillRect(0, 0, cW, cH);
+
+  function plotCurve(arr, maxVal, color, label, yOff) {
+    cctx.strokeStyle = color;
+    cctx.lineWidth = 2.2;
+    cctx.beginPath();
+    for (let i = 0; i < arr.length; i++) {
+      const x = 18 + (i / 32) * (cW - 36);
+      const y = cH - 18 - Math.min(1, arr[i] / Math.max(maxVal, 1e-4)) * (cH - 42);
+      if (i === 0) cctx.moveTo(x, y); else cctx.lineTo(x, y);
+    }
+    cctx.stroke();
+    cctx.fillStyle = color;
+    cctx.font = '11px JetBrains Mono, monospace';
+    cctx.fillText(label, 18 + yOff * 175, 16);
+  }
+  plotCurve(rec.intensity_curve, 1.0, '#68D391', '■ Bruce Block Intensity', 0);
+  plotCurve(rec.jerk_curve, maxJ, '#FC8181', '■ Kinetic Jerk ||c\'\'\'||', 1);
+  plotCurve(rec.dL_curve, 50.0, '#F6AD55', '■ KALMUS Chiaroscuro ΔL*', 2);
+}
+
+window.addEventListener('DOMContentLoaded', initWormApp);
+</script>
+</body>
+</html>

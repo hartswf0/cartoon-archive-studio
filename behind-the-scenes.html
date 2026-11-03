@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Behind the Scenes — Virtual Agent Office, Kanban Worktrees &amp; 18 Studio Process Films</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F6EFE3;
+  --paper-deep: #ECE2CE;
+  --sheet: #FFFBF4;
+  --ink: #161412;
+  --ink-soft: #3D3832;
+  --graphite: #6B6359;
+  --rule: #CBBFA8;
+  --tag: #EF9F3A;
+  --tag-pale: #FBE5C2;
+  --wax: #C94A29;
+  --wax-pale: #F7D8CE;
+  --forest: #2F6B4F;
+  --forest-pale: #D4E8DC;
+  --blue: #2B5B84;
+  --blue-pale: #D6E4F0;
+  --shadow: 3px 3px 0 #161412;
+  --shadow-sm: 2px 2px 0 #161412;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font-body); background: var(--paper); color: var(--ink); line-height: 1.55; }
+.pegbar {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--paper); border-bottom: 2px solid var(--ink);
+  padding: 0.55rem 1.2rem; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.pegbar-brand {
+  display: flex; align-items: center; gap: 0.65rem;
+  text-decoration: none; font-family: var(--font-display);
+  font-weight: 800; font-size: 1.08rem; color: var(--ink);
+}
+.pegbar-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.pegbar-nav a {
+  text-decoration: none; font-family: var(--font-mono); font-size: 0.76rem;
+  padding: 0.28rem 0.62rem; border: 1.5px solid transparent; border-radius: 3px; color: var(--ink-soft);
+}
+.pegbar-nav a:hover, .pegbar-nav a.active {
+  border-color: var(--ink); background: var(--sheet); color: var(--ink); box-shadow: 2px 2px 0 var(--ink);
+}
+.wrap { max-width: 1340px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.08; margin: 0 0 0.5rem 0; font-weight: 800; }
+h1 { font-size: clamp(2rem, 4vw, 3.2rem); }
+h2 { font-size: clamp(1.35rem, 2.4vw, 1.95rem); }
+.mono { font-family: var(--font-mono); }
+.tag-pill {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase;
+  background: var(--tag); color: var(--ink); padding: 0.25rem 0.65rem;
+  border: 1.5px solid var(--ink); border-radius: 3px; box-shadow: 2px 2px 0 var(--ink); font-weight: 700;
+}
+.sheet {
+  background: var(--sheet); border: 2px solid var(--ink);
+  border-radius: 4px; box-shadow: var(--shadow); padding: 1.1rem;
+}
+.grid-2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.film-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.15rem; }
+@media (max-width: 960px) { .grid-2, .grid-3, .film-grid { grid-template-columns: 1fr; } }
+.btn {
+  font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700;
+  padding: 0.42rem 0.8rem; border: 1.5px solid var(--ink); border-radius: 3px;
+  background: var(--sheet); color: var(--ink); cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
+  text-decoration: none; display: inline-block;
+}
+.btn.primary { background: var(--tag); }
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; margin: 2.4rem 0 1.1rem; flex-wrap: wrap;
+}
+.kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+@media (max-width: 820px) { .kanban-board { grid-template-columns: repeat(2, 1fr); } }
+.kanban-col {
+  background: var(--paper-deep); border: 1.5px solid var(--ink);
+  border-radius: 4px; padding: 0.65rem;
+}
+.kanban-card {
+  background: var(--sheet); border: 1.5px solid var(--ink);
+  border-radius: 3px; padding: 0.5rem; margin-top: 0.5rem;
+  font-size: 0.78rem; box-shadow: 2px 2px 0 var(--ink);
+}
+pre.cmd {
+  background: #16181F; color: #9BE8B0; padding: 0.5rem 0.7rem;
+  border-radius: 4px; font-family: var(--font-mono); font-size: 0.74rem;
+  overflow-x: auto; margin: 0.45rem 0 0; border: 1.5px solid var(--ink);
+}
+</style>
+</head>
+<body>
+
+<header class="pegbar">
+  <a href="index.html" class="pegbar-brand">
+    <span>SECONDHAND MOTION // BEHIND-THE-SCENES VIRTUAL AGENT OFFICE &amp; 18 STUDIO FILMS</span>
+  </a>
+  <nav class="pegbar-nav">
+    <a href="index.html">&larr; Main Studio (346 Shots)</a>
+    <a href="worm.html">3D Spatiotemporal Worm Lab</a>
+    <a href="behind-the-scenes.html" class="active">Behind-the-Scenes Agent Office (18 Films)</a>
+    <a href="reel.html">Wall of 346 Cartoons</a>
+    <a href="about.html">About &amp; Explainer</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <span class="tag-pill">Kohnny Virtual Office + Kanban Git Worktrees + 10 Agent Offices + 8 AI Video Director Skills</span>
+  <h1 style="margin-top:0.6rem;">Behind the Scenes: How Our Multi-Agent Virtual Studio Built All 346 Cartoons</h1>
+  <p style="max-width:86ch;color:var(--ink-soft);">
+    Inspired by John Sorrentino&rsquo;s <strong>Kohnny</strong> (<em>I Turned Claude Code Into a Video Game</em>) and the <strong>8 AI Video Director Skills</strong> (<em>Insane GitHub Repos To Actually 10x Claude Video Editing</em>), this page showcases our <strong>Master Behind-the-Scenes Documentary Film</strong>, an interactive <strong>3D/Isometric Virtual Agent Office + Kanban Git Worktree Pipeline</strong>, and <strong>18 bespoke animated studio films</strong> (&ldquo;make for each&rdquo;): <strong>10 Virtual Agent Office &amp; Worktree films</strong> plus <strong>8 AI Video Director Skill films</strong>.
+  </p>
+
+  <!-- MASTER DOCUMENTARY PLAYER + INTERACTIVE 3D VIRTUAL AGENT OFFICE -->
+  <div class="grid-2" style="margin-top:1.2rem;">
+    <div class="sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+        <strong class="mono" style="font-size:0.78rem;">MASTER BEHIND-THE-SCENES STUDIO DOCUMENTARY (18 CHAPTERS)</strong>
+        <a href="Behind_The_Scenes_Multiplane_Studio_Film.mp4" target="_blank" class="btn primary" style="padding:0.2rem 0.55rem;font-size:0.7rem;">Download Master MP4 &nearr;</a>
+      </div>
+      <video id="master-bts-video" src="Behind_The_Scenes_Multiplane_Studio_Film.mp4" controls loop playsinline style="width:100%;aspect-ratio:16/9;background:#111;border:2px solid var(--ink);border-radius:4px;display:block;"></video>
+      <p class="mono" style="font-size:0.74rem;color:var(--ink-soft);margin:0.55rem 0 0;">
+        Plays all 18 Behind-the-Scenes Studio Process Films back-to-back with beat-synced marimba/projector Foley audio: Part I covers the 10 Virtual Agent Office &amp; Kanban Worktree architectures; Part II covers the 8 AI Video Director &amp; Motion Skills.
+      </p>
+    </div>
+
+    <div class="sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+        <strong class="mono" style="font-size:0.78rem;">LIVE INTERACTIVE 3D VIRTUAL AGENT OFFICE &amp; 55-MIN CACHE COMPACTOR</strong>
+        <span class="mono" id="cache-timer-badge" style="font-size:0.72rem;background:var(--forest-pale);padding:0.2rem 0.5rem;border:1.5px solid var(--ink);border-radius:3px;font-weight:700;">Prompt Cache: 54:12 / 55:00</span>
+      </div>
+      <canvas id="office-sim-canvas" width="600" height="338" style="width:100%;aspect-ratio:16/9;background:#F6EFE3;border:2px solid var(--ink);border-radius:4px;display:block;"></canvas>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.55rem;">
+        <button class="btn primary" onclick="triggerWorktreeSpawn()">+ Spawn Shot Worktree</button>
+        <button class="btn" onclick="triggerCodexAudit()">Run Cross-Model Codex Audit</button>
+        <button class="btn" onclick="triggerCacheCompact()">55m Handoff Compact</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KANBAN + GIT WORKTREE PIPELINE -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Kohnny / Agent-Office / Agent-007 Worktree Orchestration</div>
+      <h2>Live Kanban + Isolated Git Worktree Pipeline (Planning &rarr; Doing &rarr; Cross-Model Review &rarr; FIFO Merge)</h2>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="kanban-board">
+      <div class="kanban-col">
+        <strong class="mono" style="font-size:0.76rem;">1. PLANNING (HTML MOCKUP)</strong>
+        <div class="kanban-card">
+          <strong>worktree/plan-clip-twin</strong><br>
+          <span class="mono" style="font-size:0.7rem;color:var(--graphite);">Maestro + Look-Lane Artist</span><br>
+          Generates before/after HTML mockup &amp; Bouleau 14-line armature plan before writing code.
+        </div>
+      </div>
+      <div class="kanban-col">
+        <strong class="mono" style="font-size:0.76rem;">2. DOING (ISOLATED WORKTREE)</strong>
+        <div class="kanban-card">
+          <strong>worktree/shots-batch6-346</strong><br>
+          <span class="mono" style="font-size:0.7rem;color:var(--graphite);">3D Office Eng + Argon RL</span><br>
+          Synthesizes 7-plane <code>SCION-UniqueWorld-v9</code> cels, 4-key living BG boil &amp; 33f X-sheet.
+        </div>
+      </div>
+      <div class="kanban-col">
+        <strong class="mono" style="font-size:0.76rem;">3. CROSS-MODEL REVIEW &amp; FIX</strong>
+        <div class="kanban-card">
+          <strong>worktree/audit-16-gates</strong><br>
+          <span class="mono" style="font-size:0.7rem;color:var(--graphite);">Auditor (Codex Reviewing Claude)</span><br>
+          Verifies 16/16 gates, 0 X-ray bleeds, gap-corrected CLIP cosine &amp; <code>qa_video.py</code>.
+        </div>
+      </div>
+      <div class="kanban-col">
+        <strong class="mono" style="font-size:0.76rem;">4. FIFO MERGE &amp; 55m COMPACT</strong>
+        <div class="kanban-card">
+          <strong>main @ a52cfd7 (346/346 Done)</strong><br>
+          <span class="mono" style="font-size:0.7rem;color:var(--forest);">Merge Guard + Earshot Foley</span><br>
+          Single-file FIFO merge queue prevents conflicts; auto-compacts handoff notes at 55 min.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART I: 10 VIRTUAL AGENT OFFICE & KANBAN WORKTREE STUDIO FILMS -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Part I // 10 Open-Source Virtual Agent Office &amp; Kanban Worktree Studio Films</div>
+      <h2>10 Bespoke Behind-the-Scenes Studio Films (&ldquo;Make for Each&rdquo; Virtual Office Repository)</h2>
+    </div>
+    <a href="preview/bts_10_agent_offices_atlas.png" target="_blank" class="btn">View 10-Film Contact Sheet PNG &nearr;</a>
+  </div>
+
+  <div class="sheet" style="margin-bottom:1.2rem;">
+    <img src="preview/bts_10_agent_offices_atlas.png" alt="10 Virtual Agent Office Studio Films Contact Sheet" style="width:100%;border:1.5px solid var(--ink);border-radius:4px;">
+  </div>
+
+  <div class="film-grid" id="office-films-grid"></div>
+
+  <!-- PART II: 8 AI VIDEO DIRECTOR & MOTION SKILL STUDIO FILMS -->
+  <div class="section-head">
+    <div>
+      <div class="mono" style="font-size:0.75rem;color:var(--graphite);text-transform:uppercase;">Part II // 8 AI Video Editing &amp; Motion Director Skill Films</div>
+      <h2>8 Bespoke Behind-the-Scenes Studio Films (&ldquo;Make for Each&rdquo; Video Editing Skill Repository)</h2>
+    </div>
+    <a href="preview/bts_8_video_skills_atlas.png" target="_blank" class="btn">View 8-Film Contact Sheet PNG &nearr;</a>
+  </div>
+
+  <div class="sheet" style="margin-bottom:1.2rem;">
+    <img src="preview/bts_8_video_skills_atlas.png" alt="8 AI Video Director Skill Studio Films Contact Sheet" style="width:100%;border:1.5px solid var(--ink);border-radius:4px;">
+  </div>
+
+  <div class="film-grid" id="skill-films-grid"></div>
+</main>
+
+<script src="bts_studio_data.js"></script>
+<script>
+const BTS = window.BTS_STUDIO_DATA || { office_films: [], skill_films: [], agents: [] };
+
+function renderFilmCards() {
+  const offGrid = document.getElementById('office-films-grid');
+  offGrid.innerHTML = (BTS.office_films || []).map(f => `
+    <article class="sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+        <span class="tag-pill" style="font-size:0.68rem;">Office #${String(f.num).padStart(2,'0')} &middot; ${f.category}</span>
+        <a href="${f.url}" target="_blank" class="mono" style="font-size:0.74rem;font-weight:700;">${f.repo} &nearr;</a>
+      </div>
+      <h3>${f.title}</h3>
+      <video src="${f.mp4}" poster="${f.poster}" controls loop muted playsinline style="width:100%;aspect-ratio:16/9;border:1.5px solid var(--ink);border-radius:3px;background:#111;margin:0.4rem 0;"></video>
+      <p style="font-size:0.88rem;color:var(--ink-soft);margin:0.3rem 0;">${f.blurb}</p>
+      <div class="mono" style="font-size:0.71rem;color:var(--forest);margin-bottom:0.35rem;">
+        <strong>Stages:</strong> ${(f.stages || []).join(' &rarr; ')}
+      </div>
+      <pre class="cmd">${f.install}</pre>
+    </article>
+  `).join('');
+
+  const skGrid = document.getElementById('skill-films-grid');
+  skGrid.innerHTML = (BTS.skill_films || []).map((f, idx) => `
+    <article class="sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+        <span class="tag-pill" style="font-size:0.68rem;background:var(--forest-pale);">Skill #${String(idx+1).padStart(2,'0')} (${f.timestamp || ''}) &middot; ${f.category}</span>
+        <a href="${f.url}" target="_blank" class="mono" style="font-size:0.74rem;font-weight:700;">${f.repo} &nearr;</a>
+      </div>
+      <h3>${f.title}</h3>
+      <video src="${f.mp4}" poster="${f.poster}" controls loop muted playsinline style="width:100%;aspect-ratio:16/9;border:1.5px solid var(--ink);border-radius:3px;background:#111;margin:0.4rem 0;"></video>
+      <p style="font-size:0.88rem;color:var(--ink-soft);margin:0.3rem 0;">${f.blurb}</p>
+      <div class="mono" style="font-size:0.71rem;color:var(--blue);margin-bottom:0.35rem;">
+        <strong>Stages:</strong> ${(f.stages || []).join(' &rarr; ')}
+      </div>
+      <pre class="cmd">${f.install}</pre>
+    </article>
+  `).join('');
+}
+
+// Live Virtual Agent Office Simulation Canvas
+let simTick = 0;
+let simNotice = 'Maestro dispatched 346 worktrees across 6 batches -> 16/16 gates green';
+const simAgents = [
+  { name: 'Maestro', color: '#E15F2D', x: 90, y: 120, tx: 230, ty: 120 },
+  { name: 'Auditor (Codex)', color: '#2F855A', x: 250, y: 210, tx: 460, ty: 130 },
+  { name: '3D Office Eng', color: '#2B6CB0', x: 160, y: 240, tx: 160, ty: 120 },
+  { name: 'Look-Lane Artist', color: '#9F58C3', x: 420, y: 240, tx: 290, ty: 240 },
+  { name: 'Earshot Foley', color: '#D69E2E', x: 480, y: 140, tx: 420, ty: 240 }
+];
+
+function triggerWorktreeSpawn() {
+  simNotice = 'Spawned git worktree: shots/giraffe-walks-past [Planning HTML Mockup -> Doing]';
+  simAgents[0].tx = 220; simAgents[0].ty = 110;
+  simAgents[2].tx = 140; simAgents[2].ty = 235;
+}
+function triggerCodexAudit() {
+  simNotice = 'Codex Cross-Model Auditor verified 16/16 gates + Gap-Corrected CLIP + qa_video.py';
+  simAgents[1].tx = 470; simAgents[1].ty = 125;
+}
+function triggerCacheCompact() {
+  simNotice = '55:00 Prompt Cache Auto-Compacted -> Handoff notes written to worktree ledger!';
+  document.getElementById('cache-timer-badge').textContent = 'Prompt Cache: Reset 00:01 / 55:00 (Compacted)';
+}
+
+function stepOfficeSim() {
+  simTick++;
+  const cv = document.getElementById('office-sim-canvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#F6EFE3';
+  ctx.fillRect(0, 0, W, H);
+
+  // Floor grid
+  ctx.strokeStyle = '#E2D6C1';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 36) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  // Stations
+  const stations = [
+    { x: 24, y: 36, w: 120, h: 64, bg: '#D6E4F0', title: 'ARCHIVE LIBRARY', sub: '345 Quick, Draw! Cats' },
+    { x: 175, y: 36, w: 185, h: 64, bg: '#FFFBF4', title: 'WHITEBOARD (PLAN MODE)', sub: '14-Line Armature & Keys' },
+    { x: 390, y: 36, w: 185, h: 64, bg: '#D4E8DC', title: 'FIFO MERGE & CODEX QA', sub: '16/16 Gates + 55m Cache' },
+    { x: 60, y: 215, w: 195, h: 68, bg: '#FBE5C2', title: 'DESK A: CLAUDE WORKTREE', sub: 'SCION-UniqueWorld-v9' },
+    { x: 325, y: 215, w: 215, h: 68, bg: '#F7D8CE', title: 'DESK B: EARSHOT + WORM LAB', sub: '3D V(u,v,τ) + 252 SFX Bank' }
+  ];
+  for (const s of stations) {
+    ctx.fillStyle = s.bg;
+    ctx.strokeStyle = '#161412';
+    ctx.lineWidth = 2;
+    ctx.fillRect(s.x, s.y, s.w, s.h);
+    ctx.strokeRect(s.x, s.y, s.w, s.h);
+    ctx.fillStyle = '#161412';
+    ctx.font = 'bold 11px JetBrains Mono, monospace';
+    ctx.fillText(s.title, s.x + 8, s.y + 24);
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.fillStyle = '#3D3832';
+    ctx.fillText(s.sub, s.x + 8, s.y + 44);
+  }
+
+  // Move & draw agents
+  for (const ag of simAgents) {
+    const dx = ag.tx - ag.x, dy = ag.ty - ag.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 4) {
+      const targetStation = stations[Math.floor(Math.random() * stations.length)];
+      ag.tx = targetStation.x + 30 + Math.random() * (targetStation.w - 60);
+      ag.ty = targetStation.y + 45 + Math.random() * 35;
+    } else {
+      ag.x += (dx / dist) * 1.35;
+      ag.y += (dy / dist) * 1.35;
+    }
+    const bob = Math.sin(simTick * 0.25 + ag.x * 0.05) * 2.5;
+    ctx.fillStyle = ag.color;
+    ctx.strokeStyle = '#161412';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(ag.x, ag.y + bob, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#FFFBF4';
+    ctx.beginPath(); ctx.arc(ag.x, ag.y - 12 + bob, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#161412';
+    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.fillText(ag.name, ag.x - 28, ag.y - 24 + bob);
+  }
+
+  // Bottom status bar
+  ctx.fillStyle = '#161412';
+  ctx.fillRect(0, H - 28, W, 28);
+  ctx.fillStyle = '#FBE5C2';
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.fillText(simNotice, 12, H - 10);
+
+  requestAnimationFrame(stepOfficeSim);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderFilmCards();
+  requestAnimationFrame(stepOfficeSim);
+});
+</script>
+</body>
+</html>
