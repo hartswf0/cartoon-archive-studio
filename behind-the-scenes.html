@@ -142,14 +142,15 @@ pre.cmd {
       <canvas id="office-sim-canvas" width="640" height="360" style="width:100%;aspect-ratio:16/9;background:#F6EFE3;border:2px solid var(--ink);border-radius:4px;display:block;"></canvas>
       <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.55rem;">
         <button class="btn active" id="wing-btn-0" onclick="selectStudioWing(0)">Wing A: 7-Plane Camera Tower</button>
-        <button class="btn" id="wing-btn-1" onclick="selectStudioWing(1)">Wing B: Lightbox Bullpen</button>
-        <button class="btn" id="wing-btn-2" onclick="selectStudioWing(2)">Wing C: Foley &amp; Screening</button>
-        <button class="btn" id="wing-btn-3" onclick="selectStudioWing(3)">Wing D: Optical Lab</button>
+        <button class="btn" id="wing-btn-1" onclick="selectStudioWing(1)">Wing B: 4-Desk Worktree Bullpen</button>
+        <button class="btn" id="wing-btn-2" onclick="selectStudioWing(2)">Wing C: 35mm Screening &amp; Foley</button>
+        <button class="btn" id="wing-btn-3" onclick="selectStudioWing(3)">Wing D: Optical Lab &amp; Clocktower</button>
       </div>
       <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.4rem;">
-        <button class="btn primary" onclick="triggerWorktreeSpawn()">+ Expose 7-Plane Keyframe</button>
-        <button class="btn" onclick="triggerCodexAudit()">Project Dailies &amp; CLIP Audit</button>
-        <button class="btn" onclick="triggerCacheCompact()">Ring 55m Clocktower Chime</button>
+        <button class="btn" onclick="triggerStoryRoom()">Room 1: Moviola &amp; Storyboard</button>
+        <button class="btn primary" onclick="triggerWorktreeSpawn()">Room 2: 4-Desk Bullpen (Rough&rarr;Ink&rarr;Paint)</button>
+        <button class="btn" onclick="triggerCodexAudit()">Room 3: 7-Plane Camera Tower</button>
+        <button class="btn" onclick="triggerCacheCompact()">Room 4: 35mm Screening Theatre</button>
       </div>
     </div>
   </div>
@@ -323,17 +324,17 @@ function selectStudioWing(idx) {
   }
 }
 
+function triggerStoryRoom() {
+  forcedPanelIdx = 0; // Highlight Room 1 (Archival Moviola & Storyboard Wall)
+}
 function triggerWorktreeSpawn() {
-  selectStudioWing(1);
-  forcedPanelIdx = 1; // Highlight Panel 2 (The 3-Step Rule)
+  forcedPanelIdx = 1; // Highlight Room 2 (4-Desk Worktree Bullpen: Rough -> Ink -> Gouache)
 }
 function triggerCodexAudit() {
-  selectStudioWing(2);
-  forcedPanelIdx = 2; // Highlight Panel 3 (The 4 Keyframes on 35mm Film)
+  forcedPanelIdx = 2; // Highlight Room 3 (7-Level Multiplane Camera Tower)
 }
 function triggerCacheCompact() {
-  selectStudioWing(3);
-  forcedPanelIdx = 3; // Highlight Panel 4 (The Finished 7-Plane Cartoon)
+  forcedPanelIdx = 3; // Highlight Room 4 (35mm Dailies Screening Theatre & Foley Stage)
   const badge = document.getElementById('cache-timer-badge');
   if (badge) badge.textContent = 'Clocktower Cache: Reset 00:01 / 55:00';
 }
