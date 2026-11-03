@@ -578,6 +578,103 @@ def draw_qd_card(canvas: np.ndarray, x0: int, y0: int, x1: int, y1: int, fill_bg
     cv2.rectangle(canvas, (x0, y0), (x1, y1), INK_BLACK, 2)
 
 
+DOODLE_ASSETS_DIR = ROOT / "assets" / "studio_doodles"
+_DOODLE_QUAD_CACHE = {}
+
+
+def load_doodle_quadrant(sheet_name: str, quad_idx: int) -> tuple:
+    key = (sheet_name, int(quad_idx) % 4)
+    if key in _DOODLE_QUAD_CACHE:
+        return _DOODLE_QUAD_CACHE[key]
+    p = DOODLE_ASSETS_DIR / f"{sheet_name}.jpg"
+    if not p.exists():
+        blank_g = np.full((120, 120), 255, dtype=np.uint8)
+        blank_m = np.zeros((120, 120), dtype=np.uint8)
+        _DOODLE_QUAD_CACHE[key] = (blank_g, blank_m)
+        return blank_g, blank_m
+    gray = cv2.imread(str(p), cv2.IMREAD_GRAYSCALE)
+    H, W = gray.shape[:2]
+    r = (int(quad_idx) % 4) // 2
+    c = (int(quad_idx) % 4) % 2
+    pad_seam = 10
+    y0 = r * (H // 2) + (pad_seam if r == 1 else 6)
+    y1 = (r + 1) * (H // 2) - (pad_seam if r == 0 else 6)
+    x0 = c * (W // 2) + (pad_seam if c == 1 else 6)
+    x1 = (c + 1) * (W // 2) - (pad_seam if c == 0 else 6)
+    sub = gray[y0:y1, x0:x1]
+    ys, xs = np.where(sub < 200)
+    if len(xs) > 10:
+        bx0 = max(0, int(xs.min()) - 10)
+        by0 = max(0, int(ys.min()) - 10)
+        bx1 = min(sub.shape[1], int(xs.max()) + 11)
+        by1 = min(sub.shape[0], int(ys.max()) + 11)
+        q_gray = sub[by0:by1, bx0:bx1].copy()
+    else:
+        q_gray = sub.copy()
+    qh, qw = q_gray.shape[:2]
+    ink_bin = (q_gray < 210).astype(np.uint8) * 255
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    ink_closed = cv2.morphologyEx(ink_bin, cv2.MORPH_CLOSE, kernel)
+    ff_img = (ink_closed == 0).astype(np.uint8) * 255
+    mask = np.zeros((qh + 2, qw + 2), dtype=np.uint8)
+    for sx in range(0, qw, 4):
+        if ff_img[0, sx] == 255:
+            cv2.floodFill(ff_img, mask, (sx, 0), 128)
+        if ff_img[qh - 1, sx] == 255:
+            cv2.floodFill(ff_img, mask, (sx, qh - 1), 128)
+    for sy in range(0, qh, 4):
+        if ff_img[sy, 0] == 255:
+            cv2.floodFill(ff_img, mask, (0, sy), 128)
+        if ff_img[sy, qw - 1] == 255:
+            cv2.floodFill(ff_img, mask, (qw - 1, sy), 128)
+    cel_mask = (ff_img != 128).astype(np.uint8) * 255
+    _DOODLE_QUAD_CACHE[key] = (q_gray, cel_mask)
+    return q_gray, cel_mask
+
+
+def draw_studio_doodle_sprite(
+    canvas: np.ndarray,
+    sheet_name: str,
+    quad_idx: int,
+    cx: int,
+    cy: int,
+    max_w: int,
+    max_h: int,
+    tint_bgr: tuple = None,
+    tint_strength: float = 0.28,
+):
+    q_gray, cel_mask = load_doodle_quadrant(sheet_name, quad_idx)
+    qh, qw = q_gray.shape[:2]
+    if qw < 4 or qh < 4:
+        return
+    scale = min(float(max_w) / float(qw), float(max_h) / float(qh))
+    tw = max(8, int(round(qw * scale)))
+    th = max(8, int(round(qh * scale)))
+    interp = cv2.INTER_AREA if scale < 1.0 else cv2.INTER_LINEAR
+    g_res = cv2.resize(q_gray, (tw, th), interpolation=interp)
+    m_res = cv2.resize(cel_mask, (tw, th), interpolation=interp)
+    x0 = int(round(cx - tw / 2.0))
+    y0 = int(round(cy - th / 2.0))
+    x1, y1 = x0 + tw, y0 + th
+    H, W = canvas.shape[:2]
+    cx0, cy0 = max(0, x0), max(0, y0)
+    cx1, cy1 = min(W, x1), min(H, y1)
+    if cx1 <= cx0 or cy1 <= cy0:
+        return
+    sx0, sy0 = cx0 - x0, cy0 - y0
+    sx1, sy1 = sx0 + (cx1 - cx0), sy0 + (cy1 - cy0)
+    roi = canvas[cy0:cy1, cx0:cx1].astype(np.float32)
+    g_sub = g_res[sy0:sy1, sx0:sx1].astype(np.float32)
+    m_sub = (m_res[sy0:sy1, sx0:sx1].astype(np.float32) / 255.0)[..., None]
+    base_cel = np.array(PAPER_LIGHT, dtype=np.float32)
+    fill_col = base_cel * (1.0 - tint_strength) + np.array(tint_bgr, dtype=np.float32) * tint_strength if tint_bgr is not None else base_cel
+    roi = roi * (1.0 - m_sub) + fill_col * m_sub
+    ink_alpha = (np.clip((235.0 - g_sub) / 185.0, 0.0, 1.0) ** 0.85)[..., None]
+    roi = roi * (1.0 - ink_alpha) + np.array(INK_BLACK, dtype=np.float32) * ink_alpha
+    canvas[cy0:cy1, cx0:cx1] = np.clip(roi, 0, 255).astype(np.uint8)
+
+
+
 def archival_slice_to_qd_sketch(bgr_img: np.ndarray) -> np.ndarray:
     """Converts a raw archival photographic slit-scan slice into a Quick, Draw! graphite sketch on cream paper."""
     h, w = bgr_img.shape[:2]
@@ -609,6 +706,8 @@ def render_slitscan_tomography_atlas(records):
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
     cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+    draw_studio_doodle_sprite(canvas, "agent_nib_keys", 0, cols * cell_w - 135, header_h // 2, 64, 66, tint_bgr=GOUACHE_CORAL, tint_strength=0.35)
+    draw_studio_doodle_sprite(canvas, "agent_chime_keys", 0, cols * cell_w - 55, header_h // 2, 64, 66, tint_bgr=GOUACHE_MINT, tint_strength=0.35)
 
     text_overlays = []
 
@@ -715,6 +814,8 @@ def render_3d_glass_prism_atlas(records):
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
     cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+    draw_studio_doodle_sprite(canvas, "agent_blueline_keys", 1, cols * cell_w - 135, header_h // 2, 64, 66, tint_bgr=GOUACHE_BLUE, tint_strength=0.35)
+    draw_studio_doodle_sprite(canvas, "studio_apparatus_keys", 1, cols * cell_w - 55, header_h // 2, 64, 66, tint_bgr=GOUACHE_AMBER, tint_strength=0.35)
 
     text_overlays = []
 
@@ -802,6 +903,8 @@ def render_cinemetrics_torus_atlas(records):
 
     cv2.rectangle(canvas, (0, 0), (cols * cell_w, header_h), GOUACHE_AMBER, -1)
     cv2.line(canvas, (0, header_h - 2), (cols * cell_w, header_h - 2), INK_BLACK, 3)
+    draw_studio_doodle_sprite(canvas, "agent_celinker_keys", 0, cols * cell_w - 135, header_h // 2, 64, 66, tint_bgr=GOUACHE_AMBER, tint_strength=0.35)
+    draw_studio_doodle_sprite(canvas, "agent_chime_keys", 3, cols * cell_w - 55, header_h // 2, 64, 66, tint_bgr=GOUACHE_MINT, tint_strength=0.35)
 
     text_overlays = []
 
@@ -880,6 +983,8 @@ def render_manovich_montage_grid(records):
 
     cv2.rectangle(canvas, (0, 0), (W, header_h), GOUACHE_AMBER, -1)
     cv2.line(canvas, (0, header_h - 2), (W, header_h - 2), INK_BLACK, 3)
+    draw_studio_doodle_sprite(canvas, "agent_sprocket_keys", 0, W - 135, header_h // 2, 64, 66, tint_bgr=GOUACHE_BLUE, tint_strength=0.35)
+    draw_studio_doodle_sprite(canvas, "studio_apparatus_keys", 0, W - 55, header_h // 2, 64, 66, tint_bgr=GOUACHE_AMBER, tint_strength=0.35)
 
     macro_intensities = []
     macro_dL = []

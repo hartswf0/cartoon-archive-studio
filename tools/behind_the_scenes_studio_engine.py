@@ -764,8 +764,145 @@ def load_shot_frames(slug: str):
 
 
 # =============================================================================
-# ORIGINAL CHARACTER ART: THE 5 AGENT ANIMATORS OF SECONDHAND STUDIOS
+# HAND-DRAWN QUICK, DRAW! DOODLE SPRITE ENGINE FOR AGENTS & STUDIO APPARATUS
 # =============================================================================
+DOODLE_ASSETS_DIR = ROOT / "assets" / "studio_doodles"
+_DOODLE_QUAD_CACHE = {}
+
+
+def load_doodle_quadrant(sheet_name: str, quad_idx: int) -> tuple:
+    """
+    Loads one of the 4 quadrants (`0: Top-Left`, `1: Top-Right`, `2: Bottom-Left`,
+    `3: Bottom-Right`) from `assets/studio_doodles/<sheet_name>.jpg`, crops tightly
+    to its ink bounding box, and computes the flood-filled opaque cel silhouette mask
+    so background lines never bleed through the hand-drawn character or machine.
+    """
+    key = (sheet_name, int(quad_idx) % 4)
+    if key in _DOODLE_QUAD_CACHE:
+        return _DOODLE_QUAD_CACHE[key]
+
+    p = DOODLE_ASSETS_DIR / f"{sheet_name}.jpg"
+    if not p.exists():
+        blank_g = np.full((120, 120), 255, dtype=np.uint8)
+        blank_m = np.zeros((120, 120), dtype=np.uint8)
+        _DOODLE_QUAD_CACHE[key] = (blank_g, blank_m)
+        return blank_g, blank_m
+
+    gray = cv2.imread(str(p), cv2.IMREAD_GRAYSCALE)
+    H, W = gray.shape[:2]
+    r = (int(quad_idx) % 4) // 2
+    c = (int(quad_idx) % 4) % 2
+    pad_seam = 10
+    y0 = r * (H // 2) + (pad_seam if r == 1 else 6)
+    y1 = (r + 1) * (H // 2) - (pad_seam if r == 0 else 6)
+    x0 = c * (W // 2) + (pad_seam if c == 1 else 6)
+    x1 = (c + 1) * (W // 2) - (pad_seam if c == 0 else 6)
+
+    sub = gray[y0:y1, x0:x1]
+    ys, xs = np.where(sub < 200)
+    if len(xs) > 10:
+        bx0 = max(0, int(xs.min()) - 10)
+        by0 = max(0, int(ys.min()) - 10)
+        bx1 = min(sub.shape[1], int(xs.max()) + 11)
+        by1 = min(sub.shape[0], int(ys.max()) + 11)
+        q_gray = sub[by0:by1, bx0:bx1].copy()
+    else:
+        q_gray = sub.copy()
+
+    # Flood-fill from outer border on a binary threshold (`q_gray > 210`) to find exterior background
+    qh, qw = q_gray.shape[:2]
+    # Close tiny 1-2px gaps in outer ink contour before flood-filling exterior
+    ink_bin = (q_gray < 210).astype(np.uint8) * 255
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    ink_closed = cv2.morphologyEx(ink_bin, cv2.MORPH_CLOSE, kernel)
+    ff_img = (ink_closed == 0).astype(np.uint8) * 255
+    mask = np.zeros((qh + 2, qw + 2), dtype=np.uint8)
+    for sx in range(0, qw, 4):
+        if ff_img[0, sx] == 255:
+            cv2.floodFill(ff_img, mask, (sx, 0), 128)
+        if ff_img[qh - 1, sx] == 255:
+            cv2.floodFill(ff_img, mask, (sx, qh - 1), 128)
+    for sy in range(0, qh, 4):
+        if ff_img[sy, 0] == 255:
+            cv2.floodFill(ff_img, mask, (0, sy), 128)
+        if ff_img[sy, qw - 1] == 255:
+            cv2.floodFill(ff_img, mask, (qw - 1, sy), 128)
+
+    # Interior opaque cel mask is everything NOT reached by exterior flood-fill (128)
+    cel_mask = (ff_img != 128).astype(np.uint8) * 255
+    _DOODLE_QUAD_CACHE[key] = (q_gray, cel_mask)
+    return q_gray, cel_mask
+
+
+def draw_studio_doodle_sprite(
+    canvas: np.ndarray,
+    sheet_name: str,
+    quad_idx: int,
+    cx: int,
+    cy: int,
+    max_w: int,
+    max_h: int,
+    tint_bgr: tuple = None,
+    tint_strength: float = 0.28,
+    flip_x: bool = False,
+):
+    """
+    Renders a high-craft hand-drawn Quick, Draw! doodle quadrant (`sheet_name`, `quad_idx`)
+    centered at `(cx, cy)` inside `(max_w, max_h)` with strict aspect-ratio lock,
+    opaque warm gouache cel fill, and anti-aliased Speedball India ink line strokes.
+    """
+    q_gray, cel_mask = load_doodle_quadrant(sheet_name, quad_idx)
+    if flip_x:
+        q_gray = cv2.flip(q_gray, 1)
+        cel_mask = cv2.flip(cel_mask, 1)
+
+    qh, qw = q_gray.shape[:2]
+    if qw < 4 or qh < 4:
+        return
+    scale = min(float(max_w) / float(qw), float(max_h) / float(qh))
+    tw = max(8, int(round(qw * scale)))
+    th = max(8, int(round(qh * scale)))
+
+    interp = cv2.INTER_AREA if scale < 1.0 else cv2.INTER_LINEAR
+    g_res = cv2.resize(q_gray, (tw, th), interpolation=interp)
+    m_res = cv2.resize(cel_mask, (tw, th), interpolation=interp)
+
+    x0 = int(round(cx - tw / 2.0))
+    y0 = int(round(cy - th / 2.0))
+    x1 = x0 + tw
+    y1 = y0 + th
+
+    H, W = canvas.shape[:2]
+    cx0, cy0 = max(0, x0), max(0, y0)
+    cx1, cy1 = min(W, x1), min(H, y1)
+    if cx1 <= cx0 or cy1 <= cy0:
+        return
+
+    sx0, sy0 = cx0 - x0, cy0 - y0
+    sx1, sy1 = sx0 + (cx1 - cx0), sy0 + (cy1 - cy0)
+
+    roi = canvas[cy0:cy1, cx0:cx1].astype(np.float32)
+    g_sub = g_res[sy0:sy1, sx0:sx1].astype(np.float32)
+    m_sub = (m_res[sy0:sy1, sx0:sx1].astype(np.float32) / 255.0)[..., None]
+
+    # 1. Opaque Warm Cel Interior Fill (prevents background lines bleeding through character/prop)
+    base_cel = np.array(BGR_GUTTER, dtype=np.float32)
+    if tint_bgr is not None:
+        t_arr = np.array(tint_bgr, dtype=np.float32)
+        fill_col = base_cel * (1.0 - tint_strength) + t_arr * tint_strength
+    else:
+        fill_col = base_cel
+    roi = roi * (1.0 - m_sub) + fill_col * m_sub
+
+    # 2. Crisp Anti-Aliased Hand-Drawn Black Marker Ink Strokes (`BGR_INK`)
+    ink_alpha = np.clip((235.0 - g_sub) / 185.0, 0.0, 1.0) ** 0.85
+    ink_alpha = ink_alpha[..., None]
+    ink_col = np.array(BGR_INK, dtype=np.float32)
+    roi = roi * (1.0 - ink_alpha) + ink_col * ink_alpha
+
+    canvas[cy0:cy1, cx0:cx1] = np.clip(roi, 0, 255).astype(np.uint8)
+
+
 def draw_agent_animator(
     img: np.ndarray,
     agent_id: str,
@@ -774,192 +911,36 @@ def draw_agent_animator(
     scale: float = 1.0,
     pose: int = 0,
     dark_bg: bool = False,
+    flip_x: bool = False,
 ):
     """
     Draws one of our 5 bespoke Agent Animator characters (`nib`, `blueline`, `celinker`,
-    `sprocket`, `chime`) with animated arm/tool poses (`pose` in 0..3) so we see them
-    physically drawing, cranking, projecting, and striking Foley cues!
+    `sprocket`, `chime`) using their genuine hand-drawn 4-keyframe Quick, Draw! doodle
+    sheets (`assets/studio_doodles/agent_<id>_keys.jpg`), cycling through keyframes K1..K4!
     """
     ag = STUDIO_AGENTS.get(agent_id, STUDIO_AGENTS["nib"])
-    col_bgr = ag["color_bgr"]
-    pale_bgr = ag["pale_bgr"]
-    outline_bgr = BGR_GUTTER if dark_bg else BGR_INK
-
-    def S(val: float) -> int:
-        return int(round(val * scale))
-
-    # 1. Cartoon Studio Smock / Apron Torso
-    tx0, tx1 = cx - S(46), cx + S(46)
-    ty0, ty1 = cy + S(24), cy + S(104)
-    shirt_pts = np.array([
-        [cx - S(40), ty0],
-        [cx + S(40), ty0],
-        [tx1 + S(4), ty1],
-        [tx0 - S(4), ty1],
-    ], dtype=np.int32)
-    cv2.fillConvexPoly(img, shirt_pts, BGR_GUTTER, cv2.LINE_AA)
-    cv2.polylines(img, [shirt_pts], True, BGR_INK, max(2, S(3)), cv2.LINE_AA)
-
-    apron_pts = np.array([
-        [cx - S(30), ty0 + S(4)],
-        [cx + S(30), ty0 + S(4)],
-        [tx1 - S(4), ty1],
-        [tx0 + S(4), ty1],
-    ], dtype=np.int32)
-    cv2.fillConvexPoly(img, apron_pts, col_bgr, cv2.LINE_AA)
-    cv2.polylines(img, [apron_pts], True, BGR_INK, max(2, S(3)), cv2.LINE_AA)
-
-    cv2.line(img, (cx - S(20), ty0), (cx - S(16), ty0 + S(24)), BGR_INK, max(2, S(3)), cv2.LINE_AA)
-    cv2.line(img, (cx + S(20), ty0), (cx + S(16), ty0 + S(24)), BGR_INK, max(2, S(3)), cv2.LINE_AA)
-    cv2.rectangle(img, (cx - S(16), ty0 + S(24)), (cx + S(16), ty0 + S(52)), pale_bgr, -1)
-    cv2.rectangle(img, (cx - S(16), ty0 + S(24)), (cx + S(16), ty0 + S(52)), BGR_INK, max(1, S(2)))
-
-    if agent_id == "nib":
-        cv2.circle(img, (cx, ty0 + S(38)), S(9), BGR_AMBER, -1, cv2.LINE_AA)
-        cv2.circle(img, (cx, ty0 + S(38)), S(9), BGR_INK, max(1, S(2)), cv2.LINE_AA)
-        cv2.circle(img, (cx, ty0 + S(38)), S(3), BGR_INK, -1, cv2.LINE_AA)
-    elif agent_id == "blueline":
-        for kx in (-9, -3, 3, 9):
-            cv2.line(img, (cx + S(kx), ty0 + S(30)), (cx + S(kx), ty0 + S(46)), BGR_BLUE, max(1, S(2)))
-    elif agent_id == "celinker":
-        for dx, dc in [(-8, BGR_RED), (0, BGR_AMBER), (8, BGR_GREEN)]:
-            cv2.circle(img, (cx + S(dx), ty0 + S(38)), S(4), dc, -1, cv2.LINE_AA)
-            cv2.circle(img, (cx + S(dx), ty0 + S(38)), S(4), BGR_INK, 1, cv2.LINE_AA)
-    elif agent_id == "sprocket":
-        chk = np.array([[cx - S(7), ty0 + S(38)], [cx - S(2), ty0 + S(45)], [cx + S(9), ty0 + S(31)]], dtype=np.int32)
-        cv2.polylines(img, [chk], False, BGR_GREEN, max(2, S(3)), cv2.LINE_AA)
-    else:
-        cv2.circle(img, (cx, ty0 + S(38)), S(9), BGR_GUTTER, -1, cv2.LINE_AA)
-        cv2.circle(img, (cx, ty0 + S(38)), S(9), BGR_INK, max(1, S(2)), cv2.LINE_AA)
-        cv2.line(img, (cx, ty0 + S(38)), (cx + S(5), ty0 + S(33)), BGR_RED, max(1, S(2)), cv2.LINE_AA)
-
-    # 2. Animated Gloved Cartoon Arm & Role Tool Prop
-    arm_swings = [-12, -4, 6, -6]
-    arm_lift = S(arm_swings[pose % 4])
-    arm_reach = S(6 if (pose % 2 == 1) else 0)
-    hx = cx + S(60) + arm_reach
-    hy = cy + S(30) + arm_lift
-    cv2.line(img, (cx + S(34), ty0 + S(16)), (hx, hy), BGR_GUTTER, max(5, S(10)), cv2.LINE_AA)
-    cv2.line(img, (cx + S(34), ty0 + S(16)), (hx, hy), BGR_INK, max(2, S(3)), cv2.LINE_AA)
-    cv2.circle(img, (hx + S(4), hy - S(2)), S(10), BGR_GUTTER, -1, cv2.LINE_AA)
-    cv2.circle(img, (hx + S(4), hy - S(2)), S(10), BGR_INK, max(1, S(2)), cv2.LINE_AA)
-
-    if agent_id == "nib":
-        cv2.line(img, (hx + S(5), hy - S(4)), (hx + S(28), hy - S(30)), BGR_INK, max(2, S(4)), cv2.LINE_AA)
-        nib_tip = np.array([
-            [hx + S(24), hy - S(26)],
-            [hx + S(36), hy - S(40)],
-            [hx + S(30), hy - S(22)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, nib_tip, BGR_AMBER, cv2.LINE_AA)
-        cv2.polylines(img, [nib_tip], True, BGR_INK, max(1, S(2)), cv2.LINE_AA)
-    elif agent_id == "blueline":
-        cv2.line(img, (hx + S(4), hy - S(4)), (hx + S(26), hy - S(28)), BGR_BLUE, max(2, S(5)), cv2.LINE_AA)
-        cv2.circle(img, (hx + S(28), hy - S(30)), S(3), BGR_RED, -1, cv2.LINE_AA)
-    elif agent_id == "celinker":
-        cv2.line(img, (hx + S(4), hy - S(4)), (hx + S(25), hy - S(26)), BGR_INK, max(2, S(4)), cv2.LINE_AA)
-        cv2.circle(img, (hx + S(28), hy - S(29)), S(6), BGR_AMBER, -1, cv2.LINE_AA)
-        cv2.circle(img, (hx + S(28), hy - S(29)), S(6), BGR_INK, max(1, S(2)), cv2.LINE_AA)
-    elif agent_id == "sprocket":
-        cv2.rectangle(img, (hx + S(6), hy - S(22)), (hx + S(26), hy - S(9)), BGR_GREEN, -1)
-        cv2.rectangle(img, (hx + S(6), hy - S(22)), (hx + S(26), hy - S(9)), BGR_INK, max(1, S(2)))
-    else:
-        cv2.line(img, (hx + S(5), hy - S(4)), (hx + S(16), hy - S(16)), BGR_AMBER, max(2, S(3)), cv2.LINE_AA)
-        cv2.line(img, (hx + S(12), hy - S(14)), (hx + S(22), hy - S(26)), BGR_AMBER, max(2, S(2)), cv2.LINE_AA)
-        cv2.line(img, (hx + S(18), hy - S(10)), (hx + S(28), hy - S(22)), BGR_AMBER, max(2, S(2)), cv2.LINE_AA)
-
-    # 3. Cartoon Neck & Round Inkwell-Toon Head
-    cv2.rectangle(img, (cx - S(8), cy + S(13)), (cx + S(8), cy + S(26)), BGR_GUTTER, -1)
-    cv2.rectangle(img, (cx - S(8), cy + S(13)), (cx + S(8), cy + S(26)), BGR_INK, max(1, S(2)))
-
-    cv2.ellipse(img, (cx, cy - S(6)), (S(28), S(30)), 0, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
-    cv2.ellipse(img, (cx, cy - S(6)), (S(28), S(30)), 0, 0, 360, BGR_INK, max(2, S(3)), cv2.LINE_AA)
-
-    # 4. Classic 1930s Pie-Cut Cartoon Eyes & Expressive Smile
-    for ex in (cx - S(10), cx + S(11)):
-        ey = cy - S(7)
-        cv2.ellipse(img, (ex, ey), (S(6), S(8)), 0, 0, 360, (255, 255, 255), -1, cv2.LINE_AA)
-        cv2.ellipse(img, (ex, ey), (S(6), S(8)), 0, 0, 360, BGR_INK, max(1, S(2)), cv2.LINE_AA)
-        cv2.ellipse(img, (ex + S(1), ey), (S(4), S(5)), 0, 0, 360, BGR_INK, -1, cv2.LINE_AA)
-        pie = np.array([[ex + S(1), ey], [ex + S(5), ey - S(4)], [ex + S(5), ey - S(1)]], dtype=np.int32)
-        cv2.fillConvexPoly(img, pie, (255, 255, 255), cv2.LINE_AA)
-
-    cv2.ellipse(img, (cx + S(1), cy + S(3)), (S(4), S(3)), 0, 0, 360, col_bgr, -1, cv2.LINE_AA)
-    cv2.ellipse(img, (cx + S(1), cy + S(3)), (S(4), S(3)), 0, 0, 360, BGR_INK, max(1, S(2)), cv2.LINE_AA)
-    cv2.ellipse(img, (cx + S(1), cy + S(12)), (S(9), S(5)), 0, 10, 170, BGR_INK, max(2, S(3)), cv2.LINE_AA)
-
-    # 5. Iconic Agent Animator Headgear
-    if agent_id == "nib":
-        band = np.array([
-            [cx - S(29), cy - S(22)],
-            [cx + S(29), cy - S(22)],
-            [cx + S(25), cy - S(32)],
-            [cx - S(25), cy - S(32)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, band, BGR_RED, cv2.LINE_AA)
-        cv2.polylines(img, [band], True, outline_bgr, max(1, S(2)), cv2.LINE_AA)
-        nib_crown = np.array([
-            [cx - S(20), cy - S(32)],
-            [cx - S(24), cy - S(48)],
-            [cx, cy - S(70)],
-            [cx + S(24), cy - S(48)],
-            [cx + S(20), cy - S(32)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, nib_crown, BGR_AMBER, cv2.LINE_AA)
-        cv2.polylines(img, [nib_crown], True, outline_bgr, max(2, S(3)), cv2.LINE_AA)
-        cv2.line(img, (cx, cy - S(69)), (cx, cy - S(45)), BGR_INK, max(2, S(2)), cv2.LINE_AA)
-        cv2.circle(img, (cx, cy - S(45)), S(4), BGR_INK, -1, cv2.LINE_AA)
-
-    elif agent_id == "blueline":
-        visor = np.array([
-            [cx - S(30), cy - S(20)],
-            [cx + S(35), cy - S(16)],
-            [cx + S(26), cy - S(32)],
-            [cx - S(26), cy - S(32)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, visor, BGR_BLUE, cv2.LINE_AA)
-        cv2.polylines(img, [visor], True, outline_bgr, max(2, S(2)), cv2.LINE_AA)
-        cv2.ellipse(img, (cx, cy - S(30)), (S(23), S(13)), 0, 180, 360, BGR_BLUE_PALE, -1, cv2.LINE_AA)
-        cv2.ellipse(img, (cx, cy - S(30)), (S(23), S(13)), 0, 180, 360, outline_bgr, max(1, S(2)), cv2.LINE_AA)
-        cv2.line(img, (cx - S(32), cy - S(10)), (cx - S(16), cy - S(40)), BGR_AMBER, max(2, S(4)), cv2.LINE_AA)
-
-    elif agent_id == "celinker":
-        beret = np.array([
-            [cx - S(30), cy - S(22)],
-            [cx - S(35), cy - S(39)],
-            [cx - S(5), cy - S(46)],
-            [cx + S(32), cy - S(35)],
-            [cx + S(26), cy - S(22)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, beret, BGR_AMBER, cv2.LINE_AA)
-        cv2.polylines(img, [beret], True, outline_bgr, max(2, S(2)), cv2.LINE_AA)
-        cv2.circle(img, (cx + S(12), cy - S(7)), S(11), BGR_BLUE_PALE, 2, cv2.LINE_AA)
-        cv2.circle(img, (cx + S(12), cy - S(7)), S(11), BGR_INK, max(1, S(2)), cv2.LINE_AA)
-
-    elif agent_id == "sprocket":
-        for rx in (cx - S(16), cx + S(16)):
-            ry = cy - S(41)
-            cv2.circle(img, (rx, ry), S(13), BGR_PAPER_DARK, -1, cv2.LINE_AA)
-            cv2.circle(img, (rx, ry), S(13), outline_bgr, max(2, S(2)), cv2.LINE_AA)
-            cv2.circle(img, (rx, ry), S(4), BGR_INK, -1, cv2.LINE_AA)
-        cap_band = np.array([
-            [cx - S(26), cy - S(22)],
-            [cx + S(26), cy - S(22)],
-            [cx + S(22), cy - S(34)],
-            [cx - S(22), cy - S(34)],
-        ], dtype=np.int32)
-        cv2.fillConvexPoly(img, cap_band, BGR_GREEN, cv2.LINE_AA)
-        cv2.polylines(img, [cap_band], True, outline_bgr, max(1, S(2)), cv2.LINE_AA)
-        cv2.circle(img, (cx - S(10), cy - S(7)), S(11), BGR_AMBER, max(1, S(2)), cv2.LINE_AA)
-
-    else:
-        cv2.ellipse(img, (cx, cy - S(10)), (S(32), S(30)), 0, 180, 360, outline_bgr, max(2, S(4)), cv2.LINE_AA)
-        for hx_cup in (cx - S(30), cx + S(30)):
-            cv2.ellipse(img, (hx_cup, cy - S(4)), (S(7), S(13)), 0, 0, 360, BGR_RED, -1, cv2.LINE_AA)
-            cv2.ellipse(img, (hx_cup, cy - S(4)), (S(7), S(13)), 0, 0, 360, outline_bgr, max(1, S(2)), cv2.LINE_AA)
-        cv2.line(img, (cx, cy - S(40)), (cx, cy - S(54)), outline_bgr, max(2, S(2)), cv2.LINE_AA)
-        cv2.circle(img, (cx, cy - S(56)), S(5), BGR_AMBER, -1, cv2.LINE_AA)
-        cv2.circle(img, (cx, cy - S(56)), S(5), outline_bgr, max(1, S(2)), cv2.LINE_AA)
+    sheet_map = {
+        "nib": "agent_nib_keys",
+        "blueline": "agent_blueline_keys",
+        "celinker": "agent_celinker_keys",
+        "sprocket": "agent_sprocket_keys",
+        "chime": "agent_chime_keys",
+    }
+    sheet_name = sheet_map.get(agent_id, "agent_nib_keys")
+    max_w = int(round(176 * scale))
+    max_h = int(round(184 * scale))
+    draw_studio_doodle_sprite(
+        img,
+        sheet_name=sheet_name,
+        quad_idx=int(pose) % 4,
+        cx=cx,
+        cy=cy + int(round(12 * scale)),
+        max_w=max_w,
+        max_h=max_h,
+        tint_bgr=ag["pale_bgr"],
+        tint_strength=0.34,
+        flip_x=flip_x,
+    )
 
 
 # =============================================================================
@@ -994,7 +975,8 @@ def render_single_panel_fullscreen(
     # =========================================================================
     # SCENE 1 (ROOM 1): THE STORYBOARD & ARCHIVAL MOVIOLA ROOM
     # Lead Agent + Co-Worker Agent study the live 4:3 Archival Moviola Monitor
-    # (`240x180`, exact 4:3) and pin/sketch the 4 keyframes onto the Corkboard Wall!
+    # (`220x165`, exact 4:3) beside the hand-drawn Moviola Console & Film Rack
+    # while pinning the 4 keyframes onto the Corkboard Storyboard Wall!
     # =========================================================================
     if panel_num == 1:
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
@@ -1002,16 +984,25 @@ def render_single_panel_fullscreen(
         cv2.rectangle(canvas, (bx0, by1 - 82), (bx1, by1), BGR_PAPER_DARK, -1)
         cv2.line(canvas, (bx0, by1 - 82), (bx1, by1 - 82), BGR_INK, 3)
 
-        # Center-Right: Live 4:3 Archival Moviola Console (`240x180`, exact 4:3!)
-        mx0, my0 = 490, by0 + cap_h + 44
+        # Left Studio Wall Prop: Hand-Drawn 35mm Film Canister Vault Shelf & Reels (`studio_room_props_keys` Q0)
+        draw_studio_doodle_sprite(
+            canvas, "studio_room_props_keys", 0,
+            cx=bx0 + 78, cy=by1 - 155, max_w=118, max_h=142,
+            tint_bgr=BGR_AMBER_PALE, tint_strength=0.28,
+        )
+
+        # Center-Left Prop: Hand-Drawn Wheeled Twin-Reel Moviola Console (`studio_apparatus_keys` Q0)
+        draw_studio_doodle_sprite(
+            canvas, "studio_apparatus_keys", 0,
+            cx=435, cy=by1 - 135, max_w=145, max_h=175,
+            tint_bgr=BGR_BLUE_PALE, tint_strength=0.30,
+        )
+
+        # Center-Right: Live 4:3 Archival Moviola Screen (`220x165`, exact 4:3!)
+        mx0, my0 = 492, by0 + cap_h + 40
         mw, mh = 220, 165  # 220 / 165 = 4:3 exact!
-        # Moviola cabinet housing & top film reels
-        cv2.circle(canvas, (mx0 + 55, my0 - 16), 18, BGR_INK, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (mx0 + 55, my0 - 16), 14, BGR_PAPER_DARK, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (mx0 + 165, my0 - 16), 18, BGR_INK, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (mx0 + 165, my0 - 16), 14, BGR_PAPER_DARK, -1, cv2.LINE_AA)
-        cv2.rectangle(canvas, (mx0 - 10, my0 - 8), (mx0 + mw + 10, my0 + mh + 28), BGR_BLUE_PALE, -1)
-        cv2.rectangle(canvas, (mx0 - 10, my0 - 8), (mx0 + mw + 10, my0 + mh + 28), BGR_INK, 4)
+        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 26), BGR_BLUE_PALE, -1)
+        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 26), BGR_INK, 4)
 
         arch_fr = arch_sketches[shot_frame_idx % len(arch_sketches)]
         mov_thumb = cv2.resize(arch_fr, (mw, mh), interpolation=cv2.INTER_AREA)
@@ -1036,16 +1027,15 @@ def render_single_panel_fullscreen(
             k_im = cv2.resize(blue_roughs[k_frames[pk_i]], (kw_s, kh_s), interpolation=cv2.INTER_AREA)
             canvas[cy_k:cy_k + kh_s, cx_k:cx_k + kw_s] = k_im
             cv2.rectangle(canvas, (cx_k, cy_k), (cx_k + kw_s, cy_k + kh_s), BGR_INK, 2)
-            # Red push-pin at top of storyboard card
             cv2.circle(canvas, (cx_k + kw_s // 2, cy_k + 4), 4, BGR_RED, -1, cv2.LINE_AA)
 
         # Lead Agent Animator on Left + Co-Worker Agent Animator at Storyboard/Moviola on Right!
-        draw_agent_animator(canvas, lead_id, bx0 + 148, by1 - 138, scale=1.18, pose=boil_phase, dark_bg=False)
-        draw_agent_animator(canvas, cameo_id, 785, by1 - 125, scale=0.88, pose=(boil_phase + 1) % 4, dark_bg=False)
+        draw_agent_animator(canvas, lead_id, bx0 + 228, by1 - 142, scale=1.18, pose=boil_phase, dark_bg=False)
+        draw_agent_animator(canvas, cameo_id, 785, by1 - 135, scale=1.02, pose=(boil_phase + 2) % 4, dark_bg=False)
 
     # =========================================================================
     # SCENE 2 (ROOM 2): THE 4-DESK WORKTREE DRAFTING BULLPEN
-    # Four Agent Animators sit at 4 tilted Lightbox Desks (`DESK K1..K4`).
+    # Four Agent Animators sit at 4 hand-drawn Tilted Lightbox Desks (`DESK K1..K4`).
     # Above each desk is their `4:3` Keyframe Sheet (`192x144`, exact 4:3!)
     # progressing live from Blue Pencil Rough -> Black India Ink -> Gouache Cel!
     # =========================================================================
@@ -1055,6 +1045,7 @@ def render_single_panel_fullscreen(
         cv2.line(canvas, (bx0, by1 - 135), (bx1, by1 - 135), BGR_INK, 3)
 
         desk_agents = ["blueline", "celinker", "nib", "sprocket"]
+        desk_poses = [0, 1, 0, 2]
         key_indices = [0, 10, 21, 32]
         kw, kh = 192, 144  # 192 / 144 = 4:3 exact!
 
@@ -1085,38 +1076,29 @@ def render_single_panel_fullscreen(
             for px_off in (48, 96, 144):
                 cv2.circle(canvas, (dx0 + px_off, dy0 + 6), 4, BGR_INK, -1, cv2.LINE_AA)
 
-            # 2. Tilted Wooden Animator Lightbox Desk + Glowing Frosted Disc below the sheet
-            desk_y = dy0 + kh + 24
-            # Warm projection rays rising from the glowing lightbox disc to the 4:3 drawing sheet
-            cv2.line(canvas, (dx0 + kw // 2 - 30, desk_y + 38), (dx0 + 12, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
-            cv2.line(canvas, (dx0 + kw // 2 + 30, desk_y + 38), (dx0 + kw - 12, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
-            desk_poly = np.array([
-                [dx0 + 8, desk_y + 42],
-                [dx0 + kw - 24, desk_y + 8],
-                [dx0 + kw + 4, desk_y + 56],
-                [dx0 + 28, desk_y + 82],
-            ], dtype=np.int32)
-            cv2.fillConvexPoly(canvas, desk_poly + np.array([3, 3]), BGR_INK, cv2.LINE_AA)
-            cv2.fillConvexPoly(canvas, desk_poly, BGR_AMBER_PALE, cv2.LINE_AA)
-            cv2.polylines(canvas, [desk_poly], True, BGR_INK, 3, cv2.LINE_AA)
-            # Glowing circular animation lightbox disc on desk
-            cv2.ellipse(canvas, (dx0 + kw // 2, desk_y + 44), (36, 18), -10, 0, 360, BGR_GUTTER, -1, cv2.LINE_AA)
-            cv2.ellipse(canvas, (dx0 + kw // 2, desk_y + 44), (36, 18), -10, 0, 360, BGR_INK, 2, cv2.LINE_AA)
-            # Registration pegbar on the lightbox desk itself
-            cv2.line(canvas, (dx0 + kw // 2 - 22, desk_y + 30), (dx0 + kw // 2 + 22, desk_y + 22), BGR_INK, 3, cv2.LINE_AA)
+            # Warm projection lines connecting the lightbox desk up to the 4:3 keyframe sheet
+            cv2.line(canvas, (dx0 + 124, by1 - 152), (dx0 + 16, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
+            cv2.line(canvas, (dx0 + 152, by1 - 152), (dx0 + kw - 12, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
 
-            # 3. The Agent Animator actively drawing at this Worktree Lightbox Desk!
+            # 2. Hand-Drawn Tilted Animator Lightbox Drafting Desk (`studio_apparatus_keys` Q1)
+            draw_studio_doodle_sprite(
+                canvas, "studio_apparatus_keys", 1,
+                cx=dx0 + 138, cy=by1 - 134, max_w=128, max_h=148,
+                tint_bgr=BGR_AMBER_PALE, tint_strength=0.35,
+            )
+
+            # 3. Hand-Drawn Agent Animator actively drawing at this Worktree Lightbox Desk!
             ag_id = desk_agents[d_i]
             draw_agent_animator(
                 canvas, ag_id,
-                cx=dx0 + 52, cy=by1 - 88,
-                scale=0.68, pose=(boil_phase + d_i) % 4, dark_bg=False,
+                cx=dx0 + 56, cy=by1 - 118,
+                scale=0.82, pose=(desk_poses[d_i] + boil_phase) % 4, dark_bg=False,
             )
 
     # =========================================================================
     # SCENE 3 (ROOM 3): THE 7-LEVEL MULTIPLANE CAMERA TOWER
     # `Cel-Inker` loads the 3 separated glass depth platens (`P6 Sky`, `P4 Mid`, `P2 Hero`)
-    # into the vertical Multiplane Tower while `Nib` turns the rotating brass crank wheel,
+    # into the hand-drawn Multiplane Camera Tower while `Nib` cranks the camera wheel,
     # and the `4:3` Camera Viewfinder Monitor (`340x255`, exact 4:3!) composites them live!
     # =========================================================================
     elif panel_num == 3:
@@ -1124,71 +1106,38 @@ def render_single_panel_fullscreen(
         cv2.rectangle(canvas, (bx0, by1 - 92), (bx1, by1), BGR_PAPER_DARK, -1)
         cv2.line(canvas, (bx0, by1 - 92), (bx1, by1 - 92), BGR_INK, 3)
 
-        # Left-Center: The 7-Level Multiplane Camera Tower (`x: 150..465, y: 120..495`)
-        tx_l, tx_r = 168, 442
-        cv2.line(canvas, (tx_l, by0 + cap_h + 18), (tx_l, by1 - 24), BGR_INK, 8, cv2.LINE_AA)
-        cv2.line(canvas, (tx_r, by0 + cap_h + 18), (tx_r, by1 - 24), BGR_INK, 8, cv2.LINE_AA)
-        # Crossbeams
-        for cby in range(by0 + cap_h + 30, by1 - 30, 48):
-            cv2.line(canvas, (tx_l - 6, cby), (tx_l + 6, cby), BGR_AMBER, 3)
-            cv2.line(canvas, (tx_r - 6, cby), (tx_r + 6, cby), BGR_AMBER, 3)
+        # Center-Left: Hand-Drawn 7-Level Multiplane Camera Tower Rig (`studio_apparatus_keys` Q2)
+        cam_cx = 298
+        cam_y = by0 + cap_h + 38
+        draw_studio_doodle_sprite(
+            canvas, "studio_apparatus_keys", 2,
+            cx=cam_cx, cy=by0 + cap_h + 215, max_w=265, max_h=390,
+            tint_bgr=BGR_AMBER_PALE, tint_strength=0.25,
+        )
 
-        # Overhead Multiplane Camera Lens Unit at Top of Tower pointing straight down
-        cam_cx = (tx_l + tx_r) // 2
-        cam_y = by0 + cap_h + 36
-        cv2.rectangle(canvas, (cam_cx - 48, cam_y - 20), (cam_cx + 48, cam_y + 22), BGR_INK, -1)
-        cv2.rectangle(canvas, (cam_cx - 44, cam_y - 16), (cam_cx + 44, cam_y + 18), BGR_AMBER, -1)
-        # Lens cone pointing down
-        lens_pts = np.array([[cam_cx - 20, cam_y + 22], [cam_cx + 20, cam_y + 22], [cam_cx + 30, cam_y + 44], [cam_cx - 30, cam_y + 44]], dtype=np.int32)
-        cv2.fillConvexPoly(canvas, lens_pts, BGR_INK, cv2.LINE_AA)
-
-        # Golden optical exposure rays shining down through the 3 glass platens
-        cv2.line(canvas, (cam_cx - 22, cam_y + 44), (tx_l + 18, by1 - 48), BGR_AMBER, 2, cv2.LINE_AA)
-        cv2.line(canvas, (cam_cx + 22, cam_y + 44), (tx_r - 18, by1 - 48), BGR_AMBER, 2, cv2.LINE_AA)
-
-        # 3 Sliding Glass Platens with Parallax Shift (`P2 HERO 1.0x`, `P4 MID 0.5x`, `P6 SKY 0.2x`)
-        shift_px = int(round(math.sin(sub_step * math.pi * 2) * 14))
-        platen_specs = [
-            (by0 + cap_h + 150, BGR_CORAL_PALE, slug, int(shift_px * 1.0)),
-            (by0 + cap_h + 245, BGR_MINT_PALE, "tree", int(shift_px * 0.5)),
-            (by0 + cap_h + 340, BGR_BLUE_PALE, "cloud", int(shift_px * 0.2)),
+        # Composite the 3 separated Quick, Draw! depth doodles onto the 3 glass platens of the tower!
+        shift_px = int(round(math.sin(sub_step * math.pi * 2) * 12))
+        platen_doodles = [
+            (by0 + cap_h + 195, slug, int(shift_px * 1.0)),
+            (by0 + cap_h + 266, "tree", int(shift_px * 0.5)),
+            (by0 + cap_h + 338, "cloud", int(shift_px * 0.2)),
         ]
-        for py, pcol, pcat, dx_s in platen_specs:
-            pts = np.array([
-                [tx_l - 8 + dx_s, py + 16],
-                [tx_l + 26 + dx_s, py - 18],
-                [tx_r + 8 + dx_s, py - 18],
-                [tx_r - 26 + dx_s, py + 16],
-            ], dtype=np.int32)
-            cv2.fillConvexPoly(canvas, pts + np.array([3, 3]), BGR_INK, cv2.LINE_AA)
-            cv2.fillConvexPoly(canvas, pts, pcol, cv2.LINE_AA)
-            cv2.polylines(canvas, [pts], True, BGR_INK, 3, cv2.LINE_AA)
-            draw_qd_doodle(canvas, pcat, cam_cx + dx_s, py - 2, 48, 48, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
+        for py, pcat, dx_s in platen_doodles:
+            draw_qd_doodle(canvas, pcat, cam_cx - 6 + dx_s, py, 44, 44, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
 
-        # Rotating Brass Multiplane Hand-Crank Wheel on right column of tower
-        wheel_cx, wheel_cy = tx_r + 22, by0 + cap_h + 245
-        cv2.circle(canvas, (wheel_cx, wheel_cy), 26, BGR_AMBER, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (wheel_cx, wheel_cy), 26, BGR_INK, 3, cv2.LINE_AA)
-        for sp_i in range(4):
-            ang = sub_step * math.pi * 4 + sp_i * (math.pi / 2)
-            wx2 = int(round(wheel_cx + 24 * math.cos(ang)))
-            wy2 = int(round(wheel_cy + 24 * math.sin(ang)))
-            cv2.line(canvas, (wheel_cx, wheel_cy), (wx2, wy2), BGR_INK, 3, cv2.LINE_AA)
-
-        # `Cel-Inker` on Left loading the glass platens + `Nib` at the Crank Wheel!
-        draw_agent_animator(canvas, "celinker", bx0 + 74, by1 - 122, scale=0.88, pose=boil_phase, dark_bg=False)
-        draw_agent_animator(canvas, "nib", tx_r + 68, by1 - 122, scale=0.88, pose=(boil_phase + 2) % 4, dark_bg=False)
+        # `Cel-Inker` on Left loading the glass platens + `Nib` on Right turning the Crank Wheel!
+        draw_agent_animator(canvas, "celinker", bx0 + 96, by1 - 135, scale=1.02, pose=2 if (boil_phase % 2 == 0) else 0, dark_bg=False)
+        draw_agent_animator(canvas, "nib", 472, by1 - 135, scale=1.02, pose=2 if (boil_phase % 2 == 0) else 1, dark_bg=False)
 
         # Right Side: Exact 4:3 Multiplane Camera Viewfinder Monitor (`340x255` -> 340/255 = 4:3!)
         vw, vh = 340, 255  # EXACT 4:3 aspect ratio!
         vx0 = bx1 - vw - 22
         vy0 = by0 + cap_h + 56
         # Braided cable from Overhead Camera Unit to Viewfinder Monitor
-        cv2.line(canvas, (cam_cx + 48, cam_y), (vx0 + vw // 2, cam_y), BGR_INK, 4, cv2.LINE_AA)
-        cv2.line(canvas, (vx0 + vw // 2, cam_y), (vx0 + vw // 2, vy0), BGR_INK, 4, cv2.LINE_AA)
+        cv2.line(canvas, (cam_cx + 32, cam_y + 10), (vx0 + vw // 2, cam_y + 10), BGR_INK, 4, cv2.LINE_AA)
+        cv2.line(canvas, (vx0 + vw // 2, cam_y + 10), (vx0 + vw // 2, vy0), BGR_INK, 4, cv2.LINE_AA)
 
         cv2.rectangle(canvas, (vx0 - 8, vy0 - 8), (vx0 + vw + 8, vy0 + vh + 8), BGR_INK, -1)
-        # Progressive layer compositing on the Viewfinder Monitor (`sub_step` 0.0 -> 1.0)
         f_cur = shot_frame_idx % len(cart_frames)
         if sub_step < 0.30:
             vf_src = blue_roughs[f_cur]
@@ -1203,12 +1152,11 @@ def render_single_panel_fullscreen(
     # =========================================================================
     # SCENE 4 (ROOM 4): THE 35MM DAILIES SCREENING THEATRE & FOLEY STAGE
     # Inside the Studio Screening Theatre:
-    #   - Left Booth: Twin-Reel 35mm Projector casting a golden beam across the room
+    #   - Left Booth: Hand-Drawn Tripod Twin-Reel 35mm Projector casting a golden beam
     #     + Exact 4:3 Archival Reference Monitor (`180x135`, exact 4:3!)
     #   - Center-Right Silver Screen: Exact 4:3 Grand Theatre Screen (`440x330`, exact 4:3!)
     #     playing the finished 7-plane cartoon!
-    #   - Foreground Stage: `Sprocket` (stamping 16/16 PASS), `Chime` (at Foley table),
-    #     and `Nib` & `Blue-Line` watching their finished film!
+    #   - Foreground Stage: `Sprocket`, Hand-Drawn Foley Prop Table & Boom Mic, `Chime`, & `Nib`!
     # =========================================================================
     elif panel_num == 4:
         cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
@@ -1221,36 +1169,24 @@ def render_single_panel_fullscreen(
         sx0 = bx1 - sw - 24
         sy0 = by0 + cap_h + 36
 
-        # Left: 35mm Twin-Reel Booth Projector (`x: 248..325, y: 155..255`)
-        px_proj, py_proj = 265, by0 + cap_h + 110
         # Golden Projector Light Cone across theatre onto the 4:3 Silver Screen!
+        px_proj, py_proj = 315, by0 + cap_h + 125
         beam_poly = np.array([
-            [px_proj + 56, py_proj + 12],
+            [px_proj + 48, py_proj - 12],
             [sx0, sy0 + 6],
             [sx0, sy0 + sh - 6],
-            [px_proj + 56, py_proj + 36],
+            [px_proj + 48, py_proj + 18],
         ], dtype=np.int32)
         overlay = canvas.copy()
         cv2.fillConvexPoly(overlay, beam_poly, BGR_AMBER_PALE, cv2.LINE_AA)
         cv2.addWeighted(overlay, 0.55, canvas, 0.45, 0, canvas)
 
-        # Spinning 35mm Projector Reels, Lens Barrel & Brass Tripod Stand
-        for rx_off in (-16, 26):
-            rcx, rcy = px_proj + 16 + rx_off, py_proj - 16
-            cv2.circle(canvas, (rcx, rcy), 20, BGR_PAPER_DARK, -1, cv2.LINE_AA)
-            cv2.circle(canvas, (rcx, rcy), 20, BGR_INK, 3, cv2.LINE_AA)
-            ang = sub_step * math.pi * 6
-            cv2.line(canvas, (rcx, rcy), (int(rcx + 16 * math.cos(ang)), int(rcy + 16 * math.sin(ang))), BGR_INK, 2, cv2.LINE_AA)
-        # Brass Tripod Stand anchoring the 35mm projector to the screening room floor
-        cv2.line(canvas, (px_proj + 24, py_proj + 52), (px_proj - 4, py_proj + 132), BGR_INK, 4, cv2.LINE_AA)
-        cv2.line(canvas, (px_proj + 24, py_proj + 52), (px_proj + 24, py_proj + 136), BGR_AMBER, 4, cv2.LINE_AA)
-        cv2.line(canvas, (px_proj + 24, py_proj + 52), (px_proj + 52, py_proj + 132), BGR_INK, 4, cv2.LINE_AA)
-        cv2.line(canvas, (px_proj - 10, py_proj + 132), (px_proj + 58, py_proj + 132), BGR_INK, 3, cv2.LINE_AA)
-        # Projector body & lens barrel
-        cv2.rectangle(canvas, (px_proj - 6, py_proj), (px_proj + 54, py_proj + 52), BGR_BLUE_PALE, -1)
-        cv2.rectangle(canvas, (px_proj - 6, py_proj), (px_proj + 54, py_proj + 52), BGR_INK, 3)
-        cv2.rectangle(canvas, (px_proj + 54, py_proj + 12), (px_proj + 70, py_proj + 36), BGR_AMBER, -1)
-        cv2.rectangle(canvas, (px_proj + 54, py_proj + 12), (px_proj + 70, py_proj + 36), BGR_INK, 3)
+        # Center-Left: Hand-Drawn Tripod-Mounted Twin-Reel 35mm Film Projector (`studio_apparatus_keys` Q3)
+        draw_studio_doodle_sprite(
+            canvas, "studio_apparatus_keys", 3,
+            cx=px_proj, cy=py_proj + 12, max_w=165, max_h=190,
+            tint_bgr=BGR_BLUE_PALE, tint_strength=0.28,
+        )
 
         # Top-Left: Exact 4:3 Booth Archival Reference Monitor (`180x135` -> 180/135 = 4:3!)
         aw, ah = 180, 135  # EXACT 4:3 aspect ratio!
@@ -1268,10 +1204,15 @@ def render_single_panel_fullscreen(
         canvas[sy0:sy0 + sh, sx0:sx0 + sw] = hero_im
         cv2.rectangle(canvas, (sx0, sy0), (sx0 + sw, sy0 + sh), BGR_INK, 4)
 
-        # Bottom-Left Foreground: The Agent Animator Crew (`Sprocket`, `Chime`, `Nib`) in the Screening Room!
-        draw_agent_animator(canvas, "sprocket", bx0 + 72, by1 - 96, scale=0.72, pose=boil_phase, dark_bg=False)
-        draw_agent_animator(canvas, "chime", bx0 + 196, by1 - 96, scale=0.72, pose=(boil_phase + 1) % 4, dark_bg=False)
-        draw_agent_animator(canvas, "nib", bx0 + 322, by1 - 96, scale=0.72, pose=(boil_phase + 2) % 4, dark_bg=False)
+        # Bottom-Left Foreground: `Sprocket`, Hand-Drawn Foley Prop Table & Boom Mic, `Chime`, & `Nib`!
+        draw_agent_animator(canvas, "sprocket", bx0 + 58, by1 - 120, scale=0.80, pose=2 if (boil_phase % 2 == 0) else 3, dark_bg=False)
+        draw_studio_doodle_sprite(
+            canvas, "studio_room_props_keys", 2,
+            cx=bx0 + 166, cy=by1 - 110, max_w=116, max_h=128,
+            tint_bgr=BGR_AMBER_PALE, tint_strength=0.30,
+        )
+        draw_agent_animator(canvas, "chime", bx0 + 274, by1 - 120, scale=0.80, pose=boil_phase % 4, dark_bg=False)
+        draw_agent_animator(canvas, "nib", bx0 + 378, by1 - 120, scale=0.78, pose=3 if (boil_phase % 2 == 0) else 0, dark_bg=False)
 
     # =========================================================================
     # PIL HIGH-RESOLUTION COMIC LETTERING (0% TRUNCATION GUARANTEED)
@@ -1364,8 +1305,8 @@ def render_single_panel_fullscreen(
 
     elif panel_num == 3:
         # Labels on the Multiplane Tower & 4:3 Viewfinder Monitor
-        draw.rounded_rectangle([188, by0 + cap_h + 74, 422, by0 + cap_h + 98], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((198, by0 + cap_h + 79), "7-LEVEL MULTIPLANE TOWER", font=FONT_LABEL_SM, fill=(22, 20, 18))
+        draw.rounded_rectangle([bx0 + 16, by0 + cap_h + 16, bx0 + 236, by0 + cap_h + 42], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+        draw.text((bx0 + 24, by0 + cap_h + 21), "7-LEVEL MULTIPLANE TOWER", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
         vx0 = bx1 - 340 - 22
         vy0 = by0 + cap_h + 56
