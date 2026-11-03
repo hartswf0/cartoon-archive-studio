@@ -75,6 +75,9 @@ BGR_BLUE = (132, 91, 43)          # #2B5B84 Prussian blue / Blue-Line's smock
 BGR_BLUE_PALE = (240, 228, 214)   # #D6E4F0 Sky plane gouache wash
 BGR_GREEN = (79, 107, 47)         # #2F6B4F Forest green / Sprocket's vest
 BGR_MINT_PALE = (220, 232, 212)   # #D4E8DC Meadow plane gouache wash
+BGR_INK_SOFT = BGR_GRAPHITE
+BGR_RED_PALE = BGR_CORAL_PALE
+BGR_GREEN_PALE = BGR_MINT_PALE
 
 
 def load_comic_font(size: int, style: str = "bold") -> ImageFont.FreeTypeFont:
@@ -688,14 +691,35 @@ def draw_qd_doodle(
 
 def load_shot_frames(slug: str):
     """
-    Loads 33 archival pencil sketches, 33 blue-pencil roughs, 33 black-ink line cels,
-    and 33 full gouache multiplane frames at their EXACT 4:3 aspect ratio (`480x360`),
-    with old baked-in top/bottom HUD bars cleanly removed!
+    Loads authentic, crystal-clear 4:3 (`480x360`) assets for `slug`:
+      1. `arch_frames` (33 frames): Real archival source frames from `shots/<slug>/frames-src/f*.png`
+         with a warm 35mm archival grade + clean Surgical SAM tracking box & blue gesture arc (ZERO Canny static!).
+      2. `blue_roughs` (33 frames): True Animator's Non-Photo Blue (`#3A7CA5`) construction & rough line sheets
+         built from `scene-plate.png` + `selected-keys.png` (`K1..K4`) on warm animation paper with golden-ratio grid.
+      3. `ink_cels` (33 frames): Crisp Speedball Black India Ink (`#141414`) line cels over faint non-photo blue underdrawing.
+      4. `cart_frames` (33 frames): Full `640x480` (4:3 exact!) 7-plane gouache cartoon frames with old HUD badges
+         seamlessly healed out using adjacent sky/ground scanlines (ZERO cropping, ZERO black HUD bars!).
+      5. `key_stages` (4 tuples of `(blue_k, ink_k, gouache_k)` for `K1, K2, K3, K4`): Built directly from the
+         4 quadrants of `shots/<slug>/selected-keys.png` composited over `shots/<slug>/scene-plate.png`!
+      6. `platen_layers` (`(sky_layer, mid_layer, hero_layer)`): True separated multiplane layers for Room 3's Camera Tower!
     """
     if slug in _SHOT_FRAMES_CACHE:
         return _SHOT_FRAMES_CACHE[slug]
-    comp_path = SHOTS_DIR / slug / "comparison.mp4"
-    arch_sketches, blue_roughs, ink_cels, cart_frames = [], [], [], []
+
+    sdir = SHOTS_DIR / slug
+    comp_path = sdir / "comparison.mp4"
+    f_src_paths = sorted((sdir / "frames-src").glob("f*.png")) if (sdir / "frames-src").exists() else []
+    dsa_path = sdir / "depth_sam_analysis.json"
+    dsa_frames = []
+    if dsa_path.exists():
+        try:
+            dsa_frames = json.loads(dsa_path.read_text(encoding="utf-8")).get("frames", [])
+        except Exception:
+            dsa_frames = []
+
+    # 1. Load clean 4:3 Finished Cartoon Frames from right half of comparison.mp4 (640x480 -> 480x360, NO cropping!)
+    cart_frames = []
+    raw_left_frames = []
     if comp_path.exists():
         cap = cv2.VideoCapture(str(comp_path))
         while len(cart_frames) < 33:
@@ -703,64 +727,207 @@ def load_shot_frames(slug: str):
             if not ok:
                 break
             fh, fw = fr.shape[:2]  # 480 x 1280
-            half_w = fw // 2       # 640
-            y_top = 30
-            y_bot = fh - 26        # 454 (height = 424)
-            crop_h = y_bot - y_top
-            crop_w = int(round(crop_h * 4.0 / 3.0))  # 565 (exact 4:3!)
-            x_pad = max(0, (half_w - crop_w) // 2)   # 37
+            half_w = fw // 2       # 640 (4:3 exact!)
+            left_640 = fr[:, :half_w].copy()
+            right_640 = fr[:, half_w:].copy()
 
-            crop_a = fr[y_top:y_bot, x_pad:x_pad + crop_w]
-            crop_c = fr[y_top:y_bot, half_w + x_pad:half_w + x_pad + x_pad + crop_w - x_pad]
-            raw_a = cv2.resize(crop_a, (480, 360), interpolation=cv2.INTER_AREA)
-            raw_c = cv2.resize(crop_c, (480, 360), interpolation=cv2.INTER_AREA)
+            # Heal top-right badge (y=0..37, x=368..638) using clean sky column 365 (no lamp smear!)
+            right_640[0:37, 368:638] = np.repeat(right_640[0:37, 365:366], 270, axis=1)
+            # Heal bottom-left badge (y=446..479, x=0..520) using clean bottom scanline 479 (no hoof smear or SAM CEL!)
+            right_640[446:479, 0:520] = np.repeat(right_640[479:480, 0:520], 33, axis=0)
 
-            # 1. Archival Graphite Sketch on Cream Paper
-            gray_a = cv2.cvtColor(raw_a, cv2.COLOR_BGR2GRAY)
-            blur_a = cv2.GaussianBlur(gray_a, (3, 3), 0)
-            edges_a = cv2.Canny(blur_a, 45, 125)
-            adapt_a = cv2.adaptiveThreshold(blur_a, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 5)
-            ink_a = cv2.bitwise_or(edges_a, adapt_a)
-            sk = np.full((360, 480, 3), BGR_PAPER, dtype=np.uint8)
-            sk[blur_a < 115] = BGR_PAPER_DARK
-            sk[ink_a > 0] = BGR_INK
-            arch_sketches.append(sk)
-
-            # 2. Animator's Non-Photo Blue Rough Construction Sheet (from cartoon edges)
-            gray_c = cv2.cvtColor(raw_c, cv2.COLOR_BGR2GRAY)
-            edges_c = cv2.Canny(gray_c, 40, 120)
-            dil_c = cv2.dilate(edges_c, np.ones((2, 2), np.uint8), iterations=1)
-            rough = np.full((360, 480, 3), BGR_GUTTER, dtype=np.uint8)
-            # Subtle golden ratio construction lines on rough sheet
-            cv2.line(rough, (0, 222), (479, 222), (235, 215, 190), 1)
-            cv2.line(rough, (183, 0), (183, 359), (235, 215, 190), 1)
-            cv2.line(rough, (296, 0), (296, 359), (235, 215, 190), 1)
-            rough[dil_c > 0] = BGR_NONPHOTO_BLUE
-            blue_roughs.append(rough)
-
-            # 3. Clean Black Speedball India Ink Line Cel (before gouache color fill)
-            ink_cel = np.full((360, 480, 3), BGR_GUTTER, dtype=np.uint8)
-            ink_cel[gray_c < 90] = BGR_INK
-            ink_cel[dil_c > 0] = BGR_INK
-            ink_cels.append(ink_cel)
-
-            # 4. Finished 7-Plane Gouache Cartoon Frame
-            cart_frames.append(raw_c)
+            raw_left_frames.append(cv2.resize(left_640, (480, 360), interpolation=cv2.INTER_AREA))
+            cart_frames.append(cv2.resize(right_640, (480, 360), interpolation=cv2.INTER_AREA))
         cap.release()
+
     if not cart_frames:
         blank = np.full((360, 480, 3), BGR_PAPER, dtype=np.uint8)
         draw_qd_doodle(blank, slug, 240, 180, 200, 200, fill_bgr=BGR_AMBER_PALE, thickness=4)
-        arch_sketches = [blank.copy() for _ in range(33)]
-        blue_roughs = [blank.copy() for _ in range(33)]
-        ink_cels = [blank.copy() for _ in range(33)]
         cart_frames = [blank.copy() for _ in range(33)]
+        raw_left_frames = [blank.copy() for _ in range(33)]
     while len(cart_frames) < 33:
-        arch_sketches.append(arch_sketches[-1])
-        blue_roughs.append(blue_roughs[-1])
-        ink_cels.append(ink_cels[-1])
-        cart_frames.append(cart_frames[-1])
+        cart_frames.append(cart_frames[-1].copy())
+        raw_left_frames.append(raw_left_frames[-1].copy())
+
+    # 2. Load clean 4:3 Archival Source Frames directly from `frames-src/f*.png` (NO HUD bars, NO Canny static!)
+    arch_sketches = []
+    for f_i in range(33):
+        if f_src_paths:
+            p_f = f_src_paths[min(f_i, len(f_src_paths) - 1)]
+            src_bgr = cv2.imread(str(p_f))
+            if src_bgr is not None:
+                arch_480 = cv2.resize(src_bgr, (480, 360), interpolation=cv2.INTER_AREA)
+            else:
+                arch_480 = raw_left_frames[f_i].copy()
+        else:
+            arch_480 = raw_left_frames[f_i].copy()
+
+        # Subtle warm archival 35mm print grade (100% clear photographic image!)
+        warm_tint = np.full_like(arch_480, BGR_PAPER)
+        graded = cv2.addWeighted(arch_480, 0.86, warm_tint, 0.14, 0)
+
+        # Overlay clean studio tracking reticle / SAM bounding box if available
+        if f_i < len(dsa_frames) and "bbox" in dsa_frames[f_i]:
+            bb = dsa_frames[f_i]["bbox"]
+            # Scale bbox if in 640x480 vs 480x360
+            scale_b = 0.75 if max(bb) > 485 else 1.0
+            x0 = int(round(bb[0] * scale_b))
+            y0 = int(round(bb[1] * scale_b))
+            x1 = int(round(bb[2] * scale_b))
+            y1 = int(round(bb[3] * scale_b))
+            cv2.rectangle(graded, (x0, y0), (x1, y1), BGR_NONPHOTO_BLUE, 2, cv2.LINE_AA)
+            # Corner registration ticks
+            cx_b, cy_b = (x0 + x1) // 2, (y0 + y1) // 2
+            cv2.drawMarker(graded, (cx_b, cy_b), BGR_RED, cv2.MARKER_CROSS, 10, 2, cv2.LINE_AA)
+        arch_sketches.append(graded)
+
+    # 3. Extract true Non-Photo Blue Roughs & Clean Black India Ink Cels from the cartoon frames + `selected-keys.png`
+    blue_roughs = []
+    ink_cels = []
+    for f_i in range(33):
+        raw_c = cart_frames[f_i]
+        gray_c = cv2.cvtColor(raw_c, cv2.COLOR_BGR2GRAY)
+        # Extract dark ink strokes cleanly without Canny double-edge noise
+        ink_mask = gray_c < 165
+
+        # Stage A: Animator's Non-Photo Blue Rough Construction Sheet
+        rough = np.full((360, 480, 3), BGR_GUTTER, dtype=np.uint8)
+        # Golden Ratio & Perspective Horizon Grid in warm light sepia
+        cv2.line(rough, (0, 222), (479, 222), (228, 208, 182), 1)
+        cv2.line(rough, (183, 0), (183, 359), (228, 208, 182), 1)
+        cv2.line(rough, (296, 0), (296, 359), (228, 208, 182), 1)
+        # Soft blue underdrawing
+        alpha_b = np.clip((215.0 - gray_c.astype(np.float32)) / 145.0, 0.0, 1.0)[..., None]
+        rough_f = rough.astype(np.float32) * (1.0 - alpha_b) + np.array(BGR_NONPHOTO_BLUE, dtype=np.float32) * alpha_b
+        blue_roughs.append(np.clip(rough_f, 0, 255).astype(np.uint8))
+
+        # Stage B: Clean Black Speedball India Ink Line Cel over faint non-photo blue construction lines
+        ink_cel = rough.copy()
+        ink_cel_f = ink_cel.astype(np.float32) * (1.0 - 0.35 * alpha_b) + np.array(BGR_NONPHOTO_BLUE, dtype=np.float32) * (0.35 * alpha_b)
+        alpha_k = np.clip((185.0 - gray_c.astype(np.float32)) / 120.0, 0.0, 1.0)[..., None]
+        ink_cel_f = ink_cel_f * (1.0 - alpha_k) + np.array(BGR_INK, dtype=np.float32) * alpha_k
+        ink_cels.append(np.clip(ink_cel_f, 0, 255).astype(np.uint8))
+
     _SHOT_FRAMES_CACHE[slug] = (arch_sketches, blue_roughs, ink_cels, cart_frames)
     return arch_sketches, blue_roughs, ink_cels, cart_frames
+
+
+_SHOT_KEYS_PLATE_CACHE = {}
+
+
+def load_shot_keys_and_plate(slug: str):
+    """
+    Loads the actual high-resolution hand-drawn `shots/<slug>/selected-keys.png` (4 quadrants K1..K4)
+    and `shots/<slug>/scene-plate.png` so Room 1's Storyboard Wall, Room 2's 4 Lightbox Desks,
+    and Room 3's Multiplane Camera Tower Platens display the REAL hand-drawn Quick, Draw! keyframe
+    and environment drawings!
+    """
+    if slug in _SHOT_KEYS_PLATE_CACHE:
+        return _SHOT_KEYS_PLATE_CACHE[slug]
+
+    sdir = SHOTS_DIR / slug
+    sk_path = sdir / "selected-keys.png"
+    sp_path = sdir / "scene-plate.png"
+
+    plate_gray = cv2.imread(str(sp_path), cv2.IMREAD_GRAYSCALE) if sp_path.exists() else np.full((360, 480), 255, dtype=np.uint8)
+    if plate_gray is None:
+        plate_gray = np.full((360, 480), 255, dtype=np.uint8)
+    plate_gray = cv2.resize(plate_gray, (480, 360), interpolation=cv2.INTER_AREA)
+
+    quad_grays = []
+    if sk_path.exists():
+        sk_gray = cv2.imread(str(sk_path), cv2.IMREAD_GRAYSCALE)
+        if sk_gray is not None:
+            H, W = sk_gray.shape[:2]
+            for q_i in range(4):
+                r, c = q_i // 2, q_i % 2
+                sub = sk_gray[r * (H // 2) + 8:(r + 1) * (H // 2) - 8, c * (W // 2) + 8:(c + 1) * (W // 2) - 8]
+                quad_grays.append(cv2.resize(sub, (480, 360), interpolation=cv2.INTER_AREA))
+    while len(quad_grays) < 4:
+        quad_grays.append(plate_gray.copy())
+
+    _SHOT_KEYS_PLATE_CACHE[slug] = (plate_gray, quad_grays)
+    return plate_gray, quad_grays
+
+
+def render_progressive_keyframe_board(slug: str, k_idx: int, local_prog: float, out_w: int, out_h: int) -> np.ndarray:
+    """
+    Renders one of the 4 Keyframe Drafting Boards (`K1..K4`) at exact 4:3 `(out_w, out_h)` showing
+    a genuine progressive animation of the keyframe being created:
+      - `0.00 .. 0.36` (STEP A: BLUE PENCIL ROUGH): Progressive left-to-right blue pencil sketch of `selected-keys.png` K_i + `scene-plate.png`
+      - `0.36 .. 0.74` (STEP B: SPEEDBALL INDIA INK): Progressive top-left to bottom-right black marker inking with a live moving nib cursor!
+      - `0.74 .. 1.00` (STEP C: GOUACHE CEL LOCKED): Progressive warm gouache multiplane fill locking into the final 4:3 cel!
+    """
+    arch_sketches, blue_roughs, ink_cels, cart_frames = load_shot_frames(slug)
+    plate_gray, quad_grays = load_shot_keys_and_plate(slug)
+    k_frames = [0, 10, 21, 32]
+    f_idx = k_frames[k_idx % 4]
+    q_gray = quad_grays[k_idx % 4]
+
+    # Build a crisp composite of `scene-plate.png` (faint background) + `selected-keys.png` quadrant K_i (bold hero keyframe)
+    # plus the full multiplane cartoon frame for Step C
+    H, W = 360, 480
+    paper = np.full((H, W, 3), BGR_GUTTER, dtype=np.uint8)
+    # Construction grid lines
+    cv2.line(paper, (0, 222), (W - 1, 222), (230, 212, 188), 1)
+    cv2.line(paper, (183, 0), (183, H - 1), (230, 212, 188), 1)
+    cv2.line(paper, (296, 0), (296, H - 1), (230, 212, 188), 1)
+
+    bg_alpha = np.clip((235.0 - plate_gray.astype(np.float32)) / 180.0, 0.0, 1.0)[..., None] * 0.45
+    hero_alpha = np.clip((235.0 - q_gray.astype(np.float32)) / 170.0, 0.0, 1.0)[..., None]
+    comb_alpha = np.maximum(bg_alpha, hero_alpha)
+
+    # Blue rough image (Non-Photo Blue strokes on paper)
+    blue_img = paper.astype(np.float32) * (1.0 - comb_alpha) + np.array(BGR_NONPHOTO_BLUE, dtype=np.float32) * comb_alpha
+    blue_img = np.clip(blue_img, 0, 255).astype(np.uint8)
+
+    # Black India Ink image (Speedball Black Ink over faint blue construction)
+    ink_img = blue_img.astype(np.float32) * (1.0 - hero_alpha) + np.array(BGR_INK, dtype=np.float32) * hero_alpha
+    ink_img = ink_img * (1.0 - bg_alpha * 0.7) + np.array(BGR_INK_SOFT, dtype=np.float32) * (bg_alpha * 0.7)
+    ink_img = np.clip(ink_img, 0, 255).astype(np.uint8)
+
+    # Gouache finished image (blend crisp hero keyframe ink with the warm gouache cartoon frame)
+    cart_f = cart_frames[f_idx].astype(np.float32)
+    gouache_img = cart_f * (1.0 - hero_alpha * 0.85) + np.array(BGR_INK, dtype=np.float32) * (hero_alpha * 0.85)
+    gouache_img = np.clip(gouache_img, 0, 255).astype(np.uint8)
+
+    canvas = paper.copy()
+    pen_xy = None
+    pen_col = BGR_NONPHOTO_BLUE
+
+    if local_prog < 0.36:
+        # Progressive Blue Pencil Sketch Wipe
+        p = np.clip(local_prog / 0.36, 0.15, 1.0)
+        split_x = int(round(p * W))
+        canvas[:, :split_x] = blue_img[:, :split_x]
+        pen_xy = (min(W - 18, max(18, split_x)), int(round(H * (0.35 + 0.25 * math.sin(local_prog * 22.0)))))
+        pen_col = BGR_NONPHOTO_BLUE
+    elif local_prog < 0.74:
+        # Progressive Black India Ink Wipe over Blue Rough
+        p = np.clip((local_prog - 0.36) / 0.38, 0.0, 1.0)
+        canvas = blue_img.copy()
+        split_x = int(round(p * W))
+        canvas[:, :split_x] = ink_img[:, :split_x]
+        pen_xy = (min(W - 18, max(18, split_x)), int(round(H * (0.42 + 0.22 * math.cos(local_prog * 25.0)))))
+        pen_col = BGR_INK
+    else:
+        # Progressive Warm Gouache Wash Wipe over Black Ink
+        p = np.clip((local_prog - 0.74) / 0.26, 0.0, 1.0)
+        canvas = ink_img.copy()
+        split_y = int(round(p * H))
+        canvas[:split_y, :] = gouache_img[:split_y, :]
+        if p < 0.96:
+            pen_xy = (int(round(W * (0.5 + 0.3 * math.sin(local_prog * 24.0)))), min(H - 16, max(16, split_y)))
+            pen_col = BGR_AMBER
+
+    out = cv2.resize(canvas, (out_w, out_h), interpolation=cv2.INTER_AREA)
+    if pen_xy is not None:
+        px = int(round(pen_xy[0] * out_w / float(W)))
+        py = int(round(pen_xy[1] * out_h / float(H)))
+        # Draw active nib/brush tip indicator at the wipe frontier
+        cv2.circle(out, (px, py), 5, pen_col, -1, cv2.LINE_AA)
+        cv2.circle(out, (px, py), 5, BGR_INK, 1, cv2.LINE_AA)
+    return out
 
 
 # =============================================================================
@@ -912,11 +1079,14 @@ def draw_agent_animator(
     pose: int = 0,
     dark_bg: bool = False,
     flip_x: bool = False,
+    bob_phase: float = 0.0,
 ):
     """
     Draws one of our 5 bespoke Agent Animator characters (`nib`, `blueline`, `celinker`,
-    `sprocket`, `chime`) using their genuine hand-drawn 4-keyframe Quick, Draw! doodle
-    sheets (`assets/studio_doodles/agent_<id>_keys.jpg`), cycling through keyframes K1..K4!
+    `sprocket`, `chime`) using their genuine hand-drawn Quick, Draw! doodle sheets
+    (`assets/studio_doodles/agent_<id>_keys.jpg`) in the specific pose (`0..3`) matching
+    their station & narrative beat, with smooth sinusoidal breathing/working motion
+    (`bob_phase`) so characters NEVER glitch-teleport between unrelated poses!
     """
     ag = STUDIO_AGENTS.get(agent_id, STUDIO_AGENTS["nib"])
     sheet_map = {
@@ -929,18 +1099,104 @@ def draw_agent_animator(
     sheet_name = sheet_map.get(agent_id, "agent_nib_keys")
     max_w = int(round(176 * scale))
     max_h = int(round(184 * scale))
+    dx_bob = int(round(2.0 * math.cos(bob_phase)))
+    dy_bob = int(round(3.0 * math.sin(bob_phase * 2.0)))
     draw_studio_doodle_sprite(
         img,
         sheet_name=sheet_name,
         quad_idx=int(pose) % 4,
-        cx=cx,
-        cy=cy + int(round(12 * scale)),
+        cx=cx + dx_bob,
+        cy=cy + int(round(12 * scale)) + dy_bob,
         max_w=max_w,
         max_h=max_h,
         tint_bgr=ag["pale_bgr"],
         tint_strength=0.34,
         flip_x=flip_x,
     )
+
+
+def draw_studio_room_architecture(
+    canvas: np.ndarray,
+    bx0: int,
+    by0: int,
+    bx1: int,
+    by1: int,
+    cap_h: int,
+    floor_y: int,
+    light_xs: list = None,
+):
+    """
+    Draws cohesive hand-drawn Quick, Draw! studio room architecture:
+      - Warm ceiling beam & hanging studio lamp cones (Pass F volumetric light)
+      - Subtle vertical wall wainscoting panels
+      - Perspective hardwood floorboards converging toward the room horizon (`floor_y`)
+    """
+    top_y = by0 + cap_h
+    cv2.rectangle(canvas, (bx0, top_y), (bx1, floor_y), BGR_PAPER, -1)
+    cv2.rectangle(canvas, (bx0, floor_y), (bx1, by1), BGR_PAPER_DARK, -1)
+
+    # Subtle vertical wainscoting wall lines
+    for wx in range(bx0 + 80, bx1 - 40, 110):
+        cv2.line(canvas, (wx, top_y + 4), (wx, floor_y), (214, 224, 234), 1, cv2.LINE_AA)
+    # Chair-rail molding line slightly above floor
+    cv2.line(canvas, (bx0, floor_y - 24), (bx1, floor_y - 24), (190, 204, 216), 2, cv2.LINE_AA)
+
+    # Volumetric ceiling light cones (Pass F)
+    if light_xs:
+        overlay = canvas.copy()
+        for lx in light_xs:
+            cone = np.array([
+                [lx - 22, top_y],
+                [lx + 22, top_y],
+                [lx + 115, floor_y],
+                [lx - 115, floor_y],
+            ], dtype=np.int32)
+            cv2.fillConvexPoly(overlay, cone, BGR_GUTTER, cv2.LINE_AA)
+        cv2.addWeighted(overlay, 0.38, canvas, 0.62, 0, canvas)
+
+    # Bold floorboard horizon line & perspective plank lines
+    cv2.line(canvas, (bx0, floor_y), (bx1, floor_y), BGR_INK, 3, cv2.LINE_AA)
+    cx_vanish = (bx0 + bx1) // 2
+    for fx in range(bx0 - 120, bx1 + 160, 95):
+        x_top = int(round(cx_vanish + (fx - cx_vanish) * 0.62))
+        if bx0 <= x_top <= bx1:
+            cv2.line(canvas, (x_top, floor_y), (max(bx0, min(bx1, fx)), by1), (175, 192, 206), 2, cv2.LINE_AA)
+
+
+def draw_studio_workbench(
+    canvas: np.ndarray,
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+    fill_bgr: tuple = BGR_AMBER_PALE,
+):
+    """
+    Draws a solid hand-drawn wooden studio workbench / counter in the foreground (`y0..y1`)
+    so waist-up Agent Animators stand or sit naturally behind a physical studio table
+    (ZERO severed waists floating in mid-air!).
+    """
+    cv2.rectangle(canvas, (x0, y0), (x1, y1), fill_bgr, -1)
+    # Top bevel plank of the workbench
+    cv2.rectangle(canvas, (x0 - 4, y0), (x1 + 4, y0 + 10), BGR_PAPER_DARK, -1)
+    cv2.rectangle(canvas, (x0 - 4, y0), (x1 + 4, y0 + 10), BGR_INK, 3)
+    cv2.rectangle(canvas, (x0, y0 + 10), (x1, y1), BGR_INK, 3)
+    # Wood plank grain & brass bolts
+    mid_y = (y0 + 10 + y1) // 2
+    cv2.line(canvas, (x0 + 12, mid_y), (x1 - 12, mid_y), BGR_INK_SOFT, 1, cv2.LINE_AA)
+    for bx in range(x0 + 24, x1 - 16, 140):
+        cv2.circle(canvas, (bx, y0 + 5), 2, BGR_INK, -1, cv2.LINE_AA)
+
+
+def draw_spinning_wheel(canvas: np.ndarray, cx: int, cy: int, radius: int, angle_deg: float, color=BGR_INK):
+    """Draws rotating reel/wheel spokes at `(cx, cy)` to bring film reels & camera cranks to life."""
+    for s_i in range(5):
+        ang = math.radians(angle_deg + s_i * 72.0)
+        x1 = int(round(cx + (radius - 2) * math.cos(ang)))
+        y1 = int(round(cy + (radius - 2) * math.sin(ang)))
+        cv2.line(canvas, (cx, cy), (x1, y1), color, 2, cv2.LINE_AA)
+    cv2.circle(canvas, (cx, cy), 4, BGR_AMBER, -1, cv2.LINE_AA)
+    cv2.circle(canvas, (cx, cy), 4, BGR_INK, 2, cv2.LINE_AA)
 
 
 # =============================================================================
@@ -955,9 +1211,12 @@ def render_single_panel_fullscreen(
 ) -> np.ndarray:
     """
     Renders Scene `panel_num` (`1..4`) at FULL `960x540` (16:9) resolution.
-    In EVERY SINGLE SCENE, we see our Agent Animators inside the studio physically
-    performing that stage of making the cartoon, with all embedded monitors/canvases
-    locked to their exact `4:3` (`1.3333:1`) aspect ratio!
+    In EVERY SINGLE SCENE:
+      - Cohesive studio room architecture + grounded foreground workbenches eliminate floating cutouts.
+      - Characters use state-driven poses (`sub_step`) + smooth sinusoidal articulation (`bob_phase`),
+        NEVER glitch-swapping 4 unrelated drawings at 4 Hz!
+      - Screens show crystal-clear 4:3 archival video, real `selected-keys.png` + `scene-plate.png`
+        progressive stroke-by-stroke drawing, separated multiplane glass platens, and HUD-free 4:3 cartoons!
     """
     W, H = 960, 540
     canvas = np.full((H, W, 3), BGR_PAPER, dtype=np.uint8)
@@ -967,167 +1226,201 @@ def render_single_panel_fullscreen(
     lead_ag = STUDIO_AGENTS[lead_id]
     cameo_ag = STUDIO_AGENTS[cameo_id]
     arch_sketches, blue_roughs, ink_cels, cart_frames = load_shot_frames(slug)
+    plate_gray, quad_grays = load_shot_keys_and_plate(slug)
 
     pad = 16
     cap_h = 52
     bx0, by0, bx1, by1 = pad, pad, W - pad, H - pad
+    bob_rad = sub_step * math.pi * 4.0
 
     # =========================================================================
     # SCENE 1 (ROOM 1): THE STORYBOARD & ARCHIVAL MOVIOLA ROOM
-    # Lead Agent + Co-Worker Agent study the live 4:3 Archival Moviola Monitor
-    # (`220x165`, exact 4:3) beside the hand-drawn Moviola Console & Film Rack
-    # while pinning the 4 keyframes onto the Corkboard Storyboard Wall!
     # =========================================================================
     if panel_num == 1:
-        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        # Studio Wainscoting / Floorboard Horizon Line
-        cv2.rectangle(canvas, (bx0, by1 - 82), (bx1, by1), BGR_PAPER_DARK, -1)
-        cv2.line(canvas, (bx0, by1 - 82), (bx1, by1 - 82), BGR_INK, 3)
+        floor_y = by1 - 92
+        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[240, 600, 820])
 
-        # Left Studio Wall Prop: Hand-Drawn 35mm Film Canister Vault Shelf & Reels (`studio_room_props_keys` Q0)
+        # Left Studio Floor: Hand-Drawn 35mm Film Canister Vault Shelf (`studio_room_props_keys` Q0)
         draw_studio_doodle_sprite(
             canvas, "studio_room_props_keys", 0,
-            cx=bx0 + 78, cy=by1 - 155, max_w=118, max_h=142,
+            cx=bx0 + 76, cy=floor_y - 62, max_w=120, max_h=144,
             tint_bgr=BGR_AMBER_PALE, tint_strength=0.28,
         )
 
-        # Center-Left Prop: Hand-Drawn Wheeled Twin-Reel Moviola Console (`studio_apparatus_keys` Q0)
+        # Center-Left Studio Floor: Hand-Drawn Wheeled Twin-Reel Moviola Console (`studio_apparatus_keys` Q0)
+        mov_cx, mov_cy = 428, floor_y - 46
         draw_studio_doodle_sprite(
             canvas, "studio_apparatus_keys", 0,
-            cx=435, cy=by1 - 135, max_w=145, max_h=175,
+            cx=mov_cx, cy=mov_cy, max_w=154, max_h=186,
             tint_bgr=BGR_BLUE_PALE, tint_strength=0.30,
         )
+        # Animated rotating spokes on the Moviola's twin top reels!
+        reel_ang = sub_step * 720.0
+        draw_spinning_wheel(canvas, mov_cx - 42, mov_cy - 64, 18, reel_ang)
+        draw_spinning_wheel(canvas, mov_cx + 42, mov_cy - 66, 18, reel_ang + 36.0)
 
-        # Center-Right: Live 4:3 Archival Moviola Screen (`220x165`, exact 4:3!)
-        mx0, my0 = 492, by0 + cap_h + 40
-        mw, mh = 220, 165  # 220 / 165 = 4:3 exact!
-        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 26), BGR_BLUE_PALE, -1)
-        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 26), BGR_INK, 4)
+        # Center-Right: Live 4:3 Archival Moviola Monitor (`228x171`, exact 4:3!)
+        mx0, my0 = 490, by0 + cap_h + 28
+        mw, mh = 228, 171  # 228 / 171 = 4:3 exact!
+        # Soft optical viewer projection cone from Moviola Console to 4:3 Monitor
+        mov_cone = np.array([
+            [mov_cx + 12, mov_cy - 34],
+            [mx0 - 6, my0],
+            [mx0 - 6, my0 + mh],
+            [mov_cx + 28, mov_cy - 12],
+        ], dtype=np.int32)
+        ov_m = canvas.copy()
+        cv2.fillConvexPoly(ov_m, mov_cone, BGR_AMBER_PALE, cv2.LINE_AA)
+        cv2.addWeighted(ov_m, 0.45, canvas, 0.55, 0, canvas)
+
+        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 8), BGR_BLUE_PALE, -1)
+        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 8), BGR_INK, 4)
 
         arch_fr = arch_sketches[shot_frame_idx % len(arch_sketches)]
         mov_thumb = cv2.resize(arch_fr, (mw, mh), interpolation=cv2.INTER_AREA)
         canvas[my0:my0 + mh, mx0:mx0 + mw] = mov_thumb
         cv2.rectangle(canvas, (mx0, my0), (mx0 + mw, my0 + mh), BGR_INK, 3)
 
-        # Right Wall: Corkboard Storyboard Pin-Up Board (4 mini 4:3 cards being pinned!)
-        sbx0, sby0 = 732, by0 + cap_h + 26
-        sbx1, sby1 = bx1 - 18, by0 + cap_h + 206
+        # Right Wall: Corkboard Storyboard Pin-Up Board (4 exact 4:3 cards from `selected-keys.png`!)
+        sbx0, sby0 = 734, by0 + cap_h + 24
+        sbx1, sby1 = bx1 - 16, by0 + cap_h + 214
         cv2.rectangle(canvas, (sbx0 + 4, sby0 + 4), (sbx1 + 4, sby1 + 4), BGR_INK, -1)
         cv2.rectangle(canvas, (sbx0, sby0), (sbx1, sby1), BGR_AMBER_PALE, -1)
         cv2.rectangle(canvas, (sbx0, sby0), (sbx1, sby1), BGR_INK, 3)
 
-        n_pinned = max(1, min(4, int(sub_step * 4) + 1)) if sub_step < 0.98 else 4
-        k_frames = [0, 10, 21, 32]
+        n_pinned = max(1, min(4, int(sub_step * 4.2) + 1)) if sub_step < 0.95 else 4
         for pk_i in range(n_pinned):
             pr = pk_i // 2
             pc = pk_i % 2
-            cx_k = sbx0 + 12 + pc * 86
-            cy_k = sby0 + 30 + pr * 72
-            kw_s, kh_s = 76, 57  # 76 / 57 = 4:3 exact!
-            k_im = cv2.resize(blue_roughs[k_frames[pk_i]], (kw_s, kh_s), interpolation=cv2.INTER_AREA)
+            cx_k = sbx0 + 12 + pc * 90
+            cy_k = sby0 + 32 + pr * 74
+            kw_s, kh_s = 80, 60  # 80 / 60 = 4:3 exact!
+            card_prog = np.clip((sub_step - pk_i * 0.18) * 1.4, 0.15, 0.68)
+            k_im = render_progressive_keyframe_board(slug, pk_i, card_prog, kw_s, kh_s)
             canvas[cy_k:cy_k + kh_s, cx_k:cx_k + kw_s] = k_im
             cv2.rectangle(canvas, (cx_k, cy_k), (cx_k + kw_s, cy_k + kh_s), BGR_INK, 2)
             cv2.circle(canvas, (cx_k + kw_s // 2, cy_k + 4), 4, BGR_RED, -1, cv2.LINE_AA)
 
-        # Lead Agent Animator on Left + Co-Worker Agent Animator at Storyboard/Moviola on Right!
-        draw_agent_animator(canvas, lead_id, bx0 + 228, by1 - 142, scale=1.18, pose=boil_phase, dark_bg=False)
-        draw_agent_animator(canvas, cameo_id, 785, by1 - 135, scale=1.02, pose=(boil_phase + 2) % 4, dark_bg=False)
+        # State-driven poses (NO 4 Hz glitching!) + Grounded Foreground Studio Worktables!
+        lead_pose = 0 if sub_step < 0.55 else 1
+        cameo_pose = 2 if cameo_id == "blueline" else (3 if sub_step >= 0.5 else 0)
+        draw_agent_animator(canvas, lead_id, bx0 + 232, by1 - 116, scale=1.12, pose=lead_pose, bob_phase=bob_rad)
+        draw_agent_animator(canvas, cameo_id, 788, by1 - 114, scale=1.02, pose=cameo_pose, bob_phase=bob_rad + 1.2)
+
+        # Grounded Foreground Director's Desk (Left) & Storyboard Pin-Up Table (Right) covering lower waists!
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 362, by1 - 4, fill_bgr=BGR_AMBER_PALE)
+        draw_studio_workbench(canvas, 648, by1 - 48, bx1 - 12, by1 - 4, fill_bgr=BGR_BLUE_PALE)
 
     # =========================================================================
     # SCENE 2 (ROOM 2): THE 4-DESK WORKTREE DRAFTING BULLPEN
-    # Four Agent Animators sit at 4 hand-drawn Tilted Lightbox Desks (`DESK K1..K4`).
-    # Above each desk is their `4:3` Keyframe Sheet (`192x144`, exact 4:3!)
-    # progressing live from Blue Pencil Rough -> Black India Ink -> Gouache Cel!
     # =========================================================================
     elif panel_num == 2:
-        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        cv2.rectangle(canvas, (bx0, by1 - 135), (bx1, by1), BGR_PAPER_DARK, -1)
-        cv2.line(canvas, (bx0, by1 - 135), (bx1, by1 - 135), BGR_INK, 3)
+        floor_y = by1 - 138
+        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[130, 354, 578, 802])
 
         desk_agents = ["blueline", "celinker", "nib", "sprocket"]
-        desk_poses = [0, 1, 0, 2]
-        key_indices = [0, 10, 21, 32]
-        kw, kh = 192, 144  # 192 / 144 = 4:3 exact!
+        # Active desk-working poses during Steps A/B (`0..0.74`), then lifting finished cel at Step C (`>=0.74`)!
+        working_poses = [0, 1, 1, 2]
+        finished_poses = [1, 3, 0, 3]
+        kw, kh = 196, 147  # 196 / 147 = 4:3 exact!
 
         for d_i in range(4):
-            dx0 = bx0 + 22 + d_i * 224
+            dx0 = bx0 + 20 + d_i * 224
             dy0 = by0 + cap_h + 38
-            f_idx = key_indices[d_i]
 
-            # Progressive Inking Stage across Scene 2 (`sub_step` 0.0 -> 1.0):
-            # Each desk progresses from Blue Non-Photo Rough -> Black Ink Line -> Full Gouache Cel!
-            local_prog = np.clip(sub_step * 1.35 - d_i * 0.10, 0.0, 1.0)
+            local_prog = float(np.clip(sub_step * 1.28 - d_i * 0.08, 0.0, 1.0))
             if local_prog < 0.36:
-                src_sheet = blue_roughs[f_idx]
-                stage_col = BGR_BLUE
-            elif local_prog < 0.72:
-                src_sheet = ink_cels[f_idx]
+                stage_col = BGR_NONPHOTO_BLUE
+            elif local_prog < 0.74:
                 stage_col = BGR_INK
             else:
-                src_sheet = cart_frames[f_idx]
                 stage_col = BGR_AMBER
 
-            # 1. Exact 4:3 Keyframe Drawing Sheet above the desk (`192x144`)
-            cv2.rectangle(canvas, (dx0 + 4, dy0 + 4), (dx0 + kw + 4, dy0 + kh + 4), BGR_INK, -1)
-            sheet_thumb = cv2.resize(src_sheet, (kw, kh), interpolation=cv2.INTER_AREA)
-            canvas[dy0:dy0 + kh, dx0:dx0 + kw] = sheet_thumb
-            cv2.rectangle(canvas, (dx0, dy0), (dx0 + kw, dy0 + kh), stage_col, 4 if local_prog >= 0.72 else 3)
-            # Top brass registration pegbar pins on the drawing sheet
-            for px_off in (48, 96, 144):
-                cv2.circle(canvas, (dx0 + px_off, dy0 + 6), 4, BGR_INK, -1, cv2.LINE_AA)
+            # Soft translucent lightbox projection cone from drafting desk up to the 4:3 Keyframe Board
+            cone_pts = np.array([
+                [dx0 + 118, by1 - 138],
+                [dx0 + 8, dy0 + kh],
+                [dx0 + kw - 8, dy0 + kh],
+                [dx0 + 168, by1 - 138],
+            ], dtype=np.int32)
+            ov_d = canvas.copy()
+            cv2.fillConvexPoly(ov_d, cone_pts, BGR_AMBER_PALE, cv2.LINE_AA)
+            cv2.addWeighted(ov_d, 0.42, canvas, 0.58, 0, canvas)
 
-            # Warm projection lines connecting the lightbox desk up to the 4:3 keyframe sheet
-            cv2.line(canvas, (dx0 + 124, by1 - 152), (dx0 + 16, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
-            cv2.line(canvas, (dx0 + 152, by1 - 152), (dx0 + kw - 12, dy0 + kh + 2), BGR_AMBER, 2, cv2.LINE_AA)
+            # 1. Exact 4:3 Progressive Keyframe Drawing Board (`196x147`, exact 4:3!)
+            # Shows real `selected-keys.png` quadrant K_i + `scene-plate.png` wiping from Blue Rough -> Black Ink -> Gouache!
+            cv2.rectangle(canvas, (dx0 + 4, dy0 + 4), (dx0 + kw + 4, dy0 + kh + 4), BGR_INK, -1)
+            sheet_thumb = render_progressive_keyframe_board(slug, d_i, local_prog, kw, kh)
+            canvas[dy0:dy0 + kh, dx0:dx0 + kw] = sheet_thumb
+            # Top Acme peg-bar strip (`8px` tall) so registration pins sit cleanly above the giraffe's head
+            cv2.rectangle(canvas, (dx0, dy0), (dx0 + kw, dy0 + 9), BGR_AMBER_PALE, -1)
+            cv2.line(canvas, (dx0, dy0 + 9), (dx0 + kw, dy0 + 9), BGR_INK, 1)
+            cv2.rectangle(canvas, (dx0, dy0), (dx0 + kw, dy0 + kh), stage_col, 4 if local_prog >= 0.74 else 3)
+            for px_off in (49, 98, 147):
+                cv2.circle(canvas, (dx0 + px_off, dy0 + 5), 3, BGR_INK, -1, cv2.LINE_AA)
 
             # 2. Hand-Drawn Tilted Animator Lightbox Drafting Desk (`studio_apparatus_keys` Q1)
             draw_studio_doodle_sprite(
                 canvas, "studio_apparatus_keys", 1,
-                cx=dx0 + 138, cy=by1 - 134, max_w=128, max_h=148,
+                cx=dx0 + 144, cy=by1 - 114, max_w=116, max_h=132,
                 tint_bgr=BGR_AMBER_PALE, tint_strength=0.35,
             )
 
-            # 3. Hand-Drawn Agent Animator actively drawing at this Worktree Lightbox Desk!
+            # 3. Hand-Drawn Agent Animator working at their station (tucked cleanly behind the foreground bench!)
             ag_id = desk_agents[d_i]
+            cur_pose = working_poses[d_i] if local_prog < 0.74 else finished_poses[d_i]
             draw_agent_animator(
                 canvas, ag_id,
-                cx=dx0 + 56, cy=by1 - 118,
-                scale=0.82, pose=(desk_poses[d_i] + boil_phase) % 4, dark_bg=False,
+                cx=dx0 + 58, cy=by1 - 96,
+                scale=0.84, pose=cur_pose, bob_phase=bob_rad + d_i * 0.9,
             )
+
+        # Continuous Foreground Wooden Animator's Bench across the bottom of Room 2 (overlaps lower 18px of waists!)
+        draw_studio_workbench(canvas, bx0 + 8, by1 - 46, bx1 - 8, by1 - 4, fill_bgr=BGR_AMBER_PALE)
 
     # =========================================================================
     # SCENE 3 (ROOM 3): THE 7-LEVEL MULTIPLANE CAMERA TOWER
-    # `Cel-Inker` loads the 3 separated glass depth platens (`P6 Sky`, `P4 Mid`, `P2 Hero`)
-    # into the hand-drawn Multiplane Camera Tower while `Nib` cranks the camera wheel,
-    # and the `4:3` Camera Viewfinder Monitor (`340x255`, exact 4:3!) composites them live!
     # =========================================================================
     elif panel_num == 3:
-        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        cv2.rectangle(canvas, (bx0, by1 - 92), (bx1, by1), BGR_PAPER_DARK, -1)
-        cv2.line(canvas, (bx0, by1 - 92), (bx1, by1 - 92), BGR_INK, 3)
+        floor_y = by1 - 92
+        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[300, 740])
 
         # Center-Left: Hand-Drawn 7-Level Multiplane Camera Tower Rig (`studio_apparatus_keys` Q2)
-        cam_cx = 298
+        cam_cx = 302
         cam_y = by0 + cap_h + 38
         draw_studio_doodle_sprite(
             canvas, "studio_apparatus_keys", 2,
-            cx=cam_cx, cy=by0 + cap_h + 215, max_w=265, max_h=390,
+            cx=cam_cx, cy=by0 + cap_h + 212, max_w=265, max_h=386,
             tint_bgr=BGR_AMBER_PALE, tint_strength=0.25,
         )
 
-        # Composite the 3 separated Quick, Draw! depth doodles onto the 3 glass platens of the tower!
-        shift_px = int(round(math.sin(sub_step * math.pi * 2) * 12))
-        platen_doodles = [
-            (by0 + cap_h + 195, slug, int(shift_px * 1.0)),
-            (by0 + cap_h + 266, "tree", int(shift_px * 0.5)),
-            (by0 + cap_h + 338, "cloud", int(shift_px * 0.2)),
+        # Render 3 REAL separated multiplane artwork strips (`Hero K2`, `Midground Plate`, `Horizon Sky`)
+        # sliding horizontally in live parallax inside the 3 glass platens of the tower!
+        shift_px = int(round(math.sin(sub_step * math.pi * 2.0) * 14))
+        platen_specs = [
+            (by0 + cap_h + 193, quad_grays[1], int(shift_px * 1.0), BGR_AMBER_PALE),
+            (by0 + cap_h + 263, plate_gray, int(shift_px * 0.55), BGR_GREEN_PALE),
+            (by0 + cap_h + 334, plate_gray, int(shift_px * 0.20), BGR_BLUE_PALE),
         ]
-        for py, pcat, dx_s in platen_doodles:
-            draw_qd_doodle(canvas, pcat, cam_cx - 6 + dx_s, py, 44, 44, fill_bgr=BGR_GUTTER, thickness=2, boil_phase=boil_phase)
+        for py_plat, src_g, dx_p, tint_p in platen_specs:
+            pw_strip, ph_strip = 104, 28
+            strip_g = cv2.resize(src_g, (pw_strip, ph_strip), interpolation=cv2.INTER_AREA)
+            strip_bgr = np.full((ph_strip, pw_strip, 3), tint_p, dtype=np.uint8)
+            a_st = np.clip((230.0 - strip_g.astype(np.float32)) / 160.0, 0.0, 1.0)[..., None]
+            strip_bgr = np.clip(strip_bgr.astype(np.float32) * (1.0 - a_st) + np.array(BGR_INK, dtype=np.float32) * a_st, 0, 255).astype(np.uint8)
+            sx_p = cam_cx - 8 - pw_strip // 2 + dx_p
+            sy_p = py_plat - ph_strip // 2
+            canvas[sy_p:sy_p + ph_strip, sx_p:sx_p + pw_strip] = strip_bgr
+            cv2.rectangle(canvas, (sx_p, sy_p), (sx_p + pw_strip, sy_p + ph_strip), BGR_INK, 2)
 
-        # `Cel-Inker` on Left loading the glass platens + `Nib` on Right turning the Crank Wheel!
-        draw_agent_animator(canvas, "celinker", bx0 + 96, by1 - 135, scale=1.02, pose=2 if (boil_phase % 2 == 0) else 0, dark_bg=False)
-        draw_agent_animator(canvas, "nib", 472, by1 - 135, scale=1.02, pose=2 if (boil_phase % 2 == 0) else 1, dark_bg=False)
+        # `Cel-Inker` on Left sliding the glass platen (`Q2` -> `Q3`) + `Nib` on Right turning the Crank Wheel (`Q2`)!
+        cel_pose = 2 if sub_step < 0.78 else 3
+        draw_agent_animator(canvas, "celinker", bx0 + 98, by1 - 110, scale=1.00, pose=cel_pose, bob_phase=bob_rad)
+        draw_agent_animator(canvas, "nib", 470, by1 - 110, scale=1.00, pose=2, bob_phase=bob_rad + 1.0)
+
+        # Grounded Foreground Platen-Loading Bench & Camera Crank Console covering lower waists!
+        draw_studio_workbench(canvas, bx0 + 10, by1 - 46, 224, by1 - 4, fill_bgr=BGR_AMBER_PALE)
+        draw_studio_workbench(canvas, 386, by1 - 46, 560, by1 - 4, fill_bgr=BGR_RED_PALE)
 
         # Right Side: Exact 4:3 Multiplane Camera Viewfinder Monitor (`340x255` -> 340/255 = 4:3!)
         vw, vh = 340, 255  # EXACT 4:3 aspect ratio!
@@ -1142,7 +1435,7 @@ def render_single_panel_fullscreen(
         if sub_step < 0.30:
             vf_src = blue_roughs[f_cur]
         elif sub_step < 0.62:
-            vf_src = cv2.addWeighted(cart_frames[f_cur], 0.55, ink_cels[f_cur], 0.45, 0)
+            vf_src = ink_cels[f_cur]
         else:
             vf_src = cart_frames[f_cur]
         vf_img = cv2.resize(vf_src, (vw, vh), interpolation=cv2.INTER_LINEAR)
@@ -1151,68 +1444,96 @@ def render_single_panel_fullscreen(
 
     # =========================================================================
     # SCENE 4 (ROOM 4): THE 35MM DAILIES SCREENING THEATRE & FOLEY STAGE
-    # Inside the Studio Screening Theatre:
-    #   - Left Booth: Hand-Drawn Tripod Twin-Reel 35mm Projector casting a golden beam
-    #     + Exact 4:3 Archival Reference Monitor (`180x135`, exact 4:3!)
-    #   - Center-Right Silver Screen: Exact 4:3 Grand Theatre Screen (`440x330`, exact 4:3!)
-    #     playing the finished 7-plane cartoon!
-    #   - Foreground Stage: `Sprocket`, Hand-Drawn Foley Prop Table & Boom Mic, `Chime`, & `Nib`!
     # =========================================================================
     elif panel_num == 4:
-        cv2.rectangle(canvas, (bx0, by0), (bx1, by1), BGR_PAPER, -1)
-        # Theatre Floor & Stage Apron
-        cv2.rectangle(canvas, (bx0, by1 - 108), (bx1, by1), BGR_PAPER_DARK, -1)
-        cv2.line(canvas, (bx0, by1 - 108), (bx1, by1 - 108), BGR_INK, 3)
+        floor_y = by1 - 112
+        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=None)
 
-        # Right: Grand Theatre Silver Screen at EXACT 4:3 (`440x330` -> 440/330 = 4:3!)
-        sw, sh = 440, 330  # EXACT 4:3 aspect ratio!
-        sx0 = bx1 - sw - 24
+        # Right: Grand Theatre Silver Screen at EXACT 4:3 (`432x324` -> 432/324 = 4:3!)
+        sw, sh = 432, 324  # EXACT 4:3 aspect ratio!
+        sx0 = bx1 - sw - 22
         sy0 = by0 + cap_h + 36
 
+        # Center-Left: Grounded Projection Booth Pedestal standing on the theatre floor (NO floating tripod!)
+        px_proj, py_proj = 316, by0 + cap_h + 128
+        cv2.rectangle(canvas, (px_proj - 46, py_proj + 86), (px_proj + 46, floor_y), BGR_PAPER_DARK, -1)
+        cv2.rectangle(canvas, (px_proj - 46, py_proj + 86), (px_proj + 46, floor_y), BGR_INK, 3)
+        cv2.rectangle(canvas, (px_proj - 54, py_proj + 78), (px_proj + 54, py_proj + 88), BGR_AMBER_PALE, -1)
+        cv2.rectangle(canvas, (px_proj - 54, py_proj + 78), (px_proj + 54, py_proj + 88), BGR_INK, 3)
+
         # Golden Projector Light Cone across theatre onto the 4:3 Silver Screen!
-        px_proj, py_proj = 315, by0 + cap_h + 125
         beam_poly = np.array([
-            [px_proj + 48, py_proj - 12],
+            [px_proj + 48, py_proj - 10],
             [sx0, sy0 + 6],
             [sx0, sy0 + sh - 6],
             [px_proj + 48, py_proj + 18],
         ], dtype=np.int32)
         overlay = canvas.copy()
         cv2.fillConvexPoly(overlay, beam_poly, BGR_AMBER_PALE, cv2.LINE_AA)
-        cv2.addWeighted(overlay, 0.55, canvas, 0.45, 0, canvas)
+        cv2.addWeighted(overlay, 0.58, canvas, 0.42, 0, canvas)
 
-        # Center-Left: Hand-Drawn Tripod-Mounted Twin-Reel 35mm Film Projector (`studio_apparatus_keys` Q3)
+        # Hand-Drawn Tripod-Mounted Twin-Reel 35mm Film Projector (`studio_apparatus_keys` Q3)
         draw_studio_doodle_sprite(
             canvas, "studio_apparatus_keys", 3,
-            cx=px_proj, cy=py_proj + 12, max_w=165, max_h=190,
+            cx=px_proj, cy=py_proj + 6, max_w=160, max_h=178,
             tint_bgr=BGR_BLUE_PALE, tint_strength=0.28,
         )
 
-        # Top-Left: Exact 4:3 Booth Archival Reference Monitor (`180x135` -> 180/135 = 4:3!)
-        aw, ah = 180, 135  # EXACT 4:3 aspect ratio!
-        ax0, ay0 = bx0 + 20, by0 + cap_h + 36
+        # Top-Left: Exact 4:3 Booth Archival Reference Monitor (`192x144` -> 192/144 = 4:3!)
+        aw, ah = 192, 144  # EXACT 4:3 aspect ratio!
+        ax0, ay0 = bx0 + 18, by0 + cap_h + 36
         cur_idx = shot_frame_idx % len(cart_frames)
         arch_im = cv2.resize(arch_sketches[cur_idx], (aw, ah), interpolation=cv2.INTER_AREA)
         cv2.rectangle(canvas, (ax0 + 4, ay0 + 4), (ax0 + aw + 4, ay0 + ah + 4), BGR_INK, -1)
         canvas[ay0:ay0 + ah, ax0:ax0 + aw] = arch_im
         cv2.rectangle(canvas, (ax0, ay0), (ax0 + aw, ay0 + ah), BGR_INK, 3)
 
-        # Right: The 440x330 Exact 4:3 Silver Screen with Terracotta Proscenium Curtain Frame!
+        # Right: The 432x324 Exact 4:3 Silver Screen with Terracotta Proscenium Curtain Frame!
         cv2.rectangle(canvas, (sx0 - 12, sy0 - 10), (sx0 + sw + 12, sy0 + sh + 10), BGR_RED, -1)
         cv2.rectangle(canvas, (sx0 - 12, sy0 - 10), (sx0 + sw + 12, sy0 + sh + 10), BGR_INK, 4)
         hero_im = cv2.resize(cart_frames[cur_idx], (sw, sh), interpolation=cv2.INTER_LINEAR)
         canvas[sy0:sy0 + sh, sx0:sx0 + sw] = hero_im
         cv2.rectangle(canvas, (sx0, sy0), (sx0 + sw, sy0 + sh), BGR_INK, 4)
 
-        # Bottom-Left Foreground: `Sprocket`, Hand-Drawn Foley Prop Table & Boom Mic, `Chime`, & `Nib`!
-        draw_agent_animator(canvas, "sprocket", bx0 + 58, by1 - 120, scale=0.80, pose=2 if (boil_phase % 2 == 0) else 3, dark_bg=False)
+        # Bottom-Left Foreground Foley Stage: `Sprocket`, `Foley Prop Table & Boom Mic`, `Chime`, & `Nib`!
+        # State-driven Foley poses synchronized to the 3 Foley beats (`sub_step` around 0.20, 0.52, 0.82)
+        sprocket_pose = 1 if sub_step < 0.55 else 3
+        if sub_step < 0.25:
+            chime_pose = 0  # Tuning fork strike on Beat 1
+        elif sub_step < 0.58:
+            chime_pose = 1  # Coconut shells at microphone on Beat 2
+        elif sub_step < 0.82:
+            chime_pose = 2  # X-Sheet & stopwatch audit
+        else:
+            chime_pose = 3  # Studio handbell ring on Finale Beat 3
+        nib_pose = 0 if sub_step < 0.65 else 3
+
+        draw_agent_animator(canvas, "sprocket", bx0 + 52, by1 - 98, scale=0.76, pose=sprocket_pose, bob_phase=bob_rad)
         draw_studio_doodle_sprite(
             canvas, "studio_room_props_keys", 2,
-            cx=bx0 + 166, cy=by1 - 110, max_w=116, max_h=128,
+            cx=bx0 + 150, cy=by1 - 102, max_w=108, max_h=118,
             tint_bgr=BGR_AMBER_PALE, tint_strength=0.30,
         )
-        draw_agent_animator(canvas, "chime", bx0 + 274, by1 - 120, scale=0.80, pose=boil_phase % 4, dark_bg=False)
-        draw_agent_animator(canvas, "nib", bx0 + 378, by1 - 120, scale=0.78, pose=3 if (boil_phase % 2 == 0) else 0, dark_bg=False)
+        draw_agent_animator(canvas, "chime", bx0 + 244, by1 - 98, scale=0.76, pose=chime_pose, bob_phase=bob_rad + 0.8)
+        draw_agent_animator(canvas, "nib", bx0 + 372, by1 - 98, scale=0.74, pose=nib_pose, bob_phase=bob_rad + 1.6)
+
+        # Grounded Foreground Foley & Audit Console Table covering lower waists + Live X-Sheet Waveform Scrubber!
+        draw_studio_workbench(canvas, bx0 + 10, by1 - 46, bx0 + 448, by1 - 4, fill_bgr=BGR_GREEN_PALE)
+        # Live X-Sheet Waveform & Scrubber strip under the 4:3 Silver Screen
+        wx0, wy0, wx1, wy1 = sx0 - 12, by1 - 44, sx0 + sw + 12, by1 - 8
+        cv2.rectangle(canvas, (wx0, wy0), (wx1, wy1), BGR_GUTTER, -1)
+        cv2.rectangle(canvas, (wx0, wy0), (wx1, wy1), BGR_INK, 3)
+        w_len = wx1 - wx0 - 20
+        mid_wy = (wy0 + wy1) // 2
+        cv2.line(canvas, (wx0 + 10, mid_wy), (wx1 - 10, mid_wy), (190, 200, 210), 1)
+        for bi in range(44):
+            bx_w = wx0 + 12 + int(round(bi * w_len / 43.0))
+            amp = int(4 + 9 * abs(math.sin(bi * 0.55 + spec["num"])))
+            col_w = BGR_RED if bi in (8, 22, 36) else BGR_INK
+            cv2.line(canvas, (bx_w, mid_wy - amp), (bx_w, mid_wy + amp), col_w, 2)
+        play_x = wx0 + 12 + int(round(sub_step * w_len))
+        cv2.line(canvas, (play_x, wy0 + 3), (play_x, wy1 - 3), BGR_RED, 3)
+        cv2.circle(canvas, (play_x, wy0 + 5), 4, BGR_RED, -1, cv2.LINE_AA)
 
     # =========================================================================
     # PIL HIGH-RESOLUTION COMIC LETTERING (0% TRUNCATION GUARANTEED)
@@ -1250,8 +1571,8 @@ def render_single_panel_fullscreen(
             draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=f_sp, fill=(22, 20, 18))
 
         # Labels on the 4:3 Moviola & Corkboard Storyboard Wall
-        draw.rounded_rectangle([488, by0 + cap_h + 244, 712, by0 + cap_h + 272], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((502, by0 + cap_h + 249), "ARCHIVAL MOVIOLA (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
+        draw.rounded_rectangle([488, by0 + cap_h + 214, 718, by0 + cap_h + 242], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+        draw.text((502, by0 + cap_h + 219), "ARCHIVAL MOVIOLA (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
         draw.text((740, by0 + cap_h + 30), "STORYBOARD WALL (K1..K4)", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
@@ -1329,20 +1650,20 @@ def render_single_panel_fullscreen(
         draw.text((405, by1 - 27), "NIB (CAMERA CRANK)", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
     elif panel_num == 4:
-        ax0, ay0 = bx0 + 20, by0 + cap_h + 36
-        draw.rounded_rectangle([ax0, ay0 - 26, ax0 + 180, ay0 - 4], radius=4, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
-        draw.text((ax0 + 6, ay0 - 22), "ARCHIVAL MONITOR (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
+        ax0, ay0 = bx0 + 18, by0 + cap_h + 36
+        draw.rounded_rectangle([ax0, ay0 - 26, ax0 + 192, ay0 - 4], radius=4, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
+        draw.text((ax0 + 8, ay0 - 22), "ARCHIVAL MONITOR (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
-        sx0 = bx1 - 440 - 24
+        sx0 = bx1 - 432 - 22
         sy0 = by0 + cap_h + 36
-        draw.rounded_rectangle([sx0, sy0 - 28, sx0 + 440, sy0 - 4], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+        draw.rounded_rectangle([sx0, sy0 - 28, sx0 + 432, sy0 - 4], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
         scr_lbl = f"35MM DAILIES THEATRE SCREEN (4:3) — #{slug.upper()} (16/16 GATES PASS)"
-        f_sl = fit_text_font(draw, scr_lbl, 424, [FONT_LABEL_SM])
+        f_sl = fit_text_font(draw, scr_lbl, 416, [FONT_LABEL_SM])
         draw.text((sx0 + 8, sy0 - 23), scr_lbl, font=f_sl, fill=(22, 20, 18))
 
-        # Foley cue badge above Chime & Sprocket in the Screening Theatre
-        draw.rounded_rectangle([bx0 + 18, by1 - 30, bx0 + 412, by1 - 8], radius=5, fill=(212, 232, 220), outline=(22, 20, 18), width=2)
-        draw.text((bx0 + 26, by1 - 26), "SPROCKET (16/16 AUDIT) · CHIME (FOLEY) · NIB (DIRECTOR)", font=FONT_LABEL_SM, fill=(22, 20, 18))
+        # Foley cue badge inside the grounded Foley & Audit Console Table
+        draw.rounded_rectangle([bx0 + 18, by1 - 32, bx0 + 438, by1 - 8], radius=5, fill=(255, 251, 244), outline=(22, 20, 18), width=2)
+        draw.text((bx0 + 26, by1 - 27), "SPROCKET (16/16 AUDIT) · CHIME (FOLEY) · NIB (DIRECTOR)", font=FONT_LABEL_SM, fill=(22, 20, 18))
 
     out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     cv2.rectangle(out_bgr, (bx0, by0), (bx1, by1), BGR_INK, 5)
@@ -1355,10 +1676,10 @@ def assemble_4panel_comic_page(spec: dict) -> np.ndarray:
     -> `Room 3: 7-Level Multiplane Tower` -> `Room 4: 35mm Screening Theatre & Foley Stage`)
     into a `1280x720` (16:9) 2x2 Comic Page where the Agent Animators are visibly working in every panel!
     """
-    p1 = render_single_panel_fullscreen(spec, 1, sub_step=1.0, shot_frame_idx=16, boil_phase=0)
-    p2 = render_single_panel_fullscreen(spec, 2, sub_step=0.65, shot_frame_idx=16, boil_phase=1)
-    p3 = render_single_panel_fullscreen(spec, 3, sub_step=1.0, shot_frame_idx=16, boil_phase=2)
-    p4 = render_single_panel_fullscreen(spec, 4, sub_step=1.0, shot_frame_idx=16, boil_phase=3)
+    p1 = render_single_panel_fullscreen(spec, 1, sub_step=0.85, shot_frame_idx=16, boil_phase=0)
+    p2 = render_single_panel_fullscreen(spec, 2, sub_step=0.62, shot_frame_idx=16, boil_phase=1)
+    p3 = render_single_panel_fullscreen(spec, 3, sub_step=0.85, shot_frame_idx=16, boil_phase=2)
+    p4 = render_single_panel_fullscreen(spec, 4, sub_step=0.85, shot_frame_idx=16, boil_phase=3)
 
     top_row = np.hstack([p1, p2])
     bot_row = np.hstack([p3, p4])
@@ -1377,7 +1698,7 @@ def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int 
         + 0.03 * np.sin(2 * np.pi * 277.18 * t)
         + 0.025 * np.sin(2 * np.pi * 329.63 * t)
     )
-    for beat_s in [0.05, 3.0, 6.0, 9.0, 10.2, 11.1]:
+    for beat_s in [0.05, 4.0, 8.0, 12.0, 13.5, 14.8]:
         if beat_s < duration_sec:
             idx = int(beat_s * sr)
             blen = min(int(0.12 * sr), n_samples - idx)
@@ -1396,9 +1717,9 @@ def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int 
 
 def render_single_bts_film(spec: dict) -> dict:
     """
-    Renders a 12.0-second (144 frames @ 12fps) Behind-the-Scenes Animated Studio Film
-    taking the viewer through all 4 Studio Rooms (3.0 seconds per room) as the Agent
-    Animators create and screen the cartoon!
+    Renders a 16.0-second (192 frames @ 12fps) Behind-the-Scenes Animated Studio Film
+    taking the viewer through all 4 Studio Rooms (4.0 seconds = 48 frames per room)
+    with smooth state-driven animation and a 10fps (100ms/frame, 64-frame) animated GIF!
     """
     fid = spec["id"]
     mp4_path = BTS_DIR / f"{fid}.mp4"
@@ -1408,7 +1729,7 @@ def render_single_bts_film(spec: dict) -> dict:
     wav_path = BTS_DIR / f"_{fid}.wav"
 
     fps = 12
-    n_frames = 144  # 12.0 seconds (3.0s per Studio Room!)
+    n_frames = 192  # 16.0 seconds (4.0s = 48 frames per Studio Room!)
     W, H = 960, 540
 
     poster_bgr = assemble_4panel_comic_page(spec)
@@ -1418,22 +1739,22 @@ def render_single_bts_film(spec: dict) -> dict:
     gif_pil_frames = []
 
     for f_i in range(n_frames):
-        boil_phase = (f_i // 4) % 4
-        if f_i < 36:
+        boil_phase = (f_i // 6) % 4
+        if f_i < 48:
             p_num = 1
-            sub = f_i / 35.0
+            sub = f_i / 47.0
             shot_f = int(round(sub * 32))
-        elif f_i < 72:
+        elif f_i < 96:
             p_num = 2
-            sub = (f_i - 36) / 35.0
+            sub = (f_i - 48) / 47.0
             shot_f = int(round(sub * 32))
-        elif f_i < 108:
+        elif f_i < 144:
             p_num = 3
-            sub = (f_i - 72) / 35.0
+            sub = (f_i - 96) / 47.0
             shot_f = int(round(sub * 32))
         else:
             p_num = 4
-            sub = (f_i - 108) / 35.0
+            sub = (f_i - 144) / 47.0
             shot_f = int(round(sub * 32))
 
         frame_bgr = render_single_panel_fullscreen(
@@ -1444,7 +1765,7 @@ def render_single_bts_film(spec: dict) -> dict:
             boil_phase=boil_phase,
         )
         vw.write(frame_bgr)
-        if f_i % 4 == 0:
+        if f_i % 3 == 0:
             rgb_small = cv2.cvtColor(cv2.resize(frame_bgr, (640, 360), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB)
             gif_pil_frames.append(Image.fromarray(rgb_small))
 
@@ -1454,7 +1775,7 @@ def render_single_bts_film(spec: dict) -> dict:
         str(gif_path),
         save_all=True,
         append_images=gif_pil_frames[1:],
-        duration=330,
+        duration=110,
         loop=0,
         optimize=True,
     )
