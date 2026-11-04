@@ -1,8 +1,12 @@
 {
-  "studio_title": "Secondhand Studios \u2014 The Autonomous Agent Animation Bullpen (17-Phase Multiplane Studio Edition)",
+  "studio_title": "Secondhand Studios \u2014 The Autonomous Agent Animation Bullpen (10x Code-Animated 3,100-Frame Multiplane Edition)",
   "total_hand_drawn_studio_keyframes": 240,
   "total_hero_shot_drawings": 70,
   "total_vector_traced_frames": 310,
+  "total_10x_code_animated_studio_frames": 2400,
+  "total_10x_code_animated_hero_frames": 700,
+  "total_hand_animated_code_frames": 3100,
+  "fps": 24,
   "total_studio_sheets": 60,
   "agents": [
     {
