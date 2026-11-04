@@ -112,6 +112,35 @@ def eval_sharp_polygon(ctrl_pts: list, samples_per_seg: int = 8, closed: bool = 
     return np.array(out, dtype=np.float64)
 
 
+def _capsule_poly(p0: tuple, p1: tuple, r0: float, r1: float, cap_steps: int = 14) -> np.ndarray:
+    """
+    Constructs a smooth, watertight 2D tapered capsule polygon connecting circle
+    `(p0, r0)` and circle `(p1, r1)` with semicircular end-caps.
+    Used for Dual-Pass Casing (`Pass 1: r + ink_w` in `ink_col`, `Pass 2: r` in `fill_col`)
+    so multi-segment limbs, cuffs, palms, and fingers fuse with ZERO joint slop!
+    """
+    x0, y0 = float(p0[0]), float(p0[1])
+    x1, y1 = float(p1[0]), float(p1[1])
+    dx, dy = x1 - x0, y1 - y0
+    dist = math.hypot(dx, dy)
+    if dist < 1e-3:
+        ang_arr = np.linspace(0.0, 2.0 * math.pi, cap_steps * 2, endpoint=False)
+        rm = max(1.0, 0.5 * (r0 + r1))
+        return np.round(np.column_stack([x0 + rm * np.cos(ang_arr), y0 + rm * np.sin(ang_arr)])).astype(np.int32)
+
+    base_ang = math.atan2(dy, dx)
+    pts = []
+    # Semicircle around p1 from `base_ang - pi/2` to `base_ang + pi/2`
+    for i in range(cap_steps + 1):
+        a = base_ang - 0.5 * math.pi + (math.pi * i) / cap_steps
+        pts.append((x1 + r1 * math.cos(a), y1 + r1 * math.sin(a)))
+    # Semicircle around p0 from `base_ang + pi/2` to `base_ang + 3*pi/2`
+    for i in range(cap_steps + 1):
+        a = base_ang + 0.5 * math.pi + (math.pi * i) / cap_steps
+        pts.append((x0 + r0 * math.cos(a), y0 + r0 * math.sin(a)))
+    return np.round(np.array(pts, dtype=np.float64)).astype(np.int32)
+
+
 def draw_ink_stroke(
     canvas: np.ndarray,
     ctrl_pts: list,
@@ -127,9 +156,9 @@ def draw_ink_stroke(
     sharp_corners: bool = None,
 ):
     """
-    Draws a hand-inked calligraphic spline or sharp-cornered architectural polygon
-    with Speedball nib pressure variation, subtle 12fps paper-tooth line boil,
-    and optional watertight gouache fill.
+    Draws a hand-inked spline or sharp-cornered architectural polygon with
+    clean anti-aliased contours (zero stair-step thickness lumps!) and optional
+    watertight gouache fill.
     """
     if len(ctrl_pts) < 2:
         return
@@ -145,8 +174,7 @@ def draw_ink_stroke(
     b_step = boil_phase // 2
     idx = np.arange(n, dtype=np.float64)
     u = idx / float(max(1, n - 1))
-    boil_amp = 0.36 if use_sharp else 0.48
-    # Pin vertices when `use_sharp=True` so 3D perspective corners remain razor-sharp!
+    boil_amp = 0.18 if use_sharp else 0.32
     if use_sharp:
         seg_u = (idx % max(2, samples_per_seg)) / float(max(2, samples_per_seg))
         pin_env = np.sin(np.pi * seg_u)
@@ -163,34 +191,34 @@ def draw_ink_stroke(
     if base_thick <= 0.0:
         return
 
-    if base_thick <= 1.5:
-        cv2.polylines(canvas, [pts_i], closed, color_bgr, max(1, int(round(base_thick))), cv2.LINE_AA)
+    w_uniform = max(1, int(round(base_thick)))
+    if closed or use_sharp or base_thick <= 2.2:
+        cv2.polylines(canvas, [pts_i], closed, color_bgr, w_uniform, cv2.LINE_AA)
         return
 
-    for i in range(n - 1):
-        um = (i + 0.5) / float(max(1, n - 1))
-        if closed:
-            prof = 0.82 + 0.24 * math.sin(2.0 * math.pi * um + seed * 0.5)
+    # Open calligraphic stroke: construct a smooth sub-pixel tapered ribbon polygon
+    left_pts = []
+    right_pts = []
+    for i in range(n):
+        um = i / float(max(1, n - 1))
+        if um < 0.22:
+            prof = taper_start + (1.0 - taper_start) * math.sin((um / 0.22) * (math.pi * 0.5))
+        elif um > 0.78:
+            prof = taper_end + (1.0 - taper_end) * math.sin(((1.0 - um) / 0.22) * (math.pi * 0.5))
         else:
-            if um < 0.25:
-                prof = taper_start + (1.0 - taper_start) * math.sin((um / 0.25) * (math.pi * 0.5))
-            elif um > 0.75:
-                prof = taper_end + (1.0 - taper_end) * math.sin(((1.0 - um) / 0.25) * (math.pi * 0.5))
-            else:
-                prof = 1.0 + 0.14 * math.sin(((um - 0.25) / 0.50) * math.pi)
-        w = max(1, int(round(base_thick * prof)))
-        p1 = (int(pts_i[i, 0]), int(pts_i[i, 1]))
-        p2 = (int(pts_i[i + 1, 0]), int(pts_i[i + 1, 1]))
-        cv2.line(canvas, p1, p2, color_bgr, w, cv2.LINE_AA)
-    if closed:
-        cv2.line(
-            canvas,
-            (int(pts_i[-1, 0]), int(pts_i[-1, 1])),
-            (int(pts_i[0, 0]), int(pts_i[0, 1])),
-            color_bgr,
-            max(1, int(round(base_thick * 0.8))),
-            cv2.LINE_AA,
-        )
+            prof = 1.0 + 0.12 * math.sin(((um - 0.22) / 0.56) * math.pi)
+        hw = 0.5 * base_thick * prof
+        i0 = max(0, i - 1)
+        i1 = min(n - 1, i + 1)
+        tx = pts_f[i1, 0] - pts_f[i0, 0]
+        ty = pts_f[i1, 1] - pts_f[i0, 1]
+        tl = max(1e-4, math.hypot(tx, ty))
+        nx, ny = -ty / tl, tx / tl
+        left_pts.append((pts_f[i, 0] + nx * hw, pts_f[i, 1] + ny * hw))
+        right_pts.append((pts_f[i, 0] - nx * hw, pts_f[i, 1] - ny * hw))
+    ribbon = np.round(np.array(left_pts + right_pts[::-1], dtype=np.float64)).astype(np.int32)
+    cv2.fillPoly(canvas, [ribbon], color_bgr, cv2.LINE_AA)
+    cv2.polylines(canvas, [pts_i], False, color_bgr, max(1, int(round(base_thick * 0.75))), cv2.LINE_AA)
 
 
 def draw_sculpted_oval(
@@ -205,19 +233,14 @@ def draw_sculpted_oval(
     fill_bgr: tuple = None,
     boil_phase: int = 0,
     seed: int = 0,
-    num_pts: int = 12,
+    num_pts: int = 24,
 ):
-    rad = math.radians(angle_deg)
-    ca, sa = math.cos(rad), math.sin(rad)
-    ctrl = []
-    for i in range(num_pts):
-        th = (2.0 * math.pi * i) / num_pts
-        lx, ly = rx * math.cos(th), ry * math.sin(th)
-        ctrl.append((cx + lx * ca - ly * sa, cy + lx * sa + ly * ca))
-    draw_ink_stroke(
-        canvas, ctrl, color_bgr=color_bgr, base_thick=thick,
-        closed=True, fill_bgr=fill_bgr, boil_phase=boil_phase, seed=seed, samples_per_seg=4,
-    )
+    irx, iry = max(1, int(round(rx))), max(1, int(round(ry)))
+    icx, icy = int(round(cx)), int(round(cy))
+    if fill_bgr is not None:
+        cv2.ellipse(canvas, (icx, icy), (irx, iry), float(angle_deg), 0, 360, fill_bgr, -1, cv2.LINE_AA)
+    if thick > 0:
+        cv2.ellipse(canvas, (icx, icy), (irx, iry), float(angle_deg), 0, 360, color_bgr, max(1, int(round(thick))), cv2.LINE_AA)
 
 
 def solve_2bone_ik(
@@ -454,7 +477,7 @@ NIB_KEY_POSES = [
         "hip_dx": -18.0, "hip_dy": -174.0, "pelvis_tilt": -8.0,
         "spine_bend": 26.0, "chest_squash": 1.16,
         "head_pitch": 14.0, "head_yaw": 0.85, "head_squash": 1.12,
-        "lh_x": -48.0, "lh_y": -245.0, "lh_pose": "open_gesture",
+        "lh_x": 78.0, "lh_y": -285.0, "lh_pose": "open_gesture",
         "rh_x": 68.0, "rh_y": -255.0, "rh_pose": "grip_pen", "pen_angle": -55.0,
         "l_foot_dx": -38.0, "l_foot_dy": 0.0, "l_heel_lift": 0.0,
         "r_foot_dx": 30.0, "r_foot_dy": 0.0, "r_heel_lift": 0.0,
@@ -469,8 +492,8 @@ NIB_KEY_POSES = [
         "hip_dx": -8.0, "hip_dy": -302.0, "pelvis_tilt": 5.0,
         "spine_bend": -14.0, "chest_squash": 0.88,
         "head_pitch": -18.0, "head_yaw": 0.82, "head_squash": 0.90,
-        "lh_x": -62.0, "lh_y": -518.0, "lh_pose": "cheer_high",
-        "rh_x": 96.0, "rh_y": -532.0, "rh_pose": "cheer_high", "pen_angle": -95.0,
+        "lh_x": 64.0, "lh_y": -518.0, "lh_pose": "cheer_high",
+        "rh_x": 112.0, "rh_y": -532.0, "rh_pose": "cheer_high", "pen_angle": -95.0,
         "l_foot_dx": -42.0, "l_foot_dy": -58.0, "l_heel_lift": 24.0,
         "r_foot_dx": 36.0, "r_foot_dy": -64.0, "r_heel_lift": 26.0,
         "brow_l": 18.0, "brow_r": 18.0, "eye_open": 1.28, "look_dx": 0.2, "look_dy": -0.6,
@@ -484,7 +507,7 @@ NIB_KEY_POSES = [
         "hip_dx": -12.0, "hip_dy": -184.0, "pelvis_tilt": -6.0,
         "spine_bend": 22.0, "chest_squash": 1.14,
         "head_pitch": 16.0, "head_yaw": 0.82, "head_squash": 1.10,
-        "lh_x": -34.0, "lh_y": -295.0, "lh_pose": "open_gesture",
+        "lh_x": 82.0, "lh_y": -295.0, "lh_pose": "open_gesture",
         "rh_x": 74.0, "rh_y": -310.0, "rh_pose": "grip_pen", "pen_angle": -35.0,
         "l_foot_dx": -38.0, "l_foot_dy": 0.0, "l_heel_lift": 0.0,
         "r_foot_dx": 32.0, "r_foot_dy": 0.0, "r_heel_lift": 0.0,
@@ -584,139 +607,221 @@ def interpolate_nib_pose(frame_f: float) -> dict:
 
 
 # ==============================================================================
-# III. INSIDE-OUT HAND-DRAWN CHARACTER RENDERER FOR `NIB`
+# III. WATERTIGHT DUAL-PASS CASING CHARACTER RENDERER FOR `NIB`
+#      (Zero Joint Slop: Seamless Shoulders, Puffy Rolled Cuffs, Unified Hands,
+#       Continuous Trouser Tubes, Sculpted Flat-Soled Shoes & Pointed W-Collar)
 # ==============================================================================
 
-def _draw_articulated_hand(
+def _draw_seamless_arm_and_hand(
     canvas: np.ndarray,
-    wx: float,
-    wy: float,
-    elbow_x: float,
-    elbow_y: float,
+    sh_pt: tuple,
+    el_pt: tuple,
+    wr_pt: tuple,
+    w_up: float,
+    w_low: float,
     scale: float,
     hand_pose: str,
     is_right: bool,
+    is_near_shoulder: bool,
+    shirt_fill: tuple,
     skin_fill: tuple,
     ink_col: tuple,
     ink_w: float,
-    boil_phase: int,
-    seed: int,
     pen_angle_deg: float = -45.0,
     has_ink_pen: bool = True,
-):
+) -> tuple:
     """
-    Draws an expressive cartoon hand (`Rule XXI`) at `(wx, wy)` matching `nib_inking_keys.jpg`
-    and `agent_nib_keys.jpg`, plus Nib's iconic **Fountain-Nib Dip Pen** (with diamond nib head,
-    central slit line, and circular breather hole `o`) when `is_right=True`.
+    Draws a 100% seamless cartoon arm (`Upper Sleeve -> Puffy Rolled Elbow Cuff ->
+    Bare Forearm -> Sculpted 4-Fingered Hand + Diamond Fountain-Nib Dip Pen`) using
+    Dual-Pass Capsule Union (`Pass 1: Outer Ink Casing -> Pass 2: Opaque Interior Fill
+    -> Pass 3: Interior Overlap Creases`) so there are ZERO intersecting joint rings
+    at the shoulder, elbow, wrist, palm, or knuckles (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`).
     """
-    arm_ang = math.atan2(wy - elbow_y, wx - elbow_x)
-    ca, sa = math.cos(arm_ang), math.sin(arm_ang)
-    nx, ny = -sa, ca
     w_i = max(2, int(round(ink_w)))
+    f_ang = math.atan2(wr_pt[1] - el_pt[1], wr_pt[0] - el_pt[0])
+    fca, fsa = math.cos(f_ang), math.sin(f_ang)
+    fnx, fny = -fsa, fca
 
-    palm_cx = wx + ca * 13.0 * scale
-    palm_cy = wy + sa * 13.0 * scale
+    u_ang = math.atan2(el_pt[1] - sh_pt[1], el_pt[0] - sh_pt[0])
+    uca, usa = math.cos(u_ang), math.sin(u_ang)
+    unx, uny = -usa, uca
 
-    # If right hand, draw the back shaft of the Fountain-Nib Dip Pen first (behind fingers),
-    # and the diamond Fountain-Nib front assembly emerging cleanly between thumb & index finger!
+    palm_cx = wr_pt[0] + fca * 12.5 * scale
+    palm_cy = wr_pt[1] + fsa * 12.5 * scale
     pen_tip = (palm_cx + 22.0 * scale, palm_cy + 12.0 * scale)
+
+    # Rough Pass 1 (`shirt_fill is None`): clean non-photo blue construction skeleton + volume tubes
+    if shirt_fill is None or skin_fill is None:
+        cv2.polylines(canvas, [_capsule_poly(sh_pt, el_pt, w_up, w_up * 0.88)], True, ink_col, max(1, w_i - 1), cv2.LINE_AA)
+        cv2.polylines(canvas, [_capsule_poly(el_pt, (palm_cx, palm_cy), w_low, w_low * 0.78)], True, ink_col, max(1, w_i - 1), cv2.LINE_AA)
+        cv2.circle(canvas, (int(sh_pt[0]), int(sh_pt[1])), max(2, int(4 * scale)), ink_col, 1, cv2.LINE_AA)
+        cv2.circle(canvas, (int(el_pt[0]), int(el_pt[1])), max(2, int(5 * scale)), ink_col, 1, cv2.LINE_AA)
+        cv2.circle(canvas, (int(palm_cx), int(palm_cy)), max(3, int(11 * scale)), ink_col, max(1, w_i - 1), cv2.LINE_AA)
+        if is_right:
+            p_rad = math.radians(pen_angle_deg)
+            pca, psa = math.cos(p_rad), math.sin(p_rad)
+            grip_x, grip_y = palm_cx + 7.0 * scale * fca, palm_cy + 7.0 * scale * fsa
+            tip_x, tip_y = grip_x + pca * 64.0 * scale, grip_y + psa * 64.0 * scale
+            pen_tip = (tip_x, tip_y)
+            cv2.line(canvas, (int(grip_x - pca * 48 * scale), int(grip_y - psa * 48 * scale)), (int(tip_x), int(tip_y)), ink_col, max(2, w_i), cv2.LINE_AA)
+        return pen_tip
+
+    # ==========================================================================
+    # 1. UPPER SLEEVE TUBE (`sh_pt -> el_pt`)
+    # ==========================================================================
+    up_outer = _capsule_poly(sh_pt, el_pt, w_up + w_i, w_up * 0.90 + w_i)
+    up_inner = _capsule_poly(sh_pt, el_pt, w_up, w_up * 0.90)
+    cv2.fillPoly(canvas, [up_outer], ink_col, cv2.LINE_AA)
+    cv2.fillPoly(canvas, [up_inner], shirt_fill, cv2.LINE_AA)
+
+    # Interior-only white shirt shoulder bridge (radius < `w_up`, shifted toward chest so
+    # the back/top/bottom outer black shoulder contour of `up_outer` stays 100% intact!)
+    if is_near_shoulder:
+        bridge_pt = (sh_pt[0] + 4.5 * scale, sh_pt[1] - 2.5 * scale)
+        cv2.circle(canvas, (int(bridge_pt[0]), int(bridge_pt[1])), int(w_up * 0.72), shirt_fill, -1, cv2.LINE_AA)
+
+    # ==========================================================================
+    # 2. PROXIMAL FOREARM TUBE (`el_pt -> wr_pt`)
+    #    Drawn BEFORE the Puffy Rolled-Up Sleeve Cuff so the cuff overlaps the
+    #    forearm root cleanly with zero semicircular cap inside the cuff!
+    # ==========================================================================
+    r_wrist = w_low * 0.74
+    cv2.fillPoly(canvas, [_capsule_poly(el_pt, wr_pt, w_low + w_i, r_wrist + w_i)], ink_col, cv2.LINE_AA)
+    cv2.fillPoly(canvas, [_capsule_poly(el_pt, wr_pt, w_low, r_wrist)], skin_fill, cv2.LINE_AA)
+
+    # ==========================================================================
+    # 3. PUFFY ROLLED-UP SLEEVE CUFF AT ELBOW (`nib_inking_keys.jpg` Q1-Q4)
+    #    Wraps cleanly over the `sh_pt -> el_pt -> wr_pt` elbow joint!
+    # ==========================================================================
+    cuff_cx = el_pt[0] + fca * 2.0 * scale
+    cuff_cy = el_pt[1] + fsa * 2.0 * scale
+    cuff_hw = w_up * 0.95
+    c0 = (cuff_cx - fnx * cuff_hw, cuff_cy - fny * cuff_hw)
+    c1 = (cuff_cx + fnx * cuff_hw, cuff_cy + fny * cuff_hw)
+    r_cuff = 8.0 * scale
+    cv2.fillPoly(canvas, [_capsule_poly(c0, c1, r_cuff + w_i, r_cuff + w_i)], ink_col, cv2.LINE_AA)
+    cv2.fillPoly(canvas, [_capsule_poly(c0, c1, r_cuff, r_cuff)], shirt_fill, cv2.LINE_AA)
+
+    # ==========================================================================
+    # 4. BACK SHAFT OF FOUNTAIN-NIB DIP PEN (Behind Palm/Fingers when `is_right`)
+    # ==========================================================================
     if is_right:
         p_rad = math.radians(pen_angle_deg)
         pca, psa = math.cos(p_rad), math.sin(p_rad)
         pnx, pny = -psa, pca
-        grip_x = palm_cx + 8.0 * scale * ca
-        grip_y = palm_cy + 8.0 * scale * sa
-        back_x = grip_x - pca * 56.0 * scale
-        back_y = grip_y - psa * 56.0 * scale
-        collar_x = grip_x + pca * 24.0 * scale
-        collar_y = grip_y + psa * 24.0 * scale
-        nib_mid_x = grip_x + pca * 42.0 * scale
-        nib_mid_y = grip_y + psa * 42.0 * scale
-        tip_x = grip_x + pca * 66.0 * scale
-        tip_y = grip_y + psa * 66.0 * scale
-        pen_tip = (tip_x, tip_y)
-
-        pw = 5.2 * scale
-        shaft_poly = np.array([
-            [int(back_x + pnx * pw * 0.75), int(back_y + pny * pw * 0.75)],
-            [int(collar_x + pnx * pw), int(collar_y + pny * pw)],
-            [int(collar_x - pnx * pw), int(collar_y - pny * pw)],
-            [int(back_x - pnx * pw * 0.75), int(back_y - pny * pw * 0.75)],
-        ], dtype=np.int32)
-        if skin_fill is not None:
-            s_fill = (248, 250, 252) if skin_fill == (255, 255, 255) else ((62, 82, 184) if has_ink_pen else BGR_NONPHOTO_BLUE)
-            cv2.fillPoly(canvas, [shaft_poly], s_fill, cv2.LINE_AA)
-        cv2.polylines(canvas, [shaft_poly], True, ink_col, w_i, cv2.LINE_AA)
-
-    # Articulated Cartoon Fingers & Palm (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)
-    if hand_pose in ("open_gesture", "cheer_high", "wave_pen", "flourish"):
-        spreads = [-0.62, -0.22, 0.12, 0.45]
-        lengths = [18.0, 22.0, 21.0, 17.0]
-    elif hand_pose in ("idea_point",):
-        spreads = [-0.55, -0.05, 0.32, 0.55]
-        lengths = [16.0, 26.0, 13.0, 11.0]
-    else:
-        spreads = [-0.45, -0.10, 0.18, 0.40]
-        lengths = [16.0, 19.0, 15.0, 13.0]
-
-    # Draw palm oval
-    p_deg = math.degrees(arm_ang)
-    if skin_fill is not None:
-        cv2.ellipse(canvas, (int(palm_cx), int(palm_cy)), (int(15.5 * scale), int(12.5 * scale)), p_deg, 0, 360, skin_fill, -1, cv2.LINE_AA)
-    cv2.ellipse(canvas, (int(palm_cx), int(palm_cy)), (int(15.5 * scale), int(12.5 * scale)), p_deg, 0, 360, ink_col, w_i, cv2.LINE_AA)
-
-    # Draw rounded cartoon fingers
-    for fi, (sp_a, flen) in enumerate(zip(spreads, lengths)):
-        f_ang = arm_ang + sp_a
-        fcx = palm_cx + math.cos(f_ang) * (flen * 0.58 * scale) + nx * (fi - 1.5) * 3.8 * scale
-        fcy = palm_cy + math.sin(f_ang) * (flen * 0.58 * scale) + ny * (fi - 1.5) * 3.8 * scale
-        frx = int(max(3, flen * 0.48 * scale))
-        fry = int(max(3, 5.2 * scale))
-        f_deg = math.degrees(f_ang)
-        if skin_fill is not None:
-            cv2.ellipse(canvas, (int(fcx), int(fcy)), (frx, fry), f_deg, 0, 360, skin_fill, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (int(fcx), int(fcy)), (frx, fry), f_deg, 0, 360, ink_col, w_i, cv2.LINE_AA)
-
-    # Re-cover center of palm so finger bases merge seamlessly into the hand!
-    if skin_fill is not None:
-        cv2.ellipse(canvas, (int(palm_cx), int(palm_cy)), (int(13.0 * scale), int(10.0 * scale)), p_deg, 0, 360, skin_fill, -1, cv2.LINE_AA)
-
-    # Draw the iconic Diamond-Shaped Fountain-Pen Nib Head (`agent_nib_keys.jpg` Q1-Q4)!
-    if is_right:
-        p_rad = math.radians(pen_angle_deg)
-        pca, psa = math.cos(p_rad), math.sin(p_rad)
-        pnx, pny = -psa, pca
-        grip_x = palm_cx + 8.0 * scale * ca
-        grip_y = palm_cy + 8.0 * scale * sa
+        grip_x = palm_cx + 8.0 * scale * fca
+        grip_y = palm_cy + 8.0 * scale * fsa
+        back_x = grip_x - pca * 54.0 * scale
+        back_y = grip_y - psa * 54.0 * scale
         collar_x = grip_x + pca * 22.0 * scale
         collar_y = grip_y + psa * 22.0 * scale
-        nib_mid_x = grip_x + pca * 42.0 * scale
-        nib_mid_y = grip_y + psa * 42.0 * scale
+        tip_x = grip_x + pca * 64.0 * scale
+        tip_y = grip_y + psa * 64.0 * scale
+        pen_tip = (tip_x, tip_y)
+
+        pw = 5.0 * scale
+        s_fill = (255, 255, 255) if skin_fill == (255, 255, 255) else ((62, 82, 184) if has_ink_pen else BGR_NONPHOTO_BLUE)
+        cv2.fillPoly(canvas, [_capsule_poly((back_x, back_y), (collar_x, collar_y), pw * 0.78 + w_i, pw + w_i)], ink_col, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [_capsule_poly((back_x, back_y), (collar_x, collar_y), pw * 0.78, pw)], s_fill, cv2.LINE_AA)
+
+    # ==========================================================================
+    # 5. SEAMLESS WRIST + PALM + 3 FINGERS + THUMB (Dual-Pass Union!)
+    # ==========================================================================
+    mid_forearm = (0.48 * el_pt[0] + 0.52 * wr_pt[0], 0.48 * el_pt[1] + 0.52 * wr_pt[1])
+    r_mid = 0.48 * w_low + 0.52 * r_wrist
+    rx_palm, ry_palm = 14.5 * scale, 12.0 * scale
+    p_deg = math.degrees(f_ang)
+
+    if hand_pose in ("open_gesture", "cheer_high", "wave_pen", "flourish"):
+        f_defs = [
+            (-0.24, 21.0, -5.5),
+            (0.06, 22.0, 0.0),
+            (0.34, 19.0, 5.5),
+        ]
+        th_ang, th_len, th_off = -0.78, 17.0, -8.5
+    elif hand_pose in ("idea_point",):
+        f_defs = [
+            (-0.08, 25.0, -4.5),
+            (0.22, 14.0, 1.0),
+            (0.42, 12.0, 5.5),
+        ]
+        th_ang, th_len, th_off = -0.65, 15.0, -7.5
+    else:
+        f_defs = [
+            (-0.12, 19.5, -4.5),
+            (0.14, 17.5, 0.5),
+            (0.36, 15.0, 5.0),
+        ]
+        th_ang, th_len, th_off = -0.58, 16.5, -7.5
+
+    finger_capsules = []
+    for sp_a, flen, n_off in f_defs:
+        fa = f_ang + sp_a
+        fb_x = palm_cx + math.cos(fa) * 5.0 * scale + fnx * n_off * scale
+        fb_y = palm_cy + math.sin(fa) * 5.0 * scale + fny * n_off * scale
+        ft_x = fb_x + math.cos(fa) * (flen * 0.68 * scale)
+        ft_y = fb_y + math.sin(fa) * (flen * 0.68 * scale)
+        finger_capsules.append(((fb_x, fb_y), (ft_x, ft_y), 5.0 * scale, 4.4 * scale))
+
+    tha = f_ang + th_ang
+    th_bx = palm_cx + math.cos(tha) * 3.0 * scale + fnx * th_off * scale
+    th_by = palm_cy + math.sin(tha) * 3.0 * scale + fny * th_off * scale
+    th_tx = th_bx + math.cos(tha) * (th_len * 0.68 * scale)
+    th_ty = th_by + math.sin(tha) * (th_len * 0.68 * scale)
+    thumb_cap = ((th_bx, th_by), (th_tx, th_ty), 5.2 * scale, 4.5 * scale)
+
+    # PASS 1 (Outer Ink Casing for Palm + Fingers + Thumb)
+    cv2.ellipse(canvas, (int(palm_cx), int(palm_cy)), (int(rx_palm + w_i), int(ry_palm + w_i)), p_deg, 0, 360, ink_col, -1, cv2.LINE_AA)
+    for fb, ft, rf0, rf1 in finger_capsules:
+        cv2.fillPoly(canvas, [_capsule_poly(fb, ft, rf0 + w_i, rf1 + w_i)], ink_col, cv2.LINE_AA)
+    cv2.fillPoly(canvas, [_capsule_poly(thumb_cap[0], thumb_cap[1], thumb_cap[2] + w_i, thumb_cap[3] + w_i)], ink_col, cv2.LINE_AA)
+
+    # PASS 2 (Opaque Interior Skin Fill — Fuses Distal Forearm, Wrist, Palm & Fingers with ZERO internal seams!)
+    cv2.fillPoly(canvas, [_capsule_poly(mid_forearm, wr_pt, r_mid, r_wrist)], skin_fill, cv2.LINE_AA)
+    cv2.ellipse(canvas, (int(palm_cx), int(palm_cy)), (int(rx_palm), int(ry_palm)), p_deg, 0, 360, skin_fill, -1, cv2.LINE_AA)
+    for fb, ft, rf0, rf1 in finger_capsules:
+        cv2.fillPoly(canvas, [_capsule_poly(fb, ft, rf0, rf1)], skin_fill, cv2.LINE_AA)
+    cv2.fillPoly(canvas, [_capsule_poly(thumb_cap[0], thumb_cap[1], thumb_cap[2], thumb_cap[3])], skin_fill, cv2.LINE_AA)
+
+    # PASS 3 (Deliberate Finger Cleft Crease Lines + Front Fountain-Nib Dip Pen + Overlapping Thumb Pinch!)
+    for ci in range(len(finger_capsules) - 1):
+        f0_b, f0_t, _, _ = finger_capsules[ci]
+        f1_b, f1_t, _, _ = finger_capsules[ci + 1]
+        cleft_x = 0.5 * (f0_t[0] + f1_t[0])
+        cleft_y = 0.5 * (f0_t[1] + f1_t[1])
+        base_x = 0.5 * (f0_b[0] + f1_b[0]) + fca * 3.0 * scale
+        base_y = 0.5 * (f0_b[1] + f1_b[1]) + fsa * 3.0 * scale
+        cv2.line(canvas, (int(base_x), int(base_y)), (int(0.55 * base_x + 0.45 * cleft_x), int(0.55 * base_y + 0.45 * cleft_y)), ink_col, max(2, w_i - 1), cv2.LINE_AA)
+
+    if is_right:
+        p_rad = math.radians(pen_angle_deg)
+        pca, psa = math.cos(p_rad), math.sin(p_rad)
+        pnx, pny = -psa, pca
+        grip_x = palm_cx + 8.0 * scale * fca
+        grip_y = palm_cy + 8.0 * scale * fsa
+        collar_x = grip_x + pca * 20.0 * scale
+        collar_y = grip_y + psa * 20.0 * scale
+        nib_mid_x = grip_x + pca * 40.0 * scale
+        nib_mid_y = grip_y + psa * 40.0 * scale
         tip_x, tip_y = pen_tip
-        nw = 9.5 * scale
+        nw = 9.2 * scale
 
-        # Ferrule collar ring
-        ferrule = np.array([
-            [int(collar_x - pca * 4 * scale + pnx * 6 * scale), int(collar_y - psa * 4 * scale + pny * 6 * scale)],
-            [int(collar_x + pca * 4 * scale + pnx * 6 * scale), int(collar_y + psa * 4 * scale + pny * 6 * scale)],
-            [int(collar_x + pca * 4 * scale - pnx * 6 * scale), int(collar_y + psa * 4 * scale - pny * 6 * scale)],
-            [int(collar_x - pca * 4 * scale - pnx * 6 * scale), int(collar_y - psa * 4 * scale - pny * 6 * scale)],
-        ], dtype=np.int32)
-        if skin_fill is not None:
-            cv2.fillPoly(canvas, [ferrule], (255, 255, 255) if skin_fill == (255, 255, 255) else (190, 215, 238), cv2.LINE_AA)
-        cv2.polylines(canvas, [ferrule], True, ink_col, w_i, cv2.LINE_AA)
+        # Front barrel segment from grip to ferrule collar
+        pw = 5.0 * scale
+        s_fill = (255, 255, 255) if skin_fill == (255, 255, 255) else ((62, 82, 184) if has_ink_pen else BGR_NONPHOTO_BLUE)
+        cv2.fillPoly(canvas, [_capsule_poly((grip_x, grip_y), (collar_x, collar_y), pw + w_i, pw + w_i)], ink_col, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [_capsule_poly((grip_x, grip_y), (collar_x, collar_y), pw, pw)], s_fill, cv2.LINE_AA)
 
-        # Diamond Fountain-Nib Head
+        # Diamond Fountain-Nib Head (`agent_nib_keys.jpg` & `nib_inking_keys.jpg`)
         nib_poly = np.array([
-            [int(collar_x + pca * 4 * scale + pnx * 4.5 * scale), int(collar_y + psa * 4 * scale + pny * 4.5 * scale)],
+            [int(collar_x + pnx * 5.0 * scale), int(collar_y + pny * 5.0 * scale)],
             [int(nib_mid_x + pnx * nw), int(nib_mid_y + pny * nw)],
             [int(tip_x), int(tip_y)],
             [int(nib_mid_x - pnx * nw), int(nib_mid_y - pny * nw)],
-            [int(collar_x + pca * 4 * scale - pnx * 4.5 * scale), int(collar_y + psa * 4 * scale - pny * 4.5 * scale)],
+            [int(collar_x - pnx * 5.0 * scale), int(collar_y - pny * 5.0 * scale)],
         ], dtype=np.int32)
-        if skin_fill is not None:
-            n_fill = (255, 255, 255) if skin_fill == (255, 255, 255) else (196, 232, 252)
-            cv2.fillPoly(canvas, [nib_poly], n_fill, cv2.LINE_AA)
+        n_fill = (255, 255, 255) if skin_fill == (255, 255, 255) else (196, 232, 252)
+        cv2.fillPoly(canvas, [nib_poly], n_fill, cv2.LINE_AA)
         cv2.polylines(canvas, [nib_poly], True, ink_col, w_i, cv2.LINE_AA)
 
         # Nib central slit line + circular breather hole `o`!
@@ -725,6 +830,10 @@ def _draw_articulated_hand(
         cv2.line(canvas, (int(tip_x), int(tip_y)), (hole_x, hole_y), ink_col, max(2, w_i - 1), cv2.LINE_AA)
         cv2.circle(canvas, (hole_x, hole_y), max(2, int(3.2 * scale)), (255, 255, 255), -1, cv2.LINE_AA)
         cv2.circle(canvas, (hole_x, hole_y), max(2, int(3.2 * scale)), ink_col, max(1, w_i - 1), cv2.LINE_AA)
+
+        # Re-draw Thumb Pinch ON TOP of pen grip so thumb wraps around the pen barrel (`closeup_hand_drawing_keys.jpg`)!
+        cv2.fillPoly(canvas, [_capsule_poly(thumb_cap[0], thumb_cap[1], thumb_cap[2] + w_i, thumb_cap[3] + w_i)], ink_col, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [_capsule_poly(thumb_cap[0], thumb_cap[1], thumb_cap[2], thumb_cap[3])], skin_fill, cv2.LINE_AA)
 
     return pen_tip
 
@@ -742,7 +851,7 @@ def draw_nib_character_pose(
     """
     Manually draws `NIB` in the given interpolated key/breakdown/in-between `pose`
     around studio floor anchor `(origin_x, origin_y)` at scale `scale`, matching the
-    exact canonical character design and bold line quality of:
+    exact canonical character design, watertight joints, and bold line quality of:
       - `assets/studio_doodles/nib_inking_keys.jpg`
       - `assets/studio_doodles/agent_nib_keys.jpg`
       - `assets/studio_doodles/nib_moviola_keys.jpg`
@@ -754,13 +863,9 @@ def draw_nib_character_pose(
     is_colored = (stage_mode in ("gouache_cel", "multiplane_composite"))
 
     ink_col = ink_override if ink_override is not None else (BGR_NONPHOTO_BLUE if is_rough else BGR_INK)
-    ink_w = max(2.0, (2.2 if is_rough else 3.8) * max(0.65, min(1.45, scale)))
+    ink_w = max(2.2, (2.2 if is_rough else 4.0) * max(0.65, min(1.45, scale)))
     w_i = max(2, int(round(ink_w)))
 
-    # Canonical Palette:
-    # - In `cleanup_ink` (`Pass 2`): Pure crisp white fills `(255, 255, 255)` with bold black contours,
-    #   matching the exact look of `nib_inking_keys.jpg` and `agent_nib_keys.jpg`!
-    # - In `multiplane_composite` (`Pass 3`): Warm vintage cel gouache fills!
     if is_colored and ink_override is None:
         skin_fill = (232, 243, 252)
         shirt_fill = (248, 250, 254)
@@ -782,188 +887,180 @@ def draw_nib_character_pose(
     else:
         skin_fill = shirt_fill = apron_fill = apron_strap_fill = pants_fill = pants_far = shoe_fill = crown_fill = None
 
-    # --- 1. CLASSIC 3-HEAD-TALL CARTOON PROPORTIONS (`studio_crew_celebration_keys.jpg` & `nib_inking_keys.jpg`) ---
-    # Map the 16 key pose coordinates into compact, sturdy 3-head-tall cartoon proportions!
+    # --- 1. CLASSIC 3-HEAD-TALL CARTOON PROPORTIONS (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`) ---
     hip_x = origin_x + pose["hip_dx"] * 0.75 * scale
     hip_y = origin_y + (pose["hip_dy"] * 0.56) * scale
     spine_rad = math.radians(pose["spine_bend"] * 0.72)
     csq = float(pose["chest_squash"])
 
-    torso_len = 116.0 * scale / (csq ** 0.55)
+    torso_len = 114.0 * scale / (csq ** 0.55)
     chest_x = hip_x + torso_len * math.sin(spine_rad)
     chest_y = hip_y - torso_len * math.cos(spine_rad)
 
-    mid_spine_x = 0.5 * (hip_x + chest_x) + 8.0 * scale * math.sin(spine_rad)
+    mid_spine_x = 0.5 * (hip_x + chest_x) + 6.0 * scale * math.sin(spine_rad)
     mid_spine_y = 0.5 * (hip_y + chest_y)
 
-    neck_x = chest_x + 8.0 * scale * math.sin(spine_rad * 0.7)
-    neck_y = chest_y - 10.0 * scale
+    neck_x = chest_x + 6.0 * scale * math.sin(spine_rad * 0.7)
+    neck_y = chest_y - 8.0 * scale
 
-    # Large, appealing round cartoon cranium (`rx = 66 * scale, ry = 60 * scale`) sitting right above the V-collar!
     h_sq = float(pose["head_squash"])
     hrx = 66.0 * scale * (h_sq ** 0.45)
-    hry = 60.0 * scale / (h_sq ** 0.45)
+    hry = 59.0 * scale / (h_sq ** 0.45)
     head_cx = neck_x + 6.0 * scale
-    head_cy = neck_y - 48.0 * scale
+    head_cy = neck_y - 46.0 * scale
 
-    # Map hand targets proportionally to the desk & body
     lh_target = (origin_x + pose["lh_x"] * 0.85 * scale, origin_y + (pose["lh_y"] * 0.68) * scale)
     rh_target = (origin_x + pose["rh_x"] * 0.85 * scale, origin_y + (pose["rh_y"] * 0.68) * scale)
 
-    # Helper to draw a smooth cartoon limb segment + thick rolled elbow cuff
-    def _draw_cartoon_arm(sh_pt, el_pt, wr_pt, w_up, w_low):
-        for p0, p1, wa, wb, f_col in [
-            (sh_pt, el_pt, w_up, w_up * 0.86, shirt_fill),
-            (el_pt, wr_pt, w_low, w_low * 0.72, skin_fill),
-        ]:
-            dx_s, dy_s = p1[0] - p0[0], p1[1] - p0[1]
-            L_s = max(1e-4, math.hypot(dx_s, dy_s))
-            nx_s, ny_s = -dy_s / L_s, dx_s / L_s
-            mx_s, my_s = 0.5 * (p0[0] + p1[0]), 0.5 * (p0[1] + p1[1])
-            wm = 0.54 * (wa + wb)
-            poly_s = np.array([
-                [int(p0[0] + nx_s * wa), int(p0[1] + ny_s * wa)],
-                [int(mx_s + nx_s * wm), int(my_s + ny_s * wm)],
-                [int(p1[0] + nx_s * wb), int(p1[1] + ny_s * wb)],
-                [int(p1[0] - nx_s * wb), int(p1[1] - ny_s * wb)],
-                [int(mx_s - nx_s * wm), int(my_s - ny_s * wm)],
-                [int(p0[0] - nx_s * wa), int(p0[1] - ny_s * wa)],
-            ], dtype=np.int32)
-            if f_col is not None:
-                cv2.fillPoly(canvas, [poly_s], f_col, cv2.LINE_AA)
-            cv2.polylines(canvas, [poly_s], True, ink_col, w_i, cv2.LINE_AA)
-
-        # Thick, puffy rolled-up sleeve cuff at elbow (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)!
-        cuff_deg = math.degrees(math.atan2(el_pt[1] - sh_pt[1], el_pt[0] - sh_pt[0])) + 90.0
-        crx, cry = int(w_up * 1.18), int(9.5 * scale)
-        if shirt_fill is not None:
-            cv2.ellipse(canvas, (int(el_pt[0]), int(el_pt[1])), (crx, cry), cuff_deg, 0, 360, shirt_fill, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (int(el_pt[0]), int(el_pt[1])), (crx, cry), cuff_deg, 0, 360, ink_col, w_i, cv2.LINE_AA)
-        # Inner cuff roll fold line
-        cv2.ellipse(canvas, (int(el_pt[0]), int(el_pt[1])), (int(crx * 0.72), int(cry * 0.45)), cuff_deg, 15, 165, ink_col, max(1, w_i - 1), cv2.LINE_AA)
-
-    # --- 2. FAR ARM (Left Arm Reaching to Acme Peg Bar / Paper Corner) ---
-    sh_lx = chest_x - 24.0 * scale
-    sh_ly = chest_y + 18.0 * scale
+    # --- 2. FAR ARM (Left Arm Foreshortened in 3/4 Depth, Reaching to Peg Bar / Paper Corner) ---
+    # Foreshortened (`u_arm_far = 38 * scale, f_arm_far = 40 * scale`) with `prefer_lower_joint=True`
+    # so the far elbow hangs naturally behind the chest/desk and NEVER sticks up in front of Nib's face!
+    sh_lx = chest_x + 18.0 * scale
+    sh_ly = chest_y + 20.0 * scale
     u_arm = 78.0 * scale
     f_arm = 74.0 * scale
-    el_lx, el_ly, wr_lx, wr_ly = solve_2bone_ik(sh_lx, sh_ly, lh_target[0], lh_target[1], u_arm, f_arm, prefer_lower_joint=True)
-    _draw_cartoon_arm((sh_lx, sh_ly), (el_lx, el_ly), (wr_lx, wr_ly), 19.0 * scale, 15.0 * scale)
-    _draw_articulated_hand(
-        canvas, wr_lx, wr_ly, el_lx, el_ly, scale,
-        hand_pose=pose["lh_pose"], is_right=False,
-        skin_fill=skin_fill, ink_col=ink_col, ink_w=ink_w,
-        boil_phase=boil_phase, seed=105,
+    el_lx, el_ly, wr_lx, wr_ly = solve_2bone_ik(sh_lx, sh_ly, lh_target[0], lh_target[1], 38.0 * scale, 40.0 * scale, prefer_lower_joint=True)
+    _draw_seamless_arm_and_hand(
+        canvas, (sh_lx, sh_ly), (el_lx, el_ly), (wr_lx, wr_ly),
+        w_up=15.5 * scale, w_low=12.5 * scale, scale=scale,
+        hand_pose=pose["lh_pose"], is_right=False, is_near_shoulder=False,
+        shirt_fill=shirt_fill, skin_fill=skin_fill, ink_col=ink_col, ink_w=ink_w,
     )
 
-    # --- 3. STURDY CARTOON LEGS, CUFFED TROUSERS & ROUNDED ANIMATOR SHOES (`studio_crew_celebration_keys.jpg`) ---
-    thigh_l = 72.0 * scale
-    calf_l = 70.0 * scale
+    # --- 3. SEAMLESS CURVED TROUSER LEGS & SCULPTED FLAT-SOLED ANIMATOR SHOES ---
+    # Hip joints are anchored to `0.5 * (hip_x + mid_spine_x)` with 3-head-tall limb lengths
+    # (`52 * scale`) so the hip spheres stay 100% inside the flared apron skirt at all spine bends!
+    thigh_l = 52.0 * scale
+    calf_l = 52.0 * scale
+    hip_anchor_x = 0.5 * (hip_x + mid_spine_x)
     for li, (hip_off_x, f_dx, f_dy, heel_lift, p_fill) in enumerate([
-        (-22.0 * scale, pose["l_foot_dx"] * 0.9 * scale, pose["l_foot_dy"] * 0.65 * scale, pose["l_heel_lift"] * 0.6 * scale, pants_far),
-        (20.0 * scale, pose["r_foot_dx"] * 0.9 * scale, pose["r_foot_dy"] * 0.65 * scale, pose["r_heel_lift"] * 0.6 * scale, pants_fill),
+        (-8.0 * scale, pose["l_foot_dx"] * 0.9 * scale, pose["l_foot_dy"] * 0.65 * scale, pose["l_heel_lift"] * 0.6 * scale, pants_far),
+        (14.0 * scale, pose["r_foot_dx"] * 0.9 * scale, pose["r_foot_dy"] * 0.65 * scale, pose["r_heel_lift"] * 0.6 * scale, pants_fill),
     ]):
-        hx_j = hip_x + hip_off_x
-        hy_j = hip_y + 8.0 * scale
+        hx_j = hip_anchor_x + hip_off_x
+        hy_j = hip_y + 16.0 * scale
         ank_x = origin_x + f_dx
         ank_y = origin_y + f_dy - 14.0 * scale - heel_lift * 0.5
         kx, ky, ax_e, ay_e = solve_2bone_ik(hx_j, hy_j, ank_x, ank_y, thigh_l, calf_l, prefer_forward_x=True)
 
-        w0, w1, w2 = 22.0 * scale, 19.0 * scale, 16.5 * scale
-        dx1, dy1 = kx - hx_j, ky - hy_j
-        L1 = max(1e-4, math.hypot(dx1, dy1))
-        n1x, n1y = -dy1 / L1, dx1 / L1
-        dx2, dy2 = ax_e - kx, ay_e - ky
-        L2 = max(1e-4, math.hypot(dx2, dy2))
-        n2x, n2y = -dy2 / L2, dx2 / L2
-        leg_poly = np.array([
-            [int(hx_j + n1x * w0), int(hy_j + n1y * w0)],
-            [int(kx + 0.5 * (n1x + n2x) * w1), int(ky + 0.5 * (n1y + n2y) * w1)],
-            [int(ax_e + n2x * w2), int(ay_e + n2y * w2)],
-            [int(ax_e - n2x * w2), int(ay_e - n2y * w2)],
-            [int(kx - 0.5 * (n1x + n2x) * w1), int(ky - 0.5 * (n1y + n2y) * w1)],
-            [int(hx_j - n1x * w0), int(hy_j - n1y * w0)],
+        # 3A. Sculpted Flat-Soled Animator Shoe (drawn first, under the trouser cuff!)
+        sole_y = int(origin_y + f_dy - heel_lift * 0.25)
+        heel_x = int(ax_e - 18.0 * scale)
+        toe_x = int(ax_e + 36.0 * scale)
+        instep_y = int(sole_y - 20.0 * scale)
+        shoe_pts = np.array([
+            [heel_x, sole_y - int(4 * scale)],
+            [heel_x + int(2 * scale), instep_y + int(3 * scale)],
+            [int(ax_e + 10 * scale), instep_y],
+            [toe_x - int(6 * scale), instep_y + int(4 * scale)],
+            [toe_x, sole_y - int(6 * scale)],
+            [toe_x - int(2 * scale), sole_y],
+            [heel_x + int(2 * scale), sole_y],
         ], dtype=np.int32)
-        if p_fill is not None:
-            cv2.fillPoly(canvas, [leg_poly], p_fill, cv2.LINE_AA)
-        cv2.polylines(canvas, [leg_poly], True, ink_col, w_i, cv2.LINE_AA)
-
-        # Rounded Cartoon Animator Shoe + Trouser Cuff (`studio_crew_celebration_keys.jpg` Q3/Q4)
-        shoe_cx = int(ank_x + 12.0 * scale)
-        shoe_cy = int(origin_y + f_dy - 9.0 * scale - heel_lift * 0.3)
         if shoe_fill is not None:
-            cv2.ellipse(canvas, (shoe_cx, shoe_cy), (int(28 * scale), int(12.5 * scale)), -heel_lift * 0.5, 0, 360, shoe_fill, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (shoe_cx, shoe_cy), (int(28 * scale), int(12.5 * scale)), -heel_lift * 0.5, 0, 360, ink_col, w_i, cv2.LINE_AA)
+            cv2.fillPoly(canvas, [shoe_pts], shoe_fill, cv2.LINE_AA)
+            cv2.polylines(canvas, [shoe_pts], True, ink_col, w_i, cv2.LINE_AA)
+            # Crisp sole welt line parallel to bottom of shoe
+            cv2.line(canvas, (heel_x + int(2 * scale), sole_y - int(4 * scale)), (toe_x - int(2 * scale), sole_y - int(4 * scale)), ink_col, max(1, w_i - 1), cv2.LINE_AA)
+        else:
+            cv2.polylines(canvas, [shoe_pts], True, ink_col, max(1, w_i - 1), cv2.LINE_AA)
 
-        cuff_rect = np.array([
-            [int(ax_e - 18 * scale), int(ay_e - 8 * scale)],
-            [int(ax_e + 18 * scale), int(ay_e - 8 * scale)],
-            [int(ax_e + 18 * scale), int(ay_e + 3 * scale)],
-            [int(ax_e - 18 * scale), int(ay_e + 3 * scale)],
-        ], dtype=np.int32)
+        # 3B. Dual-Pass Capsule Union for Thigh + Calf (100% seamless knee joint!)
+        r_th, r_kn, r_an = 20.0 * scale, 17.5 * scale, 15.0 * scale
         if p_fill is not None:
-            cv2.fillPoly(canvas, [cuff_rect], p_fill, cv2.LINE_AA)
-        cv2.polylines(canvas, [cuff_rect], True, ink_col, w_i, cv2.LINE_AA)
+            # Pass 1: Outer Ink Casing
+            cv2.fillPoly(canvas, [_capsule_poly((hx_j, hy_j), (kx, ky), r_th + w_i, r_kn + w_i)], ink_col, cv2.LINE_AA)
+            cv2.fillPoly(canvas, [_capsule_poly((kx, ky), (ax_e, ay_e), r_kn + w_i, r_an + w_i)], ink_col, cv2.LINE_AA)
+            # Pass 2: Opaque Trouser Fill (erases internal knee seam!)
+            cv2.fillPoly(canvas, [_capsule_poly((hx_j, hy_j), (kx, ky), r_th, r_kn)], p_fill, cv2.LINE_AA)
+            cv2.fillPoly(canvas, [_capsule_poly((kx, ky), (ax_e, ay_e), r_kn, r_an)], p_fill, cv2.LINE_AA)
+            # Pass 3: Neat Cuffed Trouser Hem at Ankle (`cuff_p0 -> cuff_p1`)
+            c_p0 = (ax_e - 15.5 * scale, ay_e - 2.0 * scale)
+            c_p1 = (ax_e + 15.5 * scale, ay_e - 2.0 * scale)
+            cv2.fillPoly(canvas, [_capsule_poly(c_p0, c_p1, 5.0 * scale + w_i, 5.0 * scale + w_i)], ink_col, cv2.LINE_AA)
+            cv2.fillPoly(canvas, [_capsule_poly(c_p0, c_p1, 5.0 * scale, 5.0 * scale)], p_fill, cv2.LINE_AA)
+        else:
+            cv2.polylines(canvas, [_capsule_poly((hx_j, hy_j), (kx, ky), r_th, r_kn)], True, ink_col, max(1, w_i - 1), cv2.LINE_AA)
+            cv2.polylines(canvas, [_capsule_poly((kx, ky), (ax_e, ay_e), r_kn, r_an)], True, ink_col, max(1, w_i - 1), cv2.LINE_AA)
 
-    # --- 4. TORSO, SHIRT, CANONICAL BIB APRON & POINTED V-COLLAR (`\/\/`) ---
-    w_chest = 48.0 * scale * (csq ** 0.45)
-    w_waist = 44.0 * scale * (csq ** 0.50)
-    w_hip = 46.0 * scale * (csq ** 0.40)
+    # --- 4. UNIFIED TORSO, SHIRT SHOULDERS, BIB APRON & POINTED `W` COLLAR (`nib_inking_keys.jpg` Q1-Q4) ---
+    w_chest = 47.0 * scale * (csq ** 0.45)
+    w_waist = 45.0 * scale * (csq ** 0.50)
+    w_hip = 48.0 * scale * (csq ** 0.40)
+    ap_lag = pose["apron_lag"] * 0.65 * scale
+    bib_top_y = chest_y + 34.0 * scale
+    apron_bot_y = hip_y + 46.0 * scale
 
-    torso_poly = np.array([
-        [int(chest_x - w_chest), int(chest_y + 4.0 * scale)],
-        [int(chest_x + w_chest), int(chest_y + 4.0 * scale)],
-        [int(mid_spine_x + w_waist), int(mid_spine_y)],
-        [int(hip_x + w_hip), int(hip_y + 14.0 * scale)],
-        [int(hip_x - w_hip), int(hip_y + 14.0 * scale)],
-        [int(mid_spine_x - w_waist), int(mid_spine_y)],
+    # 4A. Upper Shirt Chest & Back Torso Dome (shares exact side alignment with Apron!)
+    shirt_dome = np.array([
+        [int(chest_x - w_chest * 0.88), int(chest_y + 18.0 * scale)],
+        [int(chest_x - w_chest * 0.55), int(chest_y + 2.0 * scale)],
+        [int(chest_x + w_chest * 0.58), int(chest_y + 2.0 * scale)],
+        [int(chest_x + w_chest * 0.88), int(chest_y + 18.0 * scale)],
+        [int(mid_spine_x + w_waist * 0.88), int(mid_spine_y + 16.0 * scale)],
+        [int(mid_spine_x - w_waist * 0.86), int(mid_spine_y + 16.0 * scale)],
     ], dtype=np.int32)
     if shirt_fill is not None:
-        cv2.fillPoly(canvas, [torso_poly], shirt_fill, cv2.LINE_AA)
-    cv2.polylines(canvas, [torso_poly], True, ink_col, w_i, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [shirt_dome], shirt_fill, cv2.LINE_AA)
+    cv2.polylines(canvas, [shirt_dome], True, ink_col, w_i, cv2.LINE_AA)
 
-    # Canonical Animator's Bib Apron (`nib_inking_keys.jpg`, `agent_nib_keys.jpg`, `studio_crew_celebration_keys.jpg`)
-    ap_lag = pose["apron_lag"] * 0.7 * scale
-    bib_top_y = chest_y + 34.0 * scale
-    apron_skirt = np.array([
-        [int(chest_x - w_chest * 0.62), int(bib_top_y)],
-        [int(chest_x + w_chest * 0.68), int(bib_top_y)],
-        [int(mid_spine_x + w_waist * 0.90 + ap_lag * 0.35), int(mid_spine_y + 16.0 * scale)],
-        [int(hip_x + w_hip * 1.02 + ap_lag), int(hip_y + 52.0 * scale)],
-        [int(hip_x - w_hip * 0.88 + ap_lag * 0.8), int(hip_y + 52.0 * scale)],
-        [int(mid_spine_x - w_waist * 0.82 + ap_lag * 0.3), int(mid_spine_y + 16.0 * scale)],
+    # 4B. Animator's Bib Apron Skirt & Square-U Bib (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)
+    apron_body = np.array([
+        [int(chest_x - w_chest * 0.52), int(bib_top_y)],
+        [int(chest_x + w_chest * 0.62), int(bib_top_y)],
+        [int(mid_spine_x + w_waist * 0.90 + ap_lag * 0.35), int(mid_spine_y + 14.0 * scale)],
+        [int(hip_x + w_hip * 1.00 + ap_lag), int(apron_bot_y)],
+        [int(hip_x - w_hip * 0.90 + ap_lag * 0.8), int(apron_bot_y)],
+        [int(mid_spine_x - w_waist * 0.86 + ap_lag * 0.3), int(mid_spine_y + 14.0 * scale)],
     ], dtype=np.int32)
     if apron_fill is not None:
-        cv2.fillPoly(canvas, [apron_skirt], apron_fill, cv2.LINE_AA)
-    cv2.polylines(canvas, [apron_skirt], True, ink_col, w_i, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [apron_body], apron_fill, cv2.LINE_AA)
+    cv2.polylines(canvas, [apron_body], True, ink_col, w_i, cv2.LINE_AA)
 
-    # Two Apron Shoulder Straps & Square-U Chest Bib Top (`nib_inking_keys.jpg` Q1-Q4)!
-    for side_s, x_top_f, x_bot_f in [(-1, -0.58, -0.46), (1, 0.62, 0.50)]:
+    # Two Vertical Apron Shoulder Straps framing the Pointed `W` Shirt Collar!
+    for x_top_f, x_bot_f in [(-0.52, -0.46), (0.58, 0.54)]:
         strap_poly = np.array([
-            [int(chest_x + x_top_f * w_chest - 6 * scale), int(chest_y + 4 * scale)],
-            [int(chest_x + x_top_f * w_chest + 6 * scale), int(chest_y + 4 * scale)],
-            [int(chest_x + x_bot_f * w_chest + 6 * scale), int(bib_top_y)],
-            [int(chest_x + x_bot_f * w_chest - 6 * scale), int(bib_top_y)],
+            [int(chest_x + x_top_f * w_chest - 5.5 * scale), int(chest_y + 3 * scale)],
+            [int(chest_x + x_top_f * w_chest + 5.5 * scale), int(chest_y + 3 * scale)],
+            [int(chest_x + x_bot_f * w_chest + 5.5 * scale), int(bib_top_y + 2 * scale)],
+            [int(chest_x + x_bot_f * w_chest - 5.5 * scale), int(bib_top_y + 2 * scale)],
         ], dtype=np.int32)
         if apron_strap_fill is not None:
             cv2.fillPoly(canvas, [strap_poly], apron_strap_fill, cv2.LINE_AA)
         cv2.polylines(canvas, [strap_poly], True, ink_col, w_i, cv2.LINE_AA)
+    # Re-stroke horizontal Square-U Bib Top line so strap-to-bib join is seamless
+    if apron_fill is not None:
+        cv2.rectangle(
+            canvas,
+            (int(chest_x - w_chest * 0.48), int(bib_top_y + 1 * scale)),
+            (int(chest_x + w_chest * 0.56), int(bib_top_y + 10 * scale)),
+            apron_fill, -1,
+        )
+    cv2.line(
+        canvas,
+        (int(chest_x - w_chest * 0.52), int(bib_top_y)),
+        (int(chest_x + w_chest * 0.62), int(bib_top_y)),
+        ink_col, w_i, cv2.LINE_AA,
+    )
 
-    # Crisp Pointed V-Neck Shirt Collar (`\/\/` two triangular collar flaps meeting at central V)!
+    # 4C. Crisp Pointed `W` Shirt Collar (`\/\/` tucked cleanly between the apron straps right below the chin!)
     col_cx = chest_x + 4.0 * scale
-    col_cy = chest_y + 6.0 * scale
-    for side_c in (-1, 1):
-        flap = np.array([
-            [int(col_cx), int(col_cy + 14 * scale)],
-            [int(col_cx + side_c * 14 * scale), int(col_cy + 24 * scale)],
-            [int(col_cx + side_c * 24 * scale), int(col_cy + 4 * scale)],
-            [int(col_cx + side_c * 14 * scale), int(col_cy - 4 * scale)],
-        ], dtype=np.int32)
-        if shirt_fill is not None:
-            cv2.fillPoly(canvas, [flap], shirt_fill, cv2.LINE_AA)
-        cv2.polylines(canvas, [flap], True, ink_col, w_i, cv2.LINE_AA)
+    col_cy = chest_y + 4.0 * scale
+    w_collar_pts = np.array([
+        [int(col_cx - 21 * scale), int(col_cy)],
+        [int(col_cx - 12 * scale), int(col_cy + 22 * scale)],
+        [int(col_cx), int(col_cy + 10 * scale)],
+        [int(col_cx + 12 * scale), int(col_cy + 22 * scale)],
+        [int(col_cx + 21 * scale), int(col_cy)],
+    ], dtype=np.int32)
+    if shirt_fill is not None:
+        cv2.fillPoly(canvas, [w_collar_pts], shirt_fill, cv2.LINE_AA)
+    cv2.polylines(canvas, [w_collar_pts], False, ink_col, w_i, cv2.LINE_AA)
+    # Inner V-neck throat lines
+    cv2.line(canvas, (int(col_cx - 10 * scale), int(col_cy - 2 * scale)), (int(col_cx), int(col_cy + 10 * scale)), ink_col, w_i, cv2.LINE_AA)
+    cv2.line(canvas, (int(col_cx + 10 * scale), int(col_cy - 2 * scale)), (int(col_cx), int(col_cy + 10 * scale)), ink_col, w_i, cv2.LINE_AA)
 
-    # --- 5. CANONICAL ROUND CARTOON CRANIUM, 3-POINTED FOUNTAIN-NIB CROWN HAT & FACIAL ACTING ---
+    # --- 5. CANONICAL ROUND CARTOON CRANIUM & SMOOTH-RIMMED 3-POINTED FOUNTAIN-NIB CROWN HAT ---
     hpitch = float(pose["head_pitch"]) * 0.45
     rad_p = math.radians(hpitch)
     cp, sp = math.cos(rad_p), math.sin(rad_p)
@@ -973,43 +1070,44 @@ def draw_nib_character_pose(
         ly = ly_u * hry
         return (head_cx + lx * cp - ly * sp, head_cy + lx * sp + ly * cp)
 
-    # Smooth Round-Oval Cartoon Head Cranium (`nib_inking_keys.jpg`, `agent_nib_keys.jpg`)
     if skin_fill is not None:
-        cv2.ellipse(canvas, (int(head_cx), int(head_cy)), (int(hrx), int(hry)), hpitch, 0, 360, skin_fill, -1, cv2.LINE_AA)
-    cv2.ellipse(canvas, (int(head_cx), int(head_cy)), (int(hrx), int(hry)), hpitch, 0, 360, ink_col, w_i, cv2.LINE_AA)
+        cv2.ellipse(canvas, (int(head_cx), int(head_cy)), (int(hrx), int(hry)), hpitch, -28, 208, skin_fill, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (int(head_cx), int(head_cy)), (int(hrx), int(hry)), hpitch, -28, 208, ink_col, w_i, cv2.LINE_AA)
+    else:
+        cv2.ellipse(canvas, (int(head_cx), int(head_cy)), (int(hrx), int(hry)), hpitch, 0, 360, ink_col, w_i, cv2.LINE_AA)
 
-    # Non-Photo Blue 3D Construction Cross-Hairs ONLY in `rough_blue` (`Pass 1`) so `Pass 2` & `Pass 3` have 100% clean faces!
     if is_rough:
         eye_line = np.array([_hpt(-0.92, -0.02), _hpt(0.0, 0.02), _hpt(0.92, -0.02)], dtype=np.int32)
         ctr_line = np.array([_hpt(0.14, -0.92), _hpt(0.18, 0.0), _hpt(0.14, 0.92)], dtype=np.int32)
         cv2.polylines(canvas, [eye_line], False, BGR_NONPHOTO_BLUE, 1, cv2.LINE_AA)
         cv2.polylines(canvas, [ctr_line], False, BGR_NONPHOTO_BLUE, 1, cv2.LINE_AA)
 
-    # Canonical 3-Pointed Fountain-Pen Nib Crown Hat (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)!
-    # Features:
-    #   - Curved headband rim across the forehead (`y = -0.44 * hry`)
-    #   - Sharp Left Peak & Right Peak
-    #   - Tall Center Fountain-Pen Nib Peak with vertical slit line + circular breather hole `o`!
-    crown_lag = float(pose["hair_lag"]) * 0.006
-    crown_pts = np.array([
-        _hpt(-0.92, -0.42),
+    # Canonical 3-Pointed Fountain-Pen Nib Crown Hat with Smoothly Arched Headband Rim (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)
+    crown_lag = float(pose["hair_lag"]) * 0.005
+    crown_peaks = [
+        _hpt(-0.95, -0.38),
         _hpt(-1.06 + crown_lag * 0.5, -1.24),
-        _hpt(-0.44 + crown_lag * 0.3, -0.84),
-        _hpt(0.02 + crown_lag, -1.94),
-        _hpt(0.48 + crown_lag * 0.3, -0.84),
+        _hpt(-0.45 + crown_lag * 0.3, -0.82),
+        _hpt(0.02 + crown_lag, -1.92),
+        _hpt(0.47 + crown_lag * 0.3, -0.82),
         _hpt(1.04 + crown_lag * 0.5, -1.22),
-        _hpt(0.92, -0.42),
-        _hpt(0.45, -0.35),
-        _hpt(0.0, -0.32),
-        _hpt(-0.45, -0.35),
-    ], dtype=np.int32)
+        _hpt(0.95, -0.38),
+    ]
+    # 11-point smooth arched headband curve from right temple `(0.95, -0.38)` across forehead `(0.0, -0.50)` to left temple `(-0.95, -0.38)`
+    rim_curve = []
+    for ri in range(1, 11):
+        u_r = ri / 11.0
+        rx_u = 0.95 * (1.0 - 2.0 * u_r)
+        ry_u = -0.38 - 0.12 * math.sin(math.pi * u_r)
+        rim_curve.append(_hpt(rx_u, ry_u))
+    crown_poly = np.round(np.array(crown_peaks + rim_curve, dtype=np.float64)).astype(np.int32)
     if crown_fill is not None:
-        cv2.fillPoly(canvas, [crown_pts], crown_fill, cv2.LINE_AA)
-    cv2.polylines(canvas, [crown_pts], True, ink_col, w_i, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [crown_poly], crown_fill, cv2.LINE_AA)
+    cv2.polylines(canvas, [crown_poly], True, ink_col, w_i, cv2.LINE_AA)
 
     # Fountain-Nib Crown Slit & Circular Breather Hole `o`
-    apex_pt = _hpt(0.02 + crown_lag, -1.94)
-    hole_pt = _hpt(0.01 + crown_lag * 0.35, -0.88)
+    apex_pt = _hpt(0.02 + crown_lag, -1.92)
+    hole_pt = _hpt(0.01 + crown_lag * 0.35, -0.90)
     cv2.line(canvas, (int(apex_pt[0]), int(apex_pt[1])), (int(hole_pt[0]), int(hole_pt[1])), ink_col, w_i, cv2.LINE_AA)
     hole_r = max(4, int(round(0.115 * hrx)))
     if crown_fill is not None:
@@ -1020,7 +1118,7 @@ def draw_nib_character_pose(
     eye_open = float(pose["eye_open"])
     is_wink = (pose.get("code") == "K16" and pose.get("raw_u", 1.0) > 0.65)
     is_happy_arch = (pose.get("code") == "K14" and 0.25 <= pose.get("raw_u", 0.5) <= 0.85)
-    face_shift_u = 0.14  # Slight 3/4 rightward gaze toward the animation desk
+    face_shift_u = 0.14
 
     for ei, (ex_u, ey_u, brow_val) in enumerate([
         (-0.24 + face_shift_u, -0.01, pose["brow_l"]),
@@ -1031,7 +1129,6 @@ def draw_nib_character_pose(
         ery = max(4, int(round(0.165 * hry * float(np.clip(eye_open, 0.55, 1.20)))))
 
         if ei == 0 and is_wink:
-            # Winking chevron `>` (`nib_moviola_keys.jpg` Q3)
             w_pts = np.array([
                 [int(ecx - erx * 1.2), int(ecy - ery * 0.55)],
                 [int(ecx + erx * 1.1), int(ecy)],
@@ -1039,13 +1136,10 @@ def draw_nib_character_pose(
             ], dtype=np.int32)
             cv2.polylines(canvas, [w_pts], False, ink_col, w_i, cv2.LINE_AA)
         elif is_happy_arch:
-            # Joyful arched crescent eyes `^ ^` (`nib_cameracrank_keys.jpg` Q4)
             cv2.ellipse(canvas, (int(ecx), int(ecy + ery * 0.3)), (int(erx * 1.25), int(ery * 0.85)), hpitch, 195, 345, ink_col, w_i, cv2.LINE_AA)
         else:
-            # Canonical solid-black vertical oval cartoon eye (`● ●`)!
             cv2.ellipse(canvas, (int(ecx), int(ecy)), (erx, ery), hpitch, 0, 360, ink_col, -1, cv2.LINE_AA)
 
-        # Expressive Eyebrow above each eye (`nib_inking_keys.jpg` & `agent_nib_keys.jpg`)
         by_c = ecy - ery * 1.35 - brow_val * 0.35 * scale
         tilt_b = -brow_val * 0.35 * scale * (-1 if ei == 0 else 1)
         brow_pts = np.array([
@@ -1063,21 +1157,17 @@ def draw_nib_character_pose(
         hpitch + 10, -35, 205, ink_col, w_i, cv2.LINE_AA,
     )
 
-    # Canonical Mouths from `nib_inking_keys.jpg` Q1-Q4 & `agent_nib_keys.jpg` Q1-Q4!
     m_type = pose["mouth"]
     mx, my = _hpt(0.02 + face_shift_u, 0.44)
     if m_type == "think_pucker":
-        # `nib_inking_keys.jpg` Q1: Determined slight downward frown arch `︵`
         cv2.ellipse(canvas, (int(mx), int(my + 6 * scale)), (int(16 * scale), int(7 * scale)), hpitch, 200, 340, ink_col, w_i, cv2.LINE_AA)
     elif m_type == "tongue_concentrate":
-        # `nib_inking_keys.jpg` Q2: Concentrated smile curve + cute rounded tongue sticking out the right corner!
         smile_pts = np.array([
             [int(mx - 16 * scale), int(my + 2 * scale)],
             [int(mx + 2 * scale), int(my + 7 * scale)],
             [int(mx + 20 * scale), int(my - 4 * scale)],
         ], dtype=np.int32)
         cv2.polylines(canvas, [smile_pts], False, ink_col, w_i, cv2.LINE_AA)
-        # Side tongue loop at `(mx + 16 * scale, my - 2 * scale)`
         tcx, tcy = int(mx + 18 * scale), int(my - 2 * scale)
         t_fill = (178, 168, 248) if is_colored else ((255, 255, 255) if is_cleanup else None)
         if t_fill is not None:
@@ -1085,10 +1175,8 @@ def draw_nib_character_pose(
         cv2.ellipse(canvas, (tcx, tcy), (int(10 * scale), int(7.5 * scale)), -20, 0, 360, ink_col, w_i, cv2.LINE_AA)
         cv2.line(canvas, (int(tcx - 4 * scale), int(tcy + 1 * scale)), (int(tcx + 5 * scale), int(tcy - 2 * scale)), ink_col, max(1, w_i - 1), cv2.LINE_AA)
     elif m_type == "blow_puff" or pose.get("code") == "K10":
-        # `nib_inking_keys.jpg` Panel 6 (`6. BLOW DRY`): Puffed cheeks `) (` blowing air stream + fluffy cartoon puff cloud `💨`!
         cv2.ellipse(canvas, (int(mx - 10 * scale), int(my)), (int(6 * scale), int(9 * scale)), 0, -70, 70, ink_col, w_i, cv2.LINE_AA)
         cv2.ellipse(canvas, (int(mx + 6 * scale), int(my)), (int(5 * scale), int(6.5 * scale)), 0, 0, 360, ink_col, -1, cv2.LINE_AA)
-        # Sweeping air lines + fluffy cloud `💨` blowing across the freshly inked paper on the desk!
         for ay_off in (-3.5, 0.0, 3.8):
             air_pts = np.array([
                 [int(mx + 16 * scale), int(my + ay_off * scale)],
@@ -1104,7 +1192,6 @@ def draw_nib_character_pose(
         if not is_rough:
             cv2.circle(canvas, (cloud_cx + int(10 * scale), cloud_cy), int(12 * scale), (255, 255, 255), -1, cv2.LINE_AA)
     elif m_type in ("big_grin_teeth", "open_laugh", "happy_grin", "oh_gasp"):
-        # `agent_nib_keys.jpg` Q4 & `studio_crew_celebration_keys.jpg` Q2-Q4: Wide happy D-shaped open laugh mouth with bottom tongue!
         mw, mh = int(20 * scale), int(14 * scale)
         cv2.ellipse(canvas, (int(mx), int(my - 2 * scale)), (mw, mh), hpitch, 0, 180, ink_col, -1, cv2.LINE_AA)
         if not is_rough:
@@ -1113,33 +1200,28 @@ def draw_nib_character_pose(
         cv2.ellipse(canvas, (int(mx), int(my - 2 * scale)), (mw, mh), hpitch, 0, 180, ink_col, w_i, cv2.LINE_AA)
         cv2.line(canvas, (int(mx - mw), int(my - 2 * scale)), (int(mx + mw), int(my - 2 * scale)), ink_col, w_i, cv2.LINE_AA)
     else:
-        # `nib_inking_keys.jpg` Q3 & `agent_nib_keys.jpg` Q1-Q3: Confident upward smirk with corner tick!
         cv2.ellipse(canvas, (int(mx), int(my - 4 * scale)), (int(18 * scale), int(9 * scale)), hpitch - 6, 15, 165, ink_col, w_i, cv2.LINE_AA)
         cv2.line(canvas, (int(mx - 17 * scale), int(my - 5 * scale)), (int(mx - 20 * scale), int(my - 1 * scale)), ink_col, max(2, w_i - 1), cv2.LINE_AA)
 
     # --- 7. NEAR ARM (Right Drawing Arm) + MULTI-ARM SPEED ECHOES (`nib_inking_keys.jpg` Q3) + FOUNTAIN-NIB PEN ---
-    sh_rx = chest_x - 6.0 * scale
-    sh_ry = chest_y + 20.0 * scale
+    sh_rx = chest_x - 10.0 * scale
+    sh_ry = chest_y + 19.0 * scale
     el_rx, el_ry, wr_rx, wr_ry = solve_2bone_ik(sh_rx, sh_ry, rh_target[0], rh_target[1], u_arm * 1.04, f_arm * 1.04, prefer_lower_joint=True)
 
-    # In rapid sketching/inking (`K04`, `K05`, `K09`), draw classical comic multi-arm motion-blur echoes & speed arcs `(( ))` (`nib_inking_keys.jpg` Q3)!
     if pose.get("seg_idx") in (3, 4, 8):
         for echo_off_y, echo_ang in [(-38.0 * scale, -55.0), (26.0 * scale, -18.0)]:
             e_tx, e_ty = rh_target[0] - 18.0 * scale, rh_target[1] + echo_off_y
             e_elx, e_ely, e_wrx, e_wry = solve_2bone_ik(sh_rx, sh_ry, e_tx, e_ty, u_arm, f_arm, prefer_lower_joint=True)
-            # Speed arc lines `(( ))` behind moving arm
             arc_cx, arc_cy = int(0.5 * (e_wrx + wr_rx) + 24 * scale), int(0.5 * (e_wry + wr_ry))
             cv2.ellipse(canvas, (arc_cx, arc_cy), (int(18 * scale), int(34 * scale)), 15, -55, 55, ink_col, max(1, w_i - 2), cv2.LINE_AA)
             cv2.ellipse(canvas, (arc_cx + int(8 * scale), arc_cy), (int(18 * scale), int(30 * scale)), 15, -45, 45, ink_col, max(1, w_i - 2), cv2.LINE_AA)
 
-    _draw_cartoon_arm((sh_rx, sh_ry), (el_rx, el_ry), (wr_rx, wr_ry), 20.5 * scale, 16.0 * scale)
-
     has_ink_pen = (pose.get("seg_idx", 0) >= 6)
-    pen_tip = _draw_articulated_hand(
-        canvas, wr_rx, wr_ry, el_rx, el_ry, scale,
-        hand_pose=pose["rh_pose"], is_right=True,
-        skin_fill=skin_fill, ink_col=ink_col, ink_w=ink_w,
-        boil_phase=boil_phase, seed=175,
+    pen_tip = _draw_seamless_arm_and_hand(
+        canvas, (sh_rx, sh_ry), (el_rx, el_ry), (wr_rx, wr_ry),
+        w_up=19.5 * scale, w_low=15.5 * scale, scale=scale,
+        hand_pose=pose["rh_pose"], is_right=True, is_near_shoulder=True,
+        shirt_fill=shirt_fill, skin_fill=skin_fill, ink_col=ink_col, ink_w=ink_w,
         pen_angle_deg=pose["pen_angle"], has_ink_pen=has_ink_pen,
     )
 
@@ -1416,49 +1498,95 @@ def render_nib_multiplane_frame(
     wood_dark = (98, 134, 168) if is_colored else shade_fill
     brass_fill = (68, 192, 246) if is_colored else shade_fill
 
-    # 1. A-Frame Wooden Trestle Legs, Splayed Floor Feet, Crossbar & Brass Tilt Quadrant
+    # 1. 3D Beveled A-Frame Wooden Trestle Legs, Splayed Floor Runners, Crossbar & Tilt Mechanism
     for leg_off in (-118.0, 108.0):
         lx_d = desk_cx + leg_off * nib_scale
-        d_leg = [
-            (lx_d - 15 * nib_scale, desk_fy - 245 * nib_scale),
-            (lx_d + 15 * nib_scale, desk_fy - 245 * nib_scale),
-            (lx_d + 20 * nib_scale, desk_fy - 14 * nib_scale),
-            (lx_d - 20 * nib_scale, desk_fy - 14 * nib_scale),
+        # 3D right bevel of vertical trestle post
+        d_leg_side = [
+            (lx_d + 12 * nib_scale, desk_fy - 245 * nib_scale),
+            (lx_d + 22 * nib_scale, desk_fy - 240 * nib_scale),
+            (lx_d + 26 * nib_scale, desk_fy - 14 * nib_scale),
+            (lx_d + 16 * nib_scale, desk_fy - 14 * nib_scale),
         ]
-        draw_ink_stroke(canvas, d_leg, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=60 + int(leg_off))
-        # Splayed wooden floor foot pad
+        draw_ink_stroke(canvas, d_leg_side, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=59 + int(leg_off), sharp_corners=True)
+        # Front face of vertical trestle post
+        d_leg = [
+            (lx_d - 14 * nib_scale, desk_fy - 245 * nib_scale),
+            (lx_d + 12 * nib_scale, desk_fy - 245 * nib_scale),
+            (lx_d + 16 * nib_scale, desk_fy - 14 * nib_scale),
+            (lx_d - 18 * nib_scale, desk_fy - 14 * nib_scale),
+        ]
+        draw_ink_stroke(canvas, d_leg, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=60 + int(leg_off), sharp_corners=True)
+        # 3D Splayed wooden floor runner pad (`apparatus_lightbox_anim_keys.jpg`)
+        foot_side = [
+            (lx_d + 34 * nib_scale, desk_fy - 14 * nib_scale),
+            (lx_d + 44 * nib_scale, desk_fy - 10 * nib_scale),
+            (lx_d + 46 * nib_scale, desk_fy),
+            (lx_d + 36 * nib_scale, desk_fy),
+        ]
+        draw_ink_stroke(canvas, foot_side, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=58 + int(leg_off), sharp_corners=True)
         foot_pad = [
             (lx_d - 34 * nib_scale, desk_fy - 14 * nib_scale),
             (lx_d + 34 * nib_scale, desk_fy - 14 * nib_scale),
-            (lx_d + 38 * nib_scale, desk_fy),
+            (lx_d + 36 * nib_scale, desk_fy),
             (lx_d - 38 * nib_scale, desk_fy),
         ]
-        draw_ink_stroke(canvas, foot_pad, color_bgr=bg_line_col, base_thick=bg_line_w * 1.1, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=61 + int(leg_off))
+        draw_ink_stroke(canvas, foot_pad, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_light, boil_phase=boil_phase, seed=61 + int(leg_off), sharp_corners=True)
 
-    # Horizontal stretcher beam between legs
+    # Horizontal stretcher beam between legs with recessed wood-grain groove
     stretcher_pts = [
-        (desk_cx - 110 * nib_scale, desk_fy - 98 * nib_scale),
-        (desk_cx + 102 * nib_scale, desk_fy - 98 * nib_scale),
-        (desk_cx + 102 * nib_scale, desk_fy - 78 * nib_scale),
-        (desk_cx - 110 * nib_scale, desk_fy - 78 * nib_scale),
+        (desk_cx - 104 * nib_scale, desk_fy - 98 * nib_scale),
+        (desk_cx + 94 * nib_scale, desk_fy - 98 * nib_scale),
+        (desk_cx + 94 * nib_scale, desk_fy - 78 * nib_scale),
+        (desk_cx - 104 * nib_scale, desk_fy - 78 * nib_scale),
     ]
-    draw_ink_stroke(canvas, stretcher_pts, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=62)
+    draw_ink_stroke(canvas, stretcher_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.1, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=62, sharp_corners=True)
+    cv2.line(canvas, (int(desk_cx - 98 * nib_scale), int(desk_fy - 88 * nib_scale)), (int(desk_cx + 88 * nib_scale), int(desk_fy - 88 * nib_scale)), bg_line_col, max(1, int(1.4 * s_ui)), cv2.LINE_AA)
 
-    # Curved tilt-adjust quadrant arc & wingnut under drafting board (`apparatus_lightbox_anim_keys.jpg`)
+    # Central tilt-quadrant bracket & hand-wheel lock knob under drafting board (`apparatus_lightbox_anim_keys.jpg`)
     quad_pts = [
-        (desk_cx - 72 * nib_scale, desk_fy - 220 * nib_scale),
-        (desk_cx - 38 * nib_scale, desk_fy - 178 * nib_scale),
-        (desk_cx + 14 * nib_scale, desk_fy - 196 * nib_scale),
+        (desk_cx - 68 * nib_scale, desk_fy - 220 * nib_scale),
+        (desk_cx - 34 * nib_scale, desk_fy - 178 * nib_scale),
+        (desk_cx + 18 * nib_scale, desk_fy - 196 * nib_scale),
     ]
-    draw_ink_stroke(canvas, quad_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.1, closed=False, boil_phase=boil_phase, seed=63)
-    cv2.circle(canvas, (int(desk_cx - 42 * nib_scale), int(desk_fy - 188 * nib_scale)), max(3, int(6 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
+    draw_ink_stroke(canvas, quad_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=False, boil_phase=boil_phase, seed=63)
+    cv2.circle(canvas, (int(desk_cx - 38 * nib_scale), int(desk_fy - 188 * nib_scale)), max(3, int(7 * nib_scale)), brass_fill if is_colored else BGR_PAPER, -1, cv2.LINE_AA)
+    cv2.circle(canvas, (int(desk_cx - 38 * nib_scale), int(desk_fy - 188 * nib_scale)), max(3, int(7 * nib_scale)), bg_line_col, max(1, int(1.8 * s_ui)), cv2.LINE_AA)
+
+    # Right-Hand Horizontal Side-Shelf Bracket & Diagonal Strut for Ink Bottle & Pencil Mug (`apparatus_lightbox_anim_keys.jpg`)
+    sh_x0 = desk_cx + 76.0 * nib_scale
+    sh_x1 = desk_cx + 158.0 * nib_scale
+    sh_y = desk_fy - 242.0 * nib_scale
+    # Diagonal wooden support strut under side shelf
+    strut_pts = [
+        (desk_cx + 108 * nib_scale, sh_y + 10 * nib_scale),
+        (sh_x1 - 12 * nib_scale, sh_y + 10 * nib_scale),
+        (desk_cx + 116 * nib_scale, sh_y + 52 * nib_scale),
+        (desk_cx + 108 * nib_scale, sh_y + 52 * nib_scale),
+    ]
+    draw_ink_stroke(canvas, strut_pts, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=160, sharp_corners=True)
+    # 3D horizontal shelf top & front edge
+    shelf_top = [
+        (sh_x0, sh_y),
+        (sh_x0 + 18 * nib_scale, sh_y - 16 * nib_scale),
+        (sh_x1 + 14 * nib_scale, sh_y - 16 * nib_scale),
+        (sh_x1, sh_y),
+    ]
+    shelf_front = [
+        (sh_x0, sh_y),
+        (sh_x1, sh_y),
+        (sh_x1, sh_y + 11 * nib_scale),
+        (sh_x0, sh_y + 11 * nib_scale),
+    ]
+    draw_ink_stroke(canvas, shelf_top, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=wood_light, boil_phase=boil_phase, seed=161, sharp_corners=True)
+    draw_ink_stroke(canvas, shelf_front, color_bgr=bg_line_col, base_thick=bg_line_w * 1.1, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=162, sharp_corners=True)
 
     # 2. 3D Beveled Rectangular Drafting Board Tilted Toward Nib (`apparatus_lightbox_anim_keys.jpg`)
     # Top face of the tilted drafting board:
     b_fl = (desk_cx - 165 * nib_scale, desk_fy - 222 * nib_scale)  # Front-left (closest to Nib)
     b_bl = (desk_cx - 75 * nib_scale, desk_fy - 348 * nib_scale)   # Back-left (higher up)
-    b_br = (desk_cx + 162 * nib_scale, desk_fy - 336 * nib_scale)  # Back-right
-    b_fr = (desk_cx + 112 * nib_scale, desk_fy - 210 * nib_scale)  # Front-right
+    b_br = (desk_cx + 158 * nib_scale, desk_fy - 336 * nib_scale)  # Back-right
+    b_fr = (desk_cx + 106 * nib_scale, desk_fy - 210 * nib_scale)  # Front-right
     board_top = [b_fl, b_bl, b_br, b_fr]
     # 3D Front & Right Bevel Thickness of the wooden drafting board:
     lip_h = 22.0 * nib_scale
@@ -1472,18 +1600,18 @@ def render_nib_multiplane_frame(
         (b_br[0], b_br[1] + lip_h * 0.85),
         (b_fr[0], b_fr[1] + lip_h),
     ]
-    draw_ink_stroke(canvas, board_front_lip, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=64)
-    draw_ink_stroke(canvas, board_right_lip, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=65)
-    draw_ink_stroke(canvas, board_top, color_bgr=bg_line_col, base_thick=bg_line_w * 1.35, closed=True, fill_bgr=wood_light, boil_phase=boil_phase, seed=66)
+    draw_ink_stroke(canvas, board_front_lip, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_side, boil_phase=boil_phase, seed=64, sharp_corners=True)
+    draw_ink_stroke(canvas, board_right_lip, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=65, sharp_corners=True)
+    draw_ink_stroke(canvas, board_top, color_bgr=bg_line_col, base_thick=bg_line_w * 1.35, closed=True, fill_bgr=wood_light, boil_phase=boil_phase, seed=66, sharp_corners=True)
 
     # Recessed Rectangular Lightbox Frame inside the Tilted Drafting Board
     lb_pts = [
         (desk_cx - 122 * nib_scale, desk_fy - 234 * nib_scale),
         (desk_cx - 56 * nib_scale, desk_fy - 332 * nib_scale),
-        (desk_cx + 98 * nib_scale, desk_fy - 324 * nib_scale),
-        (desk_cx + 52 * nib_scale, desk_fy - 224 * nib_scale),
+        (desk_cx + 96 * nib_scale, desk_fy - 324 * nib_scale),
+        (desk_cx + 50 * nib_scale, desk_fy - 224 * nib_scale),
     ]
-    draw_ink_stroke(canvas, lb_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 0.95, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=67)
+    draw_ink_stroke(canvas, lb_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 0.95, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=67, sharp_corners=True)
 
     # 3. Illuminated Milk-Glass Animation Disc (`disc_x = nib_ox + 195 * scale, disc_y = nib_oy - 282 * scale`)
     disc_x = nib_ox + 195.0 * nib_scale
@@ -1493,20 +1621,27 @@ def render_nib_multiplane_frame(
         cv2.ellipse(glow_ov, (int(disc_x), int(disc_y)), (int(96 * nib_scale), int(54 * nib_scale)), -10, 0, 360, (212, 250, 255), -1, cv2.LINE_AA)
         cv2.addWeighted(glow_ov, 0.38, canvas, 0.62, 0, canvas)
 
+    # Outer metal rotating ring + inner milk-glass disc
     draw_sculpted_oval(
-        canvas, disc_x, disc_y, 84.0 * nib_scale, 45.0 * nib_scale,
-        angle_deg=-10, color_bgr=bg_line_col, thick=bg_line_w * 1.2,
+        canvas, disc_x, disc_y, 88.0 * nib_scale, 48.0 * nib_scale,
+        angle_deg=-10, color_bgr=bg_line_col, thick=bg_line_w * 1.1,
+        fill_bgr=shade_fill if not is_colored else (188, 212, 228),
+        boil_phase=boil_phase, seed=168,
+    )
+    draw_sculpted_oval(
+        canvas, disc_x, disc_y, 80.0 * nib_scale, 42.0 * nib_scale,
+        angle_deg=-10, color_bgr=bg_line_col, thick=bg_line_w * 1.15,
         fill_bgr=(216, 250, 255) if is_colored else paper_fill,
         boil_phase=boil_phase, seed=68,
     )
     # Diagonal milk-glass sheen lines (`//`) inside disc (`apparatus_lightbox_anim_keys.jpg`)
     for sh_k in (-1, 0, 1):
-        gx_s = disc_x + sh_k * 26.0 * nib_scale
+        gx_s = disc_x + sh_k * 24.0 * nib_scale
         gy_s = disc_y + sh_k * 4.0 * nib_scale
         cv2.line(
             canvas,
-            (int(gx_s - 14 * nib_scale), int(gy_s + 14 * nib_scale)),
-            (int(gx_s + 14 * nib_scale), int(gy_s - 14 * nib_scale)),
+            (int(gx_s - 13 * nib_scale), int(gy_s + 13 * nib_scale)),
+            (int(gx_s + 13 * nib_scale), int(gy_s - 13 * nib_scale)),
             bg_line_col, max(1, int(1.5 * s_ui)), cv2.LINE_AA,
         )
 
@@ -1515,49 +1650,75 @@ def render_nib_multiplane_frame(
     d_prog = float(pose["draw_prog"])
     c_lift = float(pose["cel_lift"])
 
+    def _draw_sparkle_star(cx_st: float, cy_st: float, r_st: float, col_st: tuple):
+        """Draws a crisp 4-pointed hand-drawn cartoon sparkle star (`✦`) from `apparatus_lightbox_anim_keys.jpg` Q4."""
+        r_in = r_st * 0.28
+        st_pts = [
+            (cx_st, cy_st - r_st),
+            (cx_st + r_in, cy_st - r_in),
+            (cx_st + r_st, cy_st),
+            (cx_st + r_in, cy_st + r_in),
+            (cx_st, cy_st + r_st),
+            (cx_st - r_in, cy_st + r_in),
+            (cx_st - r_st, cy_st),
+            (cx_st - r_in, cy_st - r_in),
+        ]
+        pts_arr = np.array([[int(round(px)), int(round(py))] for px, py in st_pts], dtype=np.int32)
+        cv2.fillPoly(canvas, [pts_arr], (190, 245, 255) if is_colored else BGR_PAPER, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts_arr], True, col_st, max(1, int(round(1.6 * s_ui))), cv2.LINE_AA)
+
     if c_lift < 0.05:
         for sh_i in range(3):
-            curl_h = (sh_i * 9.0 + p_flip * 56.0 * (sh_i / 2.0)) * nib_scale
+            curl_h = (sh_i * 8.5 + p_flip * 56.0 * (sh_i / 2.0)) * nib_scale
             sh_pts = [
-                (disc_x - 66 * nib_scale, disc_y - 24 * nib_scale),
-                (disc_x + 56 * nib_scale, disc_y - 30 * nib_scale),
-                (disc_x + 64 * nib_scale + curl_h * 0.22, disc_y + 12 * nib_scale - curl_h * 0.65),
-                (disc_x + 70 * nib_scale + curl_h * 0.32, disc_y + 22 * nib_scale - curl_h),
+                (disc_x - 64 * nib_scale, disc_y - 24 * nib_scale),
+                (disc_x + 54 * nib_scale, disc_y - 30 * nib_scale),
+                (disc_x + 62 * nib_scale + curl_h * 0.22, disc_y + 12 * nib_scale - curl_h * 0.65),
+                (disc_x + 68 * nib_scale + curl_h * 0.32, disc_y + 22 * nib_scale - curl_h),
                 (disc_x + 4 * nib_scale, disc_y + 26 * nib_scale - curl_h * 0.72),
-                (disc_x - 54 * nib_scale, disc_y + 28 * nib_scale - curl_h * 0.42),
+                (disc_x - 52 * nib_scale, disc_y + 28 * nib_scale - curl_h * 0.42),
             ]
             draw_ink_stroke(
                 canvas, sh_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 0.95,
                 closed=True, fill_bgr=BGR_PAPER if not is_rough else None,
-                boil_phase=boil_phase, seed=70 + sh_i,
+                boil_phase=boil_phase, seed=70 + sh_i, sharp_corners=True,
             )
-            # Draw the animated Fox leap curve & cross-hatching on the active sheet (`closeup_hand_drawing_keys.jpg`)!
+            # Draw the animated Fox leap curve & cross-hatching on the active sheet (`closeup_hand_drawing_keys.jpg` & `nib_inking_keys.jpg` Q3)!
             if sh_i == 2 or p_flip > 0.25:
                 fox_st = [
-                    (disc_x - 40 * nib_scale, disc_y + 10 * nib_scale - curl_h * 0.3),
-                    (disc_x - 10 * nib_scale, disc_y - (12 + sh_i * 6) * nib_scale - curl_h * 0.48),
-                    (disc_x + 22 * nib_scale, disc_y - (10 + sh_i * 4) * nib_scale - curl_h * 0.55),
-                    (disc_x + 40 * nib_scale, disc_y + 4 * nib_scale - curl_h * 0.62),
+                    (disc_x - 38 * nib_scale, disc_y + 10 * nib_scale - curl_h * 0.3),
+                    (disc_x - 10 * nib_scale, disc_y - (12 + sh_i * 5) * nib_scale - curl_h * 0.48),
+                    (disc_x + 20 * nib_scale, disc_y - (10 + sh_i * 4) * nib_scale - curl_h * 0.55),
+                    (disc_x + 38 * nib_scale, disc_y + 4 * nib_scale - curl_h * 0.62),
                 ]
                 st_col = BGR_INK if (d_prog > 0.65 and sh_i == 2 and not is_rough) else BGR_NONPHOTO_BLUE
                 draw_ink_stroke(canvas, fox_st, color_bgr=st_col, base_thick=max(1.6, 2.4 * s_ui), boil_phase=boil_phase, seed=73 + sh_i)
-                # Expressive fox head & ears on the top sheet as `draw_prog` advances!
+                # Expressive fox head, pointed ear & fine cross-hatching ribs on top sheet as `draw_prog` advances!
                 if sh_i == 2 and d_prog > 0.25:
                     fx_hx = disc_x + 18 * nib_scale
                     fx_hy = disc_y - 14 * nib_scale - curl_h * 0.52
-                    cv2.circle(canvas, (int(fx_hx), int(fx_hy)), max(3, int(9 * nib_scale)), st_col, max(1, int(1.8 * s_ui)), cv2.LINE_AA)
-                    # Pointed fox ear
+                    cv2.circle(canvas, (int(fx_hx), int(fx_hy)), max(3, int(8.5 * nib_scale)), st_col, max(1, int(1.8 * s_ui)), cv2.LINE_AA)
                     ear_p = [
                         (fx_hx - 4 * nib_scale, fx_hy - 7 * nib_scale),
-                        (fx_hx + 2 * nib_scale, fx_hy - 19 * nib_scale),
+                        (fx_hx + 2 * nib_scale, fx_hy - 18 * nib_scale),
                         (fx_hx + 7 * nib_scale, fx_hy - 6 * nib_scale),
                     ]
                     draw_ink_stroke(canvas, ear_p, color_bgr=st_col, base_thick=max(1.4, 1.8 * s_ui), boil_phase=boil_phase, seed=76)
+                    # Cross-hatching ticks along fox's torso (`nib_inking_keys.jpg` Q3)
+                    if d_prog > 0.45:
+                        for h_i in range(4):
+                            hx_t = disc_x - (16 - h_i * 8) * nib_scale
+                            hy_t = disc_y - (8 + h_i * 1.5) * nib_scale - curl_h * 0.45
+                            cv2.line(canvas, (int(hx_t - 4 * nib_scale), int(hy_t + 5 * nib_scale)), (int(hx_t + 3 * nib_scale), int(hy_t - 4 * nib_scale)), st_col, max(1, int(1.3 * s_ui)), cv2.LINE_AA)
+                    # Sparkle stars around finished inked sheet (`d_prog > 0.85`, `apparatus_lightbox_anim_keys.jpg` Q4)
+                    if d_prog > 0.85:
+                        _draw_sparkle_star(disc_x - 46 * nib_scale, disc_y - 8 * nib_scale, 7.5 * nib_scale, bg_line_col)
+                        _draw_sparkle_star(disc_x + 48 * nib_scale, disc_y - 16 * nib_scale, 6.5 * nib_scale, bg_line_col)
 
         # Classic hand-drawn double-arc paper-flip motion lines `(( ))` when `p_flip > 0.25` (`apparatus_lightbox_anim_keys.jpg`)
         if p_flip > 0.25:
             for m_arc in range(2):
-                ax_m = disc_x + (78 + m_arc * 10) * nib_scale
+                ax_m = disc_x + (76 + m_arc * 10) * nib_scale
                 ay_m = disc_y - (12 + p_flip * 26) * nib_scale
                 arc_m_pts = [
                     (ax_m - 6 * nib_scale, ay_m - 18 * nib_scale),
@@ -1566,58 +1727,66 @@ def render_nib_multiplane_frame(
                 ]
                 draw_ink_stroke(canvas, arc_m_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 0.8, boil_phase=boil_phase, seed=77 + m_arc)
 
-    # 5. Raised 4-Peg Brass Acme Registration Bar (`o | | o`) bolted along upper disc edge
-    peg_pts = [
+    # 5. Raised 3D 4-Peg Brass Acme Registration Bar (`o | | | | o`) bolted along upper disc edge (`apparatus_lightbox_anim_keys.jpg`)
+    peg_front = [
+        (disc_x - 60 * nib_scale, disc_y - 18 * nib_scale),
+        (disc_x + 56 * nib_scale, disc_y - 25 * nib_scale),
+        (disc_x + 56 * nib_scale, disc_y - 19 * nib_scale),
+        (disc_x - 60 * nib_scale, disc_y - 12 * nib_scale),
+    ]
+    peg_top = [
         (disc_x - 62 * nib_scale, disc_y - 29 * nib_scale),
         (disc_x + 54 * nib_scale, disc_y - 36 * nib_scale),
-        (disc_x + 56 * nib_scale, disc_y - 24 * nib_scale),
-        (disc_x - 60 * nib_scale, disc_y - 17 * nib_scale),
+        (disc_x + 56 * nib_scale, disc_y - 25 * nib_scale),
+        (disc_x - 60 * nib_scale, disc_y - 18 * nib_scale),
     ]
-    draw_ink_stroke(canvas, peg_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=brass_fill, boil_phase=boil_phase, seed=78)
-    # 4 upright registration pegs (`apparatus_lightbox_anim_keys.jpg`)
-    for p_u in (-0.75, -0.25, 0.25, 0.75):
-        px_peg = disc_x - 4 * nib_scale + p_u * 54.0 * nib_scale
-        py_peg = disc_y - 26.5 * nib_scale - p_u * 3.5 * nib_scale
-        cv2.circle(canvas, (int(px_peg), int(py_peg)), max(2, int(3.5 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
-        cv2.line(canvas, (int(px_peg), int(py_peg)), (int(px_peg), int(py_peg - 8 * nib_scale)), bg_line_col, max(1, int(2.2 * s_ui)), cv2.LINE_AA)
+    draw_ink_stroke(canvas, peg_front, color_bgr=bg_line_col, base_thick=bg_line_w * 0.95, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=178, sharp_corners=True)
+    draw_ink_stroke(canvas, peg_top, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=brass_fill, boil_phase=boil_phase, seed=78, sharp_corners=True)
+    # 4 upright cylindrical registration pegs (`apparatus_lightbox_anim_keys.jpg`)
+    for p_u in (-0.72, -0.24, 0.24, 0.72):
+        px_peg = disc_x - 3 * nib_scale + p_u * 54.0 * nib_scale
+        py_peg = disc_y - 25.5 * nib_scale - p_u * 3.5 * nib_scale
+        cv2.ellipse(canvas, (int(px_peg), int(py_peg)), (max(2, int(4.0 * nib_scale)), max(1, int(2.2 * nib_scale))), -4, 0, 360, bg_line_col, -1, cv2.LINE_AA)
+        cv2.line(canvas, (int(px_peg), int(py_peg)), (int(px_peg), int(py_peg - 9 * nib_scale)), bg_line_col, max(2, int(2.6 * s_ui)), cv2.LINE_AA)
+        cv2.circle(canvas, (int(px_peg), int(py_peg - 9 * nib_scale)), max(1, int(1.6 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
 
-    # 6. Upper-Left Desk Corner Prop: Ceramic Mug of Sharpened Pencils (`apparatus_lightbox_anim_keys.jpg`)
-    mug_x = desk_cx - 48.0 * nib_scale
-    mug_y = desk_fy - 355.0 * nib_scale
+    # 6. Right-Edge Desk Props on the Level Side-Shelf Bracket (`apparatus_lightbox_anim_keys.jpg`):
+    #    6a. Ceramic Mug of Sharpened Pencils (upper shelf corner)
+    mug_x = desk_cx + 124.0 * nib_scale
+    mug_y = desk_fy - 322.0 * nib_scale
     mug_pts = [
-        (mug_x - 16 * nib_scale, mug_y - 22 * nib_scale),
-        (mug_x + 16 * nib_scale, mug_y - 22 * nib_scale),
-        (mug_x + 14 * nib_scale, mug_y + 16 * nib_scale),
-        (mug_x - 14 * nib_scale, mug_y + 16 * nib_scale),
+        (mug_x - 15 * nib_scale, mug_y - 20 * nib_scale),
+        (mug_x + 15 * nib_scale, mug_y - 20 * nib_scale),
+        (mug_x + 13 * nib_scale, mug_y + 15 * nib_scale),
+        (mug_x - 13 * nib_scale, mug_y + 15 * nib_scale),
     ]
-    draw_ink_stroke(canvas, mug_pts, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=79)
+    draw_ink_stroke(canvas, mug_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=79, sharp_corners=True)
+    draw_sculpted_oval(canvas, mug_x, mug_y - 20 * nib_scale, 15 * nib_scale, 4.5 * nib_scale, color_bgr=bg_line_col, thick=bg_line_w * 0.95, fill_bgr=shade_fill, boil_phase=boil_phase, seed=179)
     # 4 sharpened pencils fanning out of the mug
-    for p_ang in (-22, -7, 8, 24):
+    for p_ang in (-20, -6, 8, 22):
         rad_p = math.radians(p_ang - 90)
-        p_tx = mug_x + math.cos(rad_p) * 44.0 * nib_scale
-        p_ty = (mug_y - 18 * nib_scale) + math.sin(rad_p) * 44.0 * nib_scale
-        cv2.line(canvas, (int(mug_x + p_ang * 0.35 * nib_scale), int(mug_y - 22 * nib_scale)), (int(p_tx), int(p_ty)), bg_line_col, max(1, int(2.4 * s_ui)), cv2.LINE_AA)
-        cv2.circle(canvas, (int(p_tx), int(p_ty)), max(1, int(2.0 * s_ui)), BGR_ACCENT_RED if (p_ang < 0 and is_colored) else bg_line_col, -1, cv2.LINE_AA)
+        p_tx = mug_x + math.cos(rad_p) * 38.0 * nib_scale
+        p_ty = (mug_y - 18 * nib_scale) + math.sin(rad_p) * 38.0 * nib_scale
+        cv2.line(canvas, (int(mug_x + p_ang * 0.32 * nib_scale), int(mug_y - 20 * nib_scale)), (int(p_tx), int(p_ty)), bg_line_col, max(1, int(2.2 * s_ui)), cv2.LINE_AA)
+        cv2.circle(canvas, (int(p_tx), int(p_ty)), max(1, int(1.8 * s_ui)), BGR_ACCENT_RED if (p_ang < 0 and is_colored) else bg_line_col, -1, cv2.LINE_AA)
 
-    # 7. Right Desk Corner Prop: Faceted Glass `INDIA INK` Bottle & Open Cap (`nib_inking_keys.jpg` & `apparatus_lightbox_anim_keys.jpg`)
-    # Positioned at `ink_x = nib_ox + 302 * scale, ink_y = nib_oy - 262 * scale` so Nib's dip at `K07` (`rh_x=292, rh_y=-258`) lands right in the bottle!
+    #    6b. Faceted Glass `INDIA INK` Bottle & Open Cap resting squarely on the Horizontal Side-Shelf (`nib_inking_keys.jpg` & `apparatus_lightbox_anim_keys.jpg`)
+    #    Positioned at `ink_x = nib_ox + 302 * scale, ink_y = nib_oy - 262 * scale` so Nib's dip at `K07` (`rh_x=292, rh_y=-258`) lands right in the bottle!
     ink_x = nib_ox + 302.0 * nib_scale
     ink_y = nib_oy - 262.0 * nib_scale
-    # Bottle neck & rim
     neck_pts = [
         (ink_x - 9 * nib_scale, ink_y - 24 * nib_scale),
         (ink_x + 9 * nib_scale, ink_y - 24 * nib_scale),
         (ink_x + 11 * nib_scale, ink_y - 12 * nib_scale),
         (ink_x - 11 * nib_scale, ink_y - 12 * nib_scale),
     ]
-    # Faceted square glass bottle body
     bot_pts = [
         (ink_x - 20 * nib_scale, ink_y - 12 * nib_scale),
         (ink_x + 20 * nib_scale, ink_y - 12 * nib_scale),
         (ink_x + 22 * nib_scale, ink_y + 20 * nib_scale),
         (ink_x - 22 * nib_scale, ink_y + 20 * nib_scale),
     ]
-    draw_ink_stroke(canvas, bot_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.1, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=80)
+    draw_ink_stroke(canvas, bot_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=80, sharp_corners=True)
     # Dark India ink reservoir inside lower 65% of glass bottle
     ink_res = np.array([
         [int(ink_x - 17 * nib_scale), int(ink_y - 2 * nib_scale)],
@@ -1638,9 +1807,10 @@ def render_nib_multiplane_frame(
         (int(ink_x - 11 * nib_scale), int(ink_y + 10 * nib_scale)),
         cv2.FONT_HERSHEY_SIMPLEX, max(0.25, 0.30 * nib_scale), bg_line_col, max(1, int(round(s_ui))), cv2.LINE_AA,
     )
-    draw_ink_stroke(canvas, neck_pts, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=81)
-    # Small ribbed screw cap resting beside the bottle (`apparatus_lightbox_anim_keys.jpg`)
-    draw_sculpted_oval(canvas, ink_x + 32 * nib_scale, ink_y + 14 * nib_scale, 8 * nib_scale, 5 * nib_scale, color_bgr=bg_line_col, thick=bg_line_w * 0.9, fill_bgr=bg_line_col, boil_phase=boil_phase, seed=82)
+    draw_ink_stroke(canvas, neck_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.05, closed=True, fill_bgr=paper_fill, boil_phase=boil_phase, seed=81, sharp_corners=True)
+    draw_sculpted_oval(canvas, ink_x, ink_y - 24 * nib_scale, 9.5 * nib_scale, 3.2 * nib_scale, color_bgr=bg_line_col, thick=bg_line_w * 0.95, fill_bgr=BGR_INK, boil_phase=boil_phase, seed=181)
+    # Small ribbed screw cap resting beside the bottle on the side-shelf (`apparatus_lightbox_anim_keys.jpg`)
+    draw_sculpted_oval(canvas, ink_x + 31 * nib_scale, ink_y + 15 * nib_scale, 8 * nib_scale, 5 * nib_scale, color_bgr=bg_line_col, thick=bg_line_w * 0.95, fill_bgr=bg_line_col, boil_phase=boil_phase, seed=82)
 
     # Flying India ink droplet & concentric ripple rings during `K07..K08` (`ink_drop > 0.05`)
     if pose["ink_drop"] > 0.05:
@@ -1650,56 +1820,82 @@ def render_nib_multiplane_frame(
         cv2.circle(canvas, (int(dr_x), int(dr_y)), max(2, int(4.5 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
         cv2.circle(canvas, (int(dr_x + 7 * nib_scale), int(dr_y - 6 * nib_scale)), max(1, int(2.5 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
 
-    # 8. Articulated Double-Strut Swing-Arm Architect Lamp Clamped to Desk (`apparatus_lightbox_anim_keys.jpg`)
-    clamp_x = desk_cx + 95.0 * nib_scale
-    clamp_y = desk_fy - 340.0 * nib_scale
-    lamp_sway = 6.0 * nib_scale * math.sin(frame_idx * 0.08)
-    elbow_x = clamp_x + 42.0 * nib_scale + lamp_sway * 0.4
+    # 8. Articulated Double-Strut Swing-Arm Architect Lamp Clamped to Upper-Left of Desk (`apparatus_lightbox_anim_keys.jpg`)
+    #    Mounted at `desk_cx - 58 * scale` so it arches cleanly over the animation disc and NEVER overlaps the 4:3 monitor!
+    clamp_x = desk_cx - 58.0 * nib_scale
+    clamp_y = desk_fy - 344.0 * nib_scale
+    lamp_sway = 4.0 * nib_scale * math.sin(frame_idx * 0.08)
+    elbow_x = clamp_x - 24.0 * nib_scale + lamp_sway * 0.35
     elbow_y = clamp_y - 62.0 * nib_scale
-    head_lx = clamp_x - 42.0 * nib_scale + lamp_sway
-    head_ly = clamp_y - 96.0 * nib_scale
+    head_lx = clamp_x + 56.0 * nib_scale + lamp_sway
+    head_ly = clamp_y - 92.0 * nib_scale
 
     # Warm translucent light cone in `is_colored`
     if is_colored:
         cone_ov = canvas.copy()
         cone_poly = np.array([
-            [int(head_lx - 28 * nib_scale), int(head_ly + 18 * nib_scale)],
-            [int(head_lx + 28 * nib_scale), int(head_ly + 18 * nib_scale)],
-            [int(disc_x + 135 * nib_scale), int(disc_y + 55 * nib_scale)],
-            [int(disc_x - 135 * nib_scale), int(disc_y + 55 * nib_scale)],
+            [int(head_lx - 26 * nib_scale), int(head_ly + 20 * nib_scale)],
+            [int(head_lx + 26 * nib_scale), int(head_ly + 20 * nib_scale)],
+            [int(disc_x + 125 * nib_scale), int(disc_y + 52 * nib_scale)],
+            [int(disc_x - 125 * nib_scale), int(disc_y + 52 * nib_scale)],
         ], dtype=np.int32)
         cv2.fillPoly(cone_ov, [cone_poly], (218, 248, 255), cv2.LINE_AA)
         cv2.addWeighted(cone_ov, 0.22, canvas, 0.78, 0, canvas)
 
-    # Double-strut lower arm & upper arm
-    for st_off in (-4.0, 4.0):
-        cv2.line(canvas, (int(clamp_x + st_off * nib_scale), int(clamp_y)), (int(elbow_x + st_off * nib_scale), int(elbow_y)), bg_line_col, max(1, int(2.0 * s_ui)), cv2.LINE_AA)
-        cv2.line(canvas, (int(elbow_x), int(elbow_y + st_off * nib_scale)), (int(head_lx), int(head_ly + st_off * nib_scale)), bg_line_col, max(1, int(2.0 * s_ui)), cv2.LINE_AA)
-    cv2.circle(canvas, (int(clamp_x), int(clamp_y)), max(3, int(6 * nib_scale)), bg_line_col, -1, cv2.LINE_AA)
-    cv2.circle(canvas, (int(elbow_x), int(elbow_y)), max(3, int(7 * nib_scale)), brass_fill if is_colored else BGR_PAPER, -1, cv2.LINE_AA)
-    cv2.circle(canvas, (int(elbow_x), int(elbow_y)), max(3, int(7 * nib_scale)), bg_line_col, max(1, int(1.8 * s_ui)), cv2.LINE_AA)
+    # C-Clamp base block on upper edge of drafting board
+    clamp_box = [
+        (clamp_x - 9 * nib_scale, clamp_y - 6 * nib_scale),
+        (clamp_x + 9 * nib_scale, clamp_y - 6 * nib_scale),
+        (clamp_x + 11 * nib_scale, clamp_y + 10 * nib_scale),
+        (clamp_x - 11 * nib_scale, clamp_y + 10 * nib_scale),
+    ]
+    draw_ink_stroke(canvas, clamp_box, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=wood_dark, boil_phase=boil_phase, seed=185, sharp_corners=True)
 
-    # Domed architect lamp bell shade angled toward the animation disc
+    # Parallel Double-Strut Lower Arm (`clamp -> elbow`) & Upper Arm (`elbow -> lamp neck`)
+    neck_lx = head_lx - 8.0 * nib_scale
+    neck_ly = head_ly - 16.0 * nib_scale
+    for st_off in (-4.2, 4.2):
+        cv2.line(canvas, (int(clamp_x + st_off * nib_scale), int(clamp_y - 4 * nib_scale)), (int(elbow_x + st_off * nib_scale), int(elbow_y)), bg_line_col, max(1, int(2.2 * s_ui)), cv2.LINE_AA)
+        cv2.line(canvas, (int(elbow_x), int(elbow_y + st_off * nib_scale)), (int(neck_lx), int(neck_ly + st_off * nib_scale)), bg_line_col, max(1, int(2.2 * s_ui)), cv2.LINE_AA)
+
+    # Circular friction-hinge joints at base, elbow & lamp neck (`o` in `apparatus_lightbox_anim_keys.jpg`)
+    for jx_l, jy_l, jr_l in [
+        (clamp_x, clamp_y - 4 * nib_scale, 5.5 * nib_scale),
+        (elbow_x, elbow_y, 7.5 * nib_scale),
+        (neck_lx, neck_ly, 5.5 * nib_scale),
+    ]:
+        cv2.circle(canvas, (int(jx_l), int(jy_l)), max(3, int(jr_l)), brass_fill if is_colored else BGR_PAPER, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (int(jx_l), int(jy_l)), max(3, int(jr_l)), bg_line_col, max(1, int(1.9 * s_ui)), cv2.LINE_AA)
+        cv2.circle(canvas, (int(jx_l), int(jy_l)), max(1, int(jr_l * 0.35)), bg_line_col, -1, cv2.LINE_AA)
+
+    # Stepped Architect Lamp Cap + Flared Bell Shade angled down-right toward the animation disc (`apparatus_lightbox_anim_keys.jpg`)
+    cap_pts = [
+        (head_lx - 13 * nib_scale, head_ly - 20 * nib_scale),
+        (head_lx + 11 * nib_scale, head_ly - 22 * nib_scale),
+        (head_lx + 16 * nib_scale, head_ly - 11 * nib_scale),
+        (head_lx - 16 * nib_scale, head_ly - 9 * nib_scale),
+    ]
+    draw_ink_stroke(canvas, cap_pts, color_bgr=bg_line_col, base_thick=bg_line_w, closed=True, fill_bgr=brass_fill if is_colored else shade_fill, boil_phase=boil_phase, seed=186, sharp_corners=True)
     shade_pts = [
-        (head_lx - 42 * nib_scale, head_ly + 22 * nib_scale),
-        (head_lx - 18 * nib_scale, head_ly - 12 * nib_scale),
+        (head_lx - 38 * nib_scale, head_ly + 20 * nib_scale),
+        (head_lx - 18 * nib_scale, head_ly - 10 * nib_scale),
         (head_lx + 18 * nib_scale, head_ly - 12 * nib_scale),
-        (head_lx + 42 * nib_scale, head_ly + 22 * nib_scale),
+        (head_lx + 42 * nib_scale, head_ly + 16 * nib_scale),
     ]
     draw_ink_stroke(
         canvas, shade_pts, color_bgr=bg_line_col, base_thick=bg_line_w * 1.15,
         closed=True, fill_bgr=(92, 168, 118) if is_colored else paper_fill,
-        boil_phase=boil_phase, seed=55,
+        boil_phase=boil_phase, seed=55, sharp_corners=True,
     )
     # Glowing bulb & classic radiating light-ray ticks (`\ | /`) under lamp shade (`apparatus_lightbox_anim_keys.jpg`)
-    cv2.ellipse(canvas, (int(head_lx), int(head_ly + 22 * nib_scale)), (int(14 * nib_scale), int(7 * nib_scale)), 0, 0, 180, (190, 245, 255) if is_colored else BGR_PAPER, -1, cv2.LINE_AA)
-    cv2.ellipse(canvas, (int(head_lx), int(head_ly + 22 * nib_scale)), (int(14 * nib_scale), int(7 * nib_scale)), 0, 0, 180, bg_line_col, max(1, int(1.6 * s_ui)), cv2.LINE_AA)
-    for r_ang in (-32, -16, 0, 16, 32):
-        rad_l = math.radians(90 + r_ang)
-        rx0_l = head_lx + math.cos(rad_l) * 26.0 * nib_scale
-        ry0_l = head_ly + 22 * nib_scale + math.sin(rad_l) * 18.0 * nib_scale
-        rx1_l = head_lx + math.cos(rad_l) * 42.0 * nib_scale
-        ry1_l = head_ly + 22 * nib_scale + math.sin(rad_l) * 32.0 * nib_scale
+    cv2.ellipse(canvas, (int(head_lx + 2 * nib_scale), int(head_ly + 18 * nib_scale)), (int(14 * nib_scale), int(7 * nib_scale)), -4, 0, 180, (190, 245, 255) if is_colored else BGR_PAPER, -1, cv2.LINE_AA)
+    cv2.ellipse(canvas, (int(head_lx + 2 * nib_scale), int(head_ly + 18 * nib_scale)), (int(14 * nib_scale), int(7 * nib_scale)), -4, 0, 180, bg_line_col, max(1, int(1.6 * s_ui)), cv2.LINE_AA)
+    for r_ang in (-28, -14, 0, 14, 28):
+        rad_l = math.radians(84 + r_ang)
+        rx0_l = head_lx + math.cos(rad_l) * 24.0 * nib_scale
+        ry0_l = head_ly + 20 * nib_scale + math.sin(rad_l) * 16.0 * nib_scale
+        rx1_l = head_lx + math.cos(rad_l) * 38.0 * nib_scale
+        ry1_l = head_ly + 20 * nib_scale + math.sin(rad_l) * 29.0 * nib_scale
         cv2.line(canvas, (int(rx0_l), int(ry0_l)), (int(rx1_l), int(ry1_l)), bg_line_col, max(1, int(1.5 * s_ui)), cv2.LINE_AA)
 
     # 9. Rule XIII: Draw Hand Trajectory Motion Arc & Spacing Chart Ticks in Rough/Onion-Skin!
@@ -1767,29 +1963,33 @@ def render_nib_multiplane_frame(
             ph_x = cel_cx + ph_u * cw_l
             ph_y = cel_cy - ch_l + 6 * nib_scale - ph_u * 4 * nib_scale
             cv2.circle(canvas, (int(ph_x), int(ph_y)), max(2, int(3.0 * nib_scale)), BGR_INK, max(1, int(1.5 * s_ui)), cv2.LINE_AA)
-        # Hand-inked Leaping Fox character on the lifted cel (arched spine, bushy tail, head & pointed ears)!
-        fox_cel_body = [
-            (cel_cx - cw_l * 0.45, cel_cy + ch_l * 0.18),
-            (cel_cx - cw_l * 0.05, cel_cy - ch_l * 0.35),
-            (cel_cx + cw_l * 0.42, cel_cy - ch_l * 0.12),
-            (cel_cx + cw_l * 0.05, cel_cy + ch_l * 0.05),
-        ]
-        fox_fill = (68, 128, 232) if is_colored else None
-        draw_ink_stroke(canvas, fox_cel_body, color_bgr=BGR_INK, base_thick=max(1.8, 2.5 * s_ui), closed=True, fill_bgr=fox_fill, boil_phase=boil_phase, seed=86, sharp_corners=False)
-        # Bushy tail & pointed ears on lifted cel fox
-        fox_tail = [
-            (cel_cx - cw_l * 0.45, cel_cy + ch_l * 0.18),
-            (cel_cx - cw_l * 0.72, cel_cy - ch_l * 0.05),
-            (cel_cx - cw_l * 0.55, cel_cy + ch_l * 0.36),
-        ]
-        draw_ink_stroke(canvas, fox_tail, color_bgr=BGR_INK, base_thick=max(1.6, 2.2 * s_ui), closed=True, fill_bgr=fox_fill, boil_phase=boil_phase, seed=87, sharp_corners=False)
-        fx_hx = int(cel_cx + cw_l * 0.42)
-        fx_hy = int(cel_cy - ch_l * 0.18)
+        # Hand-inked Leaping Fox character on the lifted cel (Dual-Pass Union so head, ears, torso & tail have ZERO internal circles)!
+        fox_fill = (68, 128, 232) if is_colored else (BGR_PAPER if is_cleanup else None)
+        fx_hx = int(cel_cx + cw_l * 0.36)
+        fx_hy = int(cel_cy - ch_l * 0.16)
+        r_fh = max(4, int(round(9.5 * nib_scale)))
+        w_fx_i = max(2, int(round(2.4 * s_ui)))
+        ear_poly = np.array([
+            [fx_hx - int(3 * nib_scale), fx_hy - int(6 * nib_scale)],
+            [fx_hx + int(2 * nib_scale), fx_hy - int(18 * nib_scale)],
+            [fx_hx + int(7 * nib_scale), fx_hy - int(5 * nib_scale)],
+        ], dtype=np.int32)
+        snout_cap = _capsule_poly((fx_hx, fx_hy), (fx_hx + 13 * nib_scale, fx_hy - 2 * nib_scale), r_fh * 0.85, r_fh * 0.42)
+        body_cap = _capsule_poly((cel_cx - cw_l * 0.35, cel_cy + ch_l * 0.14), (fx_hx - 2 * nib_scale, fx_hy + 2 * nib_scale), 7.5 * nib_scale, 8.5 * nib_scale)
+        tail_cap = _capsule_poly((cel_cx - cw_l * 0.35, cel_cy + ch_l * 0.14), (cel_cx - cw_l * 0.68, cel_cy + ch_l * 0.02), 5.5 * nib_scale, 7.5 * nib_scale)
+        for p_cap in (tail_cap, body_cap, snout_cap):
+            cv2.polylines(canvas, [p_cap], True, BGR_INK, w_fx_i * 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [ear_poly], True, BGR_INK, w_fx_i * 2, cv2.LINE_AA)
         if fox_fill is not None:
-            cv2.circle(canvas, (fx_hx, fx_hy), max(3, int(9 * nib_scale)), fox_fill, -1, cv2.LINE_AA)
-        cv2.circle(canvas, (fx_hx, fx_hy), max(3, int(9 * nib_scale)), BGR_INK, max(1, int(2.0 * s_ui)), cv2.LINE_AA)
-        cv2.line(canvas, (fx_hx - int(3 * nib_scale), fx_hy - int(8 * nib_scale)), (fx_hx + int(2 * nib_scale), fx_hy - int(18 * nib_scale)), BGR_INK, max(1, int(2.0 * s_ui)), cv2.LINE_AA)
-        cv2.line(canvas, (fx_hx + int(2 * nib_scale), fx_hy - int(18 * nib_scale)), (fx_hx + int(6 * nib_scale), fx_hy - int(7 * nib_scale)), BGR_INK, max(1, int(2.0 * s_ui)), cv2.LINE_AA)
+            for p_cap in (tail_cap, body_cap, snout_cap):
+                cv2.fillPoly(canvas, [p_cap], fox_fill, cv2.LINE_AA)
+            cv2.fillPoly(canvas, [ear_poly], fox_fill, cv2.LINE_AA)
+        cv2.circle(canvas, (fx_hx + int(4 * nib_scale), fx_hy - int(2 * nib_scale)), max(1, int(2.0 * nib_scale)), BGR_INK, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (fx_hx + int(13 * nib_scale), fx_hy - int(2 * nib_scale)), max(1, int(2.2 * nib_scale)), BGR_INK, -1, cv2.LINE_AA)
+        # 4-pointed sparkle stars (`✦`) twinkling around the finished cel (`apparatus_lightbox_anim_keys.jpg` Q4)!
+        _draw_sparkle_star(cel_cx - cw_l - 14 * nib_scale, cel_cy - ch_l + 8 * nib_scale, 9.0 * nib_scale, bg_line_col)
+        _draw_sparkle_star(cel_cx + cw_l + 16 * nib_scale, cel_cy - ch_l * 0.45, 8.0 * nib_scale, bg_line_col)
+        _draw_sparkle_star(cel_cx + cw_l + 12 * nib_scale, cel_cy + ch_l * 0.65, 6.5 * nib_scale, bg_line_col)
 
     # ==========================================================================
     # PLANE 1 (`depth = 0.62`): FOREGROUND 35MM FILM CANS, UNSPOOLING FILMSTRIP,
