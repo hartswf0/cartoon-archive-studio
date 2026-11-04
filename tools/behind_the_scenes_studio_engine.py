@@ -850,155 +850,475 @@ def load_shot_keys_and_plate(slug: str):
     return plate_gray, quad_grays
 
 
-def render_progressive_keyframe_board(slug: str, k_idx: int, local_prog: float, out_w: int, out_h: int) -> np.ndarray:
-    """
-    Renders one of the 4 Keyframe Drafting Boards (`K1..K4`) at exact 4:3 `(out_w, out_h)` showing
-    a genuine progressive animation of the keyframe being created:
-      - `0.00 .. 0.36` (STEP A: BLUE PENCIL ROUGH): Progressive left-to-right blue pencil sketch of `selected-keys.png` K_i + `scene-plate.png`
-      - `0.36 .. 0.74` (STEP B: SPEEDBALL INDIA INK): Progressive top-left to bottom-right black marker inking with a live moving nib cursor!
-      - `0.74 .. 1.00` (STEP C: GOUACHE CEL LOCKED): Progressive warm gouache multiplane fill locking into the final 4:3 cel!
-    """
-    arch_sketches, blue_roughs, ink_cels, cart_frames = load_shot_frames(slug)
-    plate_gray, quad_grays = load_shot_keys_and_plate(slug)
-    k_frames = [0, 10, 21, 32]
-    f_idx = k_frames[k_idx % 4]
-    q_gray = quad_grays[k_idx % 4]
-
-    # Build a crisp composite of `scene-plate.png` (faint background) + `selected-keys.png` quadrant K_i (bold hero keyframe)
-    # plus the full multiplane cartoon frame for Step C
-    H, W = 360, 480
-    paper = np.full((H, W, 3), BGR_GUTTER, dtype=np.uint8)
-    # Construction grid lines
-    cv2.line(paper, (0, 222), (W - 1, 222), (230, 212, 188), 1)
-    cv2.line(paper, (183, 0), (183, H - 1), (230, 212, 188), 1)
-    cv2.line(paper, (296, 0), (296, H - 1), (230, 212, 188), 1)
-
-    bg_alpha = np.clip((235.0 - plate_gray.astype(np.float32)) / 180.0, 0.0, 1.0)[..., None] * 0.45
-    hero_alpha = np.clip((235.0 - q_gray.astype(np.float32)) / 170.0, 0.0, 1.0)[..., None]
-    comb_alpha = np.maximum(bg_alpha, hero_alpha)
-
-    # Blue rough image (Non-Photo Blue strokes on paper)
-    blue_img = paper.astype(np.float32) * (1.0 - comb_alpha) + np.array(BGR_NONPHOTO_BLUE, dtype=np.float32) * comb_alpha
-    blue_img = np.clip(blue_img, 0, 255).astype(np.uint8)
-
-    # Black India Ink image (Speedball Black Ink over faint blue construction)
-    ink_img = blue_img.astype(np.float32) * (1.0 - hero_alpha) + np.array(BGR_INK, dtype=np.float32) * hero_alpha
-    ink_img = ink_img * (1.0 - bg_alpha * 0.7) + np.array(BGR_INK_SOFT, dtype=np.float32) * (bg_alpha * 0.7)
-    ink_img = np.clip(ink_img, 0, 255).astype(np.uint8)
-
-    # Gouache finished image (blend crisp hero keyframe ink with the warm gouache cartoon frame)
-    cart_f = cart_frames[f_idx].astype(np.float32)
-    gouache_img = cart_f * (1.0 - hero_alpha * 0.85) + np.array(BGR_INK, dtype=np.float32) * (hero_alpha * 0.85)
-    gouache_img = np.clip(gouache_img, 0, 255).astype(np.uint8)
-
-    canvas = paper.copy()
-    pen_xy = None
-    pen_col = BGR_NONPHOTO_BLUE
-
-    if local_prog < 0.36:
-        # Progressive Blue Pencil Sketch Wipe
-        p = np.clip(local_prog / 0.36, 0.15, 1.0)
-        split_x = int(round(p * W))
-        canvas[:, :split_x] = blue_img[:, :split_x]
-        pen_xy = (min(W - 18, max(18, split_x)), int(round(H * (0.35 + 0.25 * math.sin(local_prog * 22.0)))))
-        pen_col = BGR_NONPHOTO_BLUE
-    elif local_prog < 0.74:
-        # Progressive Black India Ink Wipe over Blue Rough
-        p = np.clip((local_prog - 0.36) / 0.38, 0.0, 1.0)
-        canvas = blue_img.copy()
-        split_x = int(round(p * W))
-        canvas[:, :split_x] = ink_img[:, :split_x]
-        pen_xy = (min(W - 18, max(18, split_x)), int(round(H * (0.42 + 0.22 * math.cos(local_prog * 25.0)))))
-        pen_col = BGR_INK
-    else:
-        # Progressive Warm Gouache Wash Wipe over Black Ink
-        p = np.clip((local_prog - 0.74) / 0.26, 0.0, 1.0)
-        canvas = ink_img.copy()
-        split_y = int(round(p * H))
-        canvas[:split_y, :] = gouache_img[:split_y, :]
-        if p < 0.96:
-            pen_xy = (int(round(W * (0.5 + 0.3 * math.sin(local_prog * 24.0)))), min(H - 16, max(16, split_y)))
-            pen_col = BGR_AMBER
-
-    out = cv2.resize(canvas, (out_w, out_h), interpolation=cv2.INTER_AREA)
-    if pen_xy is not None:
-        px = int(round(pen_xy[0] * out_w / float(W)))
-        py = int(round(pen_xy[1] * out_h / float(H)))
-        # Draw active nib/brush tip indicator at the wipe frontier
-        cv2.circle(out, (px, py), 5, pen_col, -1, cv2.LINE_AA)
-        cv2.circle(out, (px, py), 5, BGR_INK, 1, cv2.LINE_AA)
-    return out
-
-
 # =============================================================================
-# HAND-DRAWN QUICK, DRAW! DOODLE SPRITE ENGINE FOR AGENTS & STUDIO APPARATUS
+# VECTOR STROKE-BY-STROKE ENGINE FOR HERO BOARDS, AGENTS, APPARATUS & ROOMS
 # =============================================================================
 DOODLE_ASSETS_DIR = ROOT / "assets" / "studio_doodles"
-_DOODLE_QUAD_CACHE = {}
+STUDIO_TRACED_JSON = DOODLE_ASSETS_DIR / "studio_traced.json"
+_STUDIO_TRACED_CATALOG = None
 
 
-def load_doodle_quadrant(sheet_name: str, quad_idx: int) -> tuple:
+def get_studio_traced_catalog() -> dict:
+    global _STUDIO_TRACED_CATALOG
+    if _STUDIO_TRACED_CATALOG is None:
+        if STUDIO_TRACED_JSON.exists():
+            _STUDIO_TRACED_CATALOG = json.loads(STUDIO_TRACED_JSON.read_text(encoding="utf-8"))
+        else:
+            _STUDIO_TRACED_CATALOG = {"sheets": {}, "hero_shots": {}}
+    return _STUDIO_TRACED_CATALOG
+
+
+def draw_hand_inked_line(
+    canvas: np.ndarray,
+    pt0: tuple,
+    pt1: tuple,
+    color_bgr: tuple = BGR_INK,
+    thickness: int = 2,
+    wobble: float = 1.15,
+    boil_phase: int = 0,
+    n_segs: int = 10,
+):
+    """Draws a multi-vertex hand-wobbled ink stroke instead of a computer-straight cv2.line."""
+    x0, y0 = float(pt0[0]), float(pt0[1])
+    x1, y1 = float(pt1[0]), float(pt1[1])
+    dist = math.hypot(x1 - x0, y1 - y0)
+    steps = max(3, min(22, int(round(dist / 28.0)) if n_segs is None else n_segs))
+    pts = []
+    seed_base = (x0 * 0.07 + y0 * 0.11 + x1 * 0.05 + y1 * 0.09)
+    for i in range(steps + 1):
+        t = i / float(steps)
+        px = x0 + (x1 - x0) * t
+        py = y0 + (y1 - y0) * t
+        if 0 < i < steps and wobble > 0.0:
+            env = math.sin(math.pi * t)
+            ang = seed_base + i * 2.1 + boil_phase * 1.5
+            px += wobble * env * math.sin(ang)
+            py += wobble * env * math.cos(ang * 1.3)
+        pts.append([int(round(px)), int(round(py))])
+    cv2.polylines(canvas, [np.array(pts, dtype=np.int32)], False, color_bgr, thickness, cv2.LINE_AA)
+
+
+def draw_hand_inked_rect(
+    canvas: np.ndarray,
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+    fill_bgr: tuple = None,
+    outline_bgr: tuple = BGR_INK,
+    thickness: int = 3,
+    wobble: float = 1.2,
+    boil_phase: int = 0,
+    shadow_offset: int = 0,
+):
+    """Draws a hand-inked box with organic wobbled edges and optional drop shadow & gouache fill."""
+    if shadow_offset > 0:
+        sx0, sy0, sx1, sy1 = x0 + shadow_offset, y0 + shadow_offset, x1 + shadow_offset, y1 + shadow_offset
+        cv2.rectangle(canvas, (sx0, sy0), (sx1, sy1), BGR_INK, -1)
+    if fill_bgr is not None:
+        cv2.rectangle(canvas, (x0, y0), (x1, y1), fill_bgr, -1)
+    if outline_bgr is not None and thickness > 0:
+        draw_hand_inked_line(canvas, (x0, y0), (x1, y0), outline_bgr, thickness, wobble, boil_phase)
+        draw_hand_inked_line(canvas, (x1, y0), (x1, y1), outline_bgr, thickness, wobble, boil_phase + 1)
+        draw_hand_inked_line(canvas, (x1, y1), (x0, y1), outline_bgr, thickness, wobble, boil_phase + 2)
+        draw_hand_inked_line(canvas, (x0, y1), (x0, y0), outline_bgr, thickness, wobble, boil_phase + 3)
+
+
+def draw_active_pen_nib(
+    canvas: np.ndarray,
+    x_tip: int,
+    y_tip: int,
+    is_blue_pencil: bool = False,
+    is_brush: bool = False,
+    scale: float = 1.0,
+):
     """
-    Loads one of the 4 quadrants (`0: Top-Left`, `1: Top-Right`, `2: Bottom-Left`,
-    `3: Bottom-Right`) from `assets/studio_doodles/<sheet_name>.jpg`, crops tightly
-    to its ink bounding box, and computes the flood-filled opaque cel silhouette mask
-    so background lines never bleed through the hand-drawn character or machine.
+    Draws a hand-inked Speedball Dip-Pen Nib (or Non-Photo Blue Pencil / Gouache Brush)
+    right at the active stroke vertex `(x_tip, y_tip)` that is currently laying down ink!
     """
-    key = (sheet_name, int(quad_idx) % 4)
-    if key in _DOODLE_QUAD_CACHE:
-        return _DOODLE_QUAD_CACHE[key]
+    H, W = canvas.shape[:2]
+    if not (2 <= x_tip < W - 2 and 2 <= y_tip < H - 2):
+        return
+    s = max(0.65, float(scale))
+    # Angled pen shaft pointing down-left to (x_tip, y_tip) at ~42 degrees
+    ux, uy = 0.72, -0.69  # unit vector along shaft away from tip
+    px, py = 0.69, 0.72   # perpendicular unit vector
 
-    p = DOODLE_ASSETS_DIR / f"{sheet_name}.jpg"
-    if not p.exists():
-        blank_g = np.full((120, 120), 255, dtype=np.uint8)
-        blank_m = np.zeros((120, 120), dtype=np.uint8)
-        _DOODLE_QUAD_CACHE[key] = (blank_g, blank_m)
-        return blank_g, blank_m
+    def pt(along, perp):
+        return [int(round(x_tip + (along * ux + perp * px) * s)), int(round(y_tip + (along * uy + perp * py) * s))]
 
-    gray = cv2.imread(str(p), cv2.IMREAD_GRAYSCALE)
-    H, W = gray.shape[:2]
-    r = (int(quad_idx) % 4) // 2
-    c = (int(quad_idx) % 4) % 2
-    pad_seam = 10
-    y0 = r * (H // 2) + (pad_seam if r == 1 else 6)
-    y1 = (r + 1) * (H // 2) - (pad_seam if r == 0 else 6)
-    x0 = c * (W // 2) + (pad_seam if c == 1 else 6)
-    x1 = (c + 1) * (W // 2) - (pad_seam if c == 0 else 6)
+    nib_col = BGR_NONPHOTO_BLUE if is_blue_pencil else (BGR_AMBER if is_brush else BGR_AMBER_PALE)
+    holder_col = BGR_BLUE_PALE if is_blue_pencil else BGR_RED
 
-    sub = gray[y0:y1, x0:x1]
-    ys, xs = np.where(sub < 200)
-    if len(xs) > 10:
-        bx0 = max(0, int(xs.min()) - 10)
-        by0 = max(0, int(ys.min()) - 10)
-        bx1 = min(sub.shape[1], int(xs.max()) + 11)
-        by1 = min(sub.shape[0], int(ys.max()) + 11)
-        q_gray = sub[by0:by1, bx0:bx1].copy()
+    # Metallic nib / brush tip triangle (0..13 px along shaft)
+    nib_poly = np.array([pt(0, 0), pt(12, -4.2), pt(14, 0), pt(12, 4.2)], dtype=np.int32)
+    cv2.fillPoly(canvas, [nib_poly], nib_col, cv2.LINE_AA)
+    cv2.polylines(canvas, [nib_poly], True, BGR_INK, max(1, int(round(1.6 * s))), cv2.LINE_AA)
+
+    # Wooden pen holder barrel (12..30 px along shaft)
+    barrel_poly = np.array([pt(12, -4.5), pt(30, -5.2), pt(30, 5.2), pt(12, 4.5)], dtype=np.int32)
+    cv2.fillPoly(canvas, [barrel_poly], holder_col, cv2.LINE_AA)
+    cv2.polylines(canvas, [barrel_poly], True, BGR_INK, max(1, int(round(1.6 * s))), cv2.LINE_AA)
+
+    # Ink breather hole & wet ink droplet right at the tip
+    breather = pt(7, 0)
+    cv2.circle(canvas, (breather[0], breather[1]), max(1, int(round(1.5 * s))), BGR_INK, -1, cv2.LINE_AA)
+    tip_dot_col = BGR_NONPHOTO_BLUE if is_blue_pencil else (BGR_AMBER if is_brush else BGR_INK)
+    cv2.circle(canvas, (x_tip, y_tip), max(2, int(round(2.5 * s))), tip_dot_col, -1, cv2.LINE_AA)
+
+
+def _draw_strokes_progressive(
+    canvas: np.ndarray,
+    strokes_transformed: list,
+    progress: float,
+    color_bgr: tuple,
+    thickness: int = 2,
+    underdraw_bgr: tuple = None,
+    underdraw_thickness: int = 1,
+):
+    """
+    Draws a list of transformed vector polylines `strokes_transformed` stroke-by-stroke
+    up to `progress` in `[0.0, 1.0]`.
+    Returns `(x_tip, y_tip)` of the active vertex currently being drawn (or `None` if finished/0).
+    """
+    if not strokes_transformed:
+        return None
+
+    # Optional faint underdrawing of all strokes first (e.g. Non-Photo Blue rough lines waiting to be inked)
+    if underdraw_bgr is not None and progress < 0.999:
+        for st in strokes_transformed:
+            if len(st) >= 2:
+                cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, underdraw_bgr, underdraw_thickness, cv2.LINE_AA)
+
+    if progress <= 0.001:
+        first_pt = strokes_transformed[0][0]
+        return int(round(first_pt[0])), int(round(first_pt[1]))
+
+    def _stroke_w(st_pts):
+        if thickness <= 1 or len(st_pts) < 2:
+            return max(1, thickness)
+        span = math.hypot(st_pts[-1][0] - st_pts[0][0], st_pts[-1][1] - st_pts[0][1])
+        return thickness if (span >= 14.0 or len(st_pts) >= 7) else max(1, thickness - 1)
+
+    n_st = len(strokes_transformed)
+    if progress >= 0.999:
+        for st in strokes_transformed:
+            if len(st) >= 2:
+                cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, color_bgr, _stroke_w(st), cv2.LINE_AA)
+        return None
+
+    exact_idx = float(np.clip(progress, 0.0, 1.0)) * n_st
+    full_cnt = int(exact_idx)
+    rem_frac = exact_idx - full_cnt
+
+    # 1. Draw all completed strokes `0 .. full_cnt - 1`
+    for i in range(min(full_cnt, n_st)):
+        st = strokes_transformed[i]
+        if len(st) >= 2:
+            cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, color_bgr, _stroke_w(st), cv2.LINE_AA)
+
+    # 2. Draw the currently active stroke `full_cnt` vertex-by-vertex up to `rem_frac`
+    active_tip = None
+    if full_cnt < n_st:
+        cur_st = strokes_transformed[full_cnt]
+        if len(cur_st) >= 2:
+            # Interpolate along polyline segments
+            seg_lens = [math.hypot(cur_st[k + 1][0] - cur_st[k][0], cur_st[k + 1][1] - cur_st[k][1]) for k in range(len(cur_st) - 1)]
+            tot_len = sum(seg_lens)
+            if tot_len <= 1e-3:
+                active_tip = (int(round(cur_st[0][0])), int(round(cur_st[0][1])))
+            else:
+                target_d = rem_frac * tot_len
+                partial_pts = [[int(round(cur_st[0][0])), int(round(cur_st[0][1]))]]
+                acc = 0.0
+                for k, sl in enumerate(seg_lens):
+                    if acc + sl <= target_d:
+                        partial_pts.append([int(round(cur_st[k + 1][0])), int(round(cur_st[k + 1][1]))])
+                        acc += sl
+                    else:
+                        f_seg = (target_d - acc) / max(sl, 1e-6)
+                        ix = cur_st[k][0] + (cur_st[k + 1][0] - cur_st[k][0]) * f_seg
+                        iy = cur_st[k][1] + (cur_st[k + 1][1] - cur_st[k][1]) * f_seg
+                        partial_pts.append([int(round(ix)), int(round(iy))])
+                        break
+                if len(partial_pts) >= 2:
+                    cv2.polylines(canvas, [np.array(partial_pts, dtype=np.int32)], False, color_bgr, thickness, cv2.LINE_AA)
+                active_tip = (partial_pts[-1][0], partial_pts[-1][1])
+        elif len(cur_st) == 1:
+            active_tip = (int(round(cur_st[0][0])), int(round(cur_st[0][1])))
+
+    return active_tip
+
+
+def _morph_hero_strokes(hero_entry: dict, ka: int, kb: int, t_raw: float):
+    """Smoothly interpolates hero shot strokes between keyframes `ka` and `kb` using Hungarian `pair_matches`."""
+    ka_i = int(ka) % 4
+    kb_i = int(kb) % 4
+    keys = hero_entry.get("keys", [])
+    if not keys:
+        return [], [], []
+    k_a = keys[ka_i]
+    if ka_i == kb_i or t_raw <= 0.02:
+        return k_a.get("strokes", []), k_a.get("cel_polys", []), k_a.get("accent_polys", [])
+    k_b = keys[kb_i]
+    if t_raw >= 0.98:
+        return k_b.get("strokes", []), k_b.get("cel_polys", []), k_b.get("accent_polys", [])
+
+    t_ease = t_raw * t_raw * (3.0 - 2.0 * t_raw)
+    pm = hero_entry.get("pair_matches", {}).get(f"{ka_i}_{kb_i}")
+    strokes_a = k_a.get("strokes", [])
+    strokes_b = k_b.get("strokes", [])
+    if pm and pm.get("matches"):
+        matched_a, matched_b = set(), set()
+        out_strokes = []
+        for ia, ib, rev in pm["matches"]:
+            if ia < len(strokes_a) and ib < len(strokes_b):
+                matched_a.add(ia)
+                matched_b.add(ib)
+                sa = strokes_a[ia]
+                sb = strokes_b[ib][::-1] if rev else strokes_b[ib]
+                n_m = 16
+                idx_a = np.linspace(0, len(sa) - 1, n_m)
+                idx_b = np.linspace(0, len(sb) - 1, n_m)
+                out_strokes.append([
+                    [
+                        sa[int(round(idx_a[k]))][0] * (1.0 - t_ease) + sb[int(round(idx_b[k]))][0] * t_ease,
+                        sa[int(round(idx_a[k]))][1] * (1.0 - t_ease) + sb[int(round(idx_b[k]))][1] * t_ease,
+                    ]
+                    for k in range(n_m)
+                ])
+        if t_ease < 0.5:
+            for ia, sa in enumerate(strokes_a):
+                if ia not in matched_a:
+                    out_strokes.append(sa)
+        else:
+            for ib, sb in enumerate(strokes_b):
+                if ib not in matched_b:
+                    out_strokes.append(sb)
     else:
-        q_gray = sub.copy()
+        out_strokes = strokes_a if t_ease < 0.5 else strokes_b
 
-    # Flood-fill from outer border on a binary threshold (`q_gray > 210`) to find exterior background
-    qh, qw = q_gray.shape[:2]
-    # Close tiny 1-2px gaps in outer ink contour before flood-filling exterior
-    ink_bin = (q_gray < 210).astype(np.uint8) * 255
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    ink_closed = cv2.morphologyEx(ink_bin, cv2.MORPH_CLOSE, kernel)
-    ff_img = (ink_closed == 0).astype(np.uint8) * 255
-    mask = np.zeros((qh + 2, qw + 2), dtype=np.uint8)
-    for sx in range(0, qw, 4):
-        if ff_img[0, sx] == 255:
-            cv2.floodFill(ff_img, mask, (sx, 0), 128)
-        if ff_img[qh - 1, sx] == 255:
-            cv2.floodFill(ff_img, mask, (sx, qh - 1), 128)
-    for sy in range(0, qh, 4):
-        if ff_img[sy, 0] == 255:
-            cv2.floodFill(ff_img, mask, (0, sy), 128)
-        if ff_img[sy, qw - 1] == 255:
-            cv2.floodFill(ff_img, mask, (qw - 1, sy), 128)
+    cel_p = k_a.get("cel_polys", []) if t_ease < 0.5 else k_b.get("cel_polys", [])
+    acc_p = k_a.get("accent_polys", []) if t_ease < 0.5 else k_b.get("accent_polys", [])
+    return out_strokes, cel_p, acc_p
 
-    # Interior opaque cel mask is everything NOT reached by exterior flood-fill (128)
-    cel_mask = (ff_img != 128).astype(np.uint8) * 255
-    _DOODLE_QUAD_CACHE[key] = (q_gray, cel_mask)
-    return q_gray, cel_mask
+
+def render_progressive_keyframe_board(
+    slug: str,
+    k_idx: int,
+    local_prog: float,
+    out_w: int,
+    out_h: int,
+    boil_phase: int = 0,
+    stage_mode: str = "auto",
+    animate_4keys: bool = False,
+) -> np.ndarray:
+    """
+    Renders a Keyframe Drafting Board (`K1..K4`) at exact 4:3 `(out_w, out_h)`
+    using 100% TRUE VECTOR STROKE-BY-STROKE ANIMATION from `studio_traced.json["hero_shots"][slug]`.
+    Supports:
+      - `stage_mode="blue_only"`: Dedicated Non-Photo Blue construction & rough sketching + 4-key rolling!
+      - `stage_mode="ink_only"`: Dedicated Speedball Black India Inking over faint blue roughs + 4-key rolling!
+      - `stage_mode="gouache_only"`: Dedicated Gouache Cel Wash flooding + 4-key rolling!
+      - `stage_mode="auto"`: Full A -> B -> C progression across `local_prog` (`0.0 .. 1.0`).
+    """
+    cat = get_studio_traced_catalog()
+    hero_entry = cat.get("hero_shots", {}).get(slug)
+    canvas = np.full((out_h, out_w, 3), BGR_GUTTER, dtype=np.uint8)
+
+    gy_hor = int(round(out_h * 0.62))
+    gx_phi1 = int(round(out_w * 0.382))
+    gx_phi2 = int(round(out_w * 0.618))
+    cv2.line(canvas, (0, gy_hor), (out_w - 1, gy_hor), (225, 208, 184), 1, cv2.LINE_AA)
+    cv2.line(canvas, (gx_phi1, 0), (gx_phi1, out_h - 1), (225, 208, 184), 1, cv2.LINE_AA)
+    cv2.line(canvas, (gx_phi2, 0), (gx_phi2, out_h - 1), (225, 208, 184), 1, cv2.LINE_AA)
+
+    if not hero_entry:
+        return canvas
+
+    sx = out_w / 320.0
+    sy = out_h / 240.0
+    plate_strokes = hero_entry.get("plate_strokes", [])
+
+    # Determine active keyframe pose (or smooth 4-keyframe morphing `K0 -> K1 -> K2 -> K3` when `animate_4keys=True`)
+    if animate_4keys and local_prog > 0.52:
+        u_anim = float(np.clip((local_prog - 0.52) / 0.48, 0.0, 0.999)) * 3.0
+        ka = int(u_anim)
+        kb = min(3, ka + 1)
+        mt = u_anim - ka
+        raw_hero_st, raw_cel_p, raw_acc_p = _morph_hero_strokes(hero_entry, ka, kb, mt)
+        k_data = hero_entry["keys"][ka]
+    else:
+        k_data = hero_entry["keys"][int(k_idx) % 4]
+        raw_hero_st = k_data.get("strokes", [])
+        raw_cel_p = k_data.get("cel_polys", [])
+        raw_acc_p = k_data.get("accent_polys", [])
+
+    def map_strokes(st_list, boil_amp=0.0):
+        out_st = []
+        for s_i, st in enumerate(st_list):
+            pts = []
+            for p in st:
+                px = p[0] * sx
+                py = p[1] * sy
+                if boil_amp > 0.0:
+                    ang = p[0] * 0.11 + p[1] * 0.09 + boil_phase * 1.7 + s_i * 0.5
+                    px += boil_amp * math.sin(ang)
+                    py += boil_amp * math.cos(ang * 1.3)
+                pts.append([px, py])
+            if len(pts) >= 2:
+                out_st.append(pts)
+        return out_st
+
+    boil_amp = 0.55 * min(sx, sy)
+    plate_tf = map_strokes(plate_strokes, boil_amp=boil_amp * 0.5)
+    const_tf = map_strokes(k_data.get("construction_strokes", []), boil_amp=0.0)
+    hero_tf = map_strokes(raw_hero_st, boil_amp=boil_amp)
+    cel_tf = map_strokes(raw_cel_p, boil_amp=boil_amp * 0.4)
+    acc_tf = map_strokes(raw_acc_p, boil_amp=boil_amp * 0.4)
+
+    nib_scale = max(0.55, min(1.15, out_w / 185.0))
+    ink_thick = max(1, int(round(2.2 * min(sx, sy))))
+
+    if stage_mode == "blue_only" or (stage_mode == "auto" and local_prog < 0.28):
+        p_blue = float(np.clip(local_prog / (0.52 if stage_mode == "blue_only" else 0.28), 0.05, 1.0))
+        all_blue_strokes = const_tf + plate_tf[::2] + hero_tf
+        tip = _draw_strokes_progressive(
+            canvas, all_blue_strokes, p_blue,
+            color_bgr=BGR_NONPHOTO_BLUE, thickness=max(1, ink_thick),
+        )
+        if tip is not None and p_blue < 0.98 and out_w >= 110:
+            draw_active_pen_nib(canvas, tip[0], tip[1], is_blue_pencil=True, scale=nib_scale)
+
+    elif stage_mode == "ink_only" or (stage_mode == "auto" and local_prog < 0.76):
+        p_ink = (
+            float(np.clip(local_prog / 0.52, 0.04, 1.0))
+            if stage_mode == "ink_only"
+            else float(np.clip((local_prog - 0.28) / 0.48, 0.0, 1.0))
+        )
+        for st in plate_tf:
+            cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, (195, 182, 168), 1, cv2.LINE_AA)
+        for st in const_tf:
+            cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, (228, 175, 115), 1, cv2.LINE_AA)
+
+        tip = _draw_strokes_progressive(
+            canvas, hero_tf, p_ink,
+            color_bgr=BGR_INK, thickness=ink_thick,
+            underdraw_bgr=BGR_NONPHOTO_BLUE, underdraw_thickness=1,
+        )
+        if tip is not None and p_ink < 0.98 and out_w >= 110:
+            draw_active_pen_nib(canvas, tip[0], tip[1], is_blue_pencil=False, scale=nib_scale)
+
+    else:
+        p_cel = (
+            float(np.clip(local_prog / 0.50, 0.05, 1.0))
+            if stage_mode == "gouache_only"
+            else float(np.clip((local_prog - 0.76) / 0.24, 0.0, 1.0))
+        )
+        sky_overlay = canvas.copy()
+        cv2.rectangle(sky_overlay, (0, 0), (out_w, gy_hor), BGR_BLUE_PALE, -1)
+        cv2.rectangle(sky_overlay, (0, gy_hor), (out_w, out_h), BGR_AMBER_PALE, -1)
+        cv2.addWeighted(sky_overlay, 0.45 * p_cel, canvas, 1.0 - 0.45 * p_cel, 0, canvas)
+
+        for st in plate_tf:
+            cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, (125, 118, 110), 1, cv2.LINE_AA)
+
+        cel_layer = canvas.copy()
+        for cp in cel_tf:
+            cv2.fillPoly(cel_layer, [np.array(cp, dtype=np.int32)], BGR_PAPER, cv2.LINE_AA)
+        for ap in acc_tf:
+            cv2.fillPoly(cel_layer, [np.array(ap, dtype=np.int32)], BGR_AMBER_PALE, cv2.LINE_AA)
+        cv2.addWeighted(cel_layer, p_cel, canvas, 1.0 - p_cel, 0, canvas)
+
+        for st in hero_tf:
+            cv2.polylines(canvas, [np.array(st, dtype=np.int32)], False, BGR_INK, ink_thick, cv2.LINE_AA)
+
+        if p_cel < 0.94 and hero_tf and out_w >= 110:
+            idx_b = min(len(hero_tf) - 1, int(p_cel * len(hero_tf)))
+            pt_b = hero_tf[idx_b][len(hero_tf[idx_b]) // 2]
+            draw_active_pen_nib(canvas, int(round(pt_b[0])), int(round(pt_b[1])), is_brush=True, scale=nib_scale)
+
+    return canvas
+
+
+_CROSS_MATCH_CACHE = {}
+
+
+def _get_cross_sheet_matches(sheet_a_name: str, q_a: int, sheet_b_name: str, q_b: int) -> list:
+    """
+    Computes and caches stroke-to-stroke correspondence between `(sheet_a_name, q_a)`
+    and `(sheet_b_name, q_b)` in normalized `[u, v]` bounding-box coordinates so any
+    keyframe, breakdown, in-between, turnaround, or pass progression sheet can smoothly
+    morph into any other sheet!
+    """
+    key = (sheet_a_name, int(q_a) % 4, sheet_b_name, int(q_b) % 4)
+    if key in _CROSS_MATCH_CACHE:
+        return _CROSS_MATCH_CACHE[key]
+
+    cat = get_studio_traced_catalog()
+    sa_obj = cat.get("sheets", {}).get(sheet_a_name)
+    sb_obj = cat.get("sheets", {}).get(sheet_b_name)
+    if not sa_obj or not sb_obj:
+        _CROSS_MATCH_CACHE[key] = []
+        return []
+
+    if sheet_a_name == sheet_b_name:
+        pm = sa_obj.get("pair_matches", {}).get(f"{int(q_a) % 4}_{int(q_b) % 4}")
+        matches = pm.get("matches", []) if pm else []
+        _CROSS_MATCH_CACHE[key] = matches
+        return matches
+
+    qa_data = sa_obj["quadrants"][int(q_a) % 4]
+    qb_data = sb_obj["quadrants"][int(q_b) % 4]
+    strokes_a = qa_data.get("strokes", [])
+    strokes_b = qb_data.get("strokes", [])
+    if not strokes_a or not strokes_b:
+        _CROSS_MATCH_CACHE[key] = []
+        return []
+
+    ax0, ay0, ax1, ay1 = [float(v) for v in qa_data["bbox"]]
+    bx0, by0, bx1, by1 = [float(v) for v in qb_data["bbox"]]
+    aw, ah = max(16.0, ax1 - ax0), max(16.0, ay1 - ay0)
+    bw, bh = max(16.0, bx1 - bx0), max(16.0, by1 - by0)
+    acx, acy = 0.5 * (ax0 + ax1), 0.5 * (ay0 + ay1)
+    bcx, bcy = 0.5 * (bx0 + bx1), 0.5 * (by0 + by1)
+
+    def _feat(st, cx_b, cy_b, w_b, h_b):
+        p0, pm_pt, p1 = st[0], st[len(st) // 2], st[-1]
+        return (
+            (p0[0] - cx_b) / w_b, (p0[1] - cy_b) / h_b,
+            (pm_pt[0] - cx_b) / w_b, (pm_pt[1] - cy_b) / h_b,
+            (p1[0] - cx_b) / w_b, (p1[1] - cy_b) / h_b,
+        )
+
+    fa = [_feat(s, acx, acy, aw, ah) for s in strokes_a]
+    fb = [_feat(s, bcx, bcy, bw, bh) for s in strokes_b]
+    used_b = set()
+    matches = []
+    for ia, (u0a, v0a, uma, vma, u1a, v1a) in enumerate(fa):
+        best_ib = None
+        best_d = 0.55
+        best_rev = False
+        for ib, (u0b, v0b, umb, vmb, u1b, v1b) in enumerate(fb):
+            if ib in used_b:
+                continue
+            d_fwd = math.hypot(uma - umb, vma - vmb) + 0.5 * math.hypot(u0a - u0b, v0a - v0b) + 0.5 * math.hypot(u1a - u1b, v1a - v1b)
+            d_rev = math.hypot(uma - umb, vma - vmb) + 0.5 * math.hypot(u0a - u1b, v0a - v1b) + 0.5 * math.hypot(u1a - u0b, v1a - v0b)
+            if d_fwd < best_d or d_rev < best_d:
+                if d_rev < d_fwd:
+                    best_d = d_rev
+                    best_ib = ib
+                    best_rev = True
+                else:
+                    best_d = d_fwd
+                    best_ib = ib
+                    best_rev = False
+        if best_ib is not None:
+            used_b.add(best_ib)
+            matches.append([ia, best_ib, best_rev])
+
+    _CROSS_MATCH_CACHE[key] = matches
+    return matches
 
 
 def draw_studio_doodle_sprite(
@@ -1012,62 +1332,406 @@ def draw_studio_doodle_sprite(
     tint_bgr: tuple = None,
     tint_strength: float = 0.28,
     flip_x: bool = False,
+    draw_prog: float = 1.0,
+    bob_phase: float = 0.0,
+    boil_phase: int = 0,
+    morph_to_quad: int = None,
+    morph_t: float = 0.0,
+    morph_to_sheet: str = None,
+    onion_ghost_mode: str = None,
 ):
     """
-    Renders a high-craft hand-drawn Quick, Draw! doodle quadrant (`sheet_name`, `quad_idx`)
-    centered at `(cx, cy)` inside `(max_w, max_h)` with strict aspect-ratio lock,
-    opaque warm gouache cel fill, and anti-aliased Speedball India ink line strokes.
+    100% VECTOR STROKE-BY-STROKE RENDERER for all 60 Studio Sheets (240 Hand-Drawn Studio Frames)
+    (`assets/studio_doodles/studio_traced.json`).
+    ZERO raster bitmap cutouts! Every character, turnaround, pass progression, breakdown, in-between,
+    multiplane layer, and studio machine is drawn dynamically from:
+      1. Pass A/B Non-Photo Blue construction curves (`construction_strokes`)
+      2. Pass C/E Watertight Gouache Cel polygons (`cel_polys` & `accent_polys`)
+      3. Pass D Ordered Speedball India Ink vector strokes (`strokes`) with:
+         - Progressive stroke-by-stroke drawing (`draw_prog` in `0.0 .. 1.0`) + live moving Dip-Pen Nib!
+         - Biomechanical per-vertex head/arm/hand/tool articulation (`bob_phase`)!
+         - Same-sheet AND cross-sheet Hungarian stroke-to-stroke pose morphing (`morph_to_sheet`, `morph_to_quad`, `morph_t`)!
+         - Section XII Onion-Skin Flip Ghosting (`onion_ghost_mode="prev"|"next"`) in Non-Photo Blue / Warm Sepia!
+         - Organic 6 Hz hand-drawn vector line boil (`boil_phase`)!
     """
-    q_gray, cel_mask = load_doodle_quadrant(sheet_name, quad_idx)
-    if flip_x:
-        q_gray = cv2.flip(q_gray, 1)
-        cel_mask = cv2.flip(cel_mask, 1)
-
-    qh, qw = q_gray.shape[:2]
-    if qw < 4 or qh < 4:
-        return
-    scale = min(float(max_w) / float(qw), float(max_h) / float(qh))
-    tw = max(8, int(round(qw * scale)))
-    th = max(8, int(round(qh * scale)))
-
-    interp = cv2.INTER_AREA if scale < 1.0 else cv2.INTER_LINEAR
-    g_res = cv2.resize(q_gray, (tw, th), interpolation=interp)
-    m_res = cv2.resize(cel_mask, (tw, th), interpolation=interp)
-
-    x0 = int(round(cx - tw / 2.0))
-    y0 = int(round(cy - th / 2.0))
-    x1 = x0 + tw
-    y1 = y0 + th
-
-    H, W = canvas.shape[:2]
-    cx0, cy0 = max(0, x0), max(0, y0)
-    cx1, cy1 = min(W, x1), min(H, y1)
-    if cx1 <= cx0 or cy1 <= cy0:
+    cat = get_studio_traced_catalog()
+    sheet = cat.get("sheets", {}).get(sheet_name)
+    if not sheet:
         return
 
-    sx0, sy0 = cx0 - x0, cy0 - y0
-    sx1, sy1 = sx0 + (cx1 - cx0), sy0 + (cy1 - cy0)
+    target_sheet_name = morph_to_sheet if morph_to_sheet else sheet_name
+    sheet_b = cat.get("sheets", {}).get(target_sheet_name, sheet)
 
-    roi = canvas[cy0:cy1, cx0:cx1].astype(np.float32)
-    g_sub = g_res[sy0:sy1, sx0:sx1].astype(np.float32)
-    m_sub = (m_res[sy0:sy1, sx0:sx1].astype(np.float32) / 255.0)[..., None]
+    is_agent = sheet.get("is_agent", False)
+    q_i = int(quad_idx) % 4
+    quad = sheet["quadrants"][q_i]
 
-    # 1. Opaque Warm Cel Interior Fill (prevents background lines bleeding through character/prop)
-    base_cel = np.array(BGR_GUTTER, dtype=np.float32)
-    if tint_bgr is not None:
-        t_arr = np.array(tint_bgr, dtype=np.float32)
-        fill_col = base_cel * (1.0 - tint_strength) + t_arr * tint_strength
+    bx0, by0, bx1, by1 = [float(v) for v in quad["bbox"]]
+    has_morph = (
+        morph_to_quad is not None
+        and 0.02 < morph_t < 0.98
+        and ((int(morph_to_quad) % 4) != q_i or target_sheet_name != sheet_name)
+    )
+    if has_morph:
+        qb_bb = sheet_b["quadrants"][int(morph_to_quad) % 4]["bbox"]
+        t_bb = morph_t * morph_t * (3.0 - 2.0 * morph_t)
+        bx0 = bx0 * (1.0 - t_bb) + float(qb_bb[0]) * t_bb
+        by0 = by0 * (1.0 - t_bb) + float(qb_bb[1]) * t_bb
+        bx1 = bx1 * (1.0 - t_bb) + float(qb_bb[2]) * t_bb
+        by1 = by1 * (1.0 - t_bb) + float(qb_bb[3]) * t_bb
+
+    bw = max(16.0, bx1 - bx0)
+    bh = max(16.0, by1 - by0)
+    scx = 0.5 * (bx0 + bx1)
+    scy = 0.5 * (by0 + by1)
+
+    s_uni = min(float(max_w) / bw, float(max_h) / bh)
+    # Volume-conserving squash-and-stretch breathing for agents
+    breath = 1.0 + (0.016 * math.sin(bob_phase) if is_agent else 0.0)
+    sx_final = s_uni * breath
+    sy_final = s_uni / breath
+
+    def transform_vertex(px: float, py: float, part: str = "torso", s_idx: int = 0) -> list:
+        u = (px - scx) / bw  # normalized [-0.5, 0.5]
+        v = (py - scy) / bh  # normalized [-0.5, 0.5]
+
+        if is_agent:
+            if part == "head" or (v < -0.04 and abs(u) < 0.34):
+                piv_u, piv_v = 0.0, -0.04
+                ang = math.radians(3.6 * math.sin(bob_phase * 1.25 + 0.4))
+                du_p, dv_p = u - piv_u, v - piv_v
+                u = piv_u + du_p * math.cos(ang) - dv_p * math.sin(ang)
+                v = piv_v + du_p * math.sin(ang) + dv_p * math.cos(ang)
+            elif part == "left_arm" or (u < -0.15 and v >= -0.12):
+                piv_u, piv_v = -0.15, -0.02
+                weight = min(1.0, abs(u - piv_u) / 0.30)
+                ang = math.radians(7.2 * math.sin(bob_phase * 2.0))
+                du_p, dv_p = u - piv_u, v - piv_v
+                u = piv_u + du_p * math.cos(ang) - dv_p * math.sin(ang) + 0.038 * weight * math.cos(bob_phase * 2.0)
+                v = piv_v + du_p * math.sin(ang) + dv_p * math.cos(ang) + 0.026 * weight * math.sin(bob_phase * 2.0)
+            elif part == "right_arm" or (u > 0.15 and v >= -0.12):
+                piv_u, piv_v = 0.15, -0.02
+                weight = min(1.0, abs(u - piv_u) / 0.30)
+                ang = math.radians(-7.2 * math.sin(bob_phase * 2.0 + 0.7))
+                du_p, dv_p = u - piv_u, v - piv_v
+                u = piv_u + du_p * math.cos(ang) - dv_p * math.sin(ang) - 0.038 * weight * math.sin(bob_phase * 2.0)
+                v = piv_v + du_p * math.sin(ang) + dv_p * math.cos(ang) + 0.028 * weight * math.cos(bob_phase * 2.0)
+
+        if flip_x:
+            u = -u
+
+        ox = cx + u * bw * sx_final
+        oy = cy + v * bh * sy_final
+
+        # Organic 6 Hz hand-drawn vector line boil
+        boil_ang = px * 0.11 + py * 0.09 + boil_phase * 1.85 + s_idx * 0.45
+        boil_r = 0.82 * min(1.2, s_uni)
+        ox += boil_r * math.sin(boil_ang)
+        oy += boil_r * math.cos(boil_ang * 1.27)
+        return [ox, oy]
+
+    # Build transformed polygons & strokes (with same-sheet or cross-sheet Hungarian stroke morphing!)
+    strokes_raw = quad["strokes"]
+    parts_raw = quad.get("stroke_parts", ["torso"] * len(strokes_raw))
+    active_cel_polys = quad.get("cel_polys", [])
+    active_acc_polys = quad.get("accent_polys", [])
+
+    if has_morph:
+        q_b = int(morph_to_quad) % 4
+        quad_b = sheet_b["quadrants"][q_b]
+        matches = _get_cross_sheet_matches(sheet_name, q_i, target_sheet_name, q_b)
+        t_ease = morph_t * morph_t * (3.0 - 2.0 * morph_t)
+        if t_ease >= 0.5:
+            active_cel_polys = quad_b.get("cel_polys", active_cel_polys)
+            active_acc_polys = quad_b.get("accent_polys", active_acc_polys)
+        if matches:
+            matched_a = set()
+            matched_b = set()
+            morphed_strokes = []
+            morphed_parts = []
+            for ia, ib, rev in matches:
+                if ia < len(strokes_raw) and ib < len(quad_b["strokes"]):
+                    matched_a.add(ia)
+                    matched_b.add(ib)
+                    sa = strokes_raw[ia]
+                    sb = quad_b["strokes"][ib][::-1] if rev else quad_b["strokes"][ib]
+                    n_m = 16
+                    idx_a = np.linspace(0, len(sa) - 1, n_m)
+                    idx_b = np.linspace(0, len(sb) - 1, n_m)
+                    st_interp = []
+                    for k in range(n_m):
+                        pa = sa[int(round(idx_a[k]))]
+                        pb = sb[int(round(idx_b[k]))]
+                        st_interp.append([pa[0] * (1.0 - t_ease) + pb[0] * t_ease, pa[1] * (1.0 - t_ease) + pb[1] * t_ease])
+                    morphed_strokes.append(st_interp)
+                    morphed_parts.append(parts_raw[ia] if ia < len(parts_raw) else "torso")
+            if t_ease < 0.55:
+                for ia, sa in enumerate(strokes_raw):
+                    if ia not in matched_a:
+                        morphed_strokes.append(sa)
+                        morphed_parts.append(parts_raw[ia] if ia < len(parts_raw) else "torso")
+            else:
+                parts_b = quad_b.get("stroke_parts", ["torso"] * len(quad_b["strokes"]))
+                for ib, sb in enumerate(quad_b["strokes"]):
+                    if ib not in matched_b:
+                        morphed_strokes.append(sb)
+                        morphed_parts.append(parts_b[ib] if ib < len(parts_b) else "torso")
+            strokes_raw = morphed_strokes
+            parts_raw = morphed_parts
+
+    # Onion-Skin Ghost Mode (`previous → current → next`, Section XII: Flip the Drawings!)
+    if onion_ghost_mode is not None:
+        ghost_ov = canvas.copy()
+        ghost_col = (218, 165, 102) if onion_ghost_mode == "prev" else (182, 198, 224)
+        for i, st in enumerate(strokes_raw[::2]):
+            pts_g = [transform_vertex(p[0], p[1], parts_raw[i * 2] if (i * 2) < len(parts_raw) else "torso", i) for p in st]
+            if len(pts_g) >= 2:
+                cv2.polylines(ghost_ov, [np.array(pts_g, dtype=np.int32)], False, ghost_col, 1, cv2.LINE_AA)
+        cv2.addWeighted(ghost_ov, 0.32, canvas, 0.68, 0, canvas)
+        return
+
+    cel_tf = [[transform_vertex(p[0], p[1], "torso", 0) for p in poly] for poly in active_cel_polys]
+    acc_tf = [[transform_vertex(p[0], p[1], "torso", 1) for p in poly] for poly in active_acc_polys]
+    const_tf = [[transform_vertex(p[0], p[1], "torso", 2) for p in st] for st in quad.get("construction_strokes", [])]
+    strokes_tf = [
+        [transform_vertex(p[0], p[1], parts_raw[i] if i < len(parts_raw) else "torso", i) for p in st]
+        for i, st in enumerate(strokes_raw)
+    ]
+
+    # 1. Pass C/E Watertight Opaque Gouache Cel Fill (fades in smoothly during stroke-by-stroke creation)
+    cel_alpha = float(np.clip((draw_prog - 0.10) / 0.45, 0.30, 1.0)) if draw_prog < 0.99 else 1.0
+    base_cel_col = BGR_GUTTER
+    accent_col = tint_bgr if tint_bgr is not None else BGR_AMBER_PALE
+
+    if cel_tf:
+        target_canvas = canvas if cel_alpha >= 0.98 else canvas.copy()
+        for cp in cel_tf:
+            cv2.fillPoly(target_canvas, [np.array(cp, dtype=np.int32)], base_cel_col, cv2.LINE_AA)
+        for ap in acc_tf:
+            cv2.fillPoly(target_canvas, [np.array(ap, dtype=np.int32)], accent_col, cv2.LINE_AA)
+        if cel_alpha < 0.98:
+            cv2.addWeighted(target_canvas, cel_alpha, canvas, 1.0 - cel_alpha, 0, canvas)
+
+    # 2. Pass A/B Non-Photo Blue Construction Curves (visible during stroke-by-stroke sketch & pose breakdowns!)
+    is_breakdown = has_morph and 0.12 < morph_t < 0.88
+    if draw_prog < 0.82 or is_breakdown or ("breakdown" in sheet_name or "inbetween" in sheet_name or "pass_progression" in sheet_name):
+        const_col = BGR_NONPHOTO_BLUE if (draw_prog < 0.55 or is_breakdown) else (222, 188, 148)
+        p_const = float(np.clip(draw_prog / 0.22, 0.15, 1.0))
+        _draw_strokes_progressive(canvas, const_tf, p_const, color_bgr=const_col, thickness=1)
+
+    # 3. Pass D Ordered Speedball India Ink Vector Strokes (animated stroke-by-stroke with live Dip-Pen Nib!)
+    ink_thick = max(2, int(round(2.4 * min(1.15, s_uni))))
+    p_ink = float(np.clip((draw_prog - 0.08) / 0.88, 0.0, 1.0)) if draw_prog < 0.999 else 1.0
+    tip = _draw_strokes_progressive(
+        canvas,
+        strokes_tf,
+        p_ink,
+        color_bgr=BGR_INK,
+        thickness=ink_thick,
+        underdraw_bgr=BGR_NONPHOTO_BLUE,
+        underdraw_thickness=1,
+    )
+    if tip is not None and draw_prog < 0.98:
+        draw_active_pen_nib(canvas, tip[0], tip[1], is_blue_pencil=(draw_prog < 0.18), scale=max(0.7, min(1.1, s_uni)))
+
+
+def draw_multi_sheet_chain_sprite(
+    canvas: np.ndarray,
+    frame_chain: list,
+    sub_step: float,
+    cx: int,
+    cy: int,
+    max_w: int,
+    max_h: int,
+    tint_bgr: tuple = None,
+    tint_strength: float = 0.34,
+    stroke_in_end: float = 0.12,
+    onion_skin: bool = False,
+    bob_phase: float = 0.0,
+    boil_phase: int = 0,
+    flip_x: bool = False,
+) -> tuple:
+    """
+    Chains `8 to 20` hand-drawn frames across multiple 2x2 sheets (`frame_chain = [(sheet_name, quad_idx, code_lbl), ...]`)!
+      - `0.00 .. stroke_in_end`: draws `frame_chain[0]` stroke-by-stroke with a live moving Dip-Pen Nib (`draw_prog: 0.14 -> 1.00`).
+      - `stroke_in_end .. 1.00`: steps through every hand-drawn Turnaround, Pass A/B/D, Story Key (`K01..K08`),
+        Breakdown (`B01..B04`), and In-Between (`I01..I04`) in `frame_chain`!
+      - Same-sheet transitions (`sh_a == sh_b`) smoothly morph via Hungarian stroke correspondence; cross-sheet
+        Key -> Breakdown -> In-Between transitions step cleanly onto the hand-drawn Breakdown/In-Between drawing
+        with Section XII Onion-Skin Flip Ghosting (`previous → current → next`)!
+    Returns `(active_4stage_idx, active_code_label, n_chain, cur_idx)`.
+    """
+    n_chain = len(frame_chain)
+    if n_chain == 0:
+        return 0, "K01", 1, 0
+
+    dx_bob = int(round(1.4 * math.cos(bob_phase)))
+    dy_bob = int(round(2.0 * math.sin(bob_phase * 2.0)))
+
+    if n_chain == 1 or sub_step < stroke_in_end:
+        sh0, q0, lbl0 = frame_chain[0]
+        dp = float(np.clip(0.14 + 0.86 * (sub_step / max(stroke_in_end, 1e-4)), 0.14, 1.0)) if sub_step < stroke_in_end else 1.0
+        draw_studio_doodle_sprite(
+            canvas,
+            sheet_name=sh0,
+            quad_idx=q0,
+            cx=cx + dx_bob,
+            cy=cy + dy_bob,
+            max_w=max_w,
+            max_h=max_h,
+            tint_bgr=tint_bgr,
+            tint_strength=tint_strength,
+            flip_x=flip_x,
+            draw_prog=dp,
+            bob_phase=bob_phase,
+            boil_phase=boil_phase,
+        )
+        return 0, lbl0, n_chain, 0
+
+    n_segs = n_chain - 1
+    u = float(np.clip((sub_step - stroke_in_end) / max(1.0 - stroke_in_end, 1e-4), 0.0, 0.9999))
+    seg_f = u * n_segs
+    seg_i = min(n_segs - 1, int(seg_f))
+    local_u = seg_f - seg_i
+
+    sh_a, q_a, lbl_a = frame_chain[seg_i]
+    sh_b, q_b, lbl_b = frame_chain[seg_i + 1]
+
+    if sh_a != sh_b:
+        # Authentic classical hand-drawn Key -> Breakdown -> In-Between exposure step!
+        if local_u < 0.5:
+            cur_idx = seg_i
+            cur_lbl = lbl_a
+        else:
+            sh_a, q_a, lbl_a = sh_b, q_b, lbl_b
+            cur_idx = seg_i + 1
+            cur_lbl = lbl_b
+        mt = 0.0
+        sh_next, q_next = None, None
     else:
-        fill_col = base_cel
-    roi = roi * (1.0 - m_sub) + fill_col * m_sub
+        if local_u <= 0.25:
+            mt = 0.0
+            sh_next, q_next = None, None
+            cur_idx = seg_i
+            cur_lbl = lbl_a
+        elif local_u >= 0.75:
+            sh_a, q_a, lbl_a = sh_b, q_b, lbl_b
+            mt = 0.0
+            sh_next, q_next = None, None
+            cur_idx = seg_i + 1
+            cur_lbl = lbl_b
+        else:
+            mt = float((local_u - 0.25) / 0.50)
+            sh_next, q_next = sh_b, q_b
+            cur_idx = seg_i if mt < 0.5 else (seg_i + 1)
+            cur_lbl = lbl_a if mt < 0.5 else lbl_b
 
-    # 2. Crisp Anti-Aliased Hand-Drawn Black Marker Ink Strokes (`BGR_INK`)
-    ink_alpha = np.clip((235.0 - g_sub) / 185.0, 0.0, 1.0) ** 0.85
-    ink_alpha = ink_alpha[..., None]
-    ink_col = np.array(BGR_INK, dtype=np.float32)
-    roi = roi * (1.0 - ink_alpha) + ink_col * ink_alpha
+    # Section XII: Onion-Skin Flip Comparison (`previous → current → next`)
+    if onion_skin and cur_idx > 0:
+        sh_prev, q_prev, _ = frame_chain[cur_idx - 1]
+        draw_studio_doodle_sprite(
+            canvas,
+            sheet_name=sh_prev,
+            quad_idx=q_prev,
+            cx=cx + dx_bob - 6,
+            cy=cy + dy_bob,
+            max_w=max_w,
+            max_h=max_h,
+            flip_x=flip_x,
+            bob_phase=bob_phase,
+            boil_phase=boil_phase,
+            onion_ghost_mode="prev",
+        )
 
-    canvas[cy0:cy1, cx0:cx1] = np.clip(roi, 0, 255).astype(np.uint8)
+    draw_studio_doodle_sprite(
+        canvas,
+        sheet_name=sh_a,
+        quad_idx=q_a,
+        cx=cx + dx_bob,
+        cy=cy + dy_bob,
+        max_w=max_w,
+        max_h=max_h,
+        tint_bgr=tint_bgr,
+        tint_strength=tint_strength,
+        flip_x=flip_x,
+        draw_prog=1.0,
+        bob_phase=bob_phase,
+        boil_phase=boil_phase,
+        morph_to_quad=q_next,
+        morph_t=mt,
+        morph_to_sheet=sh_next,
+    )
+    stage_4_idx = min(3, int((cur_idx / float(max(1, n_chain))) * 4))
+    return stage_4_idx, cur_lbl, n_chain, cur_idx
+
+
+def draw_7plane_multiplane_world(
+    canvas: np.ndarray,
+    bx0: int,
+    by0: int,
+    bx1: int,
+    by1: int,
+    cap_h: int,
+    floor_y: int,
+    scene_idx: int,
+    sub_step: float,
+    boil_phase: int = 0,
+    layer_pass: str = "bg",
+):
+    """
+    Implements Section V & VI (`BUILD THE MULTIPLANE WORLD` & `MULTIPLANE CAMERA PHYSICS`:
+    `screen_motion ∝ camera_motion / layer_depth`) using our 5 dedicated hand-drawn Multiplane sheets:
+      - PLANE 6 (`depth = 6.0`): `multiplane_plane6_sky_atmosphere_keys` (Sky gradient & celestial rays)
+      - PLANE 5 (`depth = 4.0`): `multiplane_plane5_distant_bg_keys` (Distant studio rafters & water tower)
+      - PLANE 4 (`depth = 2.4`): `multiplane_plane4_midground_arch_keys` (Midground studio columns & arched windows)
+      - PLANE 1 (`depth = 0.70`): `multiplane_plane1_foreground_props_keys` (Foreground drafting table props & ink bottles)
+      - PLANE 0 (`depth = 0.42`): `multiplane_plane0_fg_mask_keys` (Extreme foreground proscenium beam & camera cables)
+    """
+    cam_motion = (sub_step - 0.5) * 44.0  # Lateral multiplane camera dolly pan
+    q_plane = (scene_idx + int(sub_step * 3.99)) % 4
+
+    if layer_pass == "bg":
+        bg_layer = canvas.copy()
+        # PLANE 6 (Sky / Atmosphere, depth = 6.0 -> slowest parallax!)
+        dx_p6 = int(round(cam_motion / 6.0))
+        draw_studio_doodle_sprite(
+            bg_layer, "multiplane_plane6_sky_atmosphere_keys", q_plane,
+            cx=180 + dx_p6, cy=by0 + cap_h + 74, max_w=240, max_h=110,
+            tint_bgr=BGR_BLUE_PALE, boil_phase=boil_phase,
+        )
+        # PLANE 5 (Distant Background Rafters, depth = 4.0)
+        dx_p5 = int(round(cam_motion / 4.0))
+        draw_studio_doodle_sprite(
+            bg_layer, "multiplane_plane5_distant_bg_keys", (q_plane + 1) % 4,
+            cx=436 + dx_p5, cy=by0 + cap_h + 76, max_w=210, max_h=114,
+            tint_bgr=BGR_AMBER_PALE, boil_phase=boil_phase + 1,
+        )
+        # PLANE 4 (Midground Studio Columns & Windows, depth = 2.4)
+        dx_p4 = int(round(cam_motion / 2.4))
+        draw_studio_doodle_sprite(
+            bg_layer, "multiplane_plane4_midground_arch_keys", q_plane,
+            cx=180 + dx_p4, cy=floor_y - 140, max_w=260, max_h=175,
+            tint_bgr=BGR_PAPER_DARK, boil_phase=boil_phase + 2,
+        )
+        cv2.addWeighted(bg_layer, 0.16, canvas, 0.84, 0, canvas)
+
+    elif layer_pass == "fg":
+        fg_layer = canvas.copy()
+        # PLANE 1 (Foreground Props Crossing Bench, depth = 0.70 -> strong differential parallax!)
+        dx_p1 = int(round(cam_motion / 0.70))
+        draw_studio_doodle_sprite(
+            fg_layer, "multiplane_plane1_foreground_props_keys", q_plane,
+            cx=336 + dx_p1, cy=by1 - 68, max_w=96, max_h=64,
+            tint_bgr=BGR_AMBER_PALE, boil_phase=boil_phase,
+        )
+        # PLANE 0 (Extreme Foreground Camera Mask / Proscenium Post, depth = 0.42 -> fastest parallax!)
+        dx_p0 = int(round(cam_motion / 0.42))
+        draw_studio_doodle_sprite(
+            fg_layer, "multiplane_plane0_fg_mask_keys", q_plane,
+            cx=bx0 + 32 + dx_p0, cy=by0 + cap_h + 95, max_w=72, max_h=140,
+            tint_bgr=BGR_PAPER_DARK, boil_phase=boil_phase + 1,
+        )
+        cv2.addWeighted(fg_layer, 0.22, canvas, 0.78, 0, canvas)
 
 
 def draw_agent_animator(
@@ -1080,13 +1744,16 @@ def draw_agent_animator(
     dark_bg: bool = False,
     flip_x: bool = False,
     bob_phase: float = 0.0,
+    boil_phase: int = 0,
+    draw_prog: float = 1.0,
+    morph_to_pose: int = None,
+    morph_t: float = 0.0,
 ):
     """
     Draws one of our 5 bespoke Agent Animator characters (`nib`, `blueline`, `celinker`,
-    `sprocket`, `chime`) using their genuine hand-drawn Quick, Draw! doodle sheets
-    (`assets/studio_doodles/agent_<id>_keys.jpg`) in the specific pose (`0..3`) matching
-    their station & narrative beat, with smooth sinusoidal breathing/working motion
-    (`bob_phase`) so characters NEVER glitch-teleport between unrelated poses!
+    `sprocket`, `chime`) 100% from their traced vector stroke rigs (`studio_traced.json`)
+    with progressive stroke-by-stroke drawing (`draw_prog`), biomechanical limb articulation
+    (`bob_phase`), Hungarian stroke pose morphing (`morph_to_pose`, `morph_t`), and 6 Hz line boil!
     """
     ag = STUDIO_AGENTS.get(agent_id, STUDIO_AGENTS["nib"])
     sheet_map = {
@@ -1099,8 +1766,8 @@ def draw_agent_animator(
     sheet_name = sheet_map.get(agent_id, "agent_nib_keys")
     max_w = int(round(176 * scale))
     max_h = int(round(184 * scale))
-    dx_bob = int(round(2.0 * math.cos(bob_phase)))
-    dy_bob = int(round(3.0 * math.sin(bob_phase * 2.0)))
+    dx_bob = int(round(1.5 * math.cos(bob_phase)))
+    dy_bob = int(round(2.2 * math.sin(bob_phase * 2.0)))
     draw_studio_doodle_sprite(
         img,
         sheet_name=sheet_name,
@@ -1110,8 +1777,13 @@ def draw_agent_animator(
         max_w=max_w,
         max_h=max_h,
         tint_bgr=ag["pale_bgr"],
-        tint_strength=0.34,
+        tint_strength=0.38,
         flip_x=flip_x,
+        draw_prog=draw_prog,
+        bob_phase=bob_phase,
+        boil_phase=boil_phase,
+        morph_to_quad=morph_to_pose,
+        morph_t=morph_t,
     )
 
 
@@ -1124,22 +1796,24 @@ def draw_studio_room_architecture(
     cap_h: int,
     floor_y: int,
     light_xs: list = None,
+    boil_phase: int = 0,
 ):
     """
-    Draws cohesive hand-drawn Quick, Draw! studio room architecture:
+    Draws cohesive hand-inked Quick, Draw! studio room architecture using multi-vertex
+    wobbled ink strokes (`draw_hand_inked_line` / `draw_hand_inked_rect`):
       - Warm ceiling beam & hanging studio lamp cones (Pass F volumetric light)
-      - Subtle vertical wall wainscoting panels
-      - Perspective hardwood floorboards converging toward the room horizon (`floor_y`)
+      - Hand-wobbled vertical wall wainscoting panels & chair-rail molding
+      - Hand-wobbled perspective hardwood floorboards converging toward the room horizon (`floor_y`)
     """
     top_y = by0 + cap_h
     cv2.rectangle(canvas, (bx0, top_y), (bx1, floor_y), BGR_PAPER, -1)
     cv2.rectangle(canvas, (bx0, floor_y), (bx1, by1), BGR_PAPER_DARK, -1)
 
-    # Subtle vertical wainscoting wall lines
-    for wx in range(bx0 + 80, bx1 - 40, 110):
-        cv2.line(canvas, (wx, top_y + 4), (wx, floor_y), (214, 224, 234), 1, cv2.LINE_AA)
-    # Chair-rail molding line slightly above floor
-    cv2.line(canvas, (bx0, floor_y - 24), (bx1, floor_y - 24), (190, 204, 216), 2, cv2.LINE_AA)
+    # Hand-wobbled vertical wainscoting wall lines
+    for i_w, wx in enumerate(range(bx0 + 80, bx1 - 40, 110)):
+        draw_hand_inked_line(canvas, (wx, top_y + 4), (wx, floor_y), (212, 222, 232), 1, wobble=0.9, boil_phase=boil_phase + i_w)
+    # Hand-wobbled chair-rail molding line slightly above floor
+    draw_hand_inked_line(canvas, (bx0, floor_y - 24), (bx1, floor_y - 24), (188, 202, 214), 2, wobble=1.1, boil_phase=boil_phase)
 
     # Volumetric ceiling light cones (Pass F)
     if light_xs:
@@ -1154,13 +1828,13 @@ def draw_studio_room_architecture(
             cv2.fillConvexPoly(overlay, cone, BGR_GUTTER, cv2.LINE_AA)
         cv2.addWeighted(overlay, 0.38, canvas, 0.62, 0, canvas)
 
-    # Bold floorboard horizon line & perspective plank lines
-    cv2.line(canvas, (bx0, floor_y), (bx1, floor_y), BGR_INK, 3, cv2.LINE_AA)
+    # Bold hand-inked floorboard horizon line & perspective plank lines
+    draw_hand_inked_line(canvas, (bx0, floor_y), (bx1, floor_y), BGR_INK, 3, wobble=1.3, boil_phase=boil_phase)
     cx_vanish = (bx0 + bx1) // 2
-    for fx in range(bx0 - 120, bx1 + 160, 95):
+    for i_f, fx in enumerate(range(bx0 - 120, bx1 + 160, 95)):
         x_top = int(round(cx_vanish + (fx - cx_vanish) * 0.62))
         if bx0 <= x_top <= bx1:
-            cv2.line(canvas, (x_top, floor_y), (max(bx0, min(bx1, fx)), by1), (175, 192, 206), 2, cv2.LINE_AA)
+            draw_hand_inked_line(canvas, (x_top, floor_y), (max(bx0, min(bx1, fx)), by1), (172, 188, 202), 2, wobble=0.95, boil_phase=boil_phase + i_f)
 
 
 def draw_studio_workbench(
@@ -1170,20 +1844,16 @@ def draw_studio_workbench(
     x1: int,
     y1: int,
     fill_bgr: tuple = BGR_AMBER_PALE,
+    boil_phase: int = 0,
 ):
     """
-    Draws a solid hand-drawn wooden studio workbench / counter in the foreground (`y0..y1`)
-    so waist-up Agent Animators stand or sit naturally behind a physical studio table
-    (ZERO severed waists floating in mid-air!).
+    Draws a solid hand-inked wooden studio workbench / counter in the foreground (`y0..y1`)
+    with wobbled ink edges so waist-up Agent Animators stand or sit naturally behind a physical table.
     """
-    cv2.rectangle(canvas, (x0, y0), (x1, y1), fill_bgr, -1)
-    # Top bevel plank of the workbench
-    cv2.rectangle(canvas, (x0 - 4, y0), (x1 + 4, y0 + 10), BGR_PAPER_DARK, -1)
-    cv2.rectangle(canvas, (x0 - 4, y0), (x1 + 4, y0 + 10), BGR_INK, 3)
-    cv2.rectangle(canvas, (x0, y0 + 10), (x1, y1), BGR_INK, 3)
-    # Wood plank grain & brass bolts
+    draw_hand_inked_rect(canvas, x0, y0 + 10, x1, y1, fill_bgr=fill_bgr, outline_bgr=BGR_INK, thickness=3, wobble=1.15, boil_phase=boil_phase)
+    draw_hand_inked_rect(canvas, x0 - 4, y0, x1 + 4, y0 + 10, fill_bgr=BGR_PAPER_DARK, outline_bgr=BGR_INK, thickness=3, wobble=1.1, boil_phase=boil_phase + 1)
     mid_y = (y0 + 10 + y1) // 2
-    cv2.line(canvas, (x0 + 12, mid_y), (x1 - 12, mid_y), BGR_INK_SOFT, 1, cv2.LINE_AA)
+    draw_hand_inked_line(canvas, (x0 + 12, mid_y), (x1 - 12, mid_y), BGR_INK_SOFT, 1, wobble=0.85, boil_phase=boil_phase)
     for bx in range(x0 + 24, x1 - 16, 140):
         cv2.circle(canvas, (bx, y0 + 5), 2, BGR_INK, -1, cv2.LINE_AA)
 
@@ -1199,9 +1869,209 @@ def draw_spinning_wheel(canvas: np.ndarray, cx: int, cy: int, radius: int, angle
     cv2.circle(canvas, (cx, cy), 4, BGR_INK, 2, cv2.LINE_AA)
 
 
+def _compute_pose_transition(sub_val: float, p_early: int, p_late: int, split_t: float = 0.55, span: float = 0.18):
+    """Computes `(cur_pose, morph_to_pose, morph_t)` for smooth Hungarian vector stroke morphing across a pose change."""
+    t0 = split_t - span * 0.5
+    t1 = split_t + span * 0.5
+    if sub_val <= t0:
+        return p_early, None, 0.0
+    elif sub_val >= t1:
+        return p_late, None, 0.0
+    else:
+        return p_early, p_late, float((sub_val - t0) / max(span, 1e-4))
+
+
+def _compute_key_sequence_schedule(
+    sub_step: float,
+    key_sequence: tuple = (0, 1, 2, 3),
+    stroke_in_end: float = 0.20,
+):
+    """
+    Schedules a multi-keyframe hand-drawn sheet (`Q0 -> Q1 -> Q2 -> Q3`) over `sub_step in [0.0, 1.0]`:
+      - `0.00 .. stroke_in_end`: draws `key_sequence[0]` stroke-by-stroke with a live moving Dip-Pen Nib (`draw_prog: 0.14 -> 1.00`).
+      - `stroke_in_end .. 1.00`: holds each key pose clearly and smoothly morphs between consecutive key poses using Hungarian vector stroke correspondence.
+    Returns `(draw_prog, q_cur, q_next, morph_t, active_seq_idx)`.
+    """
+    if len(key_sequence) <= 1:
+        q0 = key_sequence[0] if key_sequence else 0
+        dp = float(np.clip(0.14 + 0.86 * (sub_step / max(stroke_in_end, 1e-4)), 0.14, 1.0)) if sub_step < stroke_in_end else 1.0
+        return dp, q0, None, 0.0, 0
+
+    if sub_step < stroke_in_end:
+        dp = float(np.clip(0.14 + 0.86 * (sub_step / max(stroke_in_end, 1e-4)), 0.14, 1.0))
+        return dp, key_sequence[0], None, 0.0, 0
+
+    n_segs = len(key_sequence) - 1
+    u = float(np.clip((sub_step - stroke_in_end) / max(1.0 - stroke_in_end, 1e-4), 0.0, 1.0))
+    seg_f = u * n_segs
+    seg_i = min(n_segs - 1, int(seg_f))
+    local_u = seg_f - seg_i
+    q_a = key_sequence[seg_i]
+    q_b = key_sequence[seg_i + 1]
+
+    if local_u <= 0.20:
+        return 1.0, q_a, None, 0.0, seg_i
+    elif local_u >= 0.80:
+        return 1.0, q_b, None, 0.0, seg_i + 1
+    else:
+        mt = float((local_u - 0.20) / 0.60)
+        act_idx = seg_i if mt < 0.5 else (seg_i + 1)
+        return 1.0, q_a, q_b, mt, act_idx
+
+
+def draw_4key_sequence_sprite(
+    canvas: np.ndarray,
+    sheet_name: str,
+    sub_step: float,
+    cx: int,
+    cy: int,
+    max_w: int,
+    max_h: int,
+    tint_bgr: tuple = None,
+    tint_strength: float = 0.34,
+    key_sequence: tuple = (0, 1, 2, 3),
+    stroke_in_end: float = 0.20,
+    bob_phase: float = 0.0,
+    boil_phase: int = 0,
+    flip_x: bool = False,
+) -> int:
+    """
+    Draws any 2x2 hand-drawn studio sheet (`sheet_name`) through its full 4-keyframe
+    action sequence (`Q0 -> Q1 -> Q2 -> Q3`) with initial stroke-by-stroke creation
+    and Hungarian vector stroke morphing. Returns `active_seq_idx` (`0..3`).
+    """
+    dp, q_cur, q_next, mt, act_idx = _compute_key_sequence_schedule(
+        sub_step, key_sequence=key_sequence, stroke_in_end=stroke_in_end
+    )
+    dx_bob = int(round(1.4 * math.cos(bob_phase)))
+    dy_bob = int(round(2.0 * math.sin(bob_phase * 2.0)))
+    draw_studio_doodle_sprite(
+        canvas,
+        sheet_name=sheet_name,
+        quad_idx=q_cur,
+        cx=cx + dx_bob,
+        cy=cy + dy_bob,
+        max_w=max_w,
+        max_h=max_h,
+        tint_bgr=tint_bgr,
+        tint_strength=tint_strength,
+        flip_x=flip_x,
+        draw_prog=dp,
+        bob_phase=bob_phase,
+        boil_phase=boil_phase,
+        morph_to_quad=q_next,
+        morph_t=mt,
+    )
+    return act_idx
+
+
+def draw_macro_inset_box(
+    canvas: np.ndarray,
+    x0: int,
+    y0: int,
+    w: int,
+    h: int,
+    sheet_name: str,
+    sub_step: float,
+    key_sequence: tuple = (0, 1, 2, 3),
+    tint_bgr: tuple = BGR_AMBER_PALE,
+    boil_phase: int = 0,
+    frame_chain: list = None,
+    onion_skin: bool = False,
+) -> int:
+    """
+    Draws an exact 4:3 (`184x138`) Macro Hand/Mechanism/Thumbnail/Turnaround Close-Up Inset Box
+    in the center column, supporting either a single 2x2 `sheet_name` or a multi-sheet `frame_chain`!
+    """
+    draw_hand_inked_rect(
+        canvas, x0, y0, x0 + w, y0 + h,
+        fill_bgr=BGR_PAPER, outline_bgr=BGR_INK, thickness=3,
+        boil_phase=boil_phase, shadow_offset=4,
+    )
+    cv2.rectangle(canvas, (x0 + 4, y0 + 4), (x0 + w - 4, y0 + h - 4), BGR_GUTTER, 1)
+    if frame_chain:
+        act_idx, _, _, _ = draw_multi_sheet_chain_sprite(
+            canvas,
+            frame_chain=frame_chain,
+            sub_step=sub_step,
+            cx=x0 + w // 2,
+            cy=y0 + h // 2 + 4,
+            max_w=w - 14,
+            max_h=h - 14,
+            tint_bgr=tint_bgr,
+            stroke_in_end=0.14,
+            onion_skin=onion_skin,
+            bob_phase=sub_step * math.pi * 4.0,
+            boil_phase=boil_phase + 1,
+        )
+    else:
+        act_idx = draw_4key_sequence_sprite(
+            canvas,
+            sheet_name=sheet_name,
+            sub_step=sub_step,
+            cx=x0 + w // 2,
+            cy=y0 + h // 2 + 4,
+            max_w=w - 14,
+            max_h=h - 14,
+            tint_bgr=tint_bgr,
+            key_sequence=key_sequence,
+            stroke_in_end=0.18,
+            bob_phase=sub_step * math.pi * 4.0,
+            boil_phase=boil_phase + 1,
+        )
+    draw_hand_inked_rect(
+        canvas, x0, y0, x0 + w, y0 + h,
+        fill_bgr=None, outline_bgr=BGR_INK, thickness=3,
+        boil_phase=boil_phase,
+    )
+    return act_idx
+
+
+def draw_4key_progress_strip(
+    draw: ImageDraw.ImageDraw,
+    x0: int,
+    y0: int,
+    total_w: int,
+    active_idx: int,
+    pose_labels: list,
+    accent_rgb: tuple,
+):
+    """
+    Draws a 4-stage Multiplane Production Tracker bar below the giant 384x288 (4:3) right-hand stage.
+    """
+    n_k = len(pose_labels)
+    gap = 6
+    cell_w = (total_w - gap * (n_k - 1)) // n_k
+    cell_h = 34
+    for i, lbl in enumerate(pose_labels):
+        cx0 = x0 + i * (cell_w + gap)
+        cx1 = cx0 + cell_w
+        is_act = (i == active_idx)
+        fill_c = accent_rgb if is_act else (251, 229, 194)
+        txt_c = (255, 251, 244) if is_act else (22, 20, 18)
+        draw.rounded_rectangle([cx0 + 2, y0 + 2, cx1 + 2, y0 + cell_h + 2], radius=5, fill=(22, 20, 18))
+        draw.rounded_rectangle([cx0, y0, cx1, y0 + cell_h], radius=5, fill=fill_c, outline=(22, 20, 18), width=3 if is_act else 2)
+        f_p = fit_text_font(draw, lbl, cell_w - 10, [FONT_LABEL_SM, FONT_CAPTION_SM])
+        bb = draw.textbbox((0, 0), lbl, font=f_p)
+        tw = bb[2] - bb[0]
+        draw.text((cx0 + (cell_w - tw) // 2, y0 + 9), lbl, font=f_p, fill=txt_c)
+
+
 # =============================================================================
-# 4-SCENE ANIMATED STUDIO FILM ENGINE (EVERY SCENE SHOWS THE AGENTS WORKING!)
+# 8-SCENE SEQUENTIAL MULTIPLANE STUDIO ENGINE (240 STUDIO DRAWINGS CHAINED!)
 # =============================================================================
+SCENE_HEADERS = {
+    1: ("ACT I-A · THUMBNAILS & 35MM MOVIOLA", "nib", ["1. TURN & PASS A/B", "2. KEYS K01..K02", "3. BRK B01 & INB I01", "4. EXT KEYS K05..K08"]),
+    2: ("ACT I-B · TURNAROUNDS & STORYBOARD", "blueline", ["1. MODEL TURNS", "2. PIN KEYS K01..04", "3. MOTION ARCS", "4. 4-CARD LOCK"]),
+    3: ("ACT II-A · KEYS, BREAKDOWNS & IN-BETWEENS", "blueline", ["1. PASS A/B/D", "2. KEYS K01..K04", "3. BRK B01..04 & INB", "4. FLIP TEST K05..08"]),
+    4: ("ACT II-B · INSIDE-OUT PASS & INDIA INKING", "nib", ["1. PASS A→B→D→E", "2. INK KEYS K01..02", "3. INK BRK B01..04", "4. CEL CHECK K03..04"]),
+    5: ("ACT II-C · GOUACHE CEL OPAQUING & RACK", "celinker", ["1. CEL PASS A..E", "2. FLOOD KEYS K01..04", "3. BRUSH BRK B01..04", "4. RACK EXT K05..08"]),
+    6: ("ACT III · 7-PLANE CAMERA TOWER & PARALLAX", "celinker", ["1. PLANE 6..4 BG", "2. LOAD KEYS & BRK", "3. PARALLAX OPTICS", "4. PLANE 1..0 FG"]),
+    7: ("ACT IV-A · 16-GATE AUDIT & FOLEY STAGE", "sprocket", ["1. CALIPER K01..04", "2. GATE BRK B01..04", "3. FOLEY KEYS & BRK", "4. FOLEY EXT K05..08"]),
+    8: ("ACT IV-B · PLAYBACK & 35MM PREMIERE", "chime", ["1. SCREEN KEYS K01..02", "2. CREW BRK B01..02", "3. CHEER KEYS K03..04", "4. BOW BRK B03..04"]),
+}
+
+
 def render_single_panel_fullscreen(
     spec: dict,
     panel_num: int,
@@ -1210,481 +2080,686 @@ def render_single_panel_fullscreen(
     boil_phase: int = 0,
 ) -> np.ndarray:
     """
-    Renders Scene `panel_num` (`1..4`) at FULL `960x540` (16:9) resolution.
-    In EVERY SINGLE SCENE:
-      - Cohesive studio room architecture + grounded foreground workbenches eliminate floating cutouts.
-      - Characters use state-driven poses (`sub_step`) + smooth sinusoidal articulation (`bob_phase`),
-        NEVER glitch-swapping 4 unrelated drawings at 4 Hz!
-      - Screens show crystal-clear 4:3 archival video, real `selected-keys.png` + `scene-plate.png`
-        progressive stroke-by-stroke drawing, separated multiplane glass platens, and HUD-free 4:3 cartoons!
+    Renders Full-Screen Cartoon Scene `panel_num` (`1..8`) at `960x540` (16:9) resolution,
+    chaining all 60 hand-drawn 2x2 Studio Sheets (`240` Studio Drawings) + 14 Hero Shots (`70` Drawings)
+    = `310` Vector-Traced Hand-Drawn Frames across the 17-Phase Multiplane Animation Pipeline:
+      - Phase 2 Thumbnail Staging (`phase02_staging_thumbnails_keys`)
+      - Phase 3, 5, 6 7-Plane Multiplane World & Camera Parallax (`PLANE 0..6`, `screen_motion ∝ camera_motion / layer_depth`)
+      - Phase 21 Character Turnaround Model Sheets (`model_sheet_*_turns`)
+      - Phase 22 Inside-Out Pass Progressions (`*_pass_progression`: Pass A Gesture -> Pass B Volume -> Pass D Ink -> Pass E/F Tone)
+      - Phase 4, 6, 8 Story Keys (`K01..K08`), Breakdowns with Dotted Motion Arcs (`B01..B04`), In-Betweens (`I01..I04`),
+        and Section XII Onion-Skin Flip Ghosting (`previous → current → next`)!
     """
     W, H = 960, 540
     canvas = np.full((H, W, 3), BGR_PAPER, dtype=np.uint8)
     slug = spec["featured_shot"]
-    lead_id = spec.get("lead_agent", "nib")
-    cameo_id = spec.get("cameo_agent", "blueline")
-    lead_ag = STUDIO_AGENTS[lead_id]
-    cameo_ag = STUDIO_AGENTS[cameo_id]
     arch_sketches, blue_roughs, ink_cels, cart_frames = load_shot_frames(slug)
-    plate_gray, quad_grays = load_shot_keys_and_plate(slug)
+
+    p_idx = ((int(panel_num) - 1) % 8) + 1
+    act_title, scene_ag_id, pose_labels = SCENE_HEADERS[p_idx]
+    scene_ag = STUDIO_AGENTS[scene_ag_id]
 
     pad = 16
     cap_h = 52
     bx0, by0, bx1, by1 = pad, pad, W - pad, H - pad
+    floor_y = by1 - 88
     bob_rad = sub_step * math.pi * 4.0
 
-    # =========================================================================
-    # SCENE 1 (ROOM 1): THE STORYBOARD & ARCHIVAL MOVIOLA ROOM
-    # =========================================================================
-    if panel_num == 1:
-        floor_y = by1 - 92
-        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[240, 600, 820])
+    # Studio architecture + 7-Plane Multiplane Background (`PLANE 6 Sky`, `PLANE 5 Distant BG`, `PLANE 4 Midground`)
+    light_xs = [180, 438, 736] if p_idx != 8 else None
+    draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=light_xs, boil_phase=boil_phase)
+    draw_7plane_multiplane_world(canvas, bx0, by0, bx1, by1, cap_h, floor_y, p_idx, sub_step, boil_phase=boil_phase, layer_pass="bg")
 
-        # Left Studio Floor: Hand-Drawn 35mm Film Canister Vault Shelf (`studio_room_props_keys` Q0)
-        draw_studio_doodle_sprite(
-            canvas, "studio_room_props_keys", 0,
-            cx=bx0 + 76, cy=floor_y - 62, max_w=120, max_h=144,
-            tint_bgr=BGR_AMBER_PALE, tint_strength=0.28,
-        )
+    mac_x, mac_y, mac_w, mac_h = 344, by0 + cap_h + 36, 184, 138
+    rx0, ry0, rw, rh = 544, by0 + cap_h + 36, 384, 288
 
-        # Center-Left Studio Floor: Hand-Drawn Wheeled Twin-Reel Moviola Console (`studio_apparatus_keys` Q0)
-        mov_cx, mov_cy = 428, floor_y - 46
-        draw_studio_doodle_sprite(
-            canvas, "studio_apparatus_keys", 0,
-            cx=mov_cx, cy=mov_cy, max_w=154, max_h=186,
-            tint_bgr=BGR_BLUE_PALE, tint_strength=0.30,
-        )
-        # Animated rotating spokes on the Moviola's twin top reels!
-        reel_ang = sub_step * 720.0
-        draw_spinning_wheel(canvas, mov_cx - 42, mov_cy - 64, 18, reel_ang)
-        draw_spinning_wheel(canvas, mov_cx + 42, mov_cy - 66, 18, reel_ang + 36.0)
+    cone_poly = np.array([
+        [mac_x + mac_w, mac_y + mac_h // 2],
+        [rx0, ry0 + 8],
+        [rx0, ry0 + rh - 8],
+        [mac_x + mac_w, floor_y - 45],
+    ], dtype=np.int32)
+    ov_cone = canvas.copy()
+    cv2.fillConvexPoly(ov_cone, cone_poly, BGR_AMBER_PALE, cv2.LINE_AA)
+    cv2.addWeighted(ov_cone, 0.38, canvas, 0.62, 0, canvas)
 
-        # Center-Right: Live 4:3 Archival Moviola Monitor (`228x171`, exact 4:3!)
-        mx0, my0 = 490, by0 + cap_h + 28
-        mw, mh = 228, 171  # 228 / 171 = 4:3 exact!
-        # Soft optical viewer projection cone from Moviola Console to 4:3 Monitor
-        mov_cone = np.array([
-            [mov_cx + 12, mov_cy - 34],
-            [mx0 - 6, my0],
-            [mx0 - 6, my0 + mh],
-            [mov_cx + 28, mov_cy - 12],
-        ], dtype=np.int32)
-        ov_m = canvas.copy()
-        cv2.fillConvexPoly(ov_m, mov_cone, BGR_AMBER_PALE, cv2.LINE_AA)
-        cv2.addWeighted(ov_m, 0.45, canvas, 0.55, 0, canvas)
-
-        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 8), BGR_BLUE_PALE, -1)
-        cv2.rectangle(canvas, (mx0 - 8, my0 - 8), (mx0 + mw + 8, my0 + mh + 8), BGR_INK, 4)
-
-        arch_fr = arch_sketches[shot_frame_idx % len(arch_sketches)]
-        mov_thumb = cv2.resize(arch_fr, (mw, mh), interpolation=cv2.INTER_AREA)
-        canvas[my0:my0 + mh, mx0:mx0 + mw] = mov_thumb
-        cv2.rectangle(canvas, (mx0, my0), (mx0 + mw, my0 + mh), BGR_INK, 3)
-
-        # Right Wall: Corkboard Storyboard Pin-Up Board (4 exact 4:3 cards from `selected-keys.png`!)
-        sbx0, sby0 = 734, by0 + cap_h + 24
-        sbx1, sby1 = bx1 - 16, by0 + cap_h + 214
-        cv2.rectangle(canvas, (sbx0 + 4, sby0 + 4), (sbx1 + 4, sby1 + 4), BGR_INK, -1)
-        cv2.rectangle(canvas, (sbx0, sby0), (sbx1, sby1), BGR_AMBER_PALE, -1)
-        cv2.rectangle(canvas, (sbx0, sby0), (sbx1, sby1), BGR_INK, 3)
-
-        n_pinned = max(1, min(4, int(sub_step * 4.2) + 1)) if sub_step < 0.95 else 4
-        for pk_i in range(n_pinned):
-            pr = pk_i // 2
-            pc = pk_i % 2
-            cx_k = sbx0 + 12 + pc * 90
-            cy_k = sby0 + 32 + pr * 74
-            kw_s, kh_s = 80, 60  # 80 / 60 = 4:3 exact!
-            card_prog = np.clip((sub_step - pk_i * 0.18) * 1.4, 0.15, 0.68)
-            k_im = render_progressive_keyframe_board(slug, pk_i, card_prog, kw_s, kh_s)
-            canvas[cy_k:cy_k + kh_s, cx_k:cx_k + kw_s] = k_im
-            cv2.rectangle(canvas, (cx_k, cy_k), (cx_k + kw_s, cy_k + kh_s), BGR_INK, 2)
-            cv2.circle(canvas, (cx_k + kw_s // 2, cy_k + 4), 4, BGR_RED, -1, cv2.LINE_AA)
-
-        # State-driven poses (NO 4 Hz glitching!) + Grounded Foreground Studio Worktables!
-        lead_pose = 0 if sub_step < 0.55 else 1
-        cameo_pose = 2 if cameo_id == "blueline" else (3 if sub_step >= 0.5 else 0)
-        draw_agent_animator(canvas, lead_id, bx0 + 232, by1 - 116, scale=1.12, pose=lead_pose, bob_phase=bob_rad)
-        draw_agent_animator(canvas, cameo_id, 788, by1 - 114, scale=1.02, pose=cameo_pose, bob_phase=bob_rad + 1.2)
-
-        # Grounded Foreground Director's Desk (Left) & Storyboard Pin-Up Table (Right) covering lower waists!
-        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 362, by1 - 4, fill_bgr=BGR_AMBER_PALE)
-        draw_studio_workbench(canvas, 648, by1 - 48, bx1 - 12, by1 - 4, fill_bgr=BGR_BLUE_PALE)
+    active_pose_idx = 0
+    active_code_lbl = "K01"
+    chain_len = 16
+    chain_cur = 0
+    macro_caption = "MACRO HAND CAM (4:3)"
+    apparatus_caption = "STUDIO APPARATUS"
+    right_board_caption = f"4:3 STAGE — #{slug.upper()}"
 
     # =========================================================================
-    # SCENE 2 (ROOM 2): THE 4-DESK WORKTREE DRAFTING BULLPEN
+    # SCENE 1: ACT I-A — THUMBNAIL STAGING (`T01..T04`) & NIB AT THE 35MM MOVIOLA (16 FRAMES!)
     # =========================================================================
-    elif panel_num == 2:
-        floor_y = by1 - 138
-        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[130, 354, 578, 802])
-
-        desk_agents = ["blueline", "celinker", "nib", "sprocket"]
-        # Active desk-working poses during Steps A/B (`0..0.74`), then lifting finished cel at Step C (`>=0.74`)!
-        working_poses = [0, 1, 1, 2]
-        finished_poses = [1, 3, 0, 3]
-        kw, kh = 196, 147  # 196 / 147 = 4:3 exact!
-
-        for d_i in range(4):
-            dx0 = bx0 + 20 + d_i * 224
-            dy0 = by0 + cap_h + 38
-
-            local_prog = float(np.clip(sub_step * 1.28 - d_i * 0.08, 0.0, 1.0))
-            if local_prog < 0.36:
-                stage_col = BGR_NONPHOTO_BLUE
-            elif local_prog < 0.74:
-                stage_col = BGR_INK
-            else:
-                stage_col = BGR_AMBER
-
-            # Soft translucent lightbox projection cone from drafting desk up to the 4:3 Keyframe Board
-            cone_pts = np.array([
-                [dx0 + 118, by1 - 138],
-                [dx0 + 8, dy0 + kh],
-                [dx0 + kw - 8, dy0 + kh],
-                [dx0 + 168, by1 - 138],
-            ], dtype=np.int32)
-            ov_d = canvas.copy()
-            cv2.fillConvexPoly(ov_d, cone_pts, BGR_AMBER_PALE, cv2.LINE_AA)
-            cv2.addWeighted(ov_d, 0.42, canvas, 0.58, 0, canvas)
-
-            # 1. Exact 4:3 Progressive Keyframe Drawing Board (`196x147`, exact 4:3!)
-            # Shows real `selected-keys.png` quadrant K_i + `scene-plate.png` wiping from Blue Rough -> Black Ink -> Gouache!
-            cv2.rectangle(canvas, (dx0 + 4, dy0 + 4), (dx0 + kw + 4, dy0 + kh + 4), BGR_INK, -1)
-            sheet_thumb = render_progressive_keyframe_board(slug, d_i, local_prog, kw, kh)
-            canvas[dy0:dy0 + kh, dx0:dx0 + kw] = sheet_thumb
-            # Top Acme peg-bar strip (`8px` tall) so registration pins sit cleanly above the giraffe's head
-            cv2.rectangle(canvas, (dx0, dy0), (dx0 + kw, dy0 + 9), BGR_AMBER_PALE, -1)
-            cv2.line(canvas, (dx0, dy0 + 9), (dx0 + kw, dy0 + 9), BGR_INK, 1)
-            cv2.rectangle(canvas, (dx0, dy0), (dx0 + kw, dy0 + kh), stage_col, 4 if local_prog >= 0.74 else 3)
-            for px_off in (49, 98, 147):
-                cv2.circle(canvas, (dx0 + px_off, dy0 + 5), 3, BGR_INK, -1, cv2.LINE_AA)
-
-            # 2. Hand-Drawn Tilted Animator Lightbox Drafting Desk (`studio_apparatus_keys` Q1)
-            draw_studio_doodle_sprite(
-                canvas, "studio_apparatus_keys", 1,
-                cx=dx0 + 144, cy=by1 - 114, max_w=116, max_h=132,
-                tint_bgr=BGR_AMBER_PALE, tint_strength=0.35,
-            )
-
-            # 3. Hand-Drawn Agent Animator working at their station (tucked cleanly behind the foreground bench!)
-            ag_id = desk_agents[d_i]
-            cur_pose = working_poses[d_i] if local_prog < 0.74 else finished_poses[d_i]
-            draw_agent_animator(
-                canvas, ag_id,
-                cx=dx0 + 58, cy=by1 - 96,
-                scale=0.84, pose=cur_pose, bob_phase=bob_rad + d_i * 0.9,
-            )
-
-        # Continuous Foreground Wooden Animator's Bench across the bottom of Room 2 (overlaps lower 18px of waists!)
-        draw_studio_workbench(canvas, bx0 + 8, by1 - 46, bx1 - 8, by1 - 4, fill_bgr=BGR_AMBER_PALE)
-
-    # =========================================================================
-    # SCENE 3 (ROOM 3): THE 7-LEVEL MULTIPLANE CAMERA TOWER
-    # =========================================================================
-    elif panel_num == 3:
-        floor_y = by1 - 92
-        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=[300, 740])
-
-        # Center-Left: Hand-Drawn 7-Level Multiplane Camera Tower Rig (`studio_apparatus_keys` Q2)
-        cam_cx = 302
-        cam_y = by0 + cap_h + 38
-        draw_studio_doodle_sprite(
-            canvas, "studio_apparatus_keys", 2,
-            cx=cam_cx, cy=by0 + cap_h + 212, max_w=265, max_h=386,
-            tint_bgr=BGR_AMBER_PALE, tint_strength=0.25,
-        )
-
-        # Render 3 REAL separated multiplane artwork strips (`Hero K2`, `Midground Plate`, `Horizon Sky`)
-        # sliding horizontally in live parallax inside the 3 glass platens of the tower!
-        shift_px = int(round(math.sin(sub_step * math.pi * 2.0) * 14))
-        platen_specs = [
-            (by0 + cap_h + 193, quad_grays[1], int(shift_px * 1.0), BGR_AMBER_PALE),
-            (by0 + cap_h + 263, plate_gray, int(shift_px * 0.55), BGR_GREEN_PALE),
-            (by0 + cap_h + 334, plate_gray, int(shift_px * 0.20), BGR_BLUE_PALE),
+    if p_idx == 1:
+        nib_moviola_chain = [
+            ("model_sheet_nib_turns", 0, "TURN-FRONT"),
+            ("model_sheet_nib_turns", 1, "TURN-3/4"),
+            ("nib_moviola_pass_progression", 0, "PASS-A GESTURE"),
+            ("nib_moviola_pass_progression", 1, "PASS-B VOLUME"),
+            ("nib_moviola_keys", 0, "KEY K01"),
+            ("nib_moviola_breakdowns", 0, "BRK B01 (ARC)"),
+            ("nib_moviola_inbetweens", 0, "INB I01"),
+            ("nib_moviola_keys", 1, "KEY K02"),
+            ("nib_moviola_breakdowns", 1, "BRK B02 (ARC)"),
+            ("nib_moviola_inbetweens", 1, "INB I02"),
+            ("nib_moviola_keys", 2, "KEY K03"),
+            ("nib_moviola_keys", 3, "KEY K04"),
+            ("nib_moviola_keys_ext", 0, "EXT K05 LOUPE"),
+            ("nib_moviola_keys_ext", 1, "EXT K06 SPLICE"),
+            ("nib_moviola_keys_ext", 2, "EXT K07 MARK"),
+            ("nib_moviola_keys_ext", 3, "EXT K08 LOCK"),
         ]
-        for py_plat, src_g, dx_p, tint_p in platen_specs:
-            pw_strip, ph_strip = 104, 28
-            strip_g = cv2.resize(src_g, (pw_strip, ph_strip), interpolation=cv2.INTER_AREA)
-            strip_bgr = np.full((ph_strip, pw_strip, 3), tint_p, dtype=np.uint8)
-            a_st = np.clip((230.0 - strip_g.astype(np.float32)) / 160.0, 0.0, 1.0)[..., None]
-            strip_bgr = np.clip(strip_bgr.astype(np.float32) * (1.0 - a_st) + np.array(BGR_INK, dtype=np.float32) * a_st, 0, 255).astype(np.uint8)
-            sx_p = cam_cx - 8 - pw_strip // 2 + dx_p
-            sy_p = py_plat - ph_strip // 2
-            canvas[sy_p:sy_p + ph_strip, sx_p:sx_p + pw_strip] = strip_bgr
-            cv2.rectangle(canvas, (sx_p, sy_p), (sx_p + pw_strip, sy_p + ph_strip), BGR_INK, 2)
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, nib_moviola_chain, sub_step,
+            cx=180, cy=by1 - 142, max_w=244, max_h=252,
+            tint_bgr=STUDIO_AGENTS["nib"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        mac_chain_s1 = [
+            ("phase02_staging_thumbnails_keys", 0, "THUMB T01"),
+            ("phase02_staging_thumbnails_keys", 1, "THUMB T02"),
+            ("phase02_staging_thumbnails_keys", 2, "THUMB T03"),
+            ("phase02_staging_thumbnails_keys", 3, "THUMB T04"),
+            ("closeup_moviola_hands_keys", 0, "SPLICE M01"),
+            ("closeup_moviola_hands_keys", 1, "SPLICE M02"),
+            ("closeup_moviola_hands_keys", 2, "SPLICE M03"),
+            ("closeup_moviola_hands_keys", 3, "SPLICE M04"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="phase02_staging_thumbnails_keys", sub_step=sub_step,
+            tint_bgr=BGR_AMBER_PALE, boil_phase=boil_phase, frame_chain=mac_chain_s1,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "apparatus_moviola_anim_keys", sub_step,
+            cx=436, cy=by1 - 128, max_w=176, max_h=186,
+            tint_bgr=BGR_BLUE_PALE, bob_phase=bob_rad * 0.4, boil_phase=boil_phase + 1,
+        )
+        if sub_step > 0.20:
+            reel_ang = sub_step * 720.0
+            draw_spinning_wheel(canvas, 436 - 42, by1 - 182, 16, reel_ang)
+            draw_spinning_wheel(canvas, 436 + 42, by1 - 182, 16, reel_ang + 40.0)
 
-        # `Cel-Inker` on Left sliding the glass platen (`Q2` -> `Q3`) + `Nib` on Right turning the Crank Wheel (`Q2`)!
-        cel_pose = 2 if sub_step < 0.78 else 3
-        draw_agent_animator(canvas, "celinker", bx0 + 98, by1 - 110, scale=1.00, pose=cel_pose, bob_phase=bob_rad)
-        draw_agent_animator(canvas, "nib", 470, by1 - 110, scale=1.00, pose=2, bob_phase=bob_rad + 1.0)
+        draw_hand_inked_rect(canvas, rx0 - 6, ry0 - 6, rx0 + rw + 6, ry0 + rh + 6, fill_bgr=BGR_BLUE_PALE, outline_bgr=BGR_INK, thickness=3, boil_phase=boil_phase, shadow_offset=5)
+        arch_fr = arch_sketches[shot_frame_idx % len(arch_sketches)]
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = cv2.resize(arch_fr, (rw, rh), interpolation=cv2.INTER_AREA)
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase)
 
-        # Grounded Foreground Platen-Loading Bench & Camera Crank Console covering lower waists!
-        draw_studio_workbench(canvas, bx0 + 10, by1 - 46, 224, by1 - 4, fill_bgr=BGR_AMBER_PALE)
-        draw_studio_workbench(canvas, 386, by1 - 46, 560, by1 - 4, fill_bgr=BGR_RED_PALE)
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_AMBER_PALE, boil_phase=boil_phase)
+        macro_caption = "THUMBNAILS T01..T04 & SPLICER"
+        apparatus_caption = "NIB // ARCHIVAL MOVIOLA"
+        right_board_caption = f"ARCHIVAL 35MM MOVIOLA SCREEN (4:3) — #{slug.upper()}"
 
-        # Right Side: Exact 4:3 Multiplane Camera Viewfinder Monitor (`340x255` -> 340/255 = 4:3!)
-        vw, vh = 340, 255  # EXACT 4:3 aspect ratio!
-        vx0 = bx1 - vw - 22
-        vy0 = by0 + cap_h + 56
-        # Braided cable from Overhead Camera Unit to Viewfinder Monitor
-        cv2.line(canvas, (cam_cx + 32, cam_y + 10), (vx0 + vw // 2, cam_y + 10), BGR_INK, 4, cv2.LINE_AA)
-        cv2.line(canvas, (vx0 + vw // 2, cam_y + 10), (vx0 + vw // 2, vy0), BGR_INK, 4, cv2.LINE_AA)
+    # =========================================================================
+    # SCENE 2: ACT I-B — CHARACTER TURNAROUND MODEL SHEETS & 4-KEY STORYBOARD WALL (12+12 FRAMES!)
+    # =========================================================================
+    elif p_idx == 2:
+        blueline_sb_chain = [
+            ("model_sheet_blueline_turns", 0, "TURN-FRONT"),
+            ("model_sheet_blueline_turns", 1, "TURN-3/4"),
+            ("model_sheet_blueline_turns", 2, "TURN-PROFILE"),
+            ("model_sheet_blueline_turns", 3, "TURN-SILHOUETTE"),
+            ("blueline_storyboard_keys", 0, "KEY K01 SKETCH"),
+            ("blueline_storyboard_keys", 1, "KEY K02 PIN"),
+            ("blueline_storyboard_keys", 2, "KEY K03 ARCS"),
+            ("blueline_storyboard_keys", 3, "KEY K04 LOCK"),
+            ("agent_blueline_keys", 0, "EXT K05 POSE"),
+            ("agent_blueline_keys", 1, "EXT K06 POSE"),
+            ("agent_blueline_keys", 2, "EXT K07 POSE"),
+            ("agent_blueline_keys", 3, "EXT K08 POSE"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, blueline_sb_chain, sub_step,
+            cx=180, cy=by1 - 148, max_w=246, max_h=258,
+            tint_bgr=STUDIO_AGENTS["blueline"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        mac_turns_chain = [
+            ("model_sheet_celinker_turns", 0, "CEL-TURN 1"),
+            ("model_sheet_celinker_turns", 1, "CEL-TURN 2"),
+            ("model_sheet_celinker_turns", 2, "CEL-TURN 3"),
+            ("model_sheet_celinker_turns", 3, "CEL-TURN 4"),
+            ("model_sheet_sprocket_turns", 0, "SPR-TURN 1"),
+            ("model_sheet_sprocket_turns", 1, "SPR-TURN 2"),
+            ("model_sheet_sprocket_turns", 2, "SPR-TURN 3"),
+            ("model_sheet_sprocket_turns", 3, "SPR-TURN 4"),
+            ("model_sheet_chime_turns", 0, "CHM-TURN 1"),
+            ("model_sheet_chime_turns", 1, "CHM-TURN 2"),
+            ("model_sheet_chime_turns", 2, "CHM-TURN 3"),
+            ("model_sheet_chime_turns", 3, "CHM-TURN 4"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="model_sheet_celinker_turns", sub_step=sub_step,
+            tint_bgr=BGR_BLUE_PALE, boil_phase=boil_phase, frame_chain=mac_turns_chain,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "prop_storyboard_wall_anim_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=178, max_h=186,
+            tint_bgr=BGR_AMBER_PALE, bob_phase=bob_rad * 0.3, boil_phase=boil_phase + 1,
+        )
 
-        cv2.rectangle(canvas, (vx0 - 8, vy0 - 8), (vx0 + vw + 8, vy0 + vh + 8), BGR_INK, -1)
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=BGR_AMBER_PALE, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase, shadow_offset=5)
+        cw_card, ch_card = 172, 129
+        for pk_i in range(4):
+            pr, pc = pk_i // 2, pk_i % 2
+            cx_k = rx0 + 12 + pc * (cw_card + 16)
+            cy_k = ry0 + 10 + pr * (ch_card + 10)
+            card_prog = float(np.clip((sub_step - pk_i * 0.16) * 1.55, 0.10, 1.0))
+            k_im = render_progressive_keyframe_board(slug, pk_i, card_prog, cw_card, ch_card, boil_phase=boil_phase + pk_i, stage_mode="blue_only")
+            canvas[cy_k:cy_k + ch_card, cx_k:cx_k + cw_card] = k_im
+            draw_hand_inked_rect(canvas, cx_k, cy_k, cx_k + cw_card, cy_k + ch_card, fill_bgr=None, outline_bgr=BGR_INK, thickness=2, wobble=0.8, boil_phase=boil_phase + pk_i)
+            cv2.circle(canvas, (cx_k + cw_card // 2, cy_k + 5), 5, BGR_RED, -1, cv2.LINE_AA)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_BLUE_PALE, boil_phase=boil_phase)
+        macro_caption = "CREW TURNAROUND SHEETS (4:3)"
+        apparatus_caption = "PIN-UP CORKBOARD (Q1..Q4)"
+        right_board_caption = "4-CARD STORYBOARD WALL (EACH CARD EXACT 4:3)"
+
+    # =========================================================================
+    # SCENE 3: ACT II-A — LIGHTBOX KEYS, BREAKDOWNS (`B01..B04`), IN-BETWEENS (`I01..I04`) & ONION-SKIN FLIP (20 FRAMES!)
+    # =========================================================================
+    elif p_idx == 3:
+        blueline_lb_chain = [
+            ("blueline_lightbox_pass_progression", 0, "PASS-A GESTURE"),
+            ("blueline_lightbox_pass_progression", 1, "PASS-B VOLUME"),
+            ("blueline_lightbox_pass_progression", 2, "PASS-D CLEAN"),
+            ("blueline_lightbox_pass_progression", 3, "PASS-E SHADE"),
+            ("blueline_lightbox_keys", 0, "KEY K01 PEGS"),
+            ("blueline_lightbox_breakdowns", 0, "BRK B01 (ARC)"),
+            ("blueline_lightbox_inbetweens", 0, "INB I01 SLOW-IN"),
+            ("blueline_lightbox_keys", 1, "KEY K02 ROUGH"),
+            ("blueline_lightbox_breakdowns", 1, "BRK B02 (ARC)"),
+            ("blueline_lightbox_inbetweens", 1, "INB I02 ROLL"),
+            ("blueline_lightbox_keys", 2, "KEY K03 FLIP"),
+            ("blueline_lightbox_breakdowns", 2, "BRK B03 (ARC)"),
+            ("blueline_lightbox_inbetweens", 2, "INB I03CUSHION"),
+            ("blueline_lightbox_keys", 3, "KEY K04 STACK"),
+            ("blueline_lightbox_breakdowns", 3, "BRK B04 (ARC)"),
+            ("blueline_lightbox_inbetweens", 3, "INB I04 SETTLE"),
+            ("blueline_lightbox_keys_ext", 0, "EXT K05 DISC"),
+            ("blueline_lightbox_keys_ext", 1, "EXT K06 3-FLIP"),
+            ("blueline_lightbox_keys_ext", 2, "EXT K07 DIVIDERS"),
+            ("blueline_lightbox_keys_ext", 3, "EXT K08 DOPE"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, blueline_lb_chain, sub_step,
+            cx=180, cy=by1 - 150, max_w=248, max_h=260,
+            tint_bgr=STUDIO_AGENTS["blueline"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        mac_lb_chain = [
+            ("closeup_hand_drawing_keys", 0, "PEGBAR LOCK"),
+            ("closeup_hand_drawing_keys", 1, "BLUE PENCIL"),
+            ("blueline_lightbox_inbetweens", 0, "INB I01"),
+            ("blueline_lightbox_inbetweens", 1, "INB I02"),
+            ("blueline_lightbox_inbetweens", 2, "INB I03"),
+            ("blueline_lightbox_inbetweens", 3, "INB I04"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="closeup_hand_drawing_keys", sub_step=sub_step,
+            tint_bgr=BGR_BLUE_PALE, boil_phase=boil_phase, frame_chain=mac_lb_chain, onion_skin=True,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "apparatus_lightbox_anim_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=178, max_h=186,
+            tint_bgr=BGR_AMBER_PALE, bob_phase=bob_rad * 0.35, boil_phase=boil_phase + 1,
+        )
+
+        cv2.rectangle(canvas, (rx0 + 5, ry0 + 5), (rx0 + rw + 5, ry0 + rh + 5), BGR_INK, -1)
+        board_im = render_progressive_keyframe_board(
+            slug, 0, sub_step, rw, rh, boil_phase=boil_phase,
+            stage_mode="blue_only", animate_4keys=True,
+        )
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = board_im
+        cv2.rectangle(canvas, (rx0, ry0), (rx0 + rw, ry0 + 12), BGR_AMBER_PALE, -1)
+        for px_off in (96, 192, 288):
+            cv2.circle(canvas, (rx0 + px_off, ry0 + 6), 4, BGR_INK, -1, cv2.LINE_AA)
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_NONPHOTO_BLUE, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_BLUE_PALE, boil_phase=boil_phase)
+        macro_caption = "ONION-SKIN IN-BETWEENS I01..I04"
+        apparatus_caption = "BACKLIT LIGHTBOX DISC (Q1..Q4)"
+        right_board_caption = f"PASS A/B: ROUGH KEYS, BREAKDOWNS & IN-BETWEENS (4:3) — #{slug.upper()}"
+
+    # =========================================================================
+    # SCENE 4: ACT II-B — INSIDE-OUT PASS PROGRESSION & SPEEDBALL INDIA INKING (12 FRAMES!)
+    # =========================================================================
+    elif p_idx == 4:
+        nib_ink_chain = [
+            ("nib_moviola_pass_progression", 0, "PASS-A GESTURE"),
+            ("nib_moviola_pass_progression", 1, "PASS-B VOLUME"),
+            ("nib_moviola_pass_progression", 2, "PASS-D CLEANUP"),
+            ("nib_moviola_pass_progression", 3, "PASS-E TONE"),
+            ("nib_inking_keys", 0, "KEY K01 DIP NIB"),
+            ("nib_inking_breakdowns", 0, "BRK B01 (ARC)"),
+            ("nib_inking_keys", 1, "KEY K02 TAPER"),
+            ("nib_inking_breakdowns", 1, "BRK B02 (ARC)"),
+            ("nib_inking_keys", 2, "KEY K03 BLOT"),
+            ("nib_inking_breakdowns", 2, "BRK B03 (ARC)"),
+            ("nib_inking_keys", 3, "KEY K04 CEL INSPECT"),
+            ("nib_inking_breakdowns", 3, "BRK B04 (ARC)"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, nib_ink_chain, sub_step,
+            cx=180, cy=by1 - 150, max_w=248, max_h=260,
+            tint_bgr=STUDIO_AGENTS["nib"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        mac_ink_chain = [
+            ("closeup_hand_drawing_keys", 1, "BLUE UNDERDRAW"),
+            ("closeup_hand_drawing_keys", 2, "SPEEDBALL NIB"),
+            ("nib_moviola_inbetweens", 0, "INB I01"),
+            ("nib_moviola_inbetweens", 1, "INB I02"),
+            ("nib_moviola_inbetweens", 2, "INB I03"),
+            ("nib_moviola_inbetweens", 3, "INB I04"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="closeup_hand_drawing_keys", sub_step=sub_step,
+            tint_bgr=BGR_RED_PALE, boil_phase=boil_phase, frame_chain=mac_ink_chain, onion_skin=True,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "agent_nib_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=172, max_h=182,
+            tint_bgr=BGR_AMBER_PALE, key_sequence=(1, 0, 2, 3),
+            bob_phase=bob_rad * 0.4, boil_phase=boil_phase + 1,
+        )
+
+        cv2.rectangle(canvas, (rx0 + 5, ry0 + 5), (rx0 + rw + 5, ry0 + rh + 5), BGR_INK, -1)
+        board_im = render_progressive_keyframe_board(
+            slug, 1, sub_step, rw, rh, boil_phase=boil_phase,
+            stage_mode="ink_only", animate_4keys=True,
+        )
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = board_im
+        cv2.rectangle(canvas, (rx0, ry0), (rx0 + rw, ry0 + 12), BGR_AMBER_PALE, -1)
+        for px_off in (96, 192, 288):
+            cv2.circle(canvas, (rx0 + px_off, ry0 + 6), 4, BGR_INK, -1, cv2.LINE_AA)
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_RED_PALE, boil_phase=boil_phase)
+        macro_caption = "MACRO: SPEEDBALL NIB & IN-BETWEENS"
+        apparatus_caption = "NIB // CLEAN-UP INKING DESK"
+        right_board_caption = f"PASS D: SPEEDBALL INDIA INK CEL (4:3) — #{slug.upper()}"
+
+    # =========================================================================
+    # SCENE 5: ACT II-C — CEL-INKER PASS PROGRESSION, GOUACHE OPAQUING & BREAKDOWNS (16 FRAMES!)
+    # =========================================================================
+    elif p_idx == 5:
+        celinker_paint_chain = [
+            ("celinker_pass_progression", 0, "PASS-A GESTURE"),
+            ("celinker_pass_progression", 1, "PASS-B VOLUME"),
+            ("celinker_pass_progression", 2, "PASS-D CLEANUP"),
+            ("celinker_pass_progression", 3, "PASS-E GOUACHE"),
+            ("celinker_painting_keys", 0, "KEY K01 MIX"),
+            ("celinker_painting_breakdowns", 0, "BRK B01 (ARC)"),
+            ("celinker_painting_keys", 1, "KEY K02 FLOOD"),
+            ("celinker_painting_breakdowns", 1, "BRK B02 (ARC)"),
+            ("celinker_painting_keys", 2, "KEY K03 PEEL"),
+            ("celinker_painting_breakdowns", 2, "BRK B03 (ARC)"),
+            ("celinker_painting_keys", 3, "KEY K04 HANG"),
+            ("celinker_painting_breakdowns", 3, "BRK B04 (ARC)"),
+            ("celinker_painting_keys_ext", 0, "EXT K05 GRIND"),
+            ("celinker_painting_keys_ext", 1, "EXT K06 SWATCH"),
+            ("celinker_painting_keys_ext", 2, "EXT K07 BACK-PAINT"),
+            ("celinker_painting_keys_ext", 3, "EXT K08 RACK LOCK"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, celinker_paint_chain, sub_step,
+            cx=180, cy=by1 - 150, max_w=248, max_h=260,
+            tint_bgr=STUDIO_AGENTS["celinker"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        mac_paint_chain = [
+            ("closeup_hand_drawing_keys", 2, "INK CONTOUR"),
+            ("closeup_hand_drawing_keys", 3, "GOUACHE BRUSH"),
+            ("celinker_pass_progression", 0, "PASS-A"),
+            ("celinker_pass_progression", 1, "PASS-B"),
+            ("celinker_pass_progression", 2, "PASS-D"),
+            ("celinker_pass_progression", 3, "PASS-E"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="closeup_hand_drawing_keys", sub_step=sub_step,
+            tint_bgr=BGR_AMBER_PALE, boil_phase=boil_phase, frame_chain=mac_paint_chain,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "prop_drying_rack_anim_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=178, max_h=186,
+            tint_bgr=BGR_GREEN_PALE, bob_phase=bob_rad * 0.35, boil_phase=boil_phase + 1,
+        )
+
+        cv2.rectangle(canvas, (rx0 + 5, ry0 + 5), (rx0 + rw + 5, ry0 + rh + 5), BGR_INK, -1)
+        board_im = render_progressive_keyframe_board(
+            slug, 2, sub_step, rw, rh, boil_phase=boil_phase,
+            stage_mode="gouache_only", animate_4keys=True,
+        )
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = board_im
+        cv2.rectangle(canvas, (rx0, ry0), (rx0 + rw, ry0 + 12), BGR_AMBER_PALE, -1)
+        for px_off in (96, 192, 288):
+            cv2.circle(canvas, (rx0 + px_off, ry0 + 6), 4, BGR_INK, -1, cv2.LINE_AA)
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_AMBER, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_AMBER_PALE, boil_phase=boil_phase)
+        macro_caption = "SABLE GOUACHE & PASS A→B→D→E"
+        apparatus_caption = "OVERHEAD CEL DRYING RACK (Q1..Q4)"
+        right_board_caption = f"PASS C/E: WATERTIGHT GOUACHE CEL (4:3) — #{slug.upper()}"
+
+    # =========================================================================
+    # SCENE 6: ACT III — 7-LEVEL MULTIPLANE CAMERA TOWER & PARALLAX PHYSICS (`PLANE 0..6`, 28 FRAMES!)
+    # =========================================================================
+    elif p_idx == 6:
+        cel_mp_chain = [
+            ("celinker_multiplane_keys", 0, "MP-K01 SLIDE P2"),
+            ("celinker_multiplane_breakdowns", 0, "MP-B01 (ARC)"),
+            ("celinker_multiplane_keys", 1, "MP-K02 LOCK P4"),
+            ("celinker_multiplane_breakdowns", 1, "MP-B02 (ARC)"),
+            ("celinker_multiplane_keys", 2, "MP-K03 LAMPS"),
+            ("celinker_multiplane_breakdowns", 2, "MP-B03 (ARC)"),
+            ("celinker_multiplane_keys", 3, "MP-K04 READY"),
+            ("celinker_multiplane_breakdowns", 3, "MP-B04 (ARC)"),
+            ("multiplane_crew_keys_ext", 0, "MP-K05 DIAL"),
+            ("multiplane_crew_keys_ext", 1, "MP-K06WIPE"),
+            ("multiplane_crew_keys_ext", 2, "MP-K07 FOCUS"),
+            ("multiplane_crew_keys_ext", 3, "MP-K08 EXPOSE"),
+        ]
+        nib_crank_chain = [
+            ("nib_cameracrank_keys", 0, "CRK-K01 GRIP"),
+            ("nib_cameracrank_breakdowns", 0, "CRK-B01"),
+            ("nib_cameracrank_keys", 1, "CRK-K02 TURN"),
+            ("nib_cameracrank_breakdowns", 1, "CRK-B02"),
+            ("nib_cameracrank_keys", 2, "CRK-K03 SHUTTER"),
+            ("nib_cameracrank_breakdowns", 2, "CRK-B03"),
+            ("nib_cameracrank_keys", 3, "CRK-K04 LOG"),
+            ("nib_cameracrank_breakdowns", 3, "CRK-B04"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, cel_mp_chain, sub_step,
+            cx=112, cy=by1 - 146, max_w=168, max_h=228,
+            tint_bgr=STUDIO_AGENTS["celinker"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        draw_multi_sheet_chain_sprite(
+            canvas, nib_crank_chain, sub_step,
+            cx=264, cy=by1 - 146, max_w=168, max_h=228,
+            tint_bgr=STUDIO_AGENTS["nib"]["pale_bgr"],
+            bob_phase=bob_rad + 0.9, boil_phase=boil_phase + 1,
+        )
+        mac_mp_chain = [
+            ("phase06_camera_parallax_diagram_keys", 0, "OPTICS CAM-1"),
+            ("phase06_camera_parallax_diagram_keys", 1, "PARALLAX CAM-2"),
+            ("phase06_camera_parallax_diagram_keys", 2, "OCCLUSION CAM-3"),
+            ("phase06_camera_parallax_diagram_keys", 3, "DOLLY CAM-4"),
+            ("closeup_multiplane_platen_keys", 0, "PLATEN PL-1"),
+            ("closeup_multiplane_platen_keys", 1, "PLATEN PL-2"),
+            ("closeup_multiplane_platen_keys", 2, "PLATEN PL-3"),
+            ("closeup_multiplane_platen_keys", 3, "PLATEN PL-4"),
+        ]
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="phase06_camera_parallax_diagram_keys", sub_step=sub_step,
+            tint_bgr=BGR_AMBER_PALE, boil_phase=boil_phase, frame_chain=mac_mp_chain,
+        )
+        app_mp_chain = [
+            ("apparatus_multiplane_anim_keys", 0, "RIG K01"),
+            ("apparatus_multiplane_breakdowns", 0, "RIG B01"),
+            ("apparatus_multiplane_anim_keys", 1, "RIG K02"),
+            ("apparatus_multiplane_breakdowns", 1, "RIG B02"),
+            ("apparatus_multiplane_anim_keys", 2, "RIG K03"),
+            ("apparatus_multiplane_breakdowns", 2, "RIG B03"),
+            ("apparatus_multiplane_anim_keys", 3, "RIG K04"),
+            ("apparatus_multiplane_breakdowns", 3, "RIG B04"),
+        ]
+        draw_multi_sheet_chain_sprite(
+            canvas, app_mp_chain, sub_step,
+            cx=436, cy=by1 - 134, max_w=182, max_h=196,
+            tint_bgr=BGR_AMBER_PALE, bob_phase=bob_rad * 0.3, boil_phase=boil_phase + 2,
+        )
+
+        # Giant 384x288 (4:3) Live Multiplane Camera Viewfinder on Right with Differential Parallax (`PLANE 6..0`)!
+        draw_hand_inked_rect(canvas, rx0 - 6, ry0 - 6, rx0 + rw + 6, ry0 + rh + 6, fill_bgr=BGR_INK, outline_bgr=BGR_INK, thickness=3, boil_phase=boil_phase, shadow_offset=5)
         f_cur = shot_frame_idx % len(cart_frames)
-        if sub_step < 0.30:
-            vf_src = blue_roughs[f_cur]
-        elif sub_step < 0.62:
-            vf_src = ink_cels[f_cur]
+        if sub_step < 0.36:
+            vf_img = render_progressive_keyframe_board(
+                slug, 1, sub_step / 0.35, rw, rh, boil_phase=boil_phase,
+                stage_mode="gouache_only", animate_4keys=True,
+            )
         else:
-            vf_src = cart_frames[f_cur]
-        vf_img = cv2.resize(vf_src, (vw, vh), interpolation=cv2.INTER_LINEAR)
-        canvas[vy0:vy0 + vh, vx0:vx0 + vw] = vf_img
-        cv2.rectangle(canvas, (vx0, vy0), (vx0 + vw, vy0 + vh), BGR_AMBER, 3)
+            vf_img = cv2.resize(cart_frames[f_cur], (rw, rh), interpolation=cv2.INTER_LINEAR)
+        # Overlay live differential multiplane parallax planes (`P6 Sky`, `P4 Midground`, `P0 FG Mask`) inside the 4:3 viewfinder
+        cam_vf = (sub_step - 0.5) * 36.0
+        vf_over = vf_img.copy()
+        draw_studio_doodle_sprite(vf_over, "multiplane_plane6_sky_atmosphere_keys", int(sub_step * 3.99) % 4, cx=rw // 2 + int(cam_vf / 6.0), cy=54, max_w=240, max_h=95, tint_bgr=BGR_BLUE_PALE, boil_phase=boil_phase)
+        draw_studio_doodle_sprite(vf_over, "multiplane_plane0_fg_mask_keys", int(sub_step * 3.99) % 4, cx=42 + int(cam_vf / 0.45), cy=rh // 2, max_w=78, max_h=240, tint_bgr=BGR_PAPER_DARK, boil_phase=boil_phase)
+        cv2.addWeighted(vf_over, 0.28, vf_img, 0.72, 0, vf_img)
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = vf_img
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_AMBER, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_AMBER_PALE, boil_phase=boil_phase)
+        macro_caption = "CAMERA PARALLAX & PLATEN MICROMETER"
+        apparatus_caption = "7-PLANE TOWER (KEYS & BREAKDOWNS)"
+        right_board_caption = f"7-PLANE MULTIPLANE VIEWFINDER (P0..P6 PARALLAX) — #{slug.upper()}"
 
     # =========================================================================
-    # SCENE 4 (ROOM 4): THE 35MM DAILIES SCREENING THEATRE & FOLEY STAGE
+    # SCENE 7: ACT IV-A — SPROCKET'S 35MM CALIPER AUDIT & CHIME'S FOLEY SOUNDSTAGE (20 FRAMES!)
     # =========================================================================
-    elif panel_num == 4:
-        floor_y = by1 - 112
-        draw_studio_room_architecture(canvas, bx0, by0, bx1, by1, cap_h, floor_y, light_xs=None)
-
-        # Right: Grand Theatre Silver Screen at EXACT 4:3 (`432x324` -> 432/324 = 4:3!)
-        sw, sh = 432, 324  # EXACT 4:3 aspect ratio!
-        sx0 = bx1 - sw - 22
-        sy0 = by0 + cap_h + 36
-
-        # Center-Left: Grounded Projection Booth Pedestal standing on the theatre floor (NO floating tripod!)
-        px_proj, py_proj = 316, by0 + cap_h + 128
-        cv2.rectangle(canvas, (px_proj - 46, py_proj + 86), (px_proj + 46, floor_y), BGR_PAPER_DARK, -1)
-        cv2.rectangle(canvas, (px_proj - 46, py_proj + 86), (px_proj + 46, floor_y), BGR_INK, 3)
-        cv2.rectangle(canvas, (px_proj - 54, py_proj + 78), (px_proj + 54, py_proj + 88), BGR_AMBER_PALE, -1)
-        cv2.rectangle(canvas, (px_proj - 54, py_proj + 78), (px_proj + 54, py_proj + 88), BGR_INK, 3)
-
-        # Golden Projector Light Cone across theatre onto the 4:3 Silver Screen!
-        beam_poly = np.array([
-            [px_proj + 48, py_proj - 10],
-            [sx0, sy0 + 6],
-            [sx0, sy0 + sh - 6],
-            [px_proj + 48, py_proj + 18],
-        ], dtype=np.int32)
-        overlay = canvas.copy()
-        cv2.fillConvexPoly(overlay, beam_poly, BGR_AMBER_PALE, cv2.LINE_AA)
-        cv2.addWeighted(overlay, 0.58, canvas, 0.42, 0, canvas)
-
-        # Hand-Drawn Tripod-Mounted Twin-Reel 35mm Film Projector (`studio_apparatus_keys` Q3)
-        draw_studio_doodle_sprite(
-            canvas, "studio_apparatus_keys", 3,
-            cx=px_proj, cy=py_proj + 6, max_w=160, max_h=178,
-            tint_bgr=BGR_BLUE_PALE, tint_strength=0.28,
+    elif p_idx == 7:
+        sprocket_audit_chain = [
+            ("sprocket_projector_keys", 0, "AUD-K01 THREAD"),
+            ("sprocket_projector_breakdowns", 0, "AUD-B01 (ARC)"),
+            ("sprocket_projector_keys", 1, "AUD-K02 CALIPER"),
+            ("sprocket_projector_breakdowns", 1, "AUD-B02 (ARC)"),
+            ("sprocket_projector_keys", 2, "AUD-K03 FOCUS"),
+            ("sprocket_projector_breakdowns", 2, "AUD-B03 (ARC)"),
+            ("sprocket_projector_keys", 3, "AUD-K04 16/16 PASS"),
+            ("sprocket_projector_breakdowns", 3, "AUD-B04 (ARC)"),
+        ]
+        chime_foley_chain = [
+            ("chime_foley_keys", 0, "FOL-K01 CLAPPER"),
+            ("chime_foley_breakdowns", 0, "FOL-B01 (ARC)"),
+            ("chime_foley_keys", 1, "FOL-K02 HOOVES"),
+            ("chime_foley_breakdowns", 1, "FOL-B02 (ARC)"),
+            ("chime_foley_keys", 2, "FOL-K03 WIND"),
+            ("chime_foley_breakdowns", 2, "FOL-B03 (ARC)"),
+            ("chime_foley_keys", 3, "FOL-K04 BELL"),
+            ("chime_foley_breakdowns", 3, "FOL-B04 (ARC)"),
+            ("chime_foley_keys_ext", 0, "FOL-K05 THUNDER"),
+            ("chime_foley_keys_ext", 1, "FOL-K06 WHISTLE"),
+            ("chime_foley_keys_ext", 2, "FOL-K07 GRAVEL"),
+            ("chime_foley_keys_ext", 3, "FOL-K08 X-SHEET"),
+        ]
+        _, _, _, _ = draw_multi_sheet_chain_sprite(
+            canvas, sprocket_audit_chain, sub_step,
+            cx=112, cy=by1 - 146, max_w=168, max_h=228,
+            tint_bgr=STUDIO_AGENTS["sprocket"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, chime_foley_chain, sub_step,
+            cx=264, cy=by1 - 146, max_w=168, max_h=228,
+            tint_bgr=STUDIO_AGENTS["chime"]["pale_bgr"], onion_skin=True,
+            bob_phase=bob_rad + 1.1, boil_phase=boil_phase + 1,
+        )
+        draw_macro_inset_box(
+            canvas, mac_x, mac_y, mac_w, mac_h,
+            sheet_name="closeup_projector_threading_keys", sub_step=sub_step,
+            tint_bgr=BGR_GREEN_PALE, boil_phase=boil_phase,
+        )
+        draw_4key_sequence_sprite(
+            canvas, "prop_foley_table_anim_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=178, max_h=186,
+            tint_bgr=BGR_AMBER_PALE, bob_phase=bob_rad * 0.4, boil_phase=boil_phase + 2,
         )
 
-        # Top-Left: Exact 4:3 Booth Archival Reference Monitor (`192x144` -> 192/144 = 4:3!)
-        aw, ah = 192, 144  # EXACT 4:3 aspect ratio!
-        ax0, ay0 = bx0 + 18, by0 + cap_h + 36
+        draw_hand_inked_rect(canvas, rx0 - 6, ry0 - 6, rx0 + rw + 6, ry0 + rh + 6, fill_bgr=BGR_GREEN_PALE, outline_bgr=BGR_INK, thickness=3, boil_phase=boil_phase, shadow_offset=5)
+        f_cur = shot_frame_idx % len(cart_frames)
+        cel_im = cv2.resize(ink_cels[f_cur % len(ink_cels)], (rw, rh), interpolation=cv2.INTER_AREA)
+        fin_im = cv2.resize(cart_frames[f_cur], (rw, rh), interpolation=cv2.INTER_LINEAR)
+        split_x = int(round(rw * (0.25 + 0.55 * math.sin(sub_step * math.pi) ** 2)))
+        comp_im = fin_im.copy()
+        comp_im[:, :split_x] = cel_im[:, :split_x]
+        cv2.line(comp_im, (split_x, 0), (split_x, rh), BGR_RED, 3)
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = comp_im
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_GREEN_PALE, boil_phase=boil_phase)
+        macro_caption = "MACRO: 35MM GATE & 4:3 CALIPER"
+        apparatus_caption = "FOLEY SOUND RIG (Q1..Q4)"
+        right_board_caption = "16/16 GATES AUDIT & FOLEY SYNC MONITOR (4:3)"
+
+    # =========================================================================
+    # SCENE 8: ACT IV-B — GRAND 35MM DAILIES PREMIERE & CREW CELEBRATION BREAKDOWNS (12 FRAMES!)
+    # =========================================================================
+    else:
+        crew_premiere_chain = [
+            ("studio_crew_celebration_keys", 0, "PREM-K01 AWE"),
+            ("studio_crew_celebration_breakdowns", 0, "PREM-B01 (ARC)"),
+            ("studio_crew_celebration_keys", 1, "PREM-K02 TOAST"),
+            ("studio_crew_celebration_breakdowns", 1, "PREM-B02 (ARC)"),
+            ("studio_crew_celebration_keys", 2, "PREM-K03 LEAP"),
+            ("studio_crew_celebration_breakdowns", 2, "PREM-B03 (ARC)"),
+            ("studio_crew_celebration_keys", 3, "PREM-K04 BOW"),
+            ("studio_crew_celebration_breakdowns", 3, "PREM-B04 (ARC)"),
+            ("agent_nib_keys", 3, "NIB ENCORE"),
+            ("agent_blueline_keys", 3, "BLUELINE ENCORE"),
+            ("agent_sprocket_keys", 3, "SPROCKET 16/16"),
+            ("agent_chime_keys", 3, "CHIME FINALE"),
+        ]
+        active_pose_idx, active_code_lbl, chain_len, chain_cur = draw_multi_sheet_chain_sprite(
+            canvas, crew_premiere_chain, sub_step,
+            cx=180, cy=by1 - 148, max_w=276, max_h=256,
+            tint_bgr=BGR_AMBER_PALE, onion_skin=False,
+            bob_phase=bob_rad, boil_phase=boil_phase,
+        )
         cur_idx = shot_frame_idx % len(cart_frames)
-        arch_im = cv2.resize(arch_sketches[cur_idx], (aw, ah), interpolation=cv2.INTER_AREA)
-        cv2.rectangle(canvas, (ax0 + 4, ay0 + 4), (ax0 + aw + 4, ay0 + ah + 4), BGR_INK, -1)
-        canvas[ay0:ay0 + ah, ax0:ax0 + aw] = arch_im
-        cv2.rectangle(canvas, (ax0, ay0), (ax0 + aw, ay0 + ah), BGR_INK, 3)
+        arch_im = cv2.resize(arch_sketches[cur_idx % len(arch_sketches)], (mac_w, mac_h), interpolation=cv2.INTER_AREA)
+        draw_hand_inked_rect(canvas, mac_x, mac_y, mac_x + mac_w, mac_y + mac_h, fill_bgr=BGR_BLUE_PALE, outline_bgr=BGR_INK, thickness=3, boil_phase=boil_phase, shadow_offset=4)
+        canvas[mac_y:mac_y + mac_h, mac_x:mac_x + mac_w] = arch_im
+        draw_hand_inked_rect(canvas, mac_x, mac_y, mac_x + mac_w, mac_y + mac_h, fill_bgr=None, outline_bgr=BGR_INK, thickness=3, boil_phase=boil_phase)
 
-        # Right: The 432x324 Exact 4:3 Silver Screen with Terracotta Proscenium Curtain Frame!
-        cv2.rectangle(canvas, (sx0 - 12, sy0 - 10), (sx0 + sw + 12, sy0 + sh + 10), BGR_RED, -1)
-        cv2.rectangle(canvas, (sx0 - 12, sy0 - 10), (sx0 + sw + 12, sy0 + sh + 10), BGR_INK, 4)
-        hero_im = cv2.resize(cart_frames[cur_idx], (sw, sh), interpolation=cv2.INTER_LINEAR)
-        canvas[sy0:sy0 + sh, sx0:sx0 + sw] = hero_im
-        cv2.rectangle(canvas, (sx0, sy0), (sx0 + sw, sy0 + sh), BGR_INK, 4)
-
-        # Bottom-Left Foreground Foley Stage: `Sprocket`, `Foley Prop Table & Boom Mic`, `Chime`, & `Nib`!
-        # State-driven Foley poses synchronized to the 3 Foley beats (`sub_step` around 0.20, 0.52, 0.82)
-        sprocket_pose = 1 if sub_step < 0.55 else 3
-        if sub_step < 0.25:
-            chime_pose = 0  # Tuning fork strike on Beat 1
-        elif sub_step < 0.58:
-            chime_pose = 1  # Coconut shells at microphone on Beat 2
-        elif sub_step < 0.82:
-            chime_pose = 2  # X-Sheet & stopwatch audit
-        else:
-            chime_pose = 3  # Studio handbell ring on Finale Beat 3
-        nib_pose = 0 if sub_step < 0.65 else 3
-
-        draw_agent_animator(canvas, "sprocket", bx0 + 52, by1 - 98, scale=0.76, pose=sprocket_pose, bob_phase=bob_rad)
-        draw_studio_doodle_sprite(
-            canvas, "studio_room_props_keys", 2,
-            cx=bx0 + 150, cy=by1 - 102, max_w=108, max_h=118,
-            tint_bgr=BGR_AMBER_PALE, tint_strength=0.30,
+        draw_4key_sequence_sprite(
+            canvas, "apparatus_projector_anim_keys", sub_step,
+            cx=436, cy=by1 - 130, max_w=178, max_h=186,
+            tint_bgr=BGR_BLUE_PALE, bob_phase=bob_rad * 0.4, boil_phase=boil_phase + 1,
         )
-        draw_agent_animator(canvas, "chime", bx0 + 244, by1 - 98, scale=0.76, pose=chime_pose, bob_phase=bob_rad + 0.8)
-        draw_agent_animator(canvas, "nib", bx0 + 372, by1 - 98, scale=0.74, pose=nib_pose, bob_phase=bob_rad + 1.6)
+        reel_ang = sub_step * 900.0
+        draw_spinning_wheel(canvas, 436 - 34, by1 - 188, 15, reel_ang)
+        draw_spinning_wheel(canvas, 436 + 28, by1 - 188, 15, reel_ang + 45.0)
 
-        # Grounded Foreground Foley & Audit Console Table covering lower waists + Live X-Sheet Waveform Scrubber!
-        draw_studio_workbench(canvas, bx0 + 10, by1 - 46, bx0 + 448, by1 - 4, fill_bgr=BGR_GREEN_PALE)
-        # Live X-Sheet Waveform & Scrubber strip under the 4:3 Silver Screen
-        wx0, wy0, wx1, wy1 = sx0 - 12, by1 - 44, sx0 + sw + 12, by1 - 8
-        cv2.rectangle(canvas, (wx0, wy0), (wx1, wy1), BGR_GUTTER, -1)
-        cv2.rectangle(canvas, (wx0, wy0), (wx1, wy1), BGR_INK, 3)
-        w_len = wx1 - wx0 - 20
-        mid_wy = (wy0 + wy1) // 2
-        cv2.line(canvas, (wx0 + 10, mid_wy), (wx1 - 10, mid_wy), (190, 200, 210), 1)
-        for bi in range(44):
-            bx_w = wx0 + 12 + int(round(bi * w_len / 43.0))
-            amp = int(4 + 9 * abs(math.sin(bi * 0.55 + spec["num"])))
-            col_w = BGR_RED if bi in (8, 22, 36) else BGR_INK
-            cv2.line(canvas, (bx_w, mid_wy - amp), (bx_w, mid_wy + amp), col_w, 2)
-        play_x = wx0 + 12 + int(round(sub_step * w_len))
-        cv2.line(canvas, (play_x, wy0 + 3), (play_x, wy1 - 3), BGR_RED, 3)
-        cv2.circle(canvas, (play_x, wy0 + 5), 4, BGR_RED, -1, cv2.LINE_AA)
+        draw_hand_inked_rect(canvas, rx0 - 10, ry0 - 8, rx0 + rw + 10, ry0 + rh + 8, fill_bgr=BGR_RED, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase, shadow_offset=5)
+        hero_im = cv2.resize(cart_frames[cur_idx], (rw, rh), interpolation=cv2.INTER_LINEAR)
+        canvas[ry0:ry0 + rh, rx0:rx0 + rw] = hero_im
+        draw_hand_inked_rect(canvas, rx0, ry0, rx0 + rw, ry0 + rh, fill_bgr=None, outline_bgr=BGR_INK, thickness=4, boil_phase=boil_phase)
+
+        draw_studio_workbench(canvas, bx0 + 12, by1 - 48, 528, by1 - 4, fill_bgr=BGR_AMBER_PALE, boil_phase=boil_phase)
+        macro_caption = "ARCHIVAL SYNC MONITOR (4:3)"
+        apparatus_caption = "35MM BOOTH PROJECTOR (Q1..Q4)"
+        right_board_caption = f"35MM DAILIES THEATRE SCREEN (4:3) — #{slug.upper()}"
+
+    # 7-Plane Multiplane Foreground Occlusion (`PLANE 1 Foreground Props` & `PLANE 0 Camera Mask`)
+    draw_7plane_multiplane_world(canvas, bx0, by0, bx1, by1, cap_h, floor_y, p_idx, sub_step, boil_phase=boil_phase, layer_pass="fg")
 
     # =========================================================================
-    # PIL HIGH-RESOLUTION COMIC LETTERING (0% TRUNCATION GUARANTEED)
+    # PIL HIGH-RESOLUTION COMIC LETTERING, 4-STAGE TRACKER & LIVE X-SHEET
     # =========================================================================
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
 
-    if panel_num == 1:
-        draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
-        draw.rectangle([bx0, by0, bx0 + 52, by0 + cap_h], fill=lead_ag["color_rgb"], outline=(22, 20, 18), width=4)
-        draw.text((bx0 + 17, by0 + 9), "1", font=FONT_DISPLAY_XL, fill=(255, 251, 244))
-        hdr_txt = f"ROOM 1 (STORYBOARD & MOVIOLA) — {spec['title'].upper()}"
-        f_hdr = fit_text_font(draw, hdr_txt, (bx1 - bx0) - 70, [FONT_DISPLAY_LG, FONT_DISPLAY_MD, FONT_CAPTION_MD])
-        draw.text((bx0 + 66, by0 + 13), hdr_txt, font=f_hdr, fill=(22, 20, 18))
+    draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
+    draw.rectangle([bx0, by0, bx0 + 52, by0 + cap_h], fill=scene_ag["color_rgb"], outline=(22, 20, 18), width=4)
+    draw.text((bx0 + 17, by0 + 9), str(p_idx), font=FONT_DISPLAY_XL, fill=(255, 251, 244))
+    hdr_txt = f"SCENE {p_idx}/8 ({act_title}) — {spec['title'].upper()}"
+    f_hdr = fit_text_font(draw, hdr_txt, (bx1 - bx0) - 70, [FONT_DISPLAY_LG, FONT_DISPLAY_MD, FONT_CAPTION_LG, FONT_CAPTION_MD])
+    draw.text((bx0 + 64, by0 + 14), hdr_txt, font=f_hdr, fill=(22, 20, 18))
 
-        # Speech Balloon above Lead Agent Animator on left (`x: 42..468`)
-        s_box = (bx0 + 24, by0 + cap_h + 12, 472, by0 + cap_h + 150)
-        tx, ty = bx0 + 160, by1 - 205
-        bx_mid = (s_box[0] + s_box[2]) // 2
-        tail_pts = [(bx_mid - 16, s_box[3] - 4), (bx_mid + 14, s_box[3] - 4), (tx, ty)]
-        draw.polygon([(p[0] + 4, p[1] + 4) for p in tail_pts], fill=(22, 20, 18))
-        draw.rounded_rectangle([s_box[0] + 4, s_box[1] + 4, s_box[2] + 4, s_box[3] + 4], radius=24, fill=(22, 20, 18))
-        draw.rounded_rectangle(s_box, radius=24, fill=(255, 255, 255), outline=(22, 20, 18), width=4)
-        draw.polygon(tail_pts, fill=(255, 255, 255))
-        draw.line([tail_pts[0], tail_pts[2]], fill=(22, 20, 18), width=4)
-        draw.line([tail_pts[1], tail_pts[2]], fill=(22, 20, 18), width=4)
-
-        lines = textwrap.wrap(spec["speech_p1"].upper(), width=30)[:4]
-        lh = 24 if len(lines) == 4 else 27
-        sy_txt = s_box[1] + ((s_box[3] - s_box[1]) - len(lines) * lh) // 2 - 2
-        for i, ln in enumerate(lines):
-            f_sp = fit_text_font(draw, ln, (s_box[2] - s_box[0]) - 24, [FONT_SPEECH_MD if len(lines) == 4 else FONT_SPEECH_LG, FONT_SPEECH_MD, FONT_CAPTION_MD])
-            bb = draw.textbbox((0, 0), ln, font=f_sp)
-            tw = bb[2] - bb[0]
-            draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=f_sp, fill=(22, 20, 18))
-
-        # Labels on the 4:3 Moviola & Corkboard Storyboard Wall
-        draw.rounded_rectangle([488, by0 + cap_h + 214, 718, by0 + cap_h + 242], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((502, by0 + cap_h + 219), "ARCHIVAL MOVIOLA (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
-
-        draw.text((740, by0 + cap_h + 30), "STORYBOARD WALL (K1..K4)", font=FONT_LABEL_SM, fill=(22, 20, 18))
-
-        # Crew pills at bottom
-        lead_pill = f"{lead_ag['short_name']} // {lead_ag['dept']}"
-        draw.rounded_rectangle([bx0 + 24, by1 - 36, bx0 + 305, by1 - 10], radius=6, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        f_lp = fit_text_font(draw, lead_pill, 265, [FONT_CAPTION_MD, FONT_CAPTION_SM])
-        draw.text((bx0 + 34, by1 - 31), lead_pill, font=f_lp, fill=(22, 20, 18))
-
-        cameo_pill = f"{cameo_ag['short_name']} // STORYBOARD PIN-UP"
-        draw.rounded_rectangle([660, by1 - 36, bx1 - 18, by1 - 10], radius=6, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
-        f_cp = fit_text_font(draw, cameo_pill, 248, [FONT_CAPTION_MD, FONT_CAPTION_SM])
-        draw.text((670, by1 - 31), cameo_pill, font=f_cp, fill=(22, 20, 18))
-
+    s_box = (bx0 + 12, by0 + cap_h + 12, 332, by0 + cap_h + 114)
+    if p_idx == 1:
+        bubble_txt = spec["speech_p1"].upper()
+    elif p_idx in (2, 3):
+        bubble_txt = spec["caption_p2"].upper()
+    elif p_idx in (4, 5):
+        bubble_txt = f"{scene_ag['name'].upper()} ANIMATE KEYS, BREAKDOWNS & IN-BETWEENS ({chain_len} DRAWINGS)!"
+    elif p_idx == 6:
+        bubble_txt = spec["caption_p3"].upper()
     else:
-        cap_map = {2: spec["caption_p2"], 3: spec["caption_p3"], 4: spec["caption_p4"]}
-        cap_txt = cap_map[panel_num].upper()
-        draw.rectangle([bx0, by0, bx1, by0 + cap_h], fill=(251, 229, 194), outline=(22, 20, 18), width=4)
-        draw.rectangle([bx0, by0, bx0 + 52, by0 + cap_h], fill=lead_ag["color_rgb"], outline=(22, 20, 18), width=4)
-        draw.text((bx0 + 17, by0 + 9), str(panel_num), font=FONT_DISPLAY_XL, fill=(255, 251, 244))
-        f_cap = fit_text_font(draw, cap_txt, (bx1 - bx0) - 70, [FONT_CAPTION_LG, FONT_CAPTION_MD])
-        draw.text((bx0 + 66, by0 + 14), cap_txt, font=f_cap, fill=(22, 20, 18))
+        bubble_txt = spec["caption_p4"].upper()
 
-    if panel_num == 2:
-        desk_titles = [
-            "DESK 1: BLUE-LINE (K1 4:3)",
-            "DESK 2: CEL-INKER (K2 4:3)",
-            "DESK 3: NIB (K3 4:3)",
-            "DESK 4: SPROCKET (K4 4:3)",
-        ]
-        for d_i, d_lbl in enumerate(desk_titles):
-            dx0 = bx0 + 22 + d_i * 224
-            dy0 = by0 + cap_h + 10
-            draw.rounded_rectangle([dx0, dy0, dx0 + 192, dy0 + 24], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-            f_dl = fit_text_font(draw, d_lbl, 180, [FONT_LABEL_SM])
-            draw.text((dx0 + 6, dy0 + 4), d_lbl, font=f_dl, fill=(22, 20, 18))
+    draw.rounded_rectangle([s_box[0] + 3, s_box[1] + 3, s_box[2] + 3, s_box[3] + 3], radius=16, fill=(22, 20, 18))
+    draw.rounded_rectangle(s_box, radius=16, fill=(255, 255, 255), outline=(22, 20, 18), width=3)
+    lines = textwrap.wrap(bubble_txt, width=28)[:3]
+    lh = 24
+    sy_txt = s_box[1] + ((s_box[3] - s_box[1]) - len(lines) * lh) // 2 - 2
+    for i, ln in enumerate(lines):
+        f_sp = fit_text_font(draw, ln, (s_box[2] - s_box[0]) - 18, [FONT_SPEECH_MD, FONT_CAPTION_MD, FONT_CAPTION_SM])
+        bb = draw.textbbox((0, 0), ln, font=f_sp)
+        tw = bb[2] - bb[0]
+        draw.text((s_box[0] + ((s_box[2] - s_box[0]) - tw) // 2, sy_txt + i * lh), ln, font=f_sp, fill=(22, 20, 18))
 
-            local_prog = np.clip(sub_step * 1.35 - d_i * 0.10, 0.0, 1.0)
-            if local_prog < 0.36:
-                st_txt = "STEP A: BLUE PENCIL ROUGH"
-                st_fill = (214, 228, 240)
-            elif local_prog < 0.72:
-                st_txt = "STEP B: SPEEDBALL INDIA INK"
-                st_fill = (255, 251, 244)
-            else:
-                st_txt = "STEP C: GOUACHE CEL LOCKED"
-                st_fill = (212, 232, 220)
-            draw.rounded_rectangle([dx0, by1 - 30, dx0 + 192, by1 - 8], radius=4, fill=st_fill, outline=(22, 20, 18), width=2)
-            f_st = fit_text_font(draw, st_txt, 180, [FONT_LABEL_SM])
-            draw.text((dx0 + 8, by1 - 26), st_txt, font=f_st, fill=(22, 20, 18))
+    draw.rounded_rectangle([mac_x, mac_y - 26, mac_x + mac_w, mac_y - 4], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+    f_mc = fit_text_font(draw, macro_caption, mac_w - 10, [FONT_LABEL_SM, FONT_CAPTION_SM])
+    draw.text((mac_x + 6, mac_y - 22), macro_caption, font=f_mc, fill=(22, 20, 18))
 
-    elif panel_num == 3:
-        # Labels on the Multiplane Tower & 4:3 Viewfinder Monitor
-        draw.rounded_rectangle([bx0 + 16, by0 + cap_h + 16, bx0 + 236, by0 + cap_h + 42], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((bx0 + 24, by0 + cap_h + 21), "7-LEVEL MULTIPLANE TOWER", font=FONT_LABEL_SM, fill=(22, 20, 18))
+    draw.rounded_rectangle([rx0, ry0 - 28, rx0 + rw, ry0 - 4], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
+    f_rb = fit_text_font(draw, right_board_caption, rw - 14, [FONT_LABEL_SM, FONT_CAPTION_SM])
+    draw.text((rx0 + 8, ry0 - 23), right_board_caption, font=f_rb, fill=(22, 20, 18))
 
-        vx0 = bx1 - 340 - 22
-        vy0 = by0 + cap_h + 56
-        draw.rounded_rectangle([vx0, vy0 - 34, vx0 + 340, vy0 - 8], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((vx0 + 10, vy0 - 29), "LIVE CAMERA VIEWFINDER (4:3 ASPECT)", font=FONT_LABEL_MD, fill=(22, 20, 18))
+    draw_4key_progress_strip(draw, rx0, ry0 + rh + 14, rw, active_pose_idx, pose_labels, scene_ag["color_rgb"])
 
-        if sub_step < 0.30:
-            comp_txt = "COMPOSITE STEP 1/3: LOADING BLUE ROUGH & HORIZON GRID"
-        elif sub_step < 0.62:
-            comp_txt = "COMPOSITE STEP 2/3: DROPPING HERO INK CEL ON PLANE P2"
-        else:
-            comp_txt = "COMPOSITE STEP 3/3: ALL 7 GOUACHE PLANES LOCKED IN PARALLAX!"
-        draw.rounded_rectangle([vx0, vy0 + 255 + 14, vx0 + 340, vy0 + 255 + 44], radius=5, fill=(212, 232, 220), outline=(22, 20, 18), width=2)
-        f_ct = fit_text_font(draw, comp_txt, 324, [FONT_LABEL_SM])
-        draw.text((vx0 + 8, vy0 + 255 + 21), comp_txt, font=f_ct, fill=(22, 20, 18))
+    # Bottom-Right Live Exposure Sheet (`X-SHEET`) Bar (`y: 462..512`)
+    tx0, ty0, tx1, ty1 = rx0, by1 - 46, rx0 + rw, by1 - 8
+    draw.rounded_rectangle([tx0, ty0, tx1, ty1], radius=5, fill=(246, 236, 218), outline=(22, 20, 18), width=3)
+    bar_w = (tx1 - tx0) - 20
+    prog_px = int(round(sub_step * bar_w))
+    draw.rectangle([tx0 + 10, ty0 + 10, tx0 + 10 + bar_w, ty1 - 10], fill=(222, 212, 196), outline=(22, 20, 18), width=2)
+    if prog_px > 2:
+        draw.rectangle([tx0 + 10, ty0 + 10, tx0 + 10 + prog_px, ty1 - 10], fill=scene_ag["color_rgb"], outline=(22, 20, 18), width=2)
+    sc_lbl = f"X-SHEET · DRAWING {chain_cur + 1}/{chain_len} [{active_code_lbl}] · PLANE P0..P6 · EXP: ON TWOS"
+    f_sc = fit_text_font(draw, sc_lbl, bar_w - 12, [FONT_LABEL_SM])
+    draw.text((tx0 + 16, ty0 + 11), sc_lbl, font=f_sc, fill=(22, 20, 18))
 
-        draw.rounded_rectangle([bx0 + 16, by1 - 32, bx0 + 205, by1 - 8], radius=5, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        draw.text((bx0 + 24, by1 - 27), "CEL-INKER (PLATENS)", font=FONT_LABEL_SM, fill=(22, 20, 18))
-        draw.rounded_rectangle([395, by1 - 32, 555, by1 - 8], radius=5, fill=(247, 216, 206), outline=(22, 20, 18), width=2)
-        draw.text((405, by1 - 27), "NIB (CAMERA CRANK)", font=FONT_LABEL_SM, fill=(22, 20, 18))
+    ag_pill = f"{scene_ag['name'].upper()} // {active_code_lbl}"
+    draw.rounded_rectangle([bx0 + 20, by1 - 36, 326, by1 - 10], radius=5, fill=(255, 251, 244), outline=(22, 20, 18), width=2)
+    f_ap = fit_text_font(draw, ag_pill, 292, [FONT_LABEL_SM, FONT_CAPTION_SM])
+    draw.text((bx0 + 28, by1 - 31), ag_pill, font=f_ap, fill=(22, 20, 18))
 
-    elif panel_num == 4:
-        ax0, ay0 = bx0 + 18, by0 + cap_h + 36
-        draw.rounded_rectangle([ax0, ay0 - 26, ax0 + 192, ay0 - 4], radius=4, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
-        draw.text((ax0 + 8, ay0 - 22), "ARCHIVAL MONITOR (4:3)", font=FONT_LABEL_SM, fill=(22, 20, 18))
-
-        sx0 = bx1 - 432 - 22
-        sy0 = by0 + cap_h + 36
-        draw.rounded_rectangle([sx0, sy0 - 28, sx0 + 432, sy0 - 4], radius=4, fill=(251, 229, 194), outline=(22, 20, 18), width=2)
-        scr_lbl = f"35MM DAILIES THEATRE SCREEN (4:3) — #{slug.upper()} (16/16 GATES PASS)"
-        f_sl = fit_text_font(draw, scr_lbl, 416, [FONT_LABEL_SM])
-        draw.text((sx0 + 8, sy0 - 23), scr_lbl, font=f_sl, fill=(22, 20, 18))
-
-        # Foley cue badge inside the grounded Foley & Audit Console Table
-        draw.rounded_rectangle([bx0 + 18, by1 - 32, bx0 + 438, by1 - 8], radius=5, fill=(255, 251, 244), outline=(22, 20, 18), width=2)
-        draw.text((bx0 + 26, by1 - 27), "SPROCKET (16/16 AUDIT) · CHIME (FOLEY) · NIB (DIRECTOR)", font=FONT_LABEL_SM, fill=(22, 20, 18))
+    draw.rounded_rectangle([338, by1 - 36, 522, by1 - 10], radius=5, fill=(214, 228, 240), outline=(22, 20, 18), width=2)
+    f_app = fit_text_font(draw, apparatus_caption, 172, [FONT_LABEL_SM, FONT_CAPTION_SM])
+    draw.text((345, by1 - 31), apparatus_caption, font=f_app, fill=(22, 20, 18))
 
     out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     cv2.rectangle(out_bgr, (bx0, by0), (bx1, by1), BGR_INK, 5)
     return out_bgr
 
 
-def assemble_4panel_comic_page(spec: dict) -> np.ndarray:
+def render_fullscreen_hero_poster(spec: dict, panel_num: int = None) -> np.ndarray:
     """
-    Assembles all 4 Studio Rooms (`Room 1: Storyboard & Moviola` -> `Room 2: 4-Desk Worktree Bullpen`
-    -> `Room 3: 7-Level Multiplane Tower` -> `Room 4: 35mm Screening Theatre & Foley Stage`)
-    into a `1280x720` (16:9) 2x2 Comic Page where the Agent Animators are visibly working in every panel!
+    Renders a spacious Single-Scene Full-Screen `1280x720` (16:9) Hero Poster so no poster
+    ever crowds 4 rooms onto one image at the same time!
     """
-    p1 = render_single_panel_fullscreen(spec, 1, sub_step=0.85, shot_frame_idx=16, boil_phase=0)
-    p2 = render_single_panel_fullscreen(spec, 2, sub_step=0.62, shot_frame_idx=16, boil_phase=1)
-    p3 = render_single_panel_fullscreen(spec, 3, sub_step=0.85, shot_frame_idx=16, boil_phase=2)
-    p4 = render_single_panel_fullscreen(spec, 4, sub_step=0.85, shot_frame_idx=16, boil_phase=3)
+    if panel_num is None:
+        ag_to_scene = {"nib": 4, "blueline": 3, "celinker": 5, "sprocket": 7, "chime": 8}
+        panel_num = ag_to_scene.get(spec.get("lead_agent", "nib"), 1)
+    frame_960 = render_single_panel_fullscreen(spec, panel_num=panel_num, sub_step=0.72, shot_frame_idx=16, boil_phase=0)
+    return cv2.resize(frame_960, (1280, 720), interpolation=cv2.INTER_LINEAR)
 
-    top_row = np.hstack([p1, p2])
-    bot_row = np.hstack([p3, p4])
-    grid = np.vstack([top_row, bot_row])
-    return cv2.resize(grid, (1280, 720), interpolation=cv2.INTER_AREA)
+
+def assemble_8scene_storyboard_sheet(spec: dict) -> np.ndarray:
+    """
+    Assembles all 8 Sequential Studio Scenes (`Scene 1..8`) into a clean `2x4` overview sheet
+    for documentation & walkthrough inspection.
+    """
+    rows = []
+    for r_i in range(4):
+        p_left = render_single_panel_fullscreen(spec, r_i * 2 + 1, sub_step=0.72, shot_frame_idx=16, boil_phase=r_i)
+        p_right = render_single_panel_fullscreen(spec, r_i * 2 + 2, sub_step=0.72, shot_frame_idx=16, boil_phase=r_i + 1)
+        rows.append(np.hstack([p_left, p_right]))
+    grid = np.vstack(rows)
+    return cv2.resize(grid, (1600, 1800), interpolation=cv2.INTER_AREA)
 
 
 def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int = 42):
@@ -1698,13 +2773,12 @@ def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int 
         + 0.03 * np.sin(2 * np.pi * 277.18 * t)
         + 0.025 * np.sin(2 * np.pi * 329.63 * t)
     )
-    for beat_s in [0.05, 4.0, 8.0, 12.0, 13.5, 14.8]:
-        if beat_s < duration_sec:
-            idx = int(beat_s * sr)
-            blen = min(int(0.12 * sr), n_samples - idx)
-            if blen > 0:
-                env = np.exp(-np.linspace(0, 6, blen))
-                audio[idx:idx + blen] += 0.16 * env * rng.normal(0, 1, blen)
+    for beat_s in np.arange(0.05, duration_sec, 4.0):
+        idx = int(beat_s * sr)
+        blen = min(int(0.12 * sr), n_samples - idx)
+        if blen > 0:
+            env = np.exp(-np.linspace(0, 6, blen))
+            audio[idx:idx + blen] += 0.16 * env * rng.normal(0, 1, blen)
 
     audio = np.clip(audio, -0.95, 0.95)
     pcm = (audio * 32767.0).astype(np.int16)
@@ -1715,11 +2789,175 @@ def synthesize_studio_soundtrack(wav_path: Path, duration_sec: float, seed: int 
         wf.writeframes(pcm.tobytes())
 
 
+# =============================================================================
+# 5 STANDALONE FULL-SCREEN DEPARTMENT / AGENT CARTOON FILMS
+# =============================================================================
+STANDALONE_AGENT_CARTOON_SPECS = [
+    {
+        "id": "cartoon-01-nib-moviola",
+        "num": 101,
+        "title": "Nib & Blue-Line: The Archival Moviola & 4-Key Storyboard Wall",
+        "lead_agent": "nib",
+        "cameo_agent": "blueline",
+        "featured_shot": "giraffe-walks-past",
+        "scenes": [1, 2],
+        "poster_scene": 1,
+        "speech_p1": "Hold the 35mm reel! Watch me thread the archival print and mark every extreme on the X-sheet!",
+        "caption_p2": "Blue-Line sketches all 4 key poses in non-photo blue and pins each 4:3 index card to the storyboard wall.",
+        "caption_p3": "Multiplane camera check.",
+        "caption_p4": "Dailies screening check.",
+    },
+    {
+        "id": "cartoon-02-blueline-rough-lightbox",
+        "num": 102,
+        "title": "Blue-Line at the Lightbox: Non-Photo Blue Rough Construction",
+        "lead_agent": "blueline",
+        "cameo_agent": "nib",
+        "featured_shot": "lighthouse",
+        "scenes": [2, 3],
+        "poster_scene": 3,
+        "speech_p1": "Every great cartoon starts on the backlit glass disc with sweeping non-photo blue lines of action!",
+        "caption_p2": "Blue-Line locks the punched animation paper onto the brass Acme peg bar and flips between Key 1 and Key 2.",
+        "caption_p3": "Multiplane camera check.",
+        "caption_p4": "Dailies screening check.",
+    },
+    {
+        "id": "cartoon-03-nib-celinker-ink-gouache",
+        "num": 103,
+        "title": "Nib & Cel-Inker: Speedball India Ink & Gouache Cel Opaquing",
+        "lead_agent": "nib",
+        "cameo_agent": "celinker",
+        "featured_shot": "campfire",
+        "scenes": [4, 5],
+        "poster_scene": 4,
+        "speech_p1": "Dip the Speedball nib in India ink! Pull one continuous tapered line right over the blue construction rough!",
+        "caption_p2": "Cel-Inker flips the acetate cel and flood-fills opaque gouache pigment before clipping it to the drying line.",
+        "caption_p3": "Multiplane camera check.",
+        "caption_p4": "Dailies screening check.",
+    },
+    {
+        "id": "cartoon-04-multiplane-camera-tower",
+        "num": 104,
+        "title": "Cel-Inker & Nib: The 7-Level Multiplane Camera Tower",
+        "lead_agent": "celinker",
+        "cameo_agent": "nib",
+        "featured_shot": "train",
+        "scenes": [5, 6],
+        "poster_scene": 6,
+        "speech_p1": "Slide the inked hero cel onto Plane P2 and dial the brass micrometer! Watch the 4:3 viewfinder lock in depth!",
+        "caption_p2": "Cel-Inker loads the glass platens while Nib cranks the overhead camera wheel one 35mm exposure at a time.",
+        "caption_p3": "All 7 gouache planes locked in live multiplane parallax inside the 4:3 camera viewfinder!",
+        "caption_p4": "Dailies screening check.",
+    },
+    {
+        "id": "cartoon-05-sprocket-chime-screening",
+        "num": 105,
+        "title": "Sprocket & Chime: 35mm Caliper Audit, Foley & Grand Premiere",
+        "lead_agent": "sprocket",
+        "cameo_agent": "chime",
+        "featured_shot": "butterfly",
+        "scenes": [7, 8],
+        "poster_scene": 8,
+        "speech_p1": "Brass caliper reads exact 4:3! 16 out of 16 gates pass! Hit the coconut hooves and roll the 35mm projector!",
+        "caption_p2": "Sprocket audits the aperture gate while Chime syncs the clapperboard, brass bell, and wind machine.",
+        "caption_p3": "Multiplane camera check.",
+        "caption_p4": "The entire 5-agent crew cheers in the screening theatre as the finished 4:3 cartoon plays on the silver screen!",
+    },
+]
+
+
+def render_standalone_agent_cartoons() -> list:
+    """
+    Renders the 5 Standalone Full-Screen Department/Agent Cartoons (`cartoon-01..05`),
+    giving each 2-scene department film `20.0 seconds` (`240 frames @ 12fps`, `120 frames = 10.0s` per scene!)
+    so every turnaround, pass progression, keyframe (`K01..K08`), breakdown (`B01..B04`),
+    and in-between (`I01..I04`) gets ample unhurried screen time!
+    """
+    results = []
+    fps = 12
+    frames_per_scene = 120  # 10.0 full seconds per scene = 20.0s per standalone cartoon!
+    W, H = 960, 540
+
+    for c_spec in STANDALONE_AGENT_CARTOON_SPECS:
+        cid = c_spec["id"]
+        mp4_path = BTS_DIR / f"{cid}.mp4"
+        gif_path = BTS_DIR / f"{cid}.gif"
+        poster_path = BTS_DIR / f"{cid}_poster.png"
+        raw_mp4 = BTS_DIR / f"_{cid}_raw.mp4"
+        wav_path = BTS_DIR / f"_{cid}.wav"
+
+        scenes = c_spec["scenes"]
+        n_frames = frames_per_scene * len(scenes)
+
+        poster_bgr = render_fullscreen_hero_poster(c_spec, panel_num=c_spec["poster_scene"])
+        cv2.imwrite(str(poster_path), poster_bgr)
+        shutil.copy2(poster_path, ARTIFACT_DIR / f"{cid}_poster.png")
+
+        vw = cv2.VideoWriter(str(raw_mp4), cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
+        gif_pil_frames = []
+
+        for f_i in range(n_frames):
+            boil_phase = f_i // 2
+            sc_idx = min(len(scenes) - 1, f_i // frames_per_scene)
+            p_num = scenes[sc_idx]
+            local_f = f_i - sc_idx * frames_per_scene
+            sub = local_f / float(frames_per_scene - 1)
+            shot_f = int(round(sub * 32))
+
+            frame_bgr = render_single_panel_fullscreen(
+                c_spec,
+                panel_num=p_num,
+                sub_step=sub,
+                shot_frame_idx=shot_f,
+                boil_phase=boil_phase,
+            )
+            vw.write(frame_bgr)
+            if f_i % 3 == 0:
+                rgb_small = cv2.cvtColor(cv2.resize(frame_bgr, (640, 360), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB)
+                gif_pil_frames.append(Image.fromarray(rgb_small))
+
+        vw.release()
+        gif_pil_frames[0].save(
+            str(gif_path),
+            save_all=True,
+            append_images=gif_pil_frames[1:],
+            duration=115,
+            loop=0,
+            optimize=True,
+        )
+        shutil.copy2(gif_path, ARTIFACT_DIR / f"{cid}.gif")
+
+        synthesize_studio_soundtrack(wav_path, duration_sec=n_frames / fps, seed=c_spec["num"] * 97)
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", str(raw_mp4),
+                "-i", str(wav_path),
+                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "fast", "-crf", "22",
+                "-c:a", "aac", "-b:a", "96k", "-shortest",
+                str(mp4_path),
+            ],
+            check=True,
+        )
+        raw_mp4.unlink(missing_ok=True)
+        wav_path.unlink(missing_ok=True)
+
+        out_rec = dict(c_spec)
+        out_rec["mp4"] = f"bts_films/{cid}.mp4"
+        out_rec["gif"] = f"bts_films/{cid}.gif"
+        out_rec["poster"] = f"bts_films/{cid}_poster.png"
+        results.append(out_rec)
+        print(f"   [Standalone Cartoon {len(results)}/5] {cid} -> {out_rec['mp4']} (20.0s, 2 Full-Screen Scenes)")
+
+    return results
+
+
 def render_single_bts_film(spec: dict) -> dict:
     """
-    Renders a 16.0-second (192 frames @ 12fps) Behind-the-Scenes Animated Studio Film
-    taking the viewer through all 4 Studio Rooms (4.0 seconds = 48 frames per room)
-    with smooth state-driven animation and a 10fps (100ms/frame, 64-frame) animated GIF!
+    Renders a 32.0-second (384 frames @ 12fps) Sequential 8-Scene Full-Screen Studio Film!
+    Each of the 8 Studio Scenes gets 48 frames (4.0 seconds) at full `960x540` resolution
+    so the viewer watches one stage at a time (`Scene 1 -> Scene 2 -> ... -> Scene 8`)
+    instead of crowding everything onto one screen at once.
     """
     fid = spec["id"]
     mp4_path = BTS_DIR / f"{fid}.mp4"
@@ -1729,33 +2967,29 @@ def render_single_bts_film(spec: dict) -> dict:
     wav_path = BTS_DIR / f"_{fid}.wav"
 
     fps = 12
-    n_frames = 192  # 16.0 seconds (4.0s = 48 frames per Studio Room!)
+    frames_per_scene = 48  # 4.0s per full-screen scene * 8 scenes = 32.0s (384 frames)!
+    n_frames = frames_per_scene * 8
     W, H = 960, 540
 
-    poster_bgr = assemble_4panel_comic_page(spec)
+    hero_scene = ((spec["num"] - 1) % 8) + 1
+    poster_bgr = render_fullscreen_hero_poster(spec, panel_num=hero_scene)
     cv2.imwrite(str(poster_path), poster_bgr)
+
+    if fid == "office-01-agent-office":
+        sb8_bgr = assemble_8scene_storyboard_sheet(spec)
+        sb8_path = BTS_DIR / "studio_8scenes_overview_atlas.png"
+        cv2.imwrite(str(sb8_path), sb8_bgr)
+        shutil.copy2(sb8_path, ARTIFACT_DIR / "studio_8scenes_overview_atlas.png")
 
     vw = cv2.VideoWriter(str(raw_mp4), cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
     gif_pil_frames = []
 
     for f_i in range(n_frames):
-        boil_phase = (f_i // 6) % 4
-        if f_i < 48:
-            p_num = 1
-            sub = f_i / 47.0
-            shot_f = int(round(sub * 32))
-        elif f_i < 96:
-            p_num = 2
-            sub = (f_i - 48) / 47.0
-            shot_f = int(round(sub * 32))
-        elif f_i < 144:
-            p_num = 3
-            sub = (f_i - 96) / 47.0
-            shot_f = int(round(sub * 32))
-        else:
-            p_num = 4
-            sub = (f_i - 144) / 47.0
-            shot_f = int(round(sub * 32))
+        boil_phase = f_i // 2
+        p_num = (f_i // frames_per_scene) + 1
+        local_f = f_i % frames_per_scene
+        sub = local_f / float(frames_per_scene - 1)
+        shot_f = int(round(sub * 32))
 
         frame_bgr = render_single_panel_fullscreen(
             spec,
@@ -1765,7 +2999,7 @@ def render_single_bts_film(spec: dict) -> dict:
             boil_phase=boil_phase,
         )
         vw.write(frame_bgr)
-        if f_i % 3 == 0:
+        if f_i % 4 == 0:
             rgb_small = cv2.cvtColor(cv2.resize(frame_bgr, (640, 360), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB)
             gif_pil_frames.append(Image.fromarray(rgb_small))
 
@@ -1803,15 +3037,19 @@ def render_single_bts_film(spec: dict) -> dict:
 
 
 def generate_studio_wing_comic_pages():
+    """
+    Renders 5 spacious Full-Screen `1280x720` Single-Stage Studio Soundstage Hero Plates
+    (no crowded 2x2 split-screens!).
+    """
     wing_specs = [
-        ("studio_bg_1_multifloor_soundstage.jpg", AGENT_OFFICE_SPECS[0]),
-        ("studio_bg_2_drafting_bullpen.jpg", AGENT_OFFICE_SPECS[2]),
-        ("studio_bg_3_foley_screening_stage.jpg", VIDEO_SKILL_SPECS[7]),
-        ("studio_bg_4_clocktower_optical_lab.jpg", VIDEO_SKILL_SPECS[3]),
-        ("studio_bg_5_bullpen_unoccupied.jpg", AGENT_OFFICE_SPECS[1]),
+        ("studio_bg_1_multifloor_soundstage.jpg", AGENT_OFFICE_SPECS[0], 1),
+        ("studio_bg_2_drafting_bullpen.jpg", AGENT_OFFICE_SPECS[2], 3),
+        ("studio_bg_3_foley_screening_stage.jpg", VIDEO_SKILL_SPECS[7], 8),
+        ("studio_bg_4_clocktower_optical_lab.jpg", VIDEO_SKILL_SPECS[3], 6),
+        ("studio_bg_5_bullpen_unoccupied.jpg", AGENT_OFFICE_SPECS[1], 4),
     ]
-    for fname, sp in wing_specs:
-        page_bgr = assemble_4panel_comic_page(sp)
+    for fname, sp, sc_num in wing_specs:
+        page_bgr = render_fullscreen_hero_poster(sp, panel_num=sc_num)
         out_p = BTS_DIR / fname
         cv2.imwrite(str(out_p), page_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
         shutil.copy2(out_p, ARTIFACT_DIR / fname)
@@ -1855,19 +3093,29 @@ def render_contact_sheet(records: list, title: str, subtitle: str, out_name: str
 
 
 def main():
-    print("1. Rendering 5 Agent Studio 4-Room Comic Pages (Agents Working in Every Scene)...")
+    print("1. Rendering 5 Full-Screen Studio Soundstage Hero Plates...")
     generate_studio_wing_comic_pages()
+
+    print("2. Rendering 5 Standalone Full-Screen Department/Agent Cartoons (20.0s each, 10.0s per scene)...")
+    standalone_results = render_standalone_agent_cartoons()
+    p_std = render_contact_sheet(
+        standalone_results,
+        "5 STANDALONE AGENT ANIMATOR DEPARTMENT CARTOONS (240 HAND-DRAWN STUDIO FRAMES + 70 HERO FRAMES = 310 FRAMES)",
+        "Turnarounds · Pass Progressions (A/B/D/E) · Story Keys (K01..K08) · Breakdowns (B01..B04) · In-Betweens (I01..I04) · 7-Plane Parallax",
+        "bts_5_standalone_agent_cartoons_atlas.png",
+    )
+    print("   Rendered Standalone Cartoons Atlas:", p_std.name)
 
     office_results = []
     skill_results = []
 
-    print("2. Rendering 10 Virtual Agent Office 4-Room Studio Films (12.0s each)...")
+    print("3. Rendering 10 Virtual Agent Office 8-Scene Sequential Full-Screen Films (32.0s each)...")
     for sp in AGENT_OFFICE_SPECS:
         res = render_single_bts_film(sp)
         office_results.append(res)
         print(f"   [Office {sp['num']:02d}/10] {sp['id']} -> {res['mp4']}")
 
-    print("3. Rendering 8 AI Video Director Skill 4-Room Studio Films (12.0s each)...")
+    print("4. Rendering 8 AI Video Director Skill 8-Scene Sequential Full-Screen Films (32.0s each)...")
     for sp in VIDEO_SKILL_SPECS:
         res = render_single_bts_film(sp)
         skill_results.append(res)
@@ -1875,43 +3123,49 @@ def main():
 
     p_off = render_contact_sheet(
         office_results,
-        "PART I: 10 AGENT ANIMATOR STUDIO FILMS (ROOM 1 MOVIOLA -> ROOM 2 BULLPEN -> ROOM 3 TOWER -> ROOM 4 THEATRE)",
-        "Watch Nib, Blue-Line, Cel-Inker, Sprocket & Chime Create Each 4:3 Cartoon Step-by-Step Across All 4 Studio Rooms",
+        "PART I: 10 AGENT ANIMATOR 8-SCENE SEQUENTIAL STUDIO FILMS (240 STUDIO DRAWINGS ACROSS 60 SHEETS)",
+        "Act I Thumbnails, Moviola & Turnarounds -> Act II Keys, Breakdowns, In-Betweens & Ink -> Act III 7-Plane Tower -> Act IV Audit & Premiere",
         "bts_10_agent_offices_atlas.png",
     )
     p_skl = render_contact_sheet(
         skill_results,
-        "PART II: 8 AGENT ANIMATOR CRAFT & MOTION SKILL STUDIO FILMS (SECONDHAND STUDIOS)",
-        "Blue Rough -> Black Ink -> Gouache Cel · 7-Plane Multiplane Camera Rig · 35mm Dailies Screening & Foley Stage",
+        "PART II: 8 AGENT ANIMATOR CRAFT & MOTION SKILL 8-SCENE STUDIO FILMS (310 TOTAL HAND-DRAWN FRAMES)",
+        "17-Phase Multiplane Pipeline · Onion-Skin Flip Ghosting · Differential Camera Parallax (P0..P6) · Live Exposure Sheet (X-Sheet)",
         "bts_8_video_skills_atlas.png",
     )
-    print("4. Rendered Contact Sheets:", p_off.name, p_skl.name)
+    print("5. Rendered Contact Sheets:", p_off.name, p_skl.name)
 
     for sample_id in ["office-01-agent-office", "office-02-agent-007", "skill-01-huashu-motion", "skill-04-reanimate", "skill-08-earshot"]:
         shutil.copy2(BTS_DIR / f"{sample_id}.gif", ARTIFACT_DIR / f"{sample_id}.gif")
         shutil.copy2(BTS_DIR / f"{sample_id}_poster.png", ARTIFACT_DIR / f"{sample_id}_poster.png")
 
     concat_txt = BTS_DIR / "_master_concat.txt"
-    all_mp4s = [ROOT / r["mp4"] for r in (office_results + skill_results)]
+    all_mp4s = [ROOT / r["mp4"] for r in (standalone_results + office_results + skill_results)]
     concat_txt.write_text("\n".join(f"file '{p.resolve()}'" for p in all_mp4s) + "\n")
     master_mp4 = ROOT / "Behind_The_Scenes_Multiplane_Studio_Film.mp4"
     subprocess.run(
         [
             "ffmpeg", "-y", "-loglevel", "error",
             "-f", "concat", "-safe", "0", "-i", str(concat_txt),
-            "-c", "copy", str(master_mp4),
+            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "fast", "-crf", "29",
+            "-c:a", "copy", str(master_mp4),
         ],
         check=True,
     )
     concat_txt.unlink(missing_ok=True)
-    print(f"5. Assembled Master Film: {master_mp4.name} ({master_mp4.stat().st_size / 1e6:.2f} MB)")
+    print(f"6. Assembled Master Film: {master_mp4.name} ({master_mp4.stat().st_size / 1e6:.2f} MB)")
 
     payload = {
-        "studio_title": "Secondhand Studios — The Autonomous Agent Animation Bullpen",
+        "studio_title": "Secondhand Studios — The Autonomous Agent Animation Bullpen (17-Phase Multiplane Studio Edition)",
+        "total_hand_drawn_studio_keyframes": 240,
+        "total_hero_shot_drawings": 70,
+        "total_vector_traced_frames": 310,
+        "total_studio_sheets": 60,
         "agents": [
             {"id": k, "name": v["name"], "role": v["role"], "dept": v["dept"]}
             for k, v in STUDIO_AGENTS.items()
         ],
+        "standalone_agent_cartoons": standalone_results,
         "office_films": office_results,
         "skill_films": skill_results,
         "master_film": "Behind_The_Scenes_Multiplane_Studio_Film.mp4",

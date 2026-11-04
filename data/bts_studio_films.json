@@ -1,5 +1,9 @@
 {
-  "studio_title": "Secondhand Studios \u2014 The Autonomous Agent Animation Bullpen",
+  "studio_title": "Secondhand Studios \u2014 The Autonomous Agent Animation Bullpen (17-Phase Multiplane Studio Edition)",
+  "total_hand_drawn_studio_keyframes": 240,
+  "total_hero_shot_drawings": 70,
+  "total_vector_traced_frames": 310,
+  "total_studio_sheets": 60,
   "agents": [
     {
       "id": "nib",
@@ -30,6 +34,108 @@
       "name": "Chime (Foley & Continuity)",
       "role": "Foley Percussionist & 55m X-Sheet Keeper",
       "dept": "FOLEY & X-SHEET SYNC"
+    }
+  ],
+  "standalone_agent_cartoons": [
+    {
+      "id": "cartoon-01-nib-moviola",
+      "num": 101,
+      "title": "Nib & Blue-Line: The Archival Moviola & 4-Key Storyboard Wall",
+      "lead_agent": "nib",
+      "cameo_agent": "blueline",
+      "featured_shot": "giraffe-walks-past",
+      "scenes": [
+        1,
+        2
+      ],
+      "poster_scene": 1,
+      "speech_p1": "Hold the 35mm reel! Watch me thread the archival print and mark every extreme on the X-sheet!",
+      "caption_p2": "Blue-Line sketches all 4 key poses in non-photo blue and pins each 4:3 index card to the storyboard wall.",
+      "caption_p3": "Multiplane camera check.",
+      "caption_p4": "Dailies screening check.",
+      "mp4": "bts_films/cartoon-01-nib-moviola.mp4",
+      "gif": "bts_films/cartoon-01-nib-moviola.gif",
+      "poster": "bts_films/cartoon-01-nib-moviola_poster.png"
+    },
+    {
+      "id": "cartoon-02-blueline-rough-lightbox",
+      "num": 102,
+      "title": "Blue-Line at the Lightbox: Non-Photo Blue Rough Construction",
+      "lead_agent": "blueline",
+      "cameo_agent": "nib",
+      "featured_shot": "lighthouse",
+      "scenes": [
+        2,
+        3
+      ],
+      "poster_scene": 3,
+      "speech_p1": "Every great cartoon starts on the backlit glass disc with sweeping non-photo blue lines of action!",
+      "caption_p2": "Blue-Line locks the punched animation paper onto the brass Acme peg bar and flips between Key 1 and Key 2.",
+      "caption_p3": "Multiplane camera check.",
+      "caption_p4": "Dailies screening check.",
+      "mp4": "bts_films/cartoon-02-blueline-rough-lightbox.mp4",
+      "gif": "bts_films/cartoon-02-blueline-rough-lightbox.gif",
+      "poster": "bts_films/cartoon-02-blueline-rough-lightbox_poster.png"
+    },
+    {
+      "id": "cartoon-03-nib-celinker-ink-gouache",
+      "num": 103,
+      "title": "Nib & Cel-Inker: Speedball India Ink & Gouache Cel Opaquing",
+      "lead_agent": "nib",
+      "cameo_agent": "celinker",
+      "featured_shot": "campfire",
+      "scenes": [
+        4,
+        5
+      ],
+      "poster_scene": 4,
+      "speech_p1": "Dip the Speedball nib in India ink! Pull one continuous tapered line right over the blue construction rough!",
+      "caption_p2": "Cel-Inker flips the acetate cel and flood-fills opaque gouache pigment before clipping it to the drying line.",
+      "caption_p3": "Multiplane camera check.",
+      "caption_p4": "Dailies screening check.",
+      "mp4": "bts_films/cartoon-03-nib-celinker-ink-gouache.mp4",
+      "gif": "bts_films/cartoon-03-nib-celinker-ink-gouache.gif",
+      "poster": "bts_films/cartoon-03-nib-celinker-ink-gouache_poster.png"
+    },
+    {
+      "id": "cartoon-04-multiplane-camera-tower",
+      "num": 104,
+      "title": "Cel-Inker & Nib: The 7-Level Multiplane Camera Tower",
+      "lead_agent": "celinker",
+      "cameo_agent": "nib",
+      "featured_shot": "train",
+      "scenes": [
+        5,
+        6
+      ],
+      "poster_scene": 6,
+      "speech_p1": "Slide the inked hero cel onto Plane P2 and dial the brass micrometer! Watch the 4:3 viewfinder lock in depth!",
+      "caption_p2": "Cel-Inker loads the glass platens while Nib cranks the overhead camera wheel one 35mm exposure at a time.",
+      "caption_p3": "All 7 gouache planes locked in live multiplane parallax inside the 4:3 camera viewfinder!",
+      "caption_p4": "Dailies screening check.",
+      "mp4": "bts_films/cartoon-04-multiplane-camera-tower.mp4",
+      "gif": "bts_films/cartoon-04-multiplane-camera-tower.gif",
+      "poster": "bts_films/cartoon-04-multiplane-camera-tower_poster.png"
+    },
+    {
+      "id": "cartoon-05-sprocket-chime-screening",
+      "num": 105,
+      "title": "Sprocket & Chime: 35mm Caliper Audit, Foley & Grand Premiere",
+      "lead_agent": "sprocket",
+      "cameo_agent": "chime",
+      "featured_shot": "butterfly",
+      "scenes": [
+        7,
+        8
+      ],
+      "poster_scene": 8,
+      "speech_p1": "Brass caliper reads exact 4:3! 16 out of 16 gates pass! Hit the coconut hooves and roll the 35mm projector!",
+      "caption_p2": "Sprocket audits the aperture gate while Chime syncs the clapperboard, brass bell, and wind machine.",
+      "caption_p3": "Multiplane camera check.",
+      "caption_p4": "The entire 5-agent crew cheers in the screening theatre as the finished 4:3 cartoon plays on the silver screen!",
+      "mp4": "bts_films/cartoon-05-sprocket-chime-screening.mp4",
+      "gif": "bts_films/cartoon-05-sprocket-chime-screening.gif",
+      "poster": "bts_films/cartoon-05-sprocket-chime-screening_poster.png"
     }
   ],
   "office_films": [
