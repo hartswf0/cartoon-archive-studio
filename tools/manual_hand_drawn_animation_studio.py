@@ -1327,21 +1327,32 @@ def _draw_studio_agent_arm_and_hand(
     cv2.fillPoly(canvas, [_capsule_poly(sh_pt, el_pt, w_up + w_i, w_up * 0.90 + w_i)], BGR_INK, cv2.LINE_AA)
     cv2.fillPoly(canvas, [_capsule_poly(sh_pt, el_pt, w_up, w_up * 0.90)], shirt_fill, cv2.LINE_AA)
     if is_near_shoulder:
-        bridge_pt = (sh_pt[0] + facing * 3.5 * scale, sh_pt[1] - 2.0 * scale)
-        cv2.circle(canvas, (int(bridge_pt[0]), int(bridge_pt[1])), int(w_up * 0.72), shirt_fill, -1, cv2.LINE_AA)
+        # Seamless shoulder-to-shirt bridge & short armpit crease line (`/` in `nib_inking_keys.jpg` Q1-Q4)
+        bridge_pt = (sh_pt[0] + facing * 4.5 * scale, sh_pt[1] - 2.0 * scale)
+        cv2.circle(canvas, (int(bridge_pt[0]), int(bridge_pt[1])), int(w_up * 0.78), shirt_fill, -1, cv2.LINE_AA)
+        ap_x0 = int(sh_pt[0] + facing * w_up * 0.52)
+        ap_y0 = int(sh_pt[1] + w_up * 0.15)
+        cv2.line(canvas, (ap_x0, ap_y0), (ap_x0 - int(facing * 4.5 * scale), ap_y0 + int(9.5 * scale)), BGR_INK, max(1, w_i - 1), cv2.LINE_AA)
 
     # 2. Proximal Forearm Tube (`el_pt -> wr_pt`)
     r_wrist = w_low * 0.75
     cv2.fillPoly(canvas, [_capsule_poly(el_pt, wr_pt, w_low + w_i, r_wrist + w_i)], BGR_INK, cv2.LINE_AA)
     cv2.fillPoly(canvas, [_capsule_poly(el_pt, wr_pt, w_low, r_wrist)], skin_fill, cv2.LINE_AA)
 
-    # 3. Puffy Rolled-Up Sleeve Cuff at Elbow (overlaps the `sh_pt -> el_pt -> wr_pt` joint cleanly!)
-    cuff_cx = el_pt[0] + fca * 1.8 * scale
-    cuff_cy = el_pt[1] + fsa * 1.8 * scale
-    cuff_hw = w_up * 0.95
-    c0 = (cuff_cx - fnx * cuff_hw, cuff_cy - fny * cuff_hw)
-    c1 = (cuff_cx + fnx * cuff_hw, cuff_cy + fny * cuff_hw)
-    r_cuff = 7.2 * scale
+    # 3. Puffy Rolled-Up Sleeve Cuff at Elbow + 2 Curved Cloth Fold Ticks (`nib_inking_keys.jpg` Q1-Q4)
+    unx, uny = -usa, uca
+    for fd_i, fd_d in enumerate([9.0, 14.5]):
+        fx0 = el_pt[0] - uca * fd_d * scale - unx * (w_up * (0.15 + 0.12 * fd_i)) * facing
+        fy0 = el_pt[1] - usa * fd_d * scale - uny * (w_up * (0.15 + 0.12 * fd_i)) * facing
+        fx1 = fx0 + (uca * 3.5 + unx * 6.5 * facing) * scale
+        fy1 = fy0 + (usa * 3.5 + uny * 6.5 * facing) * scale
+        cv2.line(canvas, (int(fx0), int(fy0)), (int(fx1), int(fy1)), BGR_INK, max(1, w_i - 1), cv2.LINE_AA)
+    cuff_cx = el_pt[0] - uca * 1.2 * scale + fca * 1.2 * scale
+    cuff_cy = el_pt[1] - usa * 1.2 * scale + fsa * 1.2 * scale
+    cuff_hw = w_up * 0.90
+    c0 = (cuff_cx - unx * cuff_hw, cuff_cy - uny * cuff_hw)
+    c1 = (cuff_cx + unx * cuff_hw, cuff_cy + uny * cuff_hw)
+    r_cuff = 5.6 * scale
     cv2.fillPoly(canvas, [_capsule_poly(c0, c1, r_cuff + w_i, r_cuff + w_i)], BGR_INK, cv2.LINE_AA)
     cv2.fillPoly(canvas, [_capsule_poly(c0, c1, r_cuff, r_cuff)], shirt_fill, cv2.LINE_AA)
 
@@ -1497,18 +1508,23 @@ def draw_heroic_studio_animator(
     mid_x = 0.5 * (hip_x + chest_x)
     mid_y = 0.5 * (hip_y + chest_y)
 
-    # --- 1. FAR ARM (Left Arm `target_lh`) Foreshortened in 3/4 Depth ---
-    sh_l_x = chest_x + facing * 16.0 * scale
+    # --- 1. BILATERAL SHOULDER SETUP (`sh_l` on left/back shoulder, `sh_r` on right/front shoulder) ---
+    bib_top_y = chest_y + 28.0 * scale
+    sh_l_x = chest_x - facing * 28.0 * scale
     sh_l_y = chest_y + 18.0 * scale
+    lh_adj_x, lh_adj_y = target_lh
+    if action_mode != "cheer" and (lh_adj_x - chest_x) * facing > -12.0 * scale:
+        lh_adj_y = max(lh_adj_y, bib_top_y + 22.0 * scale)
+        lh_adj_x = min(lh_adj_x, chest_x + 14.0 * scale) if facing >= 0 else max(lh_adj_x, chest_x - 14.0 * scale)
     el_lx, el_ly, wr_lx, wr_ly = solve_2bone_ik(
-        sh_l_x, sh_l_y, target_lh[0], target_lh[1],
-        34.0 * scale, 36.0 * scale, bend_sign=float(facing),
+        sh_l_x, sh_l_y, lh_adj_x, lh_adj_y,
+        36.0 * scale, 36.0 * scale, bend_sign=float(facing),
     )
-    _draw_studio_agent_arm_and_hand(
-        canvas, (sh_l_x, sh_l_y), (el_lx, el_ly), (wr_lx, wr_ly),
-        w_up=13.5 * scale, w_low=11.0 * scale, scale=scale, facing=facing,
-        is_right=False, is_near_shoulder=False, shirt_fill=shirt, skin_fill=skin, ink_w=ink_w,
-    )
+    if action_mode == "cheer":
+        el_lx = min(el_lx, sh_l_x - 16.0 * scale) if facing >= 0 else max(el_lx, sh_l_x + 16.0 * scale)
+    else:
+        el_lx = min(el_lx, sh_l_x - 12.0 * scale) if facing >= 0 else max(el_lx, sh_l_x + 12.0 * scale)
+        el_ly = max(el_ly, sh_l_y + 24.0 * scale)
 
     # --- 2. SEAMLESS CURVED TROUSER LEGS & SCULPTED FLAT-SOLED ANIMATOR SHOES ---
     thigh_l = 44.0 * scale
@@ -1569,30 +1585,40 @@ def draw_heroic_studio_animator(
     apron_bot_y = hip_y + 40.0 * scale
 
     shirt_dome = np.array([
-        [int(chest_x - w_chest * 0.88), int(chest_y + 15.0 * scale)],
-        [int(chest_x - w_chest * 0.55), int(chest_y + 2.0 * scale)],
+        [int(chest_x - w_chest * 0.90), int(chest_y + 14.0 * scale)],
+        [int(chest_x - w_chest * 0.56), int(chest_y + 2.0 * scale)],
         [int(chest_x + w_chest * 0.58), int(chest_y + 2.0 * scale)],
-        [int(chest_x + w_chest * 0.88), int(chest_y + 15.0 * scale)],
+        [int(chest_x + w_chest * 0.90), int(chest_y + 14.0 * scale)],
         [int(mid_x + w_waist * 0.88), int(mid_y + 14.0 * scale)],
-        [int(mid_x - w_waist * 0.86), int(mid_y + 14.0 * scale)],
+        [int(mid_x - w_waist * 0.88), int(mid_y + 14.0 * scale)],
     ], dtype=np.int32)
     cv2.fillPoly(canvas, [shirt_dome], shirt, cv2.LINE_AA)
     cv2.polylines(canvas, [shirt_dome], True, BGR_INK, ink_w, cv2.LINE_AA)
 
     apron_poly = np.array([
-        [int(chest_x - w_chest * 0.52), int(bib_top_y)],
-        [int(chest_x + w_chest * 0.60), int(bib_top_y)],
-        [int(mid_x + w_waist * 0.90 + sway_hem * 0.35), int(mid_y + 12.0 * scale)],
-        [int(hip_x + w_hip * 1.00 + sway_hem), int(apron_bot_y)],
-        [int(hip_x - w_hip * 0.90 + sway_hem * 0.7), int(apron_bot_y)],
-        [int(mid_x - w_waist * 0.86 + sway_hem * 0.3), int(mid_y + 12.0 * scale)],
+        [int(chest_x - w_chest * 0.50 * facing), int(bib_top_y)],
+        [int(chest_x + w_chest * 0.58 * facing), int(bib_top_y)],
+        [int(mid_x + w_waist * 0.88 * facing + sway_hem * 0.35), int(mid_y + 12.0 * scale)],
+        [int(hip_x + w_hip * 0.98 * facing + sway_hem), int(apron_bot_y)],
+        [int(hip_x - w_hip * 0.86 * facing + sway_hem * 0.7), int(apron_bot_y)],
+        [int(mid_x - w_waist * 0.76 * facing + sway_hem * 0.3), int(mid_y + 12.0 * scale)],
     ], dtype=np.int32)
     cv2.fillPoly(canvas, [apron_poly], apron, cv2.LINE_AA)
     cv2.polylines(canvas, [apron_poly], True, BGR_INK, ink_w, cv2.LINE_AA)
+    # Horizontal apron waist-tie band (`=`) on back flank + 2 subtle skirt drape ticks (`nib_inking_keys.jpg` Q2)
+    wt_x0 = int(mid_x - w_waist * 0.88 * facing)
+    wt_x1 = int(mid_x - w_waist * 0.70 * facing)
+    wt_y = int(mid_y + 9.0 * scale)
+    cv2.line(canvas, (wt_x0, wt_y), (wt_x1, wt_y), BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
+    cv2.line(canvas, (wt_x0, wt_y + int(4.5 * scale)), (wt_x1, wt_y + int(4.5 * scale)), BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
+    for dr_x in (-0.32, 0.36):
+        dx0 = int(hip_x + dr_x * w_hip * facing + sway_hem * 0.8)
+        dy0 = int(apron_bot_y)
+        cv2.line(canvas, (dx0, dy0), (dx0 - int(1.5 * scale * facing), dy0 - int(11.0 * scale)), BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
 
     # Vertical Apron Shoulder Straps & Seamless Square-U Bib Join
     apron_strap_fill = tuple(max(20, int(c * 0.88)) for c in apron)
-    for x_top_f, x_bot_f in [(-0.52, -0.46), (0.56, 0.52)]:
+    for x_top_f, x_bot_f in [(-0.50 * facing, -0.44 * facing), (0.54 * facing, 0.50 * facing)]:
         strap_poly = np.array([
             [int(chest_x + x_top_f * w_chest - 4.5 * scale), int(chest_y + 3 * scale)],
             [int(chest_x + x_top_f * w_chest + 4.5 * scale), int(chest_y + 3 * scale)],
@@ -1601,43 +1627,70 @@ def draw_heroic_studio_animator(
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [strap_poly], apron_strap_fill, cv2.LINE_AA)
         cv2.polylines(canvas, [strap_poly], True, BGR_INK, ink_w, cv2.LINE_AA)
-    cv2.rectangle(canvas, (int(chest_x - w_chest * 0.48), int(bib_top_y + 1 * scale)), (int(chest_x + w_chest * 0.54), int(bib_top_y + 8 * scale)), apron, -1)
-    cv2.line(canvas, (int(chest_x - w_chest * 0.52), int(bib_top_y)), (int(chest_x + w_chest * 0.60), int(bib_top_y)), BGR_INK, ink_w, cv2.LINE_AA)
+    bx_a = int(min(chest_x - w_chest * 0.45 * facing, chest_x + w_chest * 0.51 * facing))
+    bx_b = int(max(chest_x - w_chest * 0.45 * facing, chest_x + w_chest * 0.51 * facing))
+    cv2.rectangle(canvas, (bx_a, int(bib_top_y + 1 * scale)), (bx_b, int(bib_top_y + 8 * scale)), apron, -1)
+    cv2.line(canvas, (int(chest_x - w_chest * 0.50 * facing), int(bib_top_y)), (int(chest_x + w_chest * 0.58 * facing), int(bib_top_y)), BGR_INK, ink_w, cv2.LINE_AA)
 
-    # Pointed `W` Shirt Collar (`\/\/`) tucked between the apron straps!
-    cx_v, cy_v = chest_x + facing * 3.0 * scale, chest_y + 3.5 * scale
+    # Pointed `W` Shirt Collar (`\/\/`) tucked between the apron straps (`100% unoccluded`!)
+    cx_v, cy_v = chest_x + facing * 2.5 * scale, chest_y + 3.5 * scale
     v_col = np.array([
-        [int(cx_v - 17 * scale), int(cy_v)],
-        [int(cx_v - 10 * scale), int(cy_v + 18 * scale)],
+        [int(cx_v - 16 * scale), int(cy_v)],
+        [int(cx_v - 9.5 * scale), int(cy_v + 18 * scale)],
         [int(cx_v), int(cy_v + 8 * scale)],
-        [int(cx_v + 10 * scale), int(cy_v + 18 * scale)],
-        [int(cx_v + 17 * scale), int(cy_v)],
+        [int(cx_v + 9.5 * scale), int(cy_v + 18 * scale)],
+        [int(cx_v + 16 * scale), int(cy_v)],
     ], dtype=np.int32)
     cv2.fillPoly(canvas, [v_col], shirt, cv2.LINE_AA)
     cv2.polylines(canvas, [v_col], False, BGR_INK, ink_w, cv2.LINE_AA)
 
     # Canonical Apron Pocket Emblems (`blueline`, `celinker`, `sprocket`, `chime`)
     if agent_id != "nib":
-        px0, py0 = int(mid_x - 15 * scale), int(mid_y + 4 * scale)
-        px1, py1 = int(mid_x + 15 * scale), int(mid_y + 28 * scale)
+        px0, py0 = int(mid_x - 16 * scale), int(mid_y + 2 * scale)
+        px1, py1 = int(mid_x + 16 * scale), int(mid_y + 27 * scale)
         cv2.rectangle(canvas, (px0, py0), (px1, py1), (248, 250, 252), -1)
         cv2.rectangle(canvas, (px0, py0), (px1, py1), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
+        # Top stitched pocket band (`|===|` in `agent_blueline_keys.jpg` & `agent_celinker_keys.jpg`)
+        cv2.line(canvas, (px0, int(py0 + 5 * scale)), (px1, int(py0 + 5 * scale)), BGR_INK, max(1, ink_w - 2), cv2.LINE_AA)
         if agent_id == "celinker":
-            for di in (-7, 0, 7):
-                cv2.circle(canvas, (int(mid_x + di * scale), int(mid_y + 17 * scale)), max(2, int(3.0 * scale)), BGR_VERMILION, -1, cv2.LINE_AA)
+            # 3 Teardrop Gouache Paint Droplets (`💧💧💧` in `agent_celinker_keys.jpg` Q1-Q4)!
+            for di, d_col in [(-8, BGR_VERMILION), (0, BGR_NONPHOTO_BLUE), (8, BGR_AMBER)]:
+                dx_d = int(mid_x + di * scale)
+                dy_d = int(mid_y + 18 * scale)
+                r_d = max(2, int(2.8 * scale))
+                cv2.circle(canvas, (dx_d, dy_d), r_d, d_col, -1, cv2.LINE_AA)
+                drop_tri = np.array([
+                    [dx_d - r_d, dy_d],
+                    [dx_d, dy_d - int(5.5 * scale)],
+                    [dx_d + r_d, dy_d],
+                ], dtype=np.int32)
+                cv2.fillPoly(canvas, [drop_tri], d_col, cv2.LINE_AA)
+                cv2.circle(canvas, (dx_d, dy_d), r_d, BGR_INK, max(1, ink_w - 2), cv2.LINE_AA)
+                cv2.polylines(canvas, [drop_tri], False, BGR_INK, max(1, ink_w - 2), cv2.LINE_AA)
         elif agent_id == "sprocket":
             cv2.line(canvas, (int(mid_x - 6 * scale), int(mid_y + 16 * scale)), (int(mid_x - 1 * scale), int(mid_y + 22 * scale)), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
             cv2.line(canvas, (int(mid_x - 1 * scale), int(mid_y + 22 * scale)), (int(mid_x + 8 * scale), int(mid_y + 10 * scale)), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
         elif agent_id == "chime":
-            cv2.circle(canvas, (int(mid_x), int(mid_y + 16 * scale)), int(8 * scale), (248, 250, 252), -1, cv2.LINE_AA)
-            cv2.circle(canvas, (int(mid_x), int(mid_y + 16 * scale)), int(8 * scale), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
+            cv2.circle(canvas, (int(mid_x), int(mid_y + 16 * scale)), int(7.5 * scale), (248, 250, 252), -1, cv2.LINE_AA)
+            cv2.circle(canvas, (int(mid_x), int(mid_y + 16 * scale)), int(7.5 * scale), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
 
-    # --- 4. CANONICAL ROUND CARTOON HEAD, SOLID BLACK OVAL EYES & ICONIC HEADGEAR ---
+    # --- 4. CANONICAL ROUND CARTOON HEAD, SCULPTED EAR, SOLID BLACK OVAL EYES & ICONIC HEADGEAR ---
     head_r_x = 48.0 * scale
     head_r_y = 43.0 * scale
     hx = chest_x + facing * 5.0 * scale
     hy = chest_y - 38.0 * scale
     hat_kind = prof["hat"]
+
+    # Sculpted Cartoon C-Ear on Back Side of Head (`nib_inking_keys.jpg`, `agent_blueline_keys.jpg`, `agent_celinker_keys.jpg`)
+    ear_cx = int(hx - facing * head_r_x * 0.90)
+    ear_cy = int(hy + 4.0 * scale)
+    cv2.ellipse(canvas, (ear_cx, ear_cy), (max(3, int(8.5 * scale)), max(4, int(10.5 * scale))), 0, 0, 360, skin, -1, cv2.LINE_AA)
+    if facing >= 0:
+        cv2.ellipse(canvas, (ear_cx, ear_cy), (max(3, int(8.5 * scale)), max(4, int(10.5 * scale))), 0, 75, 285, BGR_INK, ink_w, cv2.LINE_AA)
+        cv2.ellipse(canvas, (ear_cx + int(1.5 * scale), ear_cy), (max(2, int(4.0 * scale)), max(2, int(5.0 * scale))), 0, 95, 265, BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
+    else:
+        cv2.ellipse(canvas, (ear_cx, ear_cy), (max(3, int(8.5 * scale)), max(4, int(10.5 * scale))), 0, -105, 105, BGR_INK, ink_w, cv2.LINE_AA)
+        cv2.ellipse(canvas, (ear_cx - int(1.5 * scale), ear_cy), (max(2, int(4.0 * scale)), max(2, int(5.0 * scale))), 0, -85, 85, BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
 
     # Main round-oval head cranium (clipped to `-28..208` deg under crown/visor so upper skull never pokes through!)
     if hat_kind == "nib_crown":
@@ -1659,12 +1712,13 @@ def draw_heroic_studio_animator(
         brow_lift = 3.0 * scale * math.sin(t_sec * 3.2)
         cv2.ellipse(canvas, (int(ex_c), int(ey_c - 10 * scale - brow_lift)), (int(7 * scale), int(3.5 * scale)), 0, 200, 340, BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
 
-    # Jeweler's Monocle for `celinker` and `sprocket` (`agent_celinker_keys.jpg`, `agent_sprocket_keys.jpg`)
+    # Concentric 3-Ring Jeweler's Loupe Monocle for `celinker` and `sprocket` (`agent_celinker_keys.jpg`, `agent_sprocket_keys.jpg`)
     if agent_id in ("celinker", "sprocket"):
         mx_e = int(hx + 16.0 * scale * facing)
         my_e = int(hy - 1.0 * scale)
-        cv2.circle(canvas, (mx_e, my_e), int(12 * scale), BGR_INK, ink_w, cv2.LINE_AA)
-        cv2.circle(canvas, (mx_e, my_e), int(9 * scale), BGR_INK, max(1, ink_w - 2), cv2.LINE_AA)
+        cv2.circle(canvas, (mx_e, my_e), int(13.5 * scale), BGR_INK, ink_w, cv2.LINE_AA)
+        cv2.circle(canvas, (mx_e, my_e), int(10.5 * scale), BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
+        cv2.circle(canvas, (mx_e, my_e), int(8.0 * scale), BGR_INK, max(1, ink_w - 2), cv2.LINE_AA)
 
     # Cute C-shaped / U-shaped rounded cartoon button nose
     cv2.ellipse(canvas, (int(hx + facing * 6 * scale), int(hy + 7 * scale)), (int(5.5 * scale), int(4.2 * scale)), 0, -20, 200, BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
@@ -1705,24 +1759,37 @@ def draw_heroic_studio_animator(
         cv2.circle(canvas, (int(hx + 1 * scale), int(hy - 39 * scale)), max(3, int(5.5 * scale)), (255, 255, 255), -1, cv2.LINE_AA)
         cv2.circle(canvas, (int(hx + 1 * scale), int(hy - 39 * scale)), max(3, int(5.5 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
     elif hat_kind == "visor_pencil":
-        # Blue-Line's Visor Cap + Pencil Tucked Behind Ear (`agent_blueline_keys.jpg`)
+        # Blue-Line's Visor Cap + Sideburn Hair + Banded Pencil Tucked Behind Ear (`agent_blueline_keys.jpg`)
+        # Short-cropped sideburn hair tuft above ear
+        sb_x = int(hx - facing * 38 * scale)
+        sb_y = int(hy - 12 * scale)
+        cv2.line(canvas, (sb_x, sb_y), (sb_x - int(facing * 5 * scale), sb_y + int(10 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
+        cv2.line(canvas, (sb_x + int(facing * 4 * scale), sb_y), (sb_x, sb_y + int(11 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
         cv2.ellipse(canvas, (int(hx), int(hy - 24 * scale)), (int(44 * scale), int(19 * scale)), 0, 180, 360, hat_c, -1, cv2.LINE_AA)
         cv2.ellipse(canvas, (int(hx), int(hy - 24 * scale)), (int(44 * scale), int(19 * scale)), 0, 180, 360, BGR_INK, ink_w, cv2.LINE_AA)
         brim = np.array([
             [int(hx - 10 * scale * facing), int(hy - 24 * scale)],
-            [int(hx + 52 * scale * facing), int(hy - 20 * scale)],
-            [int(hx + 36 * scale * facing), int(hy - 12 * scale)],
+            [int(hx + 54 * scale * facing), int(hy - 20 * scale)],
+            [int(hx + 38 * scale * facing), int(hy - 11 * scale)],
             [int(hx - 20 * scale * facing), int(hy - 16 * scale)],
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [brim], hat_c, cv2.LINE_AA)
         cv2.polylines(canvas, [brim], True, BGR_INK, ink_w, cv2.LINE_AA)
-        cv2.line(canvas, (int(hx - 38 * scale * facing), int(hy - 26 * scale)), (int(hx - 12 * scale * facing), int(hy - 6 * scale)), BGR_NONPHOTO_BLUE, max(3, int(5 * scale)), cv2.LINE_AA)
-        cv2.line(canvas, (int(hx - 38 * scale * facing), int(hy - 26 * scale)), (int(hx - 12 * scale * facing), int(hy - 6 * scale)), BGR_INK, 2, cv2.LINE_AA)
+        # Behind-ear Non-Photo Blue Pencil with ferrule band & eraser tip (`agent_blueline_keys.jpg` Q1-Q4)
+        p_b0 = (hx - 44 * scale * facing, hy - 26 * scale)
+        p_b1 = (hx - 8 * scale * facing, hy - 4 * scale)
+        cv2.fillPoly(canvas, [_capsule_poly(p_b0, p_b1, 3.2 * scale + ink_w * 0.7, 2.8 * scale + ink_w * 0.7)], BGR_INK, cv2.LINE_AA)
+        cv2.fillPoly(canvas, [_capsule_poly(p_b0, p_b1, 3.2 * scale, 2.8 * scale)], BGR_NONPHOTO_BLUE, cv2.LINE_AA)
+        cv2.circle(canvas, (int(p_b0[0]), int(p_b0[1])), max(2, int(3.4 * scale)), (180, 168, 238), -1, cv2.LINE_AA)
+        cv2.circle(canvas, (int(p_b0[0]), int(p_b0[1])), max(2, int(3.4 * scale)), BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
     elif hat_kind == "beret_monocle":
-        # Cel-Inker's French Beret with Stem (`agent_celinker_keys.jpg`)
-        cv2.ellipse(canvas, (int(hx - 4 * scale * facing), int(hy - 32 * scale)), (int(47 * scale), int(18 * scale)), -12 * facing, 0, 360, hat_c, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (int(hx - 4 * scale * facing), int(hy - 32 * scale)), (int(47 * scale), int(18 * scale)), -12 * facing, 0, 360, BGR_INK, ink_w, cv2.LINE_AA)
-        cv2.line(canvas, (int(hx - 12 * scale * facing), int(hy - 48 * scale)), (int(hx - 18 * scale * facing), int(hy - 55 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
+        # Cel-Inker's French Beret with Headband Rim, Crown Crease & Stem (`agent_celinker_keys.jpg`)
+        cv2.ellipse(canvas, (int(hx - 4 * scale * facing), int(hy - 32 * scale)), (int(48 * scale), int(18.5 * scale)), -12 * facing, 0, 360, hat_c, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (int(hx - 4 * scale * facing), int(hy - 32 * scale)), (int(48 * scale), int(18.5 * scale)), -12 * facing, 0, 360, BGR_INK, ink_w, cv2.LINE_AA)
+        # Beret headband rim & curved crown crease line
+        cv2.line(canvas, (int(hx - 42 * scale), int(hy - 21 * scale)), (int(hx + 38 * scale), int(hy - 23 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
+        cv2.ellipse(canvas, (int(hx - 10 * scale * facing), int(hy - 32 * scale)), (int(22 * scale), int(7 * scale)), -10 * facing, 190, 340, BGR_INK, max(1, ink_w - 1), cv2.LINE_AA)
+        cv2.line(canvas, (int(hx - 12 * scale * facing), int(hy - 49 * scale)), (int(hx - 18 * scale * facing), int(hy - 56 * scale)), BGR_INK, ink_w, cv2.LINE_AA)
     elif hat_kind == "reel_ears_monocle":
         # Sprocket's Cap with Two 35mm Film Reels Mounted Like Ears (`agent_sprocket_keys.jpg`)!
         for rx_s in (-34.0 * scale, 26.0 * scale):
@@ -1744,15 +1811,28 @@ def draw_heroic_studio_animator(
         cv2.circle(canvas, (int(hx), int(hy - 40 * scale)), int(11 * scale), BGR_INK, ink_w, cv2.LINE_AA)
         cv2.line(canvas, (int(hx), int(hy - 40 * scale)), (int(hx + 5 * scale), int(hy - 45 * scale)), BGR_INK, max(2, ink_w - 1), cv2.LINE_AA)
 
-    # --- 5. NEAR ARM (Right Arm `target_rh`) WITH SEAMLESS SHOULDER, ROLLED CUFF & STUDIO TOOL ---
-    sh_r_x = chest_x - facing * 8.0 * scale
-    sh_r_y = chest_y + 17.0 * scale
-    arm_l = 104.0 * scale
+    # --- 5A. DRAW LEFT-ON-SCREEN ARM (`sh_l_x = chest_x - facing * 28.0 * scale` -> `el_lx` -> `wr_lx`) ---
+    _draw_studio_agent_arm_and_hand(
+        canvas, (sh_l_x, sh_l_y), (el_lx, el_ly), (wr_lx, wr_ly),
+        w_up=14.5 * scale, w_low=12.0 * scale, scale=scale, facing=facing,
+        is_right=False, is_near_shoulder=True, shirt_fill=shirt, skin_fill=skin, ink_w=ink_w,
+    )
+
+    # --- 5B. DRAW RIGHT-ON-SCREEN DRAWING ARM (Emerging from Outer Front Shoulder `chest_x + facing * 28.0 * scale`) ---
+    # By anchoring the drawing arm outside the front apron strap, neither arm ever crosses the chest —
+    # keeping the pointed `\/\/` collar, `|___|` bib, and front pocket emblem 100% visible (`nib_inking_keys.jpg` Q1-Q4)!
+    sh_r_x = chest_x + facing * 28.0 * scale
+    sh_r_y = chest_y + 18.0 * scale
+    arm_l = 98.0 * scale
     el_rx, el_ry, wr_rx, wr_ry = solve_2bone_ik(sh_r_x, sh_r_y, target_rh[0], target_rh[1], arm_l * 0.52, arm_l * 0.50, bend_sign=float(facing))
+    if facing >= 0:
+        el_rx = max(el_rx, sh_r_x + 10.0 * scale)
+    else:
+        el_rx = min(el_rx, sh_r_x - 10.0 * scale)
     tx_tip, ty_tip = _draw_studio_agent_arm_and_hand(
         canvas, (sh_r_x, sh_r_y), (el_rx, el_ry), (wr_rx, wr_ry),
-        w_up=15.5 * scale, w_low=12.5 * scale, scale=scale, facing=facing,
-        is_right=True, is_near_shoulder=True, shirt_fill=shirt, skin_fill=skin,
+        w_up=15.0 * scale, w_low=12.5 * scale, scale=scale, facing=facing,
+        is_right=True, is_near_shoulder=False, shirt_fill=shirt, skin_fill=skin,
         ink_w=ink_w, tool_rh=tool_rh,
     )
     return (wr_lx, wr_ly), (tx_tip, ty_tip)
@@ -2079,8 +2159,8 @@ def render_complete_studio_widescreen_frame(
                 scale=0.82,
                 t_sec=t_off,
                 action_mode="cheer",
-                target_lh=(cx_a - 36.0, floor_y - 265.0 - wave_h),
-                target_rh=(cx_a + 36.0, floor_y - 275.0 - wave_h),
+                target_lh=(cx_a - 64.0, floor_y - 235.0 - wave_h * 0.65),
+                target_rh=(cx_a + 68.0, floor_y - 245.0 - wave_h * 0.65),
                 look_at=(1200.0, 400.0),
                 boil_phase=boil_phase + ci,
                 facing=1,
@@ -2090,7 +2170,7 @@ def render_complete_studio_widescreen_frame(
         # Secondary collaborating agent on far left (inspecting storyboard / carrying cels / checking X-sheet)
         if agent_secondary and agent_secondary != agent_primary:
             sec_x = 185.0 + 18.0 * math.sin(t_sec * 1.6)
-            sec_wave = 22.0 * math.sin(t_sec * 3.8)
+            sec_wave = 16.0 * math.sin(t_sec * 3.8)
             draw_heroic_studio_animator(
                 canvas,
                 agent_id=agent_secondary,
@@ -2099,8 +2179,8 @@ def render_complete_studio_widescreen_frame(
                 scale=0.92,
                 t_sec=t_sec + 0.4,
                 action_mode="draft",
-                target_lh=(sec_x - 28.0, floor_y - 210.0),
-                target_rh=(sec_x + 48.0, floor_y - 225.0 + sec_wave),
+                target_lh=(sec_x - 52.0, floor_y - 148.0),
+                target_rh=(sec_x + 64.0, floor_y - 168.0 + sec_wave),
                 look_at=look_pt,
                 boil_phase=boil_phase + 3,
                 facing=1,

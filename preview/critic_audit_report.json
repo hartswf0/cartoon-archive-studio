@@ -1,0 +1,17 @@
+{
+  "audit_sheet_path": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/preview/critic_reference_vs_rendered_audit.png",
+  "reference_q3_metrics": {
+    "ink_ratio": 0.129,
+    "midtone_ratio": 0.0202,
+    "paper_ratio": 0.8508,
+    "edge_energy": 99.36
+  },
+  "rendered_k09_metrics": {
+    "ink_ratio": 0.1314,
+    "midtone_ratio": 0.0569,
+    "paper_ratio": 0.8117,
+    "edge_energy": 149.72
+  },
+  "ink_ratio_delta": 0.0024,
+  "checks_passed": true
+}
