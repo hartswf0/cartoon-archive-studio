@@ -1,0 +1,181 @@
+{
+  "shots": [
+    {
+      "shot_id": 1,
+      "code": "S01_K01_to_K02",
+      "title": "Idle Study -> Sudden Idea Strikes!",
+      "action_verbs": "Animator Nib inspects 35mm reference reel -> freezes as an idea strikes -> eyebrows arch high -> raises fountain-nib dip pen overhead in a snappy vertical arc.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Smoothly animate the character transitioning from the start frame (inspecting the round film reel) to the end frame (raising his fountain-pen nib high in the air with an excited smile as an idea strikes). Include a slight downward anticipation crouch before his arm sweeps upward along a clean C-curve arc. Keep the 3-pointed crown hat, round cartoon head, collar, and apron proportions 100% consistent.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S01_K01_to_K02_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S01_K01_to_K02_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S01_K01_to_K02_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S01_K01_to_K02_end.png"
+    },
+    {
+      "shot_id": 2,
+      "code": "S02_K02_to_K03",
+      "title": "Idea Peak -> Anticipation Coil & Layout Sight",
+      "action_verbs": "Nib lowers raised pen -> coils torso slightly backward -> extends layout scroll / sheet forward to sight the composition.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the cartoon animator transitioning from raising his pen overhead (start frame) into coiling his shoulders and sighting across his outstretched arm and layout sheet (end frame). Smooth ease-out spacing with subtle follow-through on the 3-pointed crown hat.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S02_K02_to_K03_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S02_K02_to_K03_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S02_K02_to_K03_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S02_K02_to_K03_end.png"
+    },
+    {
+      "shot_id": 3,
+      "code": "S03_K03_to_K04",
+      "title": "Anticipation Coil -> Fast Sketching Sweep Over Lightbox",
+      "action_verbs": "Nib lunges forward over tilted animation desk -> tongue pokes out in concentration -> sweeps pen across the backlit lightbox sheet.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character leaning forward from the upright sighting pose (start frame) into an intense, focused sketching pose hunched over his tilted drafting board with his tongue sticking out in concentration (end frame). Lead the motion with the top of the crown hat, followed by the shoulders and rapid drawing hand.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S03_K03_to_K04_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S03_K03_to_K04_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S03_K03_to_K04_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S03_K03_to_K04_end.png"
+    },
+    {
+      "shot_id": 4,
+      "code": "S04_K04_to_K05",
+      "title": "Sketching Sweep -> Joyful Counter-Arc Pull & Flourish",
+      "action_verbs": "Nib finishes rapid sketch -> springs upright in a counter-arc -> flourishes pen high with a wide open laugh.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character springing upward from hunched over the drawing board (start frame) to standing tall with both arms spread wide holding a film strip and pen in a joyful flourish (end frame). Add slight overshoot and settle on the crown hat and rolled-up shirt sleeves.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S04_K04_to_K05_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S04_K04_to_K05_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S04_K04_to_K05_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S04_K04_to_K05_end.png"
+    },
+    {
+      "shot_id": 5,
+      "code": "S05_K05_to_K06",
+      "title": "Counter-Arc Flourish -> Pinching Strip Between Both Hands",
+      "action_verbs": "Nib brings raised hands inward -> pinches long curving celluloid strip between left and right hands -> tilts head to inspect.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character lowering his wide-open arms (start frame) to hold and inspect a long curving S-shaped filmstrip stretched between both hands (end frame). The flexible strip ripples smoothly with secondary wave motion.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S05_K05_to_K06_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S05_K05_to_K06_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S05_K05_to_K06_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S05_K05_to_K06_end.png"
+    },
+    {
+      "shot_id": 6,
+      "code": "S06_K06_to_K07",
+      "title": "Pinching Strip -> Checking Exposure Sheet (X-Sheet) at Camera",
+      "action_verbs": "Nib sets down strip -> picks up lined Exposure Sheet (X-Sheet) clipboard -> checks frame numbers beside the camera box.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character transitioning from holding the curving filmstrip (start frame) to holding up a vertical exposure chart clipboard next to the studio camera mechanism (end frame), nodding his head as he reads down the rows.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S06_K06_to_K07_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S06_K06_to_K07_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S06_K06_to_K07_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S06_K06_to_K07_end.png"
+    },
+    {
+      "shot_id": 7,
+      "code": "S07_K07_to_K08",
+      "title": "X-Sheet Check -> Uncapping & Dipping Speedball Nib in India Inkwell",
+      "action_verbs": "Nib turns to desk -> unscrews glass India inkwell cap with left hand -> dips Speedball fountain nib straight into the ink reservoir.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character transitioning from checking the exposure sheet (start frame) to carefully dipping his fountain pen nib into a small glass India ink bottle on the desk while holding the cap in his other hand (end frame). Slow-in spacing as the pen tip approaches the ink bottle neck.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S07_K07_to_K08_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S07_K07_to_K08_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S07_K07_to_K08_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S07_K07_to_K08_end.png"
+    },
+    {
+      "shot_id": 8,
+      "code": "S08_K08_to_K09",
+      "title": "Inkwell Dip -> Precision 6-Arm Calligraphic Speedball Inking Blur!",
+      "action_verbs": "Nib lifts freshly inked pen -> launches into rapid multi-arm calligraphic cross-hatching and inking across the sheet.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character lifting his pen from the ink bottle (start frame) and bursting into super-fast cartoon multiple-arm speed-blur inking over the paper sheet (end frame), with energetic comic motion arcs and a confident grin.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S08_K08_to_K09_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S08_K08_to_K09_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S08_K08_to_K09_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S08_K08_to_K09_end.png"
+    },
+    {
+      "shot_id": 9,
+      "code": "S09_K09_to_K10",
+      "title": "Speedball Inking -> Puffed-Cheek Blow-Dry on Freshly Inked Cel",
+      "action_verbs": "Nib stops inking -> lifts rectangular inked cel -> inhales -> puffs cheeks round and blows a gentle breeze cloud across the wet India ink.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character finishing his rapid multi-arm inking (start frame), lifting the rectangular cel sheet in both hands, puffing out his round cheeks, and blowing a cute cartoon puff of air across the wet ink (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S09_K09_to_K10_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S09_K09_to_K10_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S09_K09_to_K10_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S09_K09_to_K10_end.png"
+    },
+    {
+      "shot_id": 10,
+      "code": "S10_K10_to_K11",
+      "title": "Blowing Dry Cel -> Peering into Optical Registration Lens",
+      "action_verbs": "Nib exhales -> places cel onto camera platen -> leans eye down to peer closely through the optical registration viewfinder.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character lowering the blown-dry animation cel (start frame) and leaning his head forward to peer intently into the optical camera lens tube while adjusting the side knob with his hands (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S10_K10_to_K11_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S10_K10_to_K11_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S10_K10_to_K11_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S10_K10_to_K11_end.png"
+    },
+    {
+      "shot_id": 11,
+      "code": "S11_K11_to_K12",
+      "title": "Optical Lens Check -> Winking Eye Verification at Multiplane Viewfinder",
+      "action_verbs": "Nib adjusts focus -> squints one eye in a satisfied wink at the tall hooded viewfinder box -> turns small gear crank.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character shifting from peering down the small optical lens (start frame) to winking one eye happily into the tall hooded viewfinder box while turning the meshing side gears (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S11_K11_to_K12_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S11_K11_to_K12_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S11_K11_to_K12_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S11_K11_to_K12_end.png"
+    },
+    {
+      "shot_id": 12,
+      "code": "S12_K12_to_K13",
+      "title": "Viewfinder Wink -> Gripping Spoked Multiplane Camera Hand-Wheel",
+      "action_verbs": "Nib steps back from viewfinder -> grins broadly -> grips the spoked camera hand-wheel with both hands ready to crank.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character stepping back from the tall viewfinder hood (start frame) and gripping the round spoked camera handwheel with both hands in an eager crouch anticipation pose (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S12_K12_to_K13_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S12_K12_to_K13_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S12_K12_to_K13_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S12_K12_to_K13_end.png"
+    },
+    {
+      "shot_id": 13,
+      "code": "S13_K13_to_K14",
+      "title": "Wheel Anticipation Crouch -> Airborne Celebration Leap Extreme!",
+      "action_verbs": "Nib compresses knees -> leaps upward in celebration -> throws both arms high in a wide V holding his fountain pen!",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character springing from his crouched wheel-grip pose (start frame) into a joyful celebration pose with both arms thrown high in a V-shape holding his pen and cheering with an open laugh mouth (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S13_K13_to_K14_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S13_K13_to_K14_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S13_K13_to_K14_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S13_K13_to_K14_end.png"
+    },
+    {
+      "shot_id": 14,
+      "code": "S14_K14_to_K15",
+      "title": "Celebration Leap -> Landing Squash & High-Torque Wheel Crank",
+      "action_verbs": "Nib lands from celebration leap -> leans torso into a dynamic forward arc -> spins the large 6-spoked multiplane wheel.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character descending from his arms-up celebration pose (start frame) and leaning forward to spin the large spoked camera handwheel with curved motion lines (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S14_K14_to_K15_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S14_K14_to_K15_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S14_K14_to_K15_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S14_K14_to_K15_end.png"
+    },
+    {
+      "shot_id": 15,
+      "code": "S15_K15_to_K16",
+      "title": "Spoked Wheel Crank -> Joyful Wrap Hugging Finished 35mm Reel!",
+      "action_verbs": "Nib finishes cranking final exposure -> straightens up -> hugs the finished 35mm film reel magazine to his chest with a warm closed-eye laugh.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character finishing his wheel crank (start frame) and standing upright to hug the completed 35mm film reel canister against his chest with happy arched eyes and a big laugh (end frame).",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S15_K15_to_K16_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S15_K15_to_K16_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S15_K15_to_K16_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S15_K15_to_K16_end.png"
+    },
+    {
+      "shot_id": 16,
+      "code": "S16_K16_to_K01",
+      "title": "Joyful Reel Hug -> Settle Back to Studying Next Reel (Seamless Loop)",
+      "action_verbs": "Nib exhales contently -> holds 35mm film reel up in left hand -> picks up pencil in right hand to begin the next shot.",
+      "omni_prompt": "2D classical hand-drawn cartoon animation on warm cream paper, bold black Speedball India ink line art. Animate the character settling from hugging the film canister (start frame) back into a calm, focused pose holding the round 35mm film reel in one hand and a pencil in the other (end frame) for a seamless loop.",
+      "clean_ink_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S16_K16_to_K01_start.png",
+      "clean_ink_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/clean_ink_pairs/S16_K16_to_K01_end.png",
+      "gouache_start": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S16_K16_to_K01_start.png",
+      "gouache_end": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/omni_keyframe_packs/gouache_pairs/S16_K16_to_K01_end.png"
+    }
+  ],
+  "contact_sheet": "/Users/gaia/WORLDBUILDING-TERMS/cartoon_archive_studio/preview/omni_start_end_keyframe_prompts_sheet.png"
+}
