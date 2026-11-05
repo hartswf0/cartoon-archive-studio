@@ -1,0 +1,12 @@
+{
+  "tier": 2,
+  "slug": "tier_02_squash_and_stretch_hop",
+  "title": "TIER 2 (BASIC TEST 02): CONSTANT-VOLUME SQUASH & STRETCH VERTICAL HOP (W * H = 1.00)",
+  "u_start": 0.18,
+  "u_end": 0.56,
+  "start_frame_gouache": "tier_02_squash_and_stretch_hop/start_frame_gouache.png",
+  "end_frame_gouache": "tier_02_squash_and_stretch_hop/end_frame_gouache.png",
+  "start_frame_ink": "tier_02_squash_and_stretch_hop/start_frame_ink.png",
+  "end_frame_ink": "tier_02_squash_and_stretch_hop/end_frame_ink.png",
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib performs a classic constant-volume squash-and-stretch hop in place: starting from a compressed anticipation crouch in the Start Frame (knees bent, torso squashed wider, arms cocked back) and springing smoothly upward into an airborne vertical stretch at the End Frame with arms raised cheerfully. Strict volume conservation, zero character off-model drift."
+}

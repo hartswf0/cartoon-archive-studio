@@ -1,0 +1,12 @@
+{
+  "tier": 6,
+  "slug": "tier_06_compound_acting_shot",
+  "title": "TIER 6 (MASTER TEST 06): COMPOUND ACTING PERFORMANCE COMBINING TIERS 1 THROUGH 5",
+  "u_start": 0.32,
+  "u_end": 0.88,
+  "start_frame_gouache": "tier_06_compound_acting_shot/start_frame_gouache.png",
+  "end_frame_gouache": "tier_06_compound_acting_shot/end_frame_gouache.png",
+  "start_frame_ink": "tier_06_compound_acting_shot/start_frame_ink.png",
+  "end_frame_ink": "tier_06_compound_acting_shot/end_frame_ink.png",
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib transitions smoothly from a crouched anticipation pose looking left in the Start Frame into a triumphant upward-stretched celebration flourish in the End Frame, sweeping his fountain-nib pen high overhead with a joyful open laugh while maintaining 100% locked character model proportions."
+}

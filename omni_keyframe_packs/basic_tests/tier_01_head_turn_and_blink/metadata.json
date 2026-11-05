@@ -1,0 +1,12 @@
+{
+  "tier": 1,
+  "slug": "tier_01_head_turn_and_blink",
+  "title": "TIER 1 (BASIC TEST 01): LOCKED-BODY HEAD TURN, EYE BLINK & EXPRESSION SHIFT",
+  "u_start": 0.0,
+  "u_end": 1.0,
+  "start_frame_gouache": "tier_01_head_turn_and_blink/start_frame_gouache.png",
+  "end_frame_gouache": "tier_01_head_turn_and_blink/end_frame_gouache.png",
+  "start_frame_ink": "tier_01_head_turn_and_blink/start_frame_ink.png",
+  "end_frame_ink": "tier_01_head_turn_and_blink/end_frame_ink.png",
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon animator character Nib (wearing his white 3-pointed fountain-pen crown hat with center slit and brass breather hole, white V-neck collar, terracotta-red overall apron, rolled elbow cuffs, denim trousers with rolled ankle cuffs, and dark shoes) keeps his feet, legs, torso, and arms 100% stationary and locked on the horizontal proportion lines while smoothly rotating ONLY his head from 3/4-left view in the Start Frame through a mid-turn eye blink to a cheerful 3/4-right smile in the End Frame. Zero body drift, constant cranium sphere volume, crisp unchanging ink line weight."
+}

@@ -1,0 +1,12 @@
+{
+  "tier": 5,
+  "slug": "tier_05_weight_shift_walk_cycle",
+  "title": "TIER 5 (ADVANCED TEST 05): GROUNDED WEIGHT SHIFT & 4-BEAT WALK CYCLE ON FIXED GROUND LINE",
+  "u_start": 0.0,
+  "u_end": 1.0,
+  "start_frame_gouache": "tier_05_weight_shift_walk_cycle/start_frame_gouache.png",
+  "end_frame_gouache": "tier_05_weight_shift_walk_cycle/end_frame_gouache.png",
+  "start_frame_ink": "tier_05_weight_shift_walk_cycle/start_frame_ink.png",
+  "end_frame_ink": "tier_05_weight_shift_walk_cycle/end_frame_ink.png",
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib performs a clean, grounded weight-shift step forward on the fixed ground plane from the back-foot contact pose in the Start Frame through a dipped passing breakdown into the front-foot stride contact pose in the End Frame, with natural opposite arm-and-leg swing and zero foot sliding."
+}
