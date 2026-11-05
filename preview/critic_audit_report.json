@@ -7,11 +7,11 @@
     "edge_energy": 99.36
   },
   "rendered_k09_metrics": {
-    "ink_ratio": 0.1314,
-    "midtone_ratio": 0.0569,
-    "paper_ratio": 0.8117,
-    "edge_energy": 149.72
+    "ink_ratio": 0.146,
+    "midtone_ratio": 0.0634,
+    "paper_ratio": 0.7906,
+    "edge_energy": 157.13
   },
-  "ink_ratio_delta": 0.0024,
+  "ink_ratio_delta": 0.017,
   "checks_passed": true
 }

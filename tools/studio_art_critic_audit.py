@@ -106,26 +106,26 @@ def build_critic_comparison_and_audit() -> dict:
     PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
     pw, ph = 460, 340
 
-    # Pair 1: `nib_inking_keys.jpg` Q2 (K02 Dip Nib) vs. Our Cleanup Ink Cell at K07 (frame 110)
+    # Pair 1: `nib_inking_keys.jpg` Q1 (K08 Dip Nib in Inkwell) vs. Our Cleanup Ink Cell at K08 (frame 132)
     ref_nib_ink = cv2.imread(str(DOODLES_DIR / "nib_inking_keys.jpg"))
-    ref_q2 = _crop_quadrant(ref_nib_ink, 1)
-    rend_ink_dip = _render_closeup_flipbook_cell(110, 288, cell_w=640, cell_h=440, stage_mode="cleanup_ink", enable_onion_skin=False)
+    ref_q1 = _crop_quadrant(ref_nib_ink, 0)
+    rend_ink_dip = _render_closeup_flipbook_cell(132, 288, cell_w=640, cell_h=440, stage_mode="cleanup_ink", enable_onion_skin=False)
 
-    # Pair 2: `nib_inking_keys.jpg` Q3 (K03 Pull S-Curve) vs. Our Cleanup Ink Cell at K09 (frame 146)
+    # Pair 2: `nib_inking_keys.jpg` Q3 (K09 Precision Inking) vs. Our Cleanup Ink Cell at K09 (frame 146)
     ref_q3 = _crop_quadrant(ref_nib_ink, 2)
     rend_ink_draw = _render_closeup_flipbook_cell(146, 288, cell_w=640, cell_h=440, stage_mode="cleanup_ink", enable_onion_skin=False)
 
-    # Pair 3: `apparatus_lightbox_anim_keys.jpg` Q4 (K04 Finished Inked Sheet) vs. Our Closeup Cell at K10 (frame 166)
+    # Pair 3: `apparatus_lightbox_anim_keys.jpg` Q2 (Backlit 3D Desk & Lamp) vs. Our Closeup Cell at K10 (frame 166)
     ref_app = cv2.imread(str(DOODLES_DIR / "apparatus_lightbox_anim_keys.jpg"))
-    ref_app_q4 = _crop_quadrant(ref_app, 3)
+    ref_app_q4 = _crop_quadrant(ref_app, 1)
     rend_app_k10 = _render_closeup_flipbook_cell(166, 288, cell_w=640, cell_h=440, stage_mode="cleanup_ink", enable_onion_skin=False)
 
-    # Pair 4: `agent_nib_keys.jpg` Q3 (Inspecting Cel) vs. Our Closeup Cell at K11 (frame 184)
-    ref_agent_nib = cv2.imread(str(DOODLES_DIR / "agent_nib_keys.jpg"))
-    ref_nib_q3 = _crop_quadrant(ref_agent_nib, 2)
+    # Pair 4: `nib_cameracrank_keys.jpg` Q1 (K11 Inspecting at Optical Lens) vs. Our Closeup Cell at K11 (frame 184)
+    ref_crank = cv2.imread(str(DOODLES_DIR / "nib_cameracrank_keys.jpg"))
+    ref_nib_q3 = _crop_quadrant(ref_crank, 0)
     rend_cel_lift = _render_closeup_flipbook_cell(184, 288, cell_w=640, cell_h=440, stage_mode="cleanup_ink", enable_onion_skin=False)
 
-    # Pair 5: `agent_blueline_keys.jpg` Q3 & `agent_celinker_keys.jpg` Q1 vs. Scene 03 & Scene 05 Ensemble Animators
+    # Pair 5: `agent_blueline_keys.jpg` Q3 vs. Scene 03 Blue-Line & Nib at Lightbox
     ref_blue = cv2.imread(str(DOODLES_DIR / "agent_blueline_keys.jpg"))
     ref_blue_q3 = _crop_quadrant(ref_blue, 2)
     sc03_full = _render_studio_scene(3, 30)
@@ -134,27 +134,27 @@ def build_critic_comparison_and_audit() -> dict:
     # Pair 6: `studio_crew_celebration_keys.jpg` Q2 vs. Scene 08 Finale Screening Crew Celebration
     ref_crew = cv2.imread(str(DOODLES_DIR / "studio_crew_celebration_keys.jpg"))
     ref_crew_q2 = _crop_quadrant(ref_crew, 1)
-    sc08_full = _render_studio_scene(8, 30)
+    sc08_full = _render_studio_scene(8, 0)
     sc08_crop = sc08_full[int(1080 * 0.18):int(1080 * 0.89), int(1920 * 0.02):int(1920 * 0.49)]
 
     rows = [
         np.hstack([
-            _fit_panel(ref_q2, pw, ph, "REF 1: nib_inking_keys.jpg (Q2 Dip Nib)", True),
-            _fit_panel(rend_ink_dip, pw, ph, "RENDERED 1: Nib K07 Dip Nib (Cleanup Ink)", False),
-            _fit_panel(ref_q3, pw, ph, "REF 2: nib_inking_keys.jpg (Q3 Pull S-Curve)", True),
-            _fit_panel(rend_ink_draw, pw, ph, "RENDERED 2: Nib K09 Pull Calligraphic S-Curve", False),
+            _fit_panel(ref_q1, pw, ph, "REF 1: nib_inking_keys.jpg (Q1 Dip Nib)", True),
+            _fit_panel(rend_ink_dip, pw, ph, "RENDERED 1: Nib K08 Dip Nib (Cleanup Ink)", False),
+            _fit_panel(ref_q3, pw, ph, "REF 2: nib_inking_keys.jpg (Q3 Speedball Inking)", True),
+            _fit_panel(rend_ink_draw, pw, ph, "RENDERED 2: Nib K09 Calligraphic Speedball Inking", False),
         ]),
         np.hstack([
-            _fit_panel(ref_app_q4, pw, ph, "REF 3: apparatus_lightbox_anim_keys.jpg (Q4)", True),
-            _fit_panel(rend_app_k10, pw, ph, "RENDERED 3: 3D Desk, Acme Bars, Lamp & Sparkles", False),
-            _fit_panel(ref_nib_q3, pw, ph, "REF 4: agent_nib_keys.jpg (Q3 Inspecting Cel)", True),
-            _fit_panel(rend_cel_lift, pw, ph, "RENDERED 4: Nib K11 Lifting Finished Fox Cel", False),
+            _fit_panel(ref_app_q4, pw, ph, "REF 3: apparatus_lightbox_anim_keys.jpg (Q2)", True),
+            _fit_panel(rend_app_k10, pw, ph, "RENDERED 3: Traced 3D Desk, Acme Bars & Cel", False),
+            _fit_panel(ref_nib_q3, pw, ph, "REF 4: nib_cameracrank_keys.jpg (Q1 Optical Lens)", True),
+            _fit_panel(rend_cel_lift, pw, ph, "RENDERED 4: Nib K11 Optical Registration Check", False),
         ]),
         np.hstack([
             _fit_panel(ref_blue_q3, pw, ph, "REF 5: agent_blueline_keys.jpg (Q3 Key Pose)", True),
-            _fit_panel(sc03_crop, pw, ph, "RENDERED 5: Scene 03 Blue-Line & Nib at Lightbox", False),
+            _fit_panel(sc03_crop, pw, ph, "RENDERED 5: Scene 03 Traced Blue-Line & Nib", False),
             _fit_panel(ref_crew_q2, pw, ph, "REF 6: studio_crew_celebration_keys.jpg (Q2)", True),
-            _fit_panel(sc08_crop, pw, ph, "RENDERED 6: Scene 08 All 5 Studio Crew Cheering", False),
+            _fit_panel(sc08_crop, pw, ph, "RENDERED 6: Scene 08 Traced Studio Crew Cheering", False),
         ]),
     ]
 
