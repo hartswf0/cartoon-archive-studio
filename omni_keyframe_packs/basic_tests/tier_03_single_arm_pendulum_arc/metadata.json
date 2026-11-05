@@ -1,12 +1,13 @@
 {
   "tier": 3,
   "slug": "tier_03_single_arm_pendulum_arc",
-  "title": "TIER 3 (BASIC TEST 03): STATIONARY-BODY SINGLE-ARM PENDULUM SWEEP & WRIST WHIP ARC",
-  "u_start": 0.0,
-  "u_end": 1.0,
+  "title": "TIER 3 (BASIC TEST 03): SINGLE-ARM FOUNTAIN-PEN PENDULUM SWEEP & STRIDE (basic_nib_test03_arm_arc_and_walk.jpg)",
+  "source_sheet": "assets/studio_doodles/basic_nib_test03_arm_arc_and_walk.jpg",
+  "start_quadrant": 0,
+  "end_quadrant": 2,
   "start_frame_gouache": "tier_03_single_arm_pendulum_arc/start_frame_gouache.png",
   "end_frame_gouache": "tier_03_single_arm_pendulum_arc/end_frame_gouache.png",
   "start_frame_ink": "tier_03_single_arm_pendulum_arc/start_frame_ink.png",
   "end_frame_ink": "tier_03_single_arm_pendulum_arc/end_frame_ink.png",
-  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib stands completely grounded with his feet, legs, apron, torso, and left hand 100% locked in place while sweeping ONLY his right arm and fountain-nib dip pen along a smooth circular pendulum arc from a low hip rest in the Start Frame up to a high raised idea flourish in the End Frame, with natural wrist drag and overlapping follow-through."
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. Full-body cartoon character Nib stands grounded in place and sweeps his drawing arm and fountain-nib dip pen along a smooth circular arc from lowered at his side in the Start Frame through a horizontal forward point to raised high overhead in a joyful 'Eureka!' flourish in the End Frame. Clean wrist overlap and locked character proportions."
 }

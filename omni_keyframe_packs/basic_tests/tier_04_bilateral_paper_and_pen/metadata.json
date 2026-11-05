@@ -1,12 +1,13 @@
 {
   "tier": 4,
   "slug": "tier_04_bilateral_paper_and_pen",
-  "title": "TIER 4 (INTERMEDIATE TEST 04): BILATERAL COORDINATION -- LEFT PAPER PINCH & RIGHT INKING STROKE",
-  "u_start": 0.0,
-  "u_end": 1.0,
+  "title": "TIER 4 (INTERMEDIATE TEST 04): TURNAROUND ROTATION & CONTRAPPOSTO STANCE (basic_nib_turnaround_keys.jpg)",
+  "source_sheet": "assets/studio_doodles/basic_nib_turnaround_keys.jpg",
+  "start_quadrant": 0,
+  "end_quadrant": 1,
   "start_frame_gouache": "tier_04_bilateral_paper_and_pen/start_frame_gouache.png",
   "end_frame_gouache": "tier_04_bilateral_paper_and_pen/end_frame_gouache.png",
   "start_frame_ink": "tier_04_bilateral_paper_and_pen/start_frame_ink.png",
   "end_frame_ink": "tier_04_bilateral_paper_and_pen/end_frame_ink.png",
-  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib stands grounded in a 3/4 view while coordinating both hands: his left hand pinches and lifts an animation sheet upward while his right hand pulls his fountain-nib dip pen smoothly across the drawing plane from the Start Frame to the End Frame, with focused concentration and locked body proportions."
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. Full-body cartoon character Nib performs a smooth orthographic character turnaround rotation on a fixed ground plane from the Front standing view in the Start Frame to the 3/4-Left standing view holding his fountain-nib pen in the End Frame, maintaining 100% locked 3-head-tall proportions across the turn."
 }

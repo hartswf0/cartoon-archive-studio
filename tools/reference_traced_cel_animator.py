@@ -284,8 +284,9 @@ def _segment_cel_gouache_regions(sheet_name: str, gray: np.ndarray, ink_bin: np.
 
     partition_ink = cv2.dilate(ink_bin, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=1)
     ap_x0, ap_x1 = int(spine_x - 0.18 * span_x0), int(spine_x + 0.18 * span_x0)
+    is_fullbody_sheet = ("celebration" in sname) or ("basic_" in sname)
 
-    if len(xs) > 25 and is_agent and ("celebration" not in sname):
+    if len(xs) > 25 and is_agent and (not is_fullbody_sheet):
         # Find bottom waist/apron ink columns aligned with the character's torso (`spine_x ± 0.33 * span_x0`)
         torso_b_band = (ys >= (max_y_ink - 36)) & (xs >= (spine_x - 0.33 * span_x0)) & (xs <= (spine_x + 0.33 * span_x0))
         b_band = torso_b_band if torso_b_band.any() else (ys >= (max_y_ink - 34))
@@ -337,7 +338,7 @@ def _segment_cel_gouache_regions(sheet_name: str, gray: np.ndarray, ink_bin: np.
             cv2.floodFill(ff, mask_ff, (sx, sy), 128)
 
     sil_mask = (ff != 128).astype(np.uint8) * 255
-    if is_agent and y_hem < H - 1 and ("celebration" not in sname):
+    if is_agent and y_hem < H - 1 and (not is_fullbody_sheet):
         sil_mask[y_hem + 1:, :] = 0
     sil_mask = cv2.morphologyEx(sil_mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
 
@@ -382,7 +383,82 @@ def _segment_cel_gouache_regions(sheet_name: str, gray: np.ndarray, ink_bin: np.
             touches_hem = (comp_max_y >= (max_y - 18.0)) or (rel_y >= 0.79)
             comp_mask = (labels == i)
 
-            if is_agent:
+            if is_agent and is_fullbody_sheet and ("basic_" in sname):
+                # FULL-BODY HEAD-TO-TOE CANONICAL CHARACTER SHEETS (`basic_nib_*` & `basic_crew_lineup_keys`)
+                rel_top = (comp_top - min_y) / span_y
+                rel_bot = (comp_max_y - min_y) / span_y
+                # Cut out trapped exterior air pockets between arms/legs/hat
+                if (
+                    (rel_y < 0.38 and (rel_x < 0.22 or rel_x > 0.78) and area > 2200)
+                    or (rel_y > 0.72 and dist_spine < 0.10 and area > 850 and comp_max_y >= max_y - 8)
+                ):
+                    sil_mask[comp_mask] = 0
+                    continue
+                # 1. Small brass breather hole / monocle ring / ear pencil / forehead dial / pocket droplets
+                if (
+                    (rel_y < 0.28 and 15 <= area <= 260 and dist_spine <= 0.10)
+                    or ("blueline" in sname and rel_y < 0.16 and 250 <= area <= 550 and rel_x > 0.55)
+                    or ("celinker" in sname and 0.20 <= rel_y <= 0.30 and 300 <= area <= 600 and dist_spine <= 0.06)
+                    or ("crew" in sname and 0.48 <= rel_y <= 0.68 and 18 <= area <= 380 and dist_spine <= 0.18)
+                ):
+                    gouache_bgr[comp_mask] = BGR_BRASS
+                # 2. Crown Hat / Visor / Beret / Reel Ears / Headband (`rel_y < 0.21` and starts near top of head)
+                elif (
+                    (rel_y < 0.20 and rel_top < 0.10 and area > 350)
+                    or ("sprocket" in sname and rel_y < 0.23 and rel_top <= 0.21 and area > 450)
+                ):
+                    if "celinker" in sname:
+                        gouache_bgr[comp_mask] = (58, 92, 208)  # Vermilion beret
+                    elif "blueline" in sname:
+                        gouache_bgr[comp_mask] = (218, 172, 112)  # Sky-blue visor
+                    elif "sprocket" in sname:
+                        gouache_bgr[comp_mask] = (172, 184, 194)
+                    elif "chime" in sname:
+                        gouache_bgr[comp_mask] = (78, 88, 104)
+                    else:
+                        gouache_bgr[comp_mask] = BGR_GUTTER
+                # 3. Chime Earcups & Sprocket Magnifier Rim
+                elif ("chime" in sname and 0.22 <= rel_y <= 0.38 and dist_spine >= 0.18 and 250 <= area <= 1400) or (
+                    "sprocket" in sname and 0.24 <= rel_y <= 0.38 and rel_x > 0.72 and 250 <= area <= 1600
+                ):
+                    gouache_bgr[comp_mask] = BGR_BRASS if ("chime" in sname and area < 900) else (172, 184, 194)
+                # 4. Face / Cranium / Ears (`0.19 <= rel_y <= 0.45` below hat brim near `spine_rel_x`)
+                elif 0.19 <= rel_y <= 0.45 and rel_top >= 0.09 and dist_spine <= 0.30 and area > 550 and rw < 0.88:
+                    gouache_bgr[comp_mask] = BGR_SKIN
+                # 5. Open Laugh Mouth / Tongue (`0.32 <= rel_y <= 0.44`, small region inside face)
+                elif 0.32 <= rel_y <= 0.44 and dist_spine <= 0.16 and 25 <= area <= 550:
+                    gouache_bgr[comp_mask] = (98, 112, 224)
+                # 6. Rounded Cartoon Shoes at the bottom (`rel_y >= 0.88` or `comp_max_y >= max_y - 12`)
+                elif (rel_y >= 0.88 or (comp_max_y >= max_y - 12 and rel_y >= 0.82)) and area >= 140:
+                    gouache_bgr[comp_mask] = (58, 68, 92)
+                # 7. Trouser Legs & Rolled Ankle Cuffs (`0.72 <= rel_y < 0.88`, starts below waist & reaches ankle)
+                elif 0.72 <= rel_y < 0.88 and rel_top >= 0.56 and rel_bot >= 0.77 and area >= 120 and dist_spine <= 0.49:
+                    gouache_bgr[comp_mask] = (118, 94, 72)
+                # 8. Held Sketch Paper Sheet (`basic_nib_test05_compound_acting`: large rectangular sheet on side)
+                elif "acting" in sname and area > 3500 and (rel_x < 0.23 or rel_x > 0.65) and 0.40 <= rel_y <= 0.66 and rel_bot < 0.74:
+                    gouache_bgr[comp_mask] = BGR_GUTTER
+                # 9. Main Apron Skirt & Bib (`area >= 3400` and `rel_bot >= 0.73` so shirt sleeves stay cream!)
+                elif (
+                    (0.54 <= rel_y <= 0.75 and rel_bot >= 0.73 and dist_spine <= 0.34 and area >= 3400 and rw < 0.62)
+                    or (0.56 <= rel_y <= 0.68 and dist_spine <= 0.12 and 1200 <= area <= 2200 and rw < 0.22)
+                    or ("acting" in sname and 0.48 <= rel_y <= 0.58 and 0.28 <= rel_x <= 0.45 and 750 <= area <= 1350 and rw < 0.20)
+                ):
+                    gouache_bgr[comp_mask] = costume_bgr
+                # 10. Bare Forearms & Hands (`lateral or mid-height small/medium regions below sleeve cuffs`)
+                elif (
+                    (0.24 <= rel_y <= 0.78)
+                    and (rel_x < 0.26 or rel_x > 0.74 or (0.58 <= rel_y <= 0.78 and dist_spine > 0.14))
+                    and (35 <= area <= 2600)
+                    and (rel_top >= 0.50 or rel_y < 0.42 or rel_x < 0.20 or rel_x > 0.80)
+                ):
+                    # Rolled cuffs (`0.47 <= rel_y <= 0.61`, small band at elbow) stay white shirt color
+                    if 0.47 <= rel_y <= 0.61 and 110 <= area <= 680 and dist_spine <= 0.36:
+                        gouache_bgr[comp_mask] = BGR_GUTTER
+                    else:
+                        gouache_bgr[comp_mask] = BGR_SKIN
+                else:
+                    gouache_bgr[comp_mask] = BGR_GUTTER
+            elif is_agent:
                 # 0. Cut out trapped exterior air pockets (e.g. gap between raised arm and crown hat)
                 if (rel_y < 0.42 and (rel_x < 0.24 or rel_x > 0.76) and area > 2800 and rh > 0.28):
                     sil_mask[comp_mask] = 0
@@ -492,7 +568,7 @@ def _segment_cel_gouache_regions(sheet_name: str, gray: np.ndarray, ink_bin: np.
                         gouache_bgr[comp_mask] = BGR_WOOD_DARK
 
         # Extend interior gouache colors down through the bottom 5 rows of `sil_mask` so there is ZERO white fringe
-        if is_agent and ("celebration" not in sname):
+        if is_agent and (not is_fullbody_sheet):
             src_row = max(0, y_hem - 6)
             for yr in range(max(0, y_hem - 5), min(H, y_hem + 1)):
                 gouache_bgr[yr, ap_x0:ap_x1 + 1] = gouache_bgr[src_row, ap_x0:ap_x1 + 1]
@@ -554,8 +630,12 @@ def get_traced_reference_cel(sheet_name: str, q_idx: int, is_agent: bool = True)
 
     dist_map = cv2.distanceTransform(ink_bin, cv2.DIST_L2, 5)
     strokes, stroke_parts = _extract_variable_width_strokes_and_contours(gray, ink_bin, dist_map, is_agent=is_agent)
+    seg_sheet_name = sheet_name
+    if sheet_name == "basic_crew_lineup_keys":
+        crew_tags = ["blueline", "celinker", "sprocket", "chime"]
+        seg_sheet_name = f"{sheet_name}_{crew_tags[int(q_idx) % 4]}"
     sil_mask, gouache_bgr, construction_strokes, spine_x = _segment_cel_gouache_regions(
-        sheet_name, gray, ink_bin, ink_alpha, is_agent=is_agent
+        seg_sheet_name, gray, ink_bin, ink_alpha, is_agent=is_agent
     )
 
     ys, xs = np.nonzero(sil_mask > 0)

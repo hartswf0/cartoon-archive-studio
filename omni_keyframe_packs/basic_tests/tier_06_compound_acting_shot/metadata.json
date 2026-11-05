@@ -1,12 +1,13 @@
 {
   "tier": 6,
   "slug": "tier_06_compound_acting_shot",
-  "title": "TIER 6 (MASTER TEST 06): COMPOUND ACTING PERFORMANCE COMBINING TIERS 1 THROUGH 5",
-  "u_start": 0.32,
-  "u_end": 0.88,
+  "title": "TIER 6 (MASTER TEST 06): COMPOUND ACTING PERFORMANCE -- IDEA TO SKETCH FLOURISH (basic_nib_test05_compound_acting.jpg)",
+  "source_sheet": "assets/studio_doodles/basic_nib_test05_compound_acting.jpg",
+  "start_quadrant": 0,
+  "end_quadrant": 3,
   "start_frame_gouache": "tier_06_compound_acting_shot/start_frame_gouache.png",
   "end_frame_gouache": "tier_06_compound_acting_shot/end_frame_gouache.png",
   "start_frame_ink": "tier_06_compound_acting_shot/start_frame_ink.png",
   "end_frame_ink": "tier_06_compound_acting_shot/end_frame_ink.png",
-  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib transitions smoothly from a crouched anticipation pose looking left in the Start Frame into a triumphant upward-stretched celebration flourish in the End Frame, sweeping his fountain-nib pen high overhead with a joyful open laugh while maintaining 100% locked character model proportions."
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. Full-body cartoon character Nib transitions from thoughtfully tapping his chin with his fountain-nib pen while holding a blank animation sheet in the Start Frame, through an excited anticipation crouch and focused tongue-out sketching beat, into proudly holding up the finished sketch sheet and raising his pen with a joyful open laugh in the End Frame."
 }

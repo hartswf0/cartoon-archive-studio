@@ -1,12 +1,13 @@
 {
   "tier": 5,
   "slug": "tier_05_weight_shift_walk_cycle",
-  "title": "TIER 5 (ADVANCED TEST 05): GROUNDED WEIGHT SHIFT & 4-BEAT WALK CYCLE ON FIXED GROUND LINE",
-  "u_start": 0.0,
-  "u_end": 1.0,
+  "title": "TIER 5 (ADVANCED TEST 05): CLASSICAL 4-BEAT FULL-BODY WALK CYCLE (basic_nib_test04_walk_cycle.jpg)",
+  "source_sheet": "assets/studio_doodles/basic_nib_test04_walk_cycle.jpg",
+  "start_quadrant": 0,
+  "end_quadrant": 2,
   "start_frame_gouache": "tier_05_weight_shift_walk_cycle/start_frame_gouache.png",
   "end_frame_gouache": "tier_05_weight_shift_walk_cycle/end_frame_gouache.png",
   "start_frame_ink": "tier_05_weight_shift_walk_cycle/start_frame_ink.png",
   "end_frame_ink": "tier_05_weight_shift_walk_cycle/end_frame_ink.png",
-  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. The cartoon character Nib performs a clean, grounded weight-shift step forward on the fixed ground plane from the back-foot contact pose in the Start Frame through a dipped passing breakdown into the front-foot stride contact pose in the End Frame, with natural opposite arm-and-leg swing and zero foot sliding."
+  "omni_prompt": "2D classical hand-drawn cel animation on warm cream archival paper, 24fps on ones, bold black Speedball B-5 India ink outlines and flat opaque gouache fills. Full-body cartoon character Nib performs a lively 3/4-right cartoon walk stride on a fixed ground plane from the wide heel-strike Contact Pose in the Start Frame through a weight-absorbing Down recoil pose into the upright Passing Pose in the End Frame, with natural opposite arm-and-leg swing."
 }
